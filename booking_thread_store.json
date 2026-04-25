@@ -1080,15 +1080,4 @@
       "pickup_alerted": false,
       "start_date": "2026-04-25"
     },
-    "46015|2026-04-25|16:15:16": {
-      "thread_ts": "1777126319.445609",
-      "end_date": "2026-04-26",
-      "plate": "46015",
-      "customer": "DAVID LEON MYERS",
-      "vehicle": "Audi RSQ3",
-      "delivery_alerted": true,
-      "pickup_alerted": false,
-      "start_date": "2026-04-25"
-    }
-  }
-}
+  
