@@ -22,7 +22,7 @@
       "closed": false,
       "start_date": "2026-04-25"
     },
-       "I 47203|2026-04-25|15:07:42": {
+    "I 47203|2026-04-25|15:07:42": {
       "thread_ts": null,
       "end_date": "2026-04-27",
       "plate": "I 47203",
@@ -1187,6 +1187,17 @@
       "pickup_alerted": false,
       "closed": false,
       "start_date": "2026-03-27"
+    },
+    "46015|2026-04-25|16:15:16": {
+      "thread_ts": "1777129742.686169",
+      "end_date": "2026-04-26",
+      "plate": "46015",
+      "customer": "David Leon Myers",
+      "vehicle": "Audi Rsq3",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-04-25"
     }
   }
 }
