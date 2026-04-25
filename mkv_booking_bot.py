@@ -268,7 +268,8 @@ def main():
         end      = (b.get("endDate")      or "").strip()
         customer = (b.get("customerName") or "").strip()
 
-        if key not in bookings:
+        SEED_MODE = True
+        if key not in bookings and not SEED_MODE:
             print(f"  NEW: {customer} | {plate} | {start}")
             blocks, text = build_new_booking_blocks(b, now_str)
             ts = post_message(TARGET_CHANNEL, blocks, text)
