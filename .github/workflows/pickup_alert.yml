@@ -1,0 +1,23 @@
+name: MKV Pickup Alert
+
+on:
+  schedule:
+    - cron: '0 15 * * *'
+  workflow_dispatch:
+
+jobs:
+  send-pickup-alert:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install requests pytz
+      - name: Run MKV Pickup Alert
+        env:
+          APPIC_KEY:        ${{ secrets.APPIC_KEY }}
+          WEBHOOK_DELIVERY: ${{ secrets.WEBHOOK_DELIVERY }}
+          WEBHOOK_PICKUP:   ${{ secrets.WEBHOOK_PICKUP }}
+        run: python mkv_pickup_alert.py
