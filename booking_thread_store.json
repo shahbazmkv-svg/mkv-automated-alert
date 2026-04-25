@@ -1,1 +1,354 @@
-{"bookings": {}}
+{
+  "bookings": {
+    "97019|2026-04-25|16:59:36": {
+      "thread_ts": "1777122685.976619",
+      "end_date": "2026-04-27",
+      "plate": "97019",
+      "customer": "MOHAMED BABIKER HOMOUR",
+      "vehicle": "Kia SONET",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "start_date": "2026-04-25"
+    },
+    "46015|2026-04-25|16:15:16": {
+      "thread_ts": "1777122686.278319",
+      "end_date": "2026-04-26",
+      "plate": "46015",
+      "customer": "DAVID LEON MYERS",
+      "vehicle": "Audi RSQ3",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "start_date": "2026-04-25"
+    },
+    "I 47203|2026-04-25|15:07:42": {
+      "thread_ts": "1777122686.575269",
+      "end_date": "2026-04-27",
+      "plate": "I 47203",
+      "customer": "ALEKSANDR AGULOV",
+      "vehicle": "Morgan MORGAN SUPERSPORT",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "start_date": "2026-04-25"
+    },
+    "55789|2026-04-25|14:20:25": {
+      "thread_ts": "1777122686.821839",
+      "end_date": "2026-04-27",
+      "plate": "55789",
+      "customer": "GHOST RENTALS FOR CAR AND YACHITS LLC",
+      "vehicle": "Mercedes-Benz S500",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "start_date": "2026-04-25"
+    },
+    "60137|2026-04-24|18:00:00": {
+      "thread_ts": "1777122687.110589",
+      "end_date": "2026-04-26",
+      "plate": "60137",
+      "customer": "MUNEER NAZARUDEEN NAZARUDEEN",
+      "vehicle": "Mercedes-Benz MERCEDES  G63",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "start_date": "2026-04-24"
+    },
+    "77491|2026-04-24|15:33:53": {
+      "thread_ts": "1777122687.379379",
+      "end_date": "2026-04-25",
+      "plate": "77491",
+      "customer": "SYED TURAB ABBAS",
+      "vehicle": "Ford MUSTANG CONVERTIBLE",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "start_date": "2026-04-24"
+    },
+    "23652|2026-04-24|14:00:27": {
+      "thread_ts": "1777122687.667239",
+      "end_date": "2026-04-24",
+      "plate": "23652",
+      "customer": "JUAN MANUEL ALBALATE GURRIZ",
+      "vehicle": "Lotus LOTUS EMIRA",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "start_date": "2026-04-24"
+    },
+    "64545|2026-04-24|12:09:56": {
+      "thread_ts": "1777122687.927779",
+      "end_date": "2026-04-26",
+      "plate": "64545",
+      "customer": "AMIN BECHIR RADHOUANI",
+      "vehicle": "Porsche CAYMAN GT4 RS",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "start_date": "2026-04-24"
+    },
+    "I 47203|2026-04-24|11:56:03": {
+      "thread_ts": "1777122688.333559",
+      "end_date": "2026-04-24",
+      "plate": "I 47203",
+      "customer": "ALEKSANDR AGULOV",
+      "vehicle": "Morgan MORGAN SUPERSPORT",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "start_date": "2026-04-24"
+    },
+    "94545|2026-04-24|11:39:52": {
+      "thread_ts": "1777122688.644379",
+      "end_date": "2026-04-25",
+      "plate": "94545",
+      "customer": "DOMINIC ANTHONY MURPHY",
+      "vehicle": "Land Rover SPORT",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "start_date": "2026-04-24"
+    },
+    "77540|2026-04-24|10:59:00": {
+      "thread_ts": "1777122688.935269",
+      "end_date": "2026-04-25",
+      "plate": "77540",
+      "customer": "MUNEER NAZARUDEEN NAZARUDEEN",
+      "vehicle": "Land Rover SVR",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "start_date": "2026-04-24"
+    },
+    "83762|2026-04-24|07:19:00": {
+      "thread_ts": "1777122689.200159",
+      "end_date": "2026-04-25",
+      "plate": "83762",
+      "customer": "ARTEM GORBATOV",
+      "vehicle": "Land Rover DEFENDER",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "start_date": "2026-04-24"
+    },
+    "70691|2026-04-24|00:56:14": {
+      "thread_ts": "1777122689.468709",
+      "end_date": "2026-04-28",
+      "plate": "70691",
+      "customer": "MUHAMMAD TANZEEL AZIZ AHMAD",
+      "vehicle": "BMW 520I",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "start_date": "2026-04-24"
+    },
+    "33789|2026-04-23|22:00:25": {
+      "thread_ts": "1777122689.741289",
+      "end_date": "2026-04-25",
+      "plate": "33789",
+      "customer": "YOHANN,HAROLD POUMAROUX",
+      "vehicle": "Bentley BENTAYGA",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "start_date": "2026-04-23"
+    },
+    "72712|2026-04-23|20:25:14": {
+      "thread_ts": "1777122690.003669",
+      "end_date": "2026-04-24",
+      "plate": "72712",
+      "customer": "RANIN DAWOUD YOUSEF ZAMAT",
+      "vehicle": "Chevrolet CORVETTE",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "start_date": "2026-04-23"
+    },
+    "15789|2026-04-23|16:57:24": {
+      "thread_ts": "1777122690.285839",
+      "end_date": "2026-04-27",
+      "plate": "15789",
+      "customer": "GURKAN ULUSOY",
+      "vehicle": "Ford MUSTANG COUPE",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "start_date": "2026-04-23"
+    },
+    "97020|2026-04-23|14:07:00": {
+      "thread_ts": "1777122690.558549",
+      "end_date": "2026-04-25",
+      "plate": "97020",
+      "customer": "JOHN ALEX GITHUA MWANGI",
+      "vehicle": "Kia K5",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "start_date": "2026-04-23"
+    },
+    "75037|2026-04-22|18:40:00": {
+      "thread_ts": "1777122690.816559",
+      "end_date": "2026-04-27",
+      "plate": "75037",
+      "customer": "MUNEER NAZARUDEEN NAZARUDEEN",
+      "vehicle": "Land Rover SVR",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "start_date": "2026-04-22"
+    },
+    "O/ 22270|2026-04-22|12:55:49": {
+      "thread_ts": "1777122691.077009",
+      "end_date": "2026-04-22",
+      "plate": "O/ 22270",
+      "customer": "KARL JOHAN LARSSON",
+      "vehicle": "Ferrari F8 SPIDER",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "start_date": "2026-04-22"
+    },
+    "97018|2026-04-22|12:40:00": {
+      "thread_ts": "1777122691.352239",
+      "end_date": "2026-04-24",
+      "plate": "97018",
+      "customer": "OLIVER  DELA LUNA MAGHIRANG",
+      "vehicle": "Kia CERATO",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "start_date": "2026-04-22"
+    },
+    "78043|2026-04-22|11:05:00": {
+      "thread_ts": "1777122691.611259",
+      "end_date": "2026-04-23",
+      "plate": "78043",
+      "customer": "JOHN ALEX GITHUA MWANGI",
+      "vehicle": "Land Rover DEFENDER",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "start_date": "2026-04-22"
+    },
+    "26603|2026-04-22|10:30:00": {
+      "thread_ts": "1777122691.883429",
+      "end_date": "2026-04-23",
+      "plate": "26603",
+      "customer": "MUNEER NAZARUDEEN NAZARUDEEN",
+      "vehicle": "Suzuki SWIFT",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "start_date": "2026-04-22"
+    },
+    "N/97336|2026-04-22|06:00:07": {
+      "thread_ts": "1777122692.168539",
+      "end_date": "2026-04-24",
+      "plate": "N/97336",
+      "customer": "ARTEM GORBATOV",
+      "vehicle": "Porsche PORSCHE 911 TURBO",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "start_date": "2026-04-22"
+    },
+    "Z/ 74588|2026-04-21|20:05:10": {
+      "thread_ts": "1777122692.425539",
+      "end_date": "2026-05-21",
+      "plate": "Z/ 74588",
+      "customer": "BARAKATH ALI KIBAYATHAI",
+      "vehicle": "Rolls Royce GHOST",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "start_date": "2026-04-21"
+    },
+    "55789|2026-04-21|13:58:00": {
+      "thread_ts": "1777122692.714159",
+      "end_date": "2026-04-22",
+      "plate": "55789",
+      "customer": "ABDELHAMID MESSAOUDI",
+      "vehicle": "Land Rover SPORT",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "start_date": "2026-04-21"
+    },
+    "Z/ 74588|2026-04-20|19:51:00": {
+      "thread_ts": "1777122692.977399",
+      "end_date": "2026-05-31",
+      "plate": "Z/ 74588",
+      "customer": "MKV CAR RENTAL LLC",
+      "vehicle": "Rolls Royce GHOST",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "start_date": "2026-04-20"
+    },
+    "O/ 22270|2026-04-20|16:19:00": {
+      "thread_ts": "1777122693.247759",
+      "end_date": "2026-04-30",
+      "plate": "O/ 22270",
+      "customer": "MKV Luxury Car Rental LLC",
+      "vehicle": "Ferrari F8 SPIDER",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "start_date": "2026-04-20"
+    },
+    "23652|2026-04-19|17:12:32": {
+      "thread_ts": "1777122693.611309",
+      "end_date": "2026-04-24",
+      "plate": "23652",
+      "customer": "IBRAHIM MOHAMMED ALI IBRAHIM ALZERAIHI",
+      "vehicle": "Lotus LOTUS EMIRA",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "start_date": "2026-04-19"
+    },
+    "I 47203|2026-04-19|16:50:51": {
+      "thread_ts": "1777122693.891999",
+      "end_date": "2026-04-20",
+      "plate": "I 47203",
+      "customer": "TIMUCIN DEVRIM YALI",
+      "vehicle": "Morgan MORGAN SUPERSPORT",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "start_date": "2026-04-19"
+    },
+    "19443|2026-04-15|22:45:30": {
+      "thread_ts": "1777122694.980689",
+      "end_date": "2026-04-16",
+      "plate": "19443",
+      "customer": "LUXILO CAR RENTAL L.L.C",
+      "vehicle": "Mercedes-Benz GLB 250",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "start_date": "2026-04-15"
+    },
+    "72712|2026-04-11|23:24:31": {
+      "thread_ts": "1777122696.050869",
+      "end_date": "2026-04-14",
+      "plate": "72712",
+      "customer": "GALYMZHAN MUSSABAY",
+      "vehicle": "Chevrolet CORVETTE",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "start_date": "2026-04-11"
+    },
+    "78051|2026-04-08|14:02:51": {
+      "thread_ts": "1777122697.012209",
+      "end_date": "2026-04-09",
+      "plate": "78051",
+      "customer": "SAHIL NARANG TRILOKI NATH NARANG",
+      "vehicle": "BMW 735I",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "start_date": "2026-04-08"
+    },
+    "47041|2026-04-04|21:00:22": {
+      "thread_ts": "1777122698.247729",
+      "end_date": "2026-04-05",
+      "plate": "47041",
+      "customer": "ZAYED KHALID MOHAMMED ALHARBI",
+      "vehicle": "McLaren SPIDER ARTURA",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "start_date": "2026-04-04"
+    },
+    "23652|2026-03-30|14:53:36": {
+      "thread_ts": "1777122699.040419",
+      "end_date": "2026-03-03",
+      "plate": "23652",
+      "customer": "AHMED MOHAMED ANWAR ELSAYED ABDELHADY",
+      "vehicle": "Lotus LOTUS EMIRA",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "start_date": "2026-03-30"
+    },
+    "83762|2026-03-27|15:04:00": {
+      "thread_ts": "1777122700.017089",
+      "end_date": "2026-03-30",
+      "plate": "83762",
+      "customer": "AHMED MOHAMED ANWAR ELSAYED ABDELHADY",
+      "vehicle": "Land Rover DEFENDER",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "start_date": "2026-03-27"
+    }
+  }
+}
