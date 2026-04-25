@@ -170,19 +170,18 @@ def build_delivery_checklist_blocks(b, now_str):
          ]},
         {"type": "divider"},
         {"type": "section",
-         "text": {"type": "mrkdwn",
-             "text": (
-                 "*✏️ Driver — reply in this thread with:*\n\n"
-                 "```\n"
-                 "OUT KM      : ___\n"
-                 "FUEL LEVEL  : ___  (e.g. 50% / Full / 3/4)\n"
-                 "DRIVER NAME : ___\n"
-                 "REMARKS     : ___\n"
-                 "```"
-             )}},
+         "text": {"type": "mrkdwn", "text": "*✏️ Reply in this thread with:*"}},
+        {"type": "section",
+         "fields": [
+             {"type": "mrkdwn", "text": "*OUT KM*\n»"},
+             {"type": "mrkdwn", "text": "*FUEL LEVEL*\n»"},
+             {"type": "mrkdwn", "text": "*DRIVER NAME*\n»"},
+             {"type": "mrkdwn", "text": "*REMARKS*\n»"},
+         ]},
+        {"type": "divider"},
         {"type": "section",
          "text": {"type": "mrkdwn",
-             "text": "📎 *Also attach:* Contract PDF + Car Photos + Emirates ID copy"}},
+             "text": "📎 *Attach:* Contract PDF + Car Photos + Emirates ID"}},
         {"type": "context",
          "elements": [{"type": "mrkdwn",
              "text": f"Checklist posted: {now_str}  |  Status: `PENDING DELIVERY`"}]},
@@ -211,7 +210,7 @@ def build_extension_blocks(b, now_str, old_end, new_end):
          ]},
         {"type": "section",
          "text": {"type": "mrkdwn",
-             "text": "📋 *Status:* `EXTENDED` — Pickup date updated\n_Pickup checklist will be reposted closer to new end date_"}},
+             "text": "📋 *Status:* `EXTENDED` — Pickup date updated\n_Pickup checklist will post closer to new end date_"}},
         {"type": "context",
          "elements": [{"type": "mrkdwn", "text": f"Extension detected: {now_str}"}]},
     ]
@@ -242,21 +241,19 @@ def build_pickup_checklist_blocks(b, now_str):
          ]},
         {"type": "divider"},
         {"type": "section",
-         "text": {"type": "mrkdwn",
-             "text": (
-                 "*✏️ Driver — reply in this thread with:*\n\n"
-                 "```\n"
-                 "IN KM            : ___\n"
-                 "EXTRA KM         : ___  (auto if known)\n"
-                 "FUEL CHARGE      : ___  AED (0 if full)\n"
-                 "SALIK            : ___  AED\n"
-                 "FINES            : ___  AED\n"
-                 "DAMAGE           : ___  (None / describe)\n"
-                 "AMOUNT COLLECTED : ___  AED\n"
-                 "PAYMENT MODE     : ___  (Cash / Card / Transfer)\n"
-                 "REMARKS          : ___\n"
-                 "```"
-             )}},
+         "text": {"type": "mrkdwn", "text": "*✏️ Reply in this thread with:*"}},
+        {"type": "section",
+         "fields": [
+             {"type": "mrkdwn", "text": "*IN KM*\n»"},
+             {"type": "mrkdwn", "text": "*EXTRA KM*\n»"},
+             {"type": "mrkdwn", "text": "*FUEL CHARGE*\n» AED"},
+             {"type": "mrkdwn", "text": "*SALIK*\n» AED"},
+             {"type": "mrkdwn", "text": "*FINES*\n» AED"},
+             {"type": "mrkdwn", "text": "*DAMAGE*\n»"},
+             {"type": "mrkdwn", "text": "*AMOUNT COLLECTED*\n» AED"},
+             {"type": "mrkdwn", "text": "*PAYMENT MODE*\n»"},
+             {"type": "mrkdwn", "text": "*REMARKS*\n»"},
+         ]},
         {"type": "context",
          "elements": [{"type": "mrkdwn",
              "text": f"Checklist posted: {now_str}  |  Status: `PENDING PICKUP`"}]},
@@ -312,8 +309,6 @@ def main():
 
         if key not in bookings:
             print(f"  NEW: {customer} | {plate} | {start}")
-
-            # Post booking card
             blocks, text = build_new_booking_blocks(b, now_str)
             ts = post_message(TARGET_CHANNEL, blocks, text)
             if ts:
@@ -328,8 +323,6 @@ def main():
                     "start_date":       start,
                 }
                 print(f"  Booking posted — thread: {ts}")
-
-                # Post delivery checklist in thread immediately
                 d_blocks, d_text = build_delivery_checklist_blocks(b, now_str)
                 d_ts = post_message(TARGET_CHANNEL, d_blocks, d_text, thread_ts=ts)
                 if d_ts:
@@ -343,7 +336,6 @@ def main():
             thread_ts = stored.get("thread_ts")
             old_end   = stored.get("end_date", "")
 
-            # Extension detected
             if end and old_end and end != old_end and end > old_end:
                 print(f"  EXTENSION: {customer} | {plate} | {old_end} -> {end}")
                 if thread_ts:
@@ -356,7 +348,6 @@ def main():
                 else:
                     bookings[key]["end_date"] = end
 
-            # Pickup checklist — day before end date
             if (end == tomorrow and
                 not stored.get("pickup_alerted") and
                 thread_ts):
