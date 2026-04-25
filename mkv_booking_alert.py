@@ -3,13 +3,12 @@ import json
 import os
 from datetime import datetime, timezone, timedelta
 
-APPIC_KEY           = os.environ["APPIC_KEY"]
-WEBHOOK_BOOKINGS    = os.environ["WEBHOOK_BOOKINGS"]
-WEBHOOK_DELIVERY    = os.environ["WEBHOOK_DELIVERY"]
+APPIC_KEY          = os.environ["APPIC_KEY"]
+WEBHOOK_BOOKINGS   = os.environ["WEBHOOK_BOOKINGS"]
 
-APPIC_BOOKINGS_URL  = "https://www.appicfleet.com/appiccar-apis-mkv/get-mkv-bookings.php"
-STORE_FILE          = "booking_alert_store.json"
-DUBAI_TZ            = timezone(timedelta(hours=4))
+APPIC_BOOKINGS_URL = "https://www.appicfleet.com/appiccar-apis-mkv/get-mkv-bookings.php"
+STORE_FILE         = "booking_alert_store.json"
+DUBAI_TZ           = timezone(timedelta(hours=4))
 
 def dubai_now():
     return datetime.now(DUBAI_TZ)
@@ -115,50 +114,12 @@ def build_bookings_message(b, now_str):
              {"type": "mrkdwn", "text": f"*💰 Amount*\n{amt_str}"},
          ]},
         {"type": "divider"},
-        {"type": "section",
-         "text": {"type": "mrkdwn",
-             "text": "📋 *Next Steps:* Use Slack workflow shortcuts → *VEHICLE DELIVERY* → *VEHICLE PICKUP* → *CONTRACT CLOSED*"}},
         {"type": "context",
          "elements": [{"type": "mrkdwn",
-             "text": "MKV Car Rental — Booking Auto-Detection  |  AGR# available after Appic API update"}]},
+             "text": "MKV Car Rental — Booking Auto-Detection"}]},
     ]
     return {
         "text": f"🚗 New Booking: {customer} — {vehicle} ({plate}) | {start_fmt} → {end_fmt} | {amt_str}",
-        "blocks": blocks
-    }
-
-def build_delivery_alert(b, now_str):
-    customer  = (b.get("customerName") or "N/A").strip().title()
-    mobile    = (b.get("mobile")       or "N/A").strip()
-    vehicle   = (b.get("vehicleName")  or "N/A").strip().title()
-    plate     = (b.get("vehiclePlate") or "N/A").strip()
-    start     = (b.get("startDate")    or "N/A").strip()
-    s_time    = (b.get("startTime")    or "")[:5]
-    try:
-        start_fmt = datetime.strptime(start, "%Y-%m-%d").strftime("%d %b %Y")
-    except:
-        start_fmt = start
-
-    blocks = [
-        {"type": "header",
-         "text": {"type": "plain_text", "text": "📦 DELIVERY REQUIRED — NEW BOOKING"}},
-        {"type": "divider"},
-        {"type": "section",
-         "fields": [
-             {"type": "mrkdwn", "text": f"*👤 Customer*\n{customer}"},
-             {"type": "mrkdwn", "text": f"*📱 Mobile*\n{mobile}"},
-             {"type": "mrkdwn", "text": f"*🚘 Vehicle*\n{vehicle}"},
-             {"type": "mrkdwn", "text": f"*🔢 Plate*\n`{plate}`"},
-             {"type": "mrkdwn", "text": f"*📅 Delivery Date*\n{start_fmt}"},
-             {"type": "mrkdwn", "text": f"*🕐 Delivery Time*\n{s_time}"},
-         ]},
-        {"type": "divider"},
-        {"type": "context",
-         "elements": [{"type": "mrkdwn",
-             "text": "MKV Car Rental — Prepare: Contract PDF + Car Photos + Emirates ID"}]},
-    ]
-    return {
-        "text": f"📦 Delivery: {customer} — {vehicle} ({plate}) on {start_fmt} at {s_time}",
         "blocks": blocks
     }
 
@@ -169,6 +130,12 @@ def main():
     print("  MKV BOOKING ALERT")
     print(f"  {now_str}")
     print("=" * 56)
+
+    # ── SEED MODE ──────────────────────────────────
+    # True  = first run, stores all bookings silently
+    # False = normal mode, posts new bookings to Slack
+    SEED_MODE = True
+    # ───────────────────────────────────────────────
 
     store = load_store()
     seen  = set(store.get("seen", []))
@@ -186,20 +153,15 @@ def main():
 
     print(f"  New bookings detected: {len(new_bookings)}")
 
-    # SEED_MODE = True  → stores all bookings silently, no Slack posts
-    # SEED_MODE = False → posts new bookings to Slack normally
-    SEED_MODE = True
-
     if not new_bookings:
         print("  No new bookings — nothing to post")
     elif SEED_MODE:
-        print(f"  SEED MODE — storing {len(new_bookings)} bookings silently")
+        print(f"  SEED MODE ON — {len(new_bookings)} bookings stored silently, zero Slack posts")
     else:
         for b in new_bookings:
             customer = (b.get("customerName") or "").strip()
             plate    = (b.get("vehiclePlate") or "").strip()
             print(f"  Posting: {customer} | {plate}")
-
             ok1 = post_slack(WEBHOOK_BOOKINGS, build_bookings_message(b, now_str))
             print(f"  Slack {'OK' if ok1 else 'FAILED'} -> #mkvbookingintimation")
 
