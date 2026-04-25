@@ -24,9 +24,6 @@ SLACK_HEADERS      = {
     "Content-Type": "application/json"
 }
 
-# ─────────────────────────────────────────────
-#  HELPERS
-# ─────────────────────────────────────────────
 def dubai_now():
     return datetime.now(DUBAI_TZ)
 
@@ -83,9 +80,6 @@ def post_message(channel, blocks, text, thread_ts=None):
         print(f"  Slack request failed: {e}")
         return None
 
-# ─────────────────────────────────────────────
-#  FETCH BOOKINGS
-# ─────────────────────────────────────────────
 def fetch_bookings():
     now        = dubai_now()
     start_date = (now - timedelta(days=30)).strftime("%Y-%m-%d")
@@ -109,9 +103,6 @@ def fetch_bookings():
         print(f"  API error: {e}")
         return []
 
-# ─────────────────────────────────────────────
-#  EXTRACT FIELDS
-# ─────────────────────────────────────────────
 def extract(b):
     start  = (b.get("startDate") or "").strip()
     end    = (b.get("endDate")   or "").strip()
@@ -129,7 +120,6 @@ def extract(b):
         rental_amt = "TBC"
 
     return {
-        # Available from API now
         "customer":     (b.get("customerName")  or "N/A").strip().title(),
         "mobile":       (b.get("mobile")        or "N/A").strip(),
         "vehicle":      (b.get("vehicleName")   or "N/A").strip().title(),
@@ -141,7 +131,6 @@ def extract(b):
         "dur_str":      dur_str,
         "rental_amt":   rental_amt,
         "total_amt":    rental_amt,
-        # Pending Appic API update
         "agr_no":       b.get("agreementId")      or "Pending API update",
         "lead_source":  b.get("leadSource")       or "—",
         "delivery_loc": b.get("deliveryLocation") or "—",
@@ -246,14 +235,14 @@ def build_delivery_checklist(f, now_str):
          ]},
         {"type": "divider"},
         {"type": "section",
-         "text": {"type": "mrkdwn", "text": "*✏️ Driver — reply in this thread:*"}},
-        {"type": "section",
-         "fields": [
-             {"type": "mrkdwn", "text": "*OUT KM*\n»"},
-             {"type": "mrkdwn", "text": "*FUEL LEVEL*\n»"},
-             {"type": "mrkdwn", "text": "*DRIVER NAME*\n»"},
-             {"type": "mrkdwn", "text": "*REMARKS*\n»"},
-         ]},
+         "text": {"type": "mrkdwn",
+             "text": (
+                 "*✏️ Driver — copy and reply in this thread:*\n\n"
+                 "*OUT KM:*\n"
+                 "*FUEL LEVEL:*\n"
+                 "*DRIVER NAME:*\n"
+                 "*REMARKS:*"
+             )}},
         {"type": "section",
          "text": {"type": "mrkdwn",
              "text": "📎 *Attach:* Contract PDF + Car Photos + Emirates ID"}},
@@ -286,14 +275,14 @@ def build_extension_checklist(f, now_str, old_end, new_end):
          ]},
         {"type": "divider"},
         {"type": "section",
-         "text": {"type": "mrkdwn", "text": "*✏️ Driver — reply in this thread:*"}},
-        {"type": "section",
-         "fields": [
-             {"type": "mrkdwn", "text": "*EXTENSION AMOUNT*\n» AED"},
-             {"type": "mrkdwn", "text": "*PAYMENT MODE*\n»"},
-             {"type": "mrkdwn", "text": "*PAYMENT STATUS*\n»"},
-             {"type": "mrkdwn", "text": "*REMARKS*\n»"},
-         ]},
+         "text": {"type": "mrkdwn",
+             "text": (
+                 "*✏️ Driver — copy and reply in this thread:*\n\n"
+                 "*EXTENSION AMOUNT:* AED\n"
+                 "*PAYMENT MODE:*\n"
+                 "*PAYMENT STATUS:*\n"
+                 "*REMARKS:*"
+             )}},
         {"type": "context",
          "elements": [{"type": "mrkdwn",
              "text": f"Detected: {now_str}  |  Status: `EXTENDED`"}]},
@@ -320,19 +309,19 @@ def build_pickup_checklist(f, now_str):
          ]},
         {"type": "divider"},
         {"type": "section",
-         "text": {"type": "mrkdwn", "text": "*✏️ Driver — reply in this thread:*"}},
-        {"type": "section",
-         "fields": [
-             {"type": "mrkdwn", "text": "*IN KM*\n»"},
-             {"type": "mrkdwn", "text": "*EXTRA KM*\n»"},
-             {"type": "mrkdwn", "text": "*FUEL CHARGE*\n» AED"},
-             {"type": "mrkdwn", "text": "*SALIK*\n» AED"},
-             {"type": "mrkdwn", "text": "*FINES*\n» AED"},
-             {"type": "mrkdwn", "text": "*DAMAGE CHARGES*\n» AED"},
-             {"type": "mrkdwn", "text": "*AMOUNT COLLECTED*\n» AED"},
-             {"type": "mrkdwn", "text": "*PAYMENT MODE*\n»"},
-             {"type": "mrkdwn", "text": "*REMARKS*\n»"},
-         ]},
+         "text": {"type": "mrkdwn",
+             "text": (
+                 "*✏️ Driver — copy and reply in this thread:*\n\n"
+                 "*IN KM:*\n"
+                 "*EXTRA KM:*\n"
+                 "*FUEL CHARGE:* AED\n"
+                 "*SALIK:* AED\n"
+                 "*FINES:* AED\n"
+                 "*DAMAGE CHARGES:* AED\n"
+                 "*AMOUNT COLLECTED:* AED\n"
+                 "*PAYMENT MODE:*\n"
+                 "*REMARKS:*"
+             )}},
         {"type": "context",
          "elements": [{"type": "mrkdwn",
              "text": f"Posted: {now_str}  |  Status: `PENDING PICKUP`"}]},
@@ -405,7 +394,6 @@ def main():
         start    = f["start"]
         status   = f["status"]
 
-        # ── SEED MODE ─────────────────────────────
         if SEED_MODE:
             if key not in bookings:
                 bookings[key] = {
@@ -421,7 +409,6 @@ def main():
                 }
             continue
 
-        # ── NEW BOOKING ───────────────────────────
         if key not in bookings:
             print(f"  NEW: {customer} | {plate} | {start}")
             blocks, text = build_booking_card(f, now_str)
@@ -445,7 +432,6 @@ def main():
                     bookings[key]["delivery_alerted"] = True
                     print(f"  Delivery checklist posted in thread")
 
-        # ── EXISTING BOOKING ──────────────────────
         else:
             stored    = bookings.get(key, {})
             if not isinstance(stored, dict):
@@ -457,7 +443,6 @@ def main():
             if closed:
                 continue
 
-            # Extension detected
             if end and old_end and end != old_end and end > old_end:
                 print(f"  EXTENSION: {customer} | {plate} | {old_end} -> {end}")
                 if thread_ts:
@@ -470,7 +455,6 @@ def main():
                 else:
                     bookings[key]["end_date"] = end
 
-            # Pickup checklist — day before end date
             if end == tomorrow and not stored.get("pickup_alerted") and thread_ts:
                 print(f"  PICKUP CHECKLIST: {customer} | {plate} | due {end}")
                 p_blocks, p_text = build_pickup_checklist(f, now_str)
@@ -479,7 +463,6 @@ def main():
                     bookings[key]["pickup_alerted"] = True
                     print(f"  Pickup checklist posted in thread")
 
-            # Contract closed — when Appic adds status field
             if status == "closed" and not closed and thread_ts:
                 print(f"  CONTRACT CLOSED: {customer} | {plate}")
                 c_blocks, c_text = build_contract_closed(f, now_str)
