@@ -1198,6 +1198,17 @@
       "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-04-25"
+    },
+    "26603|2026-04-25|21:15:29": {
+      "thread_ts": "1777139871.642129",
+      "end_date": "2026-04-27",
+      "plate": "26603",
+      "customer": "Reham Moustafa Elsayed Albably",
+      "vehicle": "Suzuki Swift",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-04-25"
     }
   }
 }
