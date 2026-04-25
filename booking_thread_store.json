@@ -1206,7 +1206,7 @@
       "customer": "Reham Moustafa Elsayed Albably",
       "vehicle": "Suzuki Swift",
       "delivery_alerted": true,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-04-25"
     }
