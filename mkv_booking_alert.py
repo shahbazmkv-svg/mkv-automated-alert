@@ -186,13 +186,14 @@ def main():
 
     print(f"  New bookings detected: {len(new_bookings)}")
 
-   # SEED MODE — set to True for first run, then set back to False
-    SEED_MODE = False
+    # SEED_MODE = True  → stores all bookings silently, no Slack posts
+    # SEED_MODE = False → posts new bookings to Slack normally
+    SEED_MODE = True
 
     if not new_bookings:
         print("  No new bookings — nothing to post")
     elif SEED_MODE:
-        print(f"  SEED MODE — storing {len(new_bookings)} bookings without posting")
+        print(f"  SEED MODE — storing {len(new_bookings)} bookings silently")
     else:
         for b in new_bookings:
             customer = (b.get("customerName") or "").strip()
@@ -200,10 +201,7 @@ def main():
             print(f"  Posting: {customer} | {plate}")
 
             ok1 = post_slack(WEBHOOK_BOOKINGS, build_bookings_message(b, now_str))
-            print(f"  Slack {'OK' if ok1 else 'FAILED'} -> #mkv-bookings")
-
-            ok2 = post_slack(WEBHOOK_DELIVERY, build_delivery_alert(b, now_str))
-            print(f"  Slack {'OK' if ok2 else 'FAILED'} -> #mkv-schedule-for-delivery")
+            print(f"  Slack {'OK' if ok1 else 'FAILED'} -> #mkvbookingintimation")
 
     store["seen"] = list(seen)
     save_store(store)
