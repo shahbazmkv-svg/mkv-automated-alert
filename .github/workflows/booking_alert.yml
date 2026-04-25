@@ -1,0 +1,35 @@
+name: MKV Booking Alert
+
+on:
+  schedule:
+    - cron: '0,15,30,45 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  detect-new-bookings:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install requests
+      - name: Run MKV Booking Alert
+        env:
+          APPIC_KEY:        ${{ secrets.APPIC_KEY }}
+          WEBHOOK_BOOKINGS: ${{ secrets.WEBHOOK_BOOKINGS }}
+          WEBHOOK_DELIVERY: ${{ secrets.WEBHOOK_DELIVERY }}
+        run: python mkv_booking_alert.py
+      - name: Save booking store to repo
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add booking_alert_store.json || true
+          git diff --cached --quiet || git commit -m "chore: update booking_store $(date +'%Y-%m-%d %H:%M')"
+          git push || true
