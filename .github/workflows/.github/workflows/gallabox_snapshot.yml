@@ -1,0 +1,24 @@
+name: MKV Daily Leads Report
+
+on:
+  schedule:
+    - cron: '0 7 * * *'
+  workflow_dispatch:
+
+jobs:
+  send-leads-report:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install requests pytz
+      - name: Run MKV Gallabox Snapshot
+        env:
+          GALLABOX_API_KEY:    ${{ secrets.GALLABOX_API_KEY }}
+          GALLABOX_API_SECRET: ${{ secrets.GALLABOX_API_SECRET }}
+          GALLABOX_ACCOUNT_ID: ${{ secrets.GALLABOX_ACCOUNT_ID }}
+          WEBHOOK_LEADS:       ${{ secrets.WEBHOOK_LEADS }}
+        run: python mkv_gallabox_snapshot.py
