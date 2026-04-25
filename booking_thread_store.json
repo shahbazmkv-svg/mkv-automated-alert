@@ -1069,6 +1069,26 @@
       "delivery_alerted": true,
       "pickup_alerted": false,
       "start_date": "2026-03-27"
+    },
+    "77490|2026-04-25|18:03:10": {
+      "thread_ts": "1777126318.839919",
+      "end_date": "2026-04-27",
+      "plate": "77490",
+      "customer": "ALAA AATEF ZREIK FARHAT",
+      "vehicle": "Ford MUSTANG COUPE",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "start_date": "2026-04-25"
+    },
+    "46015|2026-04-25|16:15:16": {
+      "thread_ts": "1777126319.445609",
+      "end_date": "2026-04-26",
+      "plate": "46015",
+      "customer": "DAVID LEON MYERS",
+      "vehicle": "Audi RSQ3",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "start_date": "2026-04-25"
     }
   }
 }
