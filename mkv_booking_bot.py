@@ -12,7 +12,6 @@ SLACK_BOT_TOKEN    = os.environ["SLACK_BOT_TOKEN"]
 CHANNEL_BOOKINGS   = "C0ABPC606F7"   # #mkv-bookings (live)
 CHANNEL_TEST       = "C0AVCCCG0S0"   # #mkvtest
 
-# ── SET TO False WHEN GOING LIVE ──────────────
 TEST_MODE          = True
 TARGET_CHANNEL     = CHANNEL_TEST if TEST_MODE else CHANNEL_BOOKINGS
 
@@ -29,6 +28,12 @@ def dubai_now():
 
 def fmt_date(d):
     try:
+        return datetime.strptime(d, "%Y-%m-%d").strftime("%d %b")
+    except:
+        return d or "N/A"
+
+def fmt_date_full(d):
+    try:
         return datetime.strptime(d, "%Y-%m-%d").strftime("%d %b %Y")
     except:
         return d or "N/A"
@@ -36,7 +41,7 @@ def fmt_date(d):
 def fmt_amount(v):
     try:
         f = float(v)
-        return f"AED {f:,.2f}" if f > 0 else "—"
+        return f"AED {f:,.0f}" if f > 0 else "—"
     except:
         return "—"
 
@@ -110,12 +115,12 @@ def extract(b):
     e_time = (b.get("endTime")   or "")[:5]
     try:
         dur     = (datetime.strptime(end, "%Y-%m-%d") - datetime.strptime(start, "%Y-%m-%d")).days
-        dur_str = f"{dur} day{'s' if dur != 1 else ''}"
+        dur_str = f"{dur}d"
     except:
         dur_str = "N/A"
     try:
         amt_val    = float(b.get("amount", 0))
-        rental_amt = f"AED {amt_val:,.2f}" if amt_val > 0 else "TBC"
+        rental_amt = f"AED {amt_val:,.0f}" if amt_val > 0 else "TBC"
     except:
         rental_amt = "TBC"
 
@@ -131,7 +136,7 @@ def extract(b):
         "dur_str":      dur_str,
         "rental_amt":   rental_amt,
         "total_amt":    rental_amt,
-        "agr_no":       b.get("agreementId")      or "Pending API update",
+        "agr_no":       b.get("agreementId")      or "—",
         "lead_source":  b.get("leadSource")       or "—",
         "delivery_loc": b.get("deliveryLocation") or "—",
         "email":        b.get("clientEmail")      or "—",
@@ -147,213 +152,159 @@ def extract(b):
     }
 
 # ─────────────────────────────────────────────
-#  MESSAGE BUILDERS
+#  COMPACT MESSAGE BUILDERS
 # ─────────────────────────────────────────────
 def build_booking_card(f, now_str):
+    text_body = (
+        f"*🔖 AGR#:* `{f['agr_no']}`\n"
+        f"━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+        f"*👤* {f['customer']}  |  *📱* {f['mobile']}\n"
+        f"*📧* {f['email']}\n"
+        f"*🏠* {f['address']}\n"
+        f"*📣 Source:* {f['lead_source']}  |  *👨‍💼 Agent:* {f['agent']}\n"
+        f"━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+        f"*🚘* {f['vehicle']}  |  *🔢* `{f['plate']}`\n"
+        f"*📅* {fmt_date(f['start'])} {f['s_time']} → {fmt_date(f['end'])} {f['e_time']}  |  *⏱* {f['dur_str']}\n"
+        f"*📍* {f['delivery_loc']}\n"
+        f"━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+        f"*💰 Rental:* {f['rental_amt']}  |  *🧾 VAT:* {f['vat']}  |  *💳 Total:* {f['total_amt']}\n"
+        f"*🔒 Zero Dep:* {f['zero_dep']}  |  *➕ Add-on:* {f['addon']}  |  *💵 Advance:* {f['advance']}\n"
+        f"*💳 Pay Mode:* {f['pay_mode']}\n"
+        f"━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+        f"*📝 Remarks:* {f['remarks']}\n"
+        f"━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+        f"🚚 *Delivery:* `PENDING`  |  🔑 *Pickup:* `PENDING`\n"
+        f"_All updates in this thread_"
+    )
+
     blocks = [
         {"type": "header",
          "text": {"type": "plain_text", "text": "🚗 NEW BOOKING — MKV CAR RENTAL"}},
         {"type": "context",
          "elements": [{"type": "mrkdwn",
              "text": f"Detected: {now_str}  |  Auto-alert via GitHub Actions"}]},
-        {"type": "divider"},
         {"type": "section",
-         "text": {"type": "mrkdwn", "text": "*👤 CLIENT DETAILS*"}},
-        {"type": "section",
-         "fields": [
-             {"type": "mrkdwn", "text": f"*Name*\n{f['customer']}"},
-             {"type": "mrkdwn", "text": f"*Mobile*\n{f['mobile']}"},
-             {"type": "mrkdwn", "text": f"*Email*\n{f['email']}"},
-             {"type": "mrkdwn", "text": f"*Address*\n{f['address']}"},
-             {"type": "mrkdwn", "text": f"*Lead Source*\n{f['lead_source']}"},
-             {"type": "mrkdwn", "text": f"*Sales Agent*\n{f['agent']}"},
-         ]},
-        {"type": "divider"},
-        {"type": "section",
-         "text": {"type": "mrkdwn", "text": "*📋 BOOKING DETAILS*"}},
-        {"type": "section",
-         "fields": [
-             {"type": "mrkdwn", "text": f"*AGR#*\n`{f['agr_no']}`"},
-             {"type": "mrkdwn", "text": f"*Car Model*\n{f['vehicle']}"},
-             {"type": "mrkdwn", "text": f"*Plate*\n`{f['plate']}`"},
-             {"type": "mrkdwn", "text": f"*Start*\n{fmt_date(f['start'])}  {f['s_time']}"},
-             {"type": "mrkdwn", "text": f"*End*\n{fmt_date(f['end'])}  {f['e_time']}"},
-             {"type": "mrkdwn", "text": f"*Duration*\n{f['dur_str']}"},
-             {"type": "mrkdwn", "text": f"*Delivery Location*\n{f['delivery_loc']}"},
-         ]},
-        {"type": "divider"},
-        {"type": "section",
-         "text": {"type": "mrkdwn", "text": "*💰 PAYMENT BREAKDOWN*"}},
-        {"type": "section",
-         "fields": [
-             {"type": "mrkdwn", "text": f"*Rental Amount*\n{f['rental_amt']}"},
-             {"type": "mrkdwn", "text": f"*Zero Deposit Fee*\n{f['zero_dep']}"},
-             {"type": "mrkdwn", "text": f"*Add-on Charges*\n{f['addon']}"},
-             {"type": "mrkdwn", "text": f"*VAT*\n{f['vat']}"},
-             {"type": "mrkdwn", "text": f"*Total Amount*\n{f['total_amt']}"},
-             {"type": "mrkdwn", "text": f"*Advance Received*\n{f['advance']}"},
-             {"type": "mrkdwn", "text": f"*Payment Mode*\n{f['pay_mode']}"},
-         ]},
-        {"type": "divider"},
-        {"type": "section",
-         "fields": [
-             {"type": "mrkdwn", "text": f"*📝 Remarks*\n{f['remarks']}"},
-         ]},
-        {"type": "section",
-         "text": {"type": "mrkdwn",
-             "text": (
-                 "⚙️ *OPS STATUS*\n"
-                 "🚚 Delivery Status: `PENDING`\n"
-                 "🔑 Pickup Status: `PENDING`\n\n"
-                 "_All updates will appear in this thread_"
-             )}},
-        {"type": "context",
-         "elements": [{"type": "mrkdwn",
-             "text": "MKV Car Rental — Auto-detection via GitHub Actions"}]},
+         "text": {"type": "mrkdwn", "text": text_body}},
     ]
-    return blocks, f"🚗 New Booking: {f['customer']} — {f['vehicle']} ({f['plate']}) | {fmt_date(f['start'])} → {fmt_date(f['end'])} | {f['total_amt']}"
+    return blocks, f"🚗 {f['customer']} | {f['vehicle']} ({f['plate']}) | {fmt_date_full(f['start'])} → {fmt_date_full(f['end'])} | {f['total_amt']}"
 
 
 def build_delivery_checklist(f, now_str):
+    text_body = (
+        f"*🔖 AGR#:* `{f['agr_no']}`\n"
+        f"*👤* {f['customer']}  |  *📱* {f['mobile']}\n"
+        f"*🚘* {f['vehicle']}  |  *🔢* `{f['plate']}`\n"
+        f"*📅* {fmt_date_full(f['start'])}  {f['s_time']}\n"
+        f"*📍* {f['delivery_loc']}\n"
+        f"*💰* {f['total_amt']}\n"
+        f"━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+        f"*✏️ Driver — copy and reply:*\n\n"
+        f"OUT KM:\n"
+        f"FUEL LEVEL:\n"
+        f"DRIVER NAME:\n"
+        f"REMARKS:\n"
+        f"━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+        f"📎 Attach: Contract PDF + Car Photos + Emirates ID"
+    )
+
     blocks = [
         {"type": "header",
          "text": {"type": "plain_text", "text": "📦 DELIVERY CHECKLIST"}},
-        {"type": "divider"},
         {"type": "section",
-         "text": {"type": "mrkdwn", "text": "*Auto-populated from booking:*"}},
-        {"type": "section",
-         "fields": [
-             {"type": "mrkdwn", "text": f"*AGR#*\n`{f['agr_no']}`"},
-             {"type": "mrkdwn", "text": f"*Client*\n{f['customer']}"},
-             {"type": "mrkdwn", "text": f"*Mobile*\n{f['mobile']}"},
-             {"type": "mrkdwn", "text": f"*Car Model*\n{f['vehicle']}"},
-             {"type": "mrkdwn", "text": f"*Plate*\n`{f['plate']}`"},
-             {"type": "mrkdwn", "text": f"*Delivery Date*\n{fmt_date(f['start'])}"},
-             {"type": "mrkdwn", "text": f"*Delivery Time*\n{f['s_time']}"},
-             {"type": "mrkdwn", "text": f"*Location*\n{f['delivery_loc']}"},
-             {"type": "mrkdwn", "text": f"*Amount*\n{f['total_amt']}"},
-         ]},
-        {"type": "divider"},
-        {"type": "section",
-         "text": {"type": "mrkdwn",
-             "text": (
-                 "*✏️ Driver — copy and reply in this thread:*\n\n"
-                 "*OUT KM:*\n"
-                 "*FUEL LEVEL:*\n"
-                 "*DRIVER NAME:*\n"
-                 "*REMARKS:*"
-             )}},
-        {"type": "section",
-         "text": {"type": "mrkdwn",
-             "text": "📎 *Attach:* Contract PDF + Car Photos + Emirates ID"}},
+         "text": {"type": "mrkdwn", "text": text_body}},
         {"type": "context",
          "elements": [{"type": "mrkdwn",
              "text": f"Posted: {now_str}  |  Status: `PENDING DELIVERY`"}]},
     ]
-    return blocks, f"📦 Delivery: {f['customer']} — {f['vehicle']} ({f['plate']}) on {fmt_date(f['start'])} at {f['s_time']}"
+    return blocks, f"📦 Delivery: {f['customer']} | {f['vehicle']} ({f['plate']}) | {fmt_date_full(f['start'])} {f['s_time']}"
 
 
 def build_extension_checklist(f, now_str, old_end, new_end):
     try:
         extra   = (datetime.strptime(new_end, "%Y-%m-%d") - datetime.strptime(old_end, "%Y-%m-%d")).days
-        ext_str = f"+{extra} day{'s' if extra != 1 else ''}"
+        ext_str = f"+{extra}d"
     except:
         ext_str = "Extended"
+
+    text_body = (
+        f"*🔖 AGR#:* `{f['agr_no']}`\n"
+        f"*👤* {f['customer']}\n"
+        f"*🚘* {f['vehicle']}  |  *🔢* `{f['plate']}`\n"
+        f"*📅 Prev End:* ~{fmt_date_full(old_end)}~\n"
+        f"*📅 New End:* {fmt_date_full(new_end)}  ({ext_str})\n"
+        f"━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+        f"*✏️ Driver — copy and reply:*\n\n"
+        f"EXTENSION AMOUNT: AED\n"
+        f"PAYMENT MODE:\n"
+        f"PAYMENT STATUS:\n"
+        f"REMARKS:"
+    )
 
     blocks = [
         {"type": "header",
          "text": {"type": "plain_text", "text": "🔄 CONTRACT EXTENSION"}},
-        {"type": "divider"},
         {"type": "section",
-         "fields": [
-             {"type": "mrkdwn", "text": f"*AGR#*\n`{f['agr_no']}`"},
-             {"type": "mrkdwn", "text": f"*Client*\n{f['customer']}"},
-             {"type": "mrkdwn", "text": f"*Car Model*\n{f['vehicle']}"},
-             {"type": "mrkdwn", "text": f"*Plate*\n`{f['plate']}`"},
-             {"type": "mrkdwn", "text": f"*Previous End*\n~{fmt_date(old_end)}~"},
-             {"type": "mrkdwn", "text": f"*New End Date*\n{fmt_date(new_end)}  ({ext_str})"},
-         ]},
-        {"type": "divider"},
-        {"type": "section",
-         "text": {"type": "mrkdwn",
-             "text": (
-                 "*✏️ Driver — copy and reply in this thread:*\n\n"
-                 "*EXTENSION AMOUNT:* AED\n"
-                 "*PAYMENT MODE:*\n"
-                 "*PAYMENT STATUS:*\n"
-                 "*REMARKS:*"
-             )}},
+         "text": {"type": "mrkdwn", "text": text_body}},
         {"type": "context",
          "elements": [{"type": "mrkdwn",
              "text": f"Detected: {now_str}  |  Status: `EXTENDED`"}]},
     ]
-    return blocks, f"🔄 Extension: {f['customer']} — {f['vehicle']} | New end: {fmt_date(new_end)} ({ext_str})"
+    return blocks, f"🔄 Extension: {f['customer']} | {f['vehicle']} | New end: {fmt_date_full(new_end)} ({ext_str})"
 
 
 def build_pickup_checklist(f, now_str):
+    text_body = (
+        f"*🔖 AGR#:* `{f['agr_no']}`\n"
+        f"*👤* {f['customer']}  |  *📱* {f['mobile']}\n"
+        f"*🚘* {f['vehicle']}  |  *🔢* `{f['plate']}`\n"
+        f"*📅 Delivered:* {fmt_date_full(f['start'])}  {f['s_time']}\n"
+        f"*📅 Return Due:* {fmt_date_full(f['end'])}  {f['e_time']}\n"
+        f"━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+        f"*✏️ Driver — copy and reply:*\n\n"
+        f"IN KM:\n"
+        f"EXTRA KM:\n"
+        f"FUEL CHARGE: AED\n"
+        f"SALIK: AED\n"
+        f"FINES: AED\n"
+        f"DAMAGE CHARGES: AED\n"
+        f"AMOUNT COLLECTED: AED\n"
+        f"PAYMENT MODE:\n"
+        f"REMARKS:"
+    )
+
     blocks = [
         {"type": "header",
          "text": {"type": "plain_text", "text": "🔑 PICKUP CHECKLIST — DUE TOMORROW"}},
-        {"type": "divider"},
         {"type": "section",
-         "text": {"type": "mrkdwn", "text": "*Auto-populated from booking:*"}},
-        {"type": "section",
-         "fields": [
-             {"type": "mrkdwn", "text": f"*AGR#*\n`{f['agr_no']}`"},
-             {"type": "mrkdwn", "text": f"*Client*\n{f['customer']}"},
-             {"type": "mrkdwn", "text": f"*Mobile*\n{f['mobile']}"},
-             {"type": "mrkdwn", "text": f"*Car Model*\n{f['vehicle']}"},
-             {"type": "mrkdwn", "text": f"*Plate*\n`{f['plate']}`"},
-             {"type": "mrkdwn", "text": f"*Delivery Was*\n{fmt_date(f['start'])}  {f['s_time']}"},
-             {"type": "mrkdwn", "text": f"*Return Due*\n{fmt_date(f['end'])}  {f['e_time']}"},
-         ]},
-        {"type": "divider"},
-        {"type": "section",
-         "text": {"type": "mrkdwn",
-             "text": (
-                 "*✏️ Driver — copy and reply in this thread:*\n\n"
-                 "*IN KM:*\n"
-                 "*EXTRA KM:*\n"
-                 "*FUEL CHARGE:* AED\n"
-                 "*SALIK:* AED\n"
-                 "*FINES:* AED\n"
-                 "*DAMAGE CHARGES:* AED\n"
-                 "*AMOUNT COLLECTED:* AED\n"
-                 "*PAYMENT MODE:*\n"
-                 "*REMARKS:*"
-             )}},
+         "text": {"type": "mrkdwn", "text": text_body}},
         {"type": "context",
          "elements": [{"type": "mrkdwn",
              "text": f"Posted: {now_str}  |  Status: `PENDING PICKUP`"}]},
     ]
-    return blocks, f"🔑 Pickup: {f['customer']} — {f['vehicle']} ({f['plate']}) | Return: {fmt_date(f['end'])} at {f['e_time']}"
+    return blocks, f"🔑 Pickup: {f['customer']} | {f['vehicle']} ({f['plate']}) | Return: {fmt_date_full(f['end'])} {f['e_time']}"
 
 
 def build_contract_closed(f, now_str):
+    text_body = (
+        f"*🔖 AGR#:* `{f['agr_no']}`\n"
+        f"*👤* {f['customer']}  |  *📱* {f['mobile']}\n"
+        f"*🚘* {f['vehicle']}  |  *🔢* `{f['plate']}`\n"
+        f"*📅* {fmt_date_full(f['start'])} {f['s_time']} → {fmt_date_full(f['end'])} {f['e_time']}\n"
+        f"*⏱ Duration:* {f['dur_str']}  |  *💰 Total:* {f['total_amt']}\n"
+        f"━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+        f"✅ *CONTRACT CLOSED — NO FURTHER ACTION REQUIRED*"
+    )
+
     blocks = [
         {"type": "header",
          "text": {"type": "plain_text", "text": "🏁 CONTRACT CLOSED"}},
-        {"type": "divider"},
         {"type": "section",
-         "fields": [
-             {"type": "mrkdwn", "text": f"*AGR#*\n`{f['agr_no']}`"},
-             {"type": "mrkdwn", "text": f"*Client*\n{f['customer']}"},
-             {"type": "mrkdwn", "text": f"*Car Model*\n{f['vehicle']}"},
-             {"type": "mrkdwn", "text": f"*Plate*\n`{f['plate']}`"},
-             {"type": "mrkdwn", "text": f"*Start*\n{fmt_date(f['start'])}  {f['s_time']}"},
-             {"type": "mrkdwn", "text": f"*End*\n{fmt_date(f['end'])}  {f['e_time']}"},
-             {"type": "mrkdwn", "text": f"*Duration*\n{f['dur_str']}"},
-             {"type": "mrkdwn", "text": f"*Total Amount*\n{f['total_amt']}"},
-         ]},
-        {"type": "divider"},
-        {"type": "section",
-         "text": {"type": "mrkdwn",
-             "text": "✅ *CONTRACT CLOSED — NO FURTHER ACTION REQUIRED*"}},
+         "text": {"type": "mrkdwn", "text": text_body}},
         {"type": "context",
          "elements": [{"type": "mrkdwn",
              "text": f"Closed: {now_str}  |  Auto-detected from Appic"}]},
     ]
-    return blocks, f"🏁 Closed: {f['customer']} — {f['vehicle']} ({f['plate']})"
+    return blocks, f"🏁 Closed: {f['customer']} | {f['vehicle']} ({f['plate']})"
 
 # ─────────────────────────────────────────────
 #  MAIN
