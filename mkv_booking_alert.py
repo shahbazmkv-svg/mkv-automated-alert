@@ -186,8 +186,13 @@ def main():
 
     print(f"  New bookings detected: {len(new_bookings)}")
 
+   # SEED MODE — set to True for first run, then set back to False
+    SEED_MODE = False
+
     if not new_bookings:
         print("  No new bookings — nothing to post")
+    elif SEED_MODE:
+        print(f"  SEED MODE — storing {len(new_bookings)} bookings without posting")
     else:
         for b in new_bookings:
             customer = (b.get("customerName") or "").strip()
