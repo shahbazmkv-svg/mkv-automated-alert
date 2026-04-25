@@ -271,7 +271,7 @@ def main():
     # ── SEED MODE ──────────────────────────────
     # True  = first run, stores all silently
     # False = normal, posts new bookings
-    SEED_MODE = False
+    SEED_MODE = True
     # ───────────────────────────────────────────
 
     print("=" * 56)
