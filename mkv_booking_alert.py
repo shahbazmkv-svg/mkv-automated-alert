@@ -45,7 +45,7 @@ def post_slack(webhook, payload):
 
 def fetch_bookings():
     now        = dubai_now()
-    start_date = (now - timedelta(days=1)).strftime("%Y-%m-%d")
+    start_date = (now - timedelta(days=30)).strftime("%Y-%m-%d")
     end_date   = (now + timedelta(days=60)).strftime("%Y-%m-%d")
     try:
         r = requests.post(
