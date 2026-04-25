@@ -3,12 +3,16 @@ import json
 import os
 from datetime import datetime, timezone, timedelta
 
+# ─────────────────────────────────────────────
+#  CONFIG
+# ─────────────────────────────────────────────
 APPIC_KEY          = os.environ["APPIC_KEY"]
 SLACK_BOT_TOKEN    = os.environ["SLACK_BOT_TOKEN"]
 
-CHANNEL_BOOKINGS   = "C0ABPC606F7"
-CHANNEL_TEST       = "C0AVCCCG0S0"
+CHANNEL_BOOKINGS   = "C0ABPC606F7"   # #mkv-bookings (live)
+CHANNEL_TEST       = "C0AVCCCG0S0"   # #mkvtest
 
+# ── SET TO False WHEN GOING LIVE ──────────────
 TEST_MODE          = True
 TARGET_CHANNEL     = CHANNEL_TEST if TEST_MODE else CHANNEL_BOOKINGS
 
@@ -20,8 +24,24 @@ SLACK_HEADERS      = {
     "Content-Type": "application/json"
 }
 
+# ─────────────────────────────────────────────
+#  HELPERS
+# ─────────────────────────────────────────────
 def dubai_now():
     return datetime.now(DUBAI_TZ)
+
+def fmt_date(d):
+    try:
+        return datetime.strptime(d, "%Y-%m-%d").strftime("%d %b %Y")
+    except:
+        return d or "N/A"
+
+def fmt_amount(v):
+    try:
+        f = float(v)
+        return f"AED {f:,.2f}" if f > 0 else "—"
+    except:
+        return "—"
 
 def booking_key(b):
     plate = (b.get("vehiclePlate") or "").strip()
@@ -63,6 +83,9 @@ def post_message(channel, blocks, text, thread_ts=None):
         print(f"  Slack request failed: {e}")
         return None
 
+# ─────────────────────────────────────────────
+#  FETCH BOOKINGS
+# ─────────────────────────────────────────────
 def fetch_bookings():
     now        = dubai_now()
     start_date = (now - timedelta(days=30)).strftime("%Y-%m-%d")
@@ -86,33 +109,58 @@ def fetch_bookings():
         print(f"  API error: {e}")
         return []
 
-def fmt_date(d):
+# ─────────────────────────────────────────────
+#  EXTRACT FIELDS
+# ─────────────────────────────────────────────
+def extract(b):
+    start  = (b.get("startDate") or "").strip()
+    end    = (b.get("endDate")   or "").strip()
+    s_time = (b.get("startTime") or "")[:5]
+    e_time = (b.get("endTime")   or "")[:5]
     try:
-        return datetime.strptime(d, "%Y-%m-%d").strftime("%d %b %Y")
-    except:
-        return d
-
-def build_new_booking_blocks(b, now_str):
-    customer  = (b.get("customerName") or "N/A").strip().title()
-    mobile    = (b.get("mobile")       or "N/A").strip()
-    vehicle   = (b.get("vehicleName")  or "N/A").strip().title()
-    plate     = (b.get("vehiclePlate") or "N/A").strip()
-    start     = (b.get("startDate")    or "N/A").strip()
-    end       = (b.get("endDate")      or "N/A").strip()
-    s_time    = (b.get("startTime")    or "")[:5]
-    e_time    = (b.get("endTime")      or "")[:5]
-    amount    = b.get("amount", 0)
-    try:
-        dur = (datetime.strptime(end, "%Y-%m-%d") - datetime.strptime(start, "%Y-%m-%d")).days
+        dur     = (datetime.strptime(end, "%Y-%m-%d") - datetime.strptime(start, "%Y-%m-%d")).days
         dur_str = f"{dur} day{'s' if dur != 1 else ''}"
     except:
         dur_str = "N/A"
     try:
-        amt_val = float(amount)
-        amt_str = f"AED {amt_val:,.2f}" if amt_val > 0 else "Amount TBC"
+        amt_val    = float(b.get("amount", 0))
+        rental_amt = f"AED {amt_val:,.2f}" if amt_val > 0 else "TBC"
     except:
-        amt_str = "Amount TBC"
+        rental_amt = "TBC"
 
+    return {
+        # Available from API now
+        "customer":     (b.get("customerName")  or "N/A").strip().title(),
+        "mobile":       (b.get("mobile")        or "N/A").strip(),
+        "vehicle":      (b.get("vehicleName")   or "N/A").strip().title(),
+        "plate":        (b.get("vehiclePlate")  or "N/A").strip(),
+        "start":        start,
+        "end":          end,
+        "s_time":       s_time,
+        "e_time":       e_time,
+        "dur_str":      dur_str,
+        "rental_amt":   rental_amt,
+        "total_amt":    rental_amt,
+        # Pending Appic API update
+        "agr_no":       b.get("agreementId")      or "Pending API update",
+        "lead_source":  b.get("leadSource")       or "—",
+        "delivery_loc": b.get("deliveryLocation") or "—",
+        "email":        b.get("clientEmail")      or "—",
+        "address":      b.get("clientAddress")    or "—",
+        "zero_dep":     fmt_amount(b.get("zeroDepositFee",  0)),
+        "addon":        fmt_amount(b.get("addOnCharges",    0)),
+        "vat":          fmt_amount(b.get("vatAmount",       0)),
+        "advance":      fmt_amount(b.get("advanceReceived", 0)),
+        "pay_mode":     b.get("paymentMode")      or "—",
+        "agent":        b.get("salesAgent")       or "—",
+        "remarks":      b.get("remarks")          or "—",
+        "status":       b.get("status")           or "confirmed",
+    }
+
+# ─────────────────────────────────────────────
+#  MESSAGE BUILDERS
+# ─────────────────────────────────────────────
+def build_booking_card(f, now_str):
     blocks = [
         {"type": "header",
          "text": {"type": "plain_text", "text": "🚗 NEW BOOKING — MKV CAR RENTAL"}},
@@ -121,56 +169,84 @@ def build_new_booking_blocks(b, now_str):
              "text": f"Detected: {now_str}  |  Auto-alert via GitHub Actions"}]},
         {"type": "divider"},
         {"type": "section",
+         "text": {"type": "mrkdwn", "text": "*👤 CLIENT DETAILS*"}},
+        {"type": "section",
          "fields": [
-             {"type": "mrkdwn", "text": f"*👤 Customer*\n{customer}"},
-             {"type": "mrkdwn", "text": f"*📱 Mobile*\n{mobile}"},
-             {"type": "mrkdwn", "text": f"*🚘 Vehicle*\n{vehicle}"},
-             {"type": "mrkdwn", "text": f"*🔢 Plate*\n`{plate}`"},
-             {"type": "mrkdwn", "text": f"*📅 Start*\n{fmt_date(start)}  {s_time}"},
-             {"type": "mrkdwn", "text": f"*📅 End*\n{fmt_date(end)}  {e_time}"},
-             {"type": "mrkdwn", "text": f"*⏱ Duration*\n{dur_str}"},
-             {"type": "mrkdwn", "text": f"*💰 Amount*\n{amt_str}"},
+             {"type": "mrkdwn", "text": f"*Name*\n{f['customer']}"},
+             {"type": "mrkdwn", "text": f"*Mobile*\n{f['mobile']}"},
+             {"type": "mrkdwn", "text": f"*Email*\n{f['email']}"},
+             {"type": "mrkdwn", "text": f"*Address*\n{f['address']}"},
+             {"type": "mrkdwn", "text": f"*Lead Source*\n{f['lead_source']}"},
+             {"type": "mrkdwn", "text": f"*Sales Agent*\n{f['agent']}"},
          ]},
         {"type": "divider"},
         {"type": "section",
+         "text": {"type": "mrkdwn", "text": "*📋 BOOKING DETAILS*"}},
+        {"type": "section",
+         "fields": [
+             {"type": "mrkdwn", "text": f"*AGR#*\n`{f['agr_no']}`"},
+             {"type": "mrkdwn", "text": f"*Car Model*\n{f['vehicle']}"},
+             {"type": "mrkdwn", "text": f"*Plate*\n`{f['plate']}`"},
+             {"type": "mrkdwn", "text": f"*Start*\n{fmt_date(f['start'])}  {f['s_time']}"},
+             {"type": "mrkdwn", "text": f"*End*\n{fmt_date(f['end'])}  {f['e_time']}"},
+             {"type": "mrkdwn", "text": f"*Duration*\n{f['dur_str']}"},
+             {"type": "mrkdwn", "text": f"*Delivery Location*\n{f['delivery_loc']}"},
+         ]},
+        {"type": "divider"},
+        {"type": "section",
+         "text": {"type": "mrkdwn", "text": "*💰 PAYMENT BREAKDOWN*"}},
+        {"type": "section",
+         "fields": [
+             {"type": "mrkdwn", "text": f"*Rental Amount*\n{f['rental_amt']}"},
+             {"type": "mrkdwn", "text": f"*Zero Deposit Fee*\n{f['zero_dep']}"},
+             {"type": "mrkdwn", "text": f"*Add-on Charges*\n{f['addon']}"},
+             {"type": "mrkdwn", "text": f"*VAT*\n{f['vat']}"},
+             {"type": "mrkdwn", "text": f"*Total Amount*\n{f['total_amt']}"},
+             {"type": "mrkdwn", "text": f"*Advance Received*\n{f['advance']}"},
+             {"type": "mrkdwn", "text": f"*Payment Mode*\n{f['pay_mode']}"},
+         ]},
+        {"type": "divider"},
+        {"type": "section",
+         "fields": [
+             {"type": "mrkdwn", "text": f"*📝 Remarks*\n{f['remarks']}"},
+         ]},
+        {"type": "section",
          "text": {"type": "mrkdwn",
-             "text": "📋 *Status:* `BOOKING CONFIRMED` — Awaiting Delivery\n_All updates will appear in this thread_"}},
+             "text": (
+                 "⚙️ *OPS STATUS*\n"
+                 "🚚 Delivery Status: `PENDING`\n"
+                 "🔑 Pickup Status: `PENDING`\n\n"
+                 "_All updates will appear in this thread_"
+             )}},
         {"type": "context",
          "elements": [{"type": "mrkdwn",
-             "text": "MKV Car Rental  |  AGR# available after Appic API update"}]},
+             "text": "MKV Car Rental — Auto-detection via GitHub Actions"}]},
     ]
-    return blocks, f"🚗 New Booking: {customer} — {vehicle} ({plate}) | {fmt_date(start)} → {fmt_date(end)} | {amt_str}"
+    return blocks, f"🚗 New Booking: {f['customer']} — {f['vehicle']} ({f['plate']}) | {fmt_date(f['start'])} → {fmt_date(f['end'])} | {f['total_amt']}"
 
-def build_delivery_checklist_blocks(b, now_str):
-    customer  = (b.get("customerName") or "N/A").strip().title()
-    mobile    = (b.get("mobile")       or "N/A").strip()
-    vehicle   = (b.get("vehicleName")  or "N/A").strip().title()
-    plate     = (b.get("vehiclePlate") or "N/A").strip()
-    start     = (b.get("startDate")    or "N/A").strip()
-    s_time    = (b.get("startTime")    or "")[:5]
-    amount    = b.get("amount", 0)
-    try:
-        amt_str = f"AED {float(amount):,.2f}" if float(amount) > 0 else "Amount TBC"
-    except:
-        amt_str = "Amount TBC"
 
+def build_delivery_checklist(f, now_str):
     blocks = [
         {"type": "header",
          "text": {"type": "plain_text", "text": "📦 DELIVERY CHECKLIST"}},
         {"type": "divider"},
         {"type": "section",
+         "text": {"type": "mrkdwn", "text": "*Auto-populated from booking:*"}},
+        {"type": "section",
          "fields": [
-             {"type": "mrkdwn", "text": f"*👤 Customer*\n{customer}"},
-             {"type": "mrkdwn", "text": f"*📱 Mobile*\n{mobile}"},
-             {"type": "mrkdwn", "text": f"*🚘 Vehicle*\n{vehicle}"},
-             {"type": "mrkdwn", "text": f"*🔢 Plate*\n`{plate}`"},
-             {"type": "mrkdwn", "text": f"*📅 Delivery Date*\n{fmt_date(start)}"},
-             {"type": "mrkdwn", "text": f"*🕐 Delivery Time*\n{s_time}"},
-             {"type": "mrkdwn", "text": f"*💰 Amount*\n{amt_str}"},
+             {"type": "mrkdwn", "text": f"*AGR#*\n`{f['agr_no']}`"},
+             {"type": "mrkdwn", "text": f"*Client*\n{f['customer']}"},
+             {"type": "mrkdwn", "text": f"*Mobile*\n{f['mobile']}"},
+             {"type": "mrkdwn", "text": f"*Car Model*\n{f['vehicle']}"},
+             {"type": "mrkdwn", "text": f"*Plate*\n`{f['plate']}`"},
+             {"type": "mrkdwn", "text": f"*Delivery Date*\n{fmt_date(f['start'])}"},
+             {"type": "mrkdwn", "text": f"*Delivery Time*\n{f['s_time']}"},
+             {"type": "mrkdwn", "text": f"*Location*\n{f['delivery_loc']}"},
+             {"type": "mrkdwn", "text": f"*Amount*\n{f['total_amt']}"},
          ]},
         {"type": "divider"},
         {"type": "section",
-         "text": {"type": "mrkdwn", "text": "*✏️ Reply in this thread with:*"}},
+         "text": {"type": "mrkdwn", "text": "*✏️ Driver — reply in this thread:*"}},
         {"type": "section",
          "fields": [
              {"type": "mrkdwn", "text": "*OUT KM*\n»"},
@@ -178,20 +254,17 @@ def build_delivery_checklist_blocks(b, now_str):
              {"type": "mrkdwn", "text": "*DRIVER NAME*\n»"},
              {"type": "mrkdwn", "text": "*REMARKS*\n»"},
          ]},
-        {"type": "divider"},
         {"type": "section",
          "text": {"type": "mrkdwn",
              "text": "📎 *Attach:* Contract PDF + Car Photos + Emirates ID"}},
         {"type": "context",
          "elements": [{"type": "mrkdwn",
-             "text": f"Checklist posted: {now_str}  |  Status: `PENDING DELIVERY`"}]},
+             "text": f"Posted: {now_str}  |  Status: `PENDING DELIVERY`"}]},
     ]
-    return blocks, f"📦 Delivery Checklist: {customer} — {vehicle} ({plate}) on {fmt_date(start)} at {s_time}"
+    return blocks, f"📦 Delivery: {f['customer']} — {f['vehicle']} ({f['plate']}) on {fmt_date(f['start'])} at {f['s_time']}"
 
-def build_extension_blocks(b, now_str, old_end, new_end):
-    customer = (b.get("customerName") or "N/A").strip().title()
-    vehicle  = (b.get("vehicleName")  or "N/A").strip().title()
-    plate    = (b.get("vehiclePlate") or "N/A").strip()
+
+def build_extension_checklist(f, now_str, old_end, new_end):
     try:
         extra   = (datetime.strptime(new_end, "%Y-%m-%d") - datetime.strptime(old_end, "%Y-%m-%d")).days
         ext_str = f"+{extra} day{'s' if extra != 1 else ''}"
@@ -200,48 +273,54 @@ def build_extension_blocks(b, now_str, old_end, new_end):
 
     blocks = [
         {"type": "header",
-         "text": {"type": "plain_text", "text": "🔄 CONTRACT EXTENDED"}},
+         "text": {"type": "plain_text", "text": "🔄 CONTRACT EXTENSION"}},
+        {"type": "divider"},
         {"type": "section",
          "fields": [
-             {"type": "mrkdwn", "text": f"*👤 Customer*\n{customer}"},
-             {"type": "mrkdwn", "text": f"*🚘 Vehicle*\n`{plate}` {vehicle}"},
-             {"type": "mrkdwn", "text": f"*📅 Previous End*\n~{fmt_date(old_end)}~"},
-             {"type": "mrkdwn", "text": f"*📅 New End Date*\n{fmt_date(new_end)}  ({ext_str})"},
+             {"type": "mrkdwn", "text": f"*AGR#*\n`{f['agr_no']}`"},
+             {"type": "mrkdwn", "text": f"*Client*\n{f['customer']}"},
+             {"type": "mrkdwn", "text": f"*Car Model*\n{f['vehicle']}"},
+             {"type": "mrkdwn", "text": f"*Plate*\n`{f['plate']}`"},
+             {"type": "mrkdwn", "text": f"*Previous End*\n~{fmt_date(old_end)}~"},
+             {"type": "mrkdwn", "text": f"*New End Date*\n{fmt_date(new_end)}  ({ext_str})"},
          ]},
+        {"type": "divider"},
         {"type": "section",
-         "text": {"type": "mrkdwn",
-             "text": "📋 *Status:* `EXTENDED` — Pickup date updated\n_Pickup checklist will post closer to new end date_"}},
+         "text": {"type": "mrkdwn", "text": "*✏️ Driver — reply in this thread:*"}},
+        {"type": "section",
+         "fields": [
+             {"type": "mrkdwn", "text": "*EXTENSION AMOUNT*\n» AED"},
+             {"type": "mrkdwn", "text": "*PAYMENT MODE*\n»"},
+             {"type": "mrkdwn", "text": "*PAYMENT STATUS*\n»"},
+             {"type": "mrkdwn", "text": "*REMARKS*\n»"},
+         ]},
         {"type": "context",
-         "elements": [{"type": "mrkdwn", "text": f"Extension detected: {now_str}"}]},
+         "elements": [{"type": "mrkdwn",
+             "text": f"Detected: {now_str}  |  Status: `EXTENDED`"}]},
     ]
-    return blocks, f"🔄 Extension: {customer} — {vehicle} | New end: {fmt_date(new_end)} ({ext_str})"
+    return blocks, f"🔄 Extension: {f['customer']} — {f['vehicle']} | New end: {fmt_date(new_end)} ({ext_str})"
 
-def build_pickup_checklist_blocks(b, now_str):
-    customer  = (b.get("customerName") or "N/A").strip().title()
-    mobile    = (b.get("mobile")       or "N/A").strip()
-    vehicle   = (b.get("vehicleName")  or "N/A").strip().title()
-    plate     = (b.get("vehiclePlate") or "N/A").strip()
-    end       = (b.get("endDate")      or "N/A").strip()
-    e_time    = (b.get("endTime")      or "")[:5]
-    start     = (b.get("startDate")    or "N/A").strip()
-    s_time    = (b.get("startTime")    or "")[:5]
 
+def build_pickup_checklist(f, now_str):
     blocks = [
         {"type": "header",
          "text": {"type": "plain_text", "text": "🔑 PICKUP CHECKLIST — DUE TOMORROW"}},
         {"type": "divider"},
         {"type": "section",
+         "text": {"type": "mrkdwn", "text": "*Auto-populated from booking:*"}},
+        {"type": "section",
          "fields": [
-             {"type": "mrkdwn", "text": f"*👤 Customer*\n{customer}"},
-             {"type": "mrkdwn", "text": f"*📱 Mobile*\n{mobile}"},
-             {"type": "mrkdwn", "text": f"*🚘 Vehicle*\n{vehicle}"},
-             {"type": "mrkdwn", "text": f"*🔢 Plate*\n`{plate}`"},
-             {"type": "mrkdwn", "text": f"*📅 Delivery Was*\n{fmt_date(start)}  {s_time}"},
-             {"type": "mrkdwn", "text": f"*📅 Return Due*\n{fmt_date(end)}  {e_time}"},
+             {"type": "mrkdwn", "text": f"*AGR#*\n`{f['agr_no']}`"},
+             {"type": "mrkdwn", "text": f"*Client*\n{f['customer']}"},
+             {"type": "mrkdwn", "text": f"*Mobile*\n{f['mobile']}"},
+             {"type": "mrkdwn", "text": f"*Car Model*\n{f['vehicle']}"},
+             {"type": "mrkdwn", "text": f"*Plate*\n`{f['plate']}`"},
+             {"type": "mrkdwn", "text": f"*Delivery Was*\n{fmt_date(f['start'])}  {f['s_time']}"},
+             {"type": "mrkdwn", "text": f"*Return Due*\n{fmt_date(f['end'])}  {f['e_time']}"},
          ]},
         {"type": "divider"},
         {"type": "section",
-         "text": {"type": "mrkdwn", "text": "*✏️ Reply in this thread with:*"}},
+         "text": {"type": "mrkdwn", "text": "*✏️ Driver — reply in this thread:*"}},
         {"type": "section",
          "fields": [
              {"type": "mrkdwn", "text": "*IN KM*\n»"},
@@ -249,25 +328,55 @@ def build_pickup_checklist_blocks(b, now_str):
              {"type": "mrkdwn", "text": "*FUEL CHARGE*\n» AED"},
              {"type": "mrkdwn", "text": "*SALIK*\n» AED"},
              {"type": "mrkdwn", "text": "*FINES*\n» AED"},
-             {"type": "mrkdwn", "text": "*DAMAGE*\n»"},
+             {"type": "mrkdwn", "text": "*DAMAGE CHARGES*\n» AED"},
              {"type": "mrkdwn", "text": "*AMOUNT COLLECTED*\n» AED"},
              {"type": "mrkdwn", "text": "*PAYMENT MODE*\n»"},
              {"type": "mrkdwn", "text": "*REMARKS*\n»"},
          ]},
         {"type": "context",
          "elements": [{"type": "mrkdwn",
-             "text": f"Checklist posted: {now_str}  |  Status: `PENDING PICKUP`"}]},
+             "text": f"Posted: {now_str}  |  Status: `PENDING PICKUP`"}]},
     ]
-    return blocks, f"🔑 Pickup Checklist: {customer} — {vehicle} ({plate}) | Return: {fmt_date(end)} at {e_time}"
+    return blocks, f"🔑 Pickup: {f['customer']} — {f['vehicle']} ({f['plate']}) | Return: {fmt_date(f['end'])} at {f['e_time']}"
 
+
+def build_contract_closed(f, now_str):
+    blocks = [
+        {"type": "header",
+         "text": {"type": "plain_text", "text": "🏁 CONTRACT CLOSED"}},
+        {"type": "divider"},
+        {"type": "section",
+         "fields": [
+             {"type": "mrkdwn", "text": f"*AGR#*\n`{f['agr_no']}`"},
+             {"type": "mrkdwn", "text": f"*Client*\n{f['customer']}"},
+             {"type": "mrkdwn", "text": f"*Car Model*\n{f['vehicle']}"},
+             {"type": "mrkdwn", "text": f"*Plate*\n`{f['plate']}`"},
+             {"type": "mrkdwn", "text": f"*Start*\n{fmt_date(f['start'])}  {f['s_time']}"},
+             {"type": "mrkdwn", "text": f"*End*\n{fmt_date(f['end'])}  {f['e_time']}"},
+             {"type": "mrkdwn", "text": f"*Duration*\n{f['dur_str']}"},
+             {"type": "mrkdwn", "text": f"*Total Amount*\n{f['total_amt']}"},
+         ]},
+        {"type": "divider"},
+        {"type": "section",
+         "text": {"type": "mrkdwn",
+             "text": "✅ *CONTRACT CLOSED — NO FURTHER ACTION REQUIRED*"}},
+        {"type": "context",
+         "elements": [{"type": "mrkdwn",
+             "text": f"Closed: {now_str}  |  Auto-detected from Appic"}]},
+    ]
+    return blocks, f"🏁 Closed: {f['customer']} — {f['vehicle']} ({f['plate']})"
+
+# ─────────────────────────────────────────────
+#  MAIN
+# ─────────────────────────────────────────────
 def main():
     now      = dubai_now()
     now_str  = now.strftime("%d %b %Y | %I:%M %p Dubai Time")
     tomorrow = (now + timedelta(days=1)).strftime("%Y-%m-%d")
 
     # ── SEED MODE ──────────────────────────────
-    # True  = first run, stores all silently
-    # False = normal, posts new bookings
+    # True  = stores all bookings silently (first run)
+    # False = normal mode, posts new bookings
     SEED_MODE = False
     # ───────────────────────────────────────────
 
@@ -275,6 +384,7 @@ def main():
     print("  MKV BOOKING BOT")
     print(f"  {now_str}")
     print(f"  SEED MODE: {SEED_MODE}")
+    print(f"  TEST MODE: {TEST_MODE}")
     print("=" * 56)
 
     store    = load_store()
@@ -284,15 +394,18 @@ def main():
     all_bookings = fetch_bookings()
 
     for b in all_bookings:
-        key      = booking_key(b)
+        key = booking_key(b)
         if not key:
             continue
 
-        plate    = (b.get("vehiclePlate") or "").strip()
-        start    = (b.get("startDate")    or "").strip()
-        end      = (b.get("endDate")      or "").strip()
-        customer = (b.get("customerName") or "").strip()
+        f        = extract(b)
+        end      = f["end"]
+        customer = f["customer"]
+        plate    = f["plate"]
+        start    = f["start"]
+        status   = f["status"]
 
+        # ── SEED MODE ─────────────────────────────
         if SEED_MODE:
             if key not in bookings:
                 bookings[key] = {
@@ -300,16 +413,18 @@ def main():
                     "end_date":         end,
                     "plate":            plate,
                     "customer":         customer,
-                    "vehicle":          (b.get("vehicleName") or "").strip(),
+                    "vehicle":          f["vehicle"],
                     "delivery_alerted": True,
                     "pickup_alerted":   False,
+                    "closed":           False,
                     "start_date":       start,
                 }
             continue
 
+        # ── NEW BOOKING ───────────────────────────
         if key not in bookings:
             print(f"  NEW: {customer} | {plate} | {start}")
-            blocks, text = build_new_booking_blocks(b, now_str)
+            blocks, text = build_booking_card(f, now_str)
             ts = post_message(TARGET_CHANNEL, blocks, text)
             if ts:
                 bookings[key] = {
@@ -317,46 +432,61 @@ def main():
                     "end_date":         end,
                     "plate":            plate,
                     "customer":         customer,
-                    "vehicle":          (b.get("vehicleName") or "").strip(),
+                    "vehicle":          f["vehicle"],
                     "delivery_alerted": False,
                     "pickup_alerted":   False,
+                    "closed":           False,
                     "start_date":       start,
                 }
-                print(f"  Booking posted — thread: {ts}")
-                d_blocks, d_text = build_delivery_checklist_blocks(b, now_str)
+                print(f"  Booking card posted — thread: {ts}")
+                d_blocks, d_text = build_delivery_checklist(f, now_str)
                 d_ts = post_message(TARGET_CHANNEL, d_blocks, d_text, thread_ts=ts)
                 if d_ts:
                     bookings[key]["delivery_alerted"] = True
                     print(f"  Delivery checklist posted in thread")
 
+        # ── EXISTING BOOKING ──────────────────────
         else:
             stored    = bookings.get(key, {})
             if not isinstance(stored, dict):
                 continue
             thread_ts = stored.get("thread_ts")
             old_end   = stored.get("end_date", "")
+            closed    = stored.get("closed", False)
 
+            if closed:
+                continue
+
+            # Extension detected
             if end and old_end and end != old_end and end > old_end:
                 print(f"  EXTENSION: {customer} | {plate} | {old_end} -> {end}")
                 if thread_ts:
-                    e_blocks, e_text = build_extension_blocks(b, now_str, old_end, end)
+                    e_blocks, e_text = build_extension_checklist(f, now_str, old_end, end)
                     e_ts = post_message(TARGET_CHANNEL, e_blocks, e_text, thread_ts=thread_ts)
                     if e_ts:
                         bookings[key]["end_date"]       = end
                         bookings[key]["pickup_alerted"] = False
-                        print(f"  Extension posted in thread")
+                        print(f"  Extension checklist posted in thread")
                 else:
                     bookings[key]["end_date"] = end
 
-            if (end == tomorrow and
-                not stored.get("pickup_alerted") and
-                thread_ts):
+            # Pickup checklist — day before end date
+            if end == tomorrow and not stored.get("pickup_alerted") and thread_ts:
                 print(f"  PICKUP CHECKLIST: {customer} | {plate} | due {end}")
-                p_blocks, p_text = build_pickup_checklist_blocks(b, now_str)
+                p_blocks, p_text = build_pickup_checklist(f, now_str)
                 p_ts = post_message(TARGET_CHANNEL, p_blocks, p_text, thread_ts=thread_ts)
                 if p_ts:
                     bookings[key]["pickup_alerted"] = True
                     print(f"  Pickup checklist posted in thread")
+
+            # Contract closed — when Appic adds status field
+            if status == "closed" and not closed and thread_ts:
+                print(f"  CONTRACT CLOSED: {customer} | {plate}")
+                c_blocks, c_text = build_contract_closed(f, now_str)
+                c_ts = post_message(TARGET_CHANNEL, c_blocks, c_text, thread_ts=thread_ts)
+                if c_ts:
+                    bookings[key]["closed"] = True
+                    print(f"  Contract closed posted in thread")
 
     store["bookings"] = bookings
     save_store(store)
