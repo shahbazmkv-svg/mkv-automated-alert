@@ -86,6 +86,12 @@ def fetch_bookings():
         print(f"  API error: {e}")
         return []
 
+def fmt_date(d):
+    try:
+        return datetime.strptime(d, "%Y-%m-%d").strftime("%d %b %Y")
+    except:
+        return d
+
 def build_new_booking_blocks(b, now_str):
     customer  = (b.get("customerName") or "N/A").strip().title()
     mobile    = (b.get("mobile")       or "N/A").strip()
@@ -97,9 +103,8 @@ def build_new_booking_blocks(b, now_str):
     e_time    = (b.get("endTime")      or "")[:5]
     amount    = b.get("amount", 0)
     try:
-        d1 = datetime.strptime(start, "%Y-%m-%d")
-        d2 = datetime.strptime(end,   "%Y-%m-%d")
-        dur_str = f"{(d2-d1).days} day{'s' if (d2-d1).days != 1 else ''}"
+        dur = (datetime.strptime(end, "%Y-%m-%d") - datetime.strptime(start, "%Y-%m-%d")).days
+        dur_str = f"{dur} day{'s' if dur != 1 else ''}"
     except:
         dur_str = "N/A"
     try:
@@ -107,12 +112,6 @@ def build_new_booking_blocks(b, now_str):
         amt_str = f"AED {amt_val:,.2f}" if amt_val > 0 else "Amount TBC"
     except:
         amt_str = "Amount TBC"
-    try:
-        start_fmt = datetime.strptime(start, "%Y-%m-%d").strftime("%d %b %Y")
-        end_fmt   = datetime.strptime(end,   "%Y-%m-%d").strftime("%d %b %Y")
-    except:
-        start_fmt = start
-        end_fmt   = end
 
     blocks = [
         {"type": "header",
@@ -127,8 +126,8 @@ def build_new_booking_blocks(b, now_str):
              {"type": "mrkdwn", "text": f"*📱 Mobile*\n{mobile}"},
              {"type": "mrkdwn", "text": f"*🚘 Vehicle*\n{vehicle}"},
              {"type": "mrkdwn", "text": f"*🔢 Plate*\n`{plate}`"},
-             {"type": "mrkdwn", "text": f"*📅 Start*\n{start_fmt}  {s_time}"},
-             {"type": "mrkdwn", "text": f"*📅 End*\n{end_fmt}  {e_time}"},
+             {"type": "mrkdwn", "text": f"*📅 Start*\n{fmt_date(start)}  {s_time}"},
+             {"type": "mrkdwn", "text": f"*📅 End*\n{fmt_date(end)}  {e_time}"},
              {"type": "mrkdwn", "text": f"*⏱ Duration*\n{dur_str}"},
              {"type": "mrkdwn", "text": f"*💰 Amount*\n{amt_str}"},
          ]},
@@ -140,52 +139,64 @@ def build_new_booking_blocks(b, now_str):
          "elements": [{"type": "mrkdwn",
              "text": "MKV Car Rental  |  AGR# available after Appic API update"}]},
     ]
-    return blocks, f"🚗 New Booking: {customer} — {vehicle} ({plate}) | {start_fmt} → {end_fmt} | {amt_str}"
+    return blocks, f"🚗 New Booking: {customer} — {vehicle} ({plate}) | {fmt_date(start)} → {fmt_date(end)} | {amt_str}"
 
-def build_delivery_reminder_blocks(b, now_str):
+def build_delivery_checklist_blocks(b, now_str):
     customer  = (b.get("customerName") or "N/A").strip().title()
     mobile    = (b.get("mobile")       or "N/A").strip()
     vehicle   = (b.get("vehicleName")  or "N/A").strip().title()
     plate     = (b.get("vehiclePlate") or "N/A").strip()
     start     = (b.get("startDate")    or "N/A").strip()
     s_time    = (b.get("startTime")    or "")[:5]
+    amount    = b.get("amount", 0)
     try:
-        start_fmt = datetime.strptime(start, "%Y-%m-%d").strftime("%d %b %Y")
+        amt_str = f"AED {float(amount):,.2f}" if float(amount) > 0 else "Amount TBC"
     except:
-        start_fmt = start
+        amt_str = "Amount TBC"
 
     blocks = [
         {"type": "header",
-         "text": {"type": "plain_text", "text": "📦 DELIVERY REQUIRED"}},
+         "text": {"type": "plain_text", "text": "📦 DELIVERY CHECKLIST"}},
+        {"type": "divider"},
         {"type": "section",
          "fields": [
              {"type": "mrkdwn", "text": f"*👤 Customer*\n{customer}"},
              {"type": "mrkdwn", "text": f"*📱 Mobile*\n{mobile}"},
              {"type": "mrkdwn", "text": f"*🚘 Vehicle*\n{vehicle}"},
              {"type": "mrkdwn", "text": f"*🔢 Plate*\n`{plate}`"},
-             {"type": "mrkdwn", "text": f"*📅 Delivery Date*\n{start_fmt}"},
+             {"type": "mrkdwn", "text": f"*📅 Delivery Date*\n{fmt_date(start)}"},
              {"type": "mrkdwn", "text": f"*🕐 Delivery Time*\n{s_time}"},
+             {"type": "mrkdwn", "text": f"*💰 Amount*\n{amt_str}"},
          ]},
+        {"type": "divider"},
         {"type": "section",
          "text": {"type": "mrkdwn",
-             "text": "✅ *Prepare:* Contract PDF + Car Photos + Emirates ID"}},
+             "text": (
+                 "*✏️ Driver — reply in this thread with:*\n\n"
+                 "```\n"
+                 "OUT KM      : ___\n"
+                 "FUEL LEVEL  : ___  (e.g. 50% / Full / 3/4)\n"
+                 "DRIVER NAME : ___\n"
+                 "REMARKS     : ___\n"
+                 "```"
+             )}},
+        {"type": "section",
+         "text": {"type": "mrkdwn",
+             "text": "📎 *Also attach:* Contract PDF + Car Photos + Emirates ID copy"}},
         {"type": "context",
-         "elements": [{"type": "mrkdwn", "text": f"Alert: {now_str}"}]},
+         "elements": [{"type": "mrkdwn",
+             "text": f"Checklist posted: {now_str}  |  Status: `PENDING DELIVERY`"}]},
     ]
-    return blocks, f"📦 Delivery: {customer} — {vehicle} ({plate}) on {start_fmt} at {s_time}"
+    return blocks, f"📦 Delivery Checklist: {customer} — {vehicle} ({plate}) on {fmt_date(start)} at {s_time}"
 
 def build_extension_blocks(b, now_str, old_end, new_end):
     customer = (b.get("customerName") or "N/A").strip().title()
     vehicle  = (b.get("vehicleName")  or "N/A").strip().title()
     plate    = (b.get("vehiclePlate") or "N/A").strip()
     try:
-        old_fmt = datetime.strptime(old_end, "%Y-%m-%d").strftime("%d %b %Y")
-        new_fmt = datetime.strptime(new_end, "%Y-%m-%d").strftime("%d %b %Y")
         extra   = (datetime.strptime(new_end, "%Y-%m-%d") - datetime.strptime(old_end, "%Y-%m-%d")).days
         ext_str = f"+{extra} day{'s' if extra != 1 else ''}"
     except:
-        old_fmt = old_end
-        new_fmt = new_end
         ext_str = "Extended"
 
     blocks = [
@@ -195,48 +206,62 @@ def build_extension_blocks(b, now_str, old_end, new_end):
          "fields": [
              {"type": "mrkdwn", "text": f"*👤 Customer*\n{customer}"},
              {"type": "mrkdwn", "text": f"*🚘 Vehicle*\n`{plate}` {vehicle}"},
-             {"type": "mrkdwn", "text": f"*📅 Previous End*\n~{old_fmt}~"},
-             {"type": "mrkdwn", "text": f"*📅 New End Date*\n{new_fmt}  ({ext_str})"},
+             {"type": "mrkdwn", "text": f"*📅 Previous End*\n~{fmt_date(old_end)}~"},
+             {"type": "mrkdwn", "text": f"*📅 New End Date*\n{fmt_date(new_end)}  ({ext_str})"},
          ]},
         {"type": "section",
          "text": {"type": "mrkdwn",
-             "text": "📋 *Status:* `EXTENDED` — Pickup date updated"}},
+             "text": "📋 *Status:* `EXTENDED` — Pickup date updated\n_Pickup checklist will be reposted closer to new end date_"}},
         {"type": "context",
-         "elements": [{"type": "mrkdwn", "text": f"Detected: {now_str}"}]},
+         "elements": [{"type": "mrkdwn", "text": f"Extension detected: {now_str}"}]},
     ]
-    return blocks, f"🔄 Extension: {customer} — {vehicle} | New end: {new_fmt} ({ext_str})"
+    return blocks, f"🔄 Extension: {customer} — {vehicle} | New end: {fmt_date(new_end)} ({ext_str})"
 
-def build_pickup_reminder_blocks(b, now_str):
-    customer = (b.get("customerName") or "N/A").strip().title()
-    mobile   = (b.get("mobile")       or "N/A").strip()
-    vehicle  = (b.get("vehicleName")  or "N/A").strip().title()
-    plate    = (b.get("vehiclePlate") or "N/A").strip()
-    end      = (b.get("endDate")      or "N/A").strip()
-    e_time   = (b.get("endTime")      or "")[:5]
-    try:
-        end_fmt = datetime.strptime(end, "%Y-%m-%d").strftime("%d %b %Y")
-    except:
-        end_fmt = end
+def build_pickup_checklist_blocks(b, now_str):
+    customer  = (b.get("customerName") or "N/A").strip().title()
+    mobile    = (b.get("mobile")       or "N/A").strip()
+    vehicle   = (b.get("vehicleName")  or "N/A").strip().title()
+    plate     = (b.get("vehiclePlate") or "N/A").strip()
+    end       = (b.get("endDate")      or "N/A").strip()
+    e_time    = (b.get("endTime")      or "")[:5]
+    start     = (b.get("startDate")    or "N/A").strip()
+    s_time    = (b.get("startTime")    or "")[:5]
 
     blocks = [
         {"type": "header",
-         "text": {"type": "plain_text", "text": "🔑 PICKUP DUE TOMORROW"}},
+         "text": {"type": "plain_text", "text": "🔑 PICKUP CHECKLIST — DUE TOMORROW"}},
+        {"type": "divider"},
         {"type": "section",
          "fields": [
              {"type": "mrkdwn", "text": f"*👤 Customer*\n{customer}"},
              {"type": "mrkdwn", "text": f"*📱 Mobile*\n{mobile}"},
              {"type": "mrkdwn", "text": f"*🚘 Vehicle*\n{vehicle}"},
              {"type": "mrkdwn", "text": f"*🔢 Plate*\n`{plate}`"},
-             {"type": "mrkdwn", "text": f"*📅 Return Date*\n{end_fmt}"},
-             {"type": "mrkdwn", "text": f"*🕐 Return Time*\n{e_time}"},
+             {"type": "mrkdwn", "text": f"*📅 Delivery Was*\n{fmt_date(start)}  {s_time}"},
+             {"type": "mrkdwn", "text": f"*📅 Return Due*\n{fmt_date(end)}  {e_time}"},
          ]},
+        {"type": "divider"},
         {"type": "section",
          "text": {"type": "mrkdwn",
-             "text": "📋 *Status:* `PICKUP PENDING`\n✅ Prepare: Inspection checklist + KM reading"}},
+             "text": (
+                 "*✏️ Driver — reply in this thread with:*\n\n"
+                 "```\n"
+                 "IN KM            : ___\n"
+                 "EXTRA KM         : ___  (auto if known)\n"
+                 "FUEL CHARGE      : ___  AED (0 if full)\n"
+                 "SALIK            : ___  AED\n"
+                 "FINES            : ___  AED\n"
+                 "DAMAGE           : ___  (None / describe)\n"
+                 "AMOUNT COLLECTED : ___  AED\n"
+                 "PAYMENT MODE     : ___  (Cash / Card / Transfer)\n"
+                 "REMARKS          : ___\n"
+                 "```"
+             )}},
         {"type": "context",
-         "elements": [{"type": "mrkdwn", "text": f"Reminder: {now_str}"}]},
+         "elements": [{"type": "mrkdwn",
+             "text": f"Checklist posted: {now_str}  |  Status: `PENDING PICKUP`"}]},
     ]
-    return blocks, f"🔑 Pickup Tomorrow: {customer} — {vehicle} ({plate}) | Return: {end_fmt} at {e_time}"
+    return blocks, f"🔑 Pickup Checklist: {customer} — {vehicle} ({plate}) | Return: {fmt_date(end)} at {e_time}"
 
 def main():
     now      = dubai_now()
@@ -287,6 +312,8 @@ def main():
 
         if key not in bookings:
             print(f"  NEW: {customer} | {plate} | {start}")
+
+            # Post booking card
             blocks, text = build_new_booking_blocks(b, now_str)
             ts = post_message(TARGET_CHANNEL, blocks, text)
             if ts:
@@ -301,11 +328,13 @@ def main():
                     "start_date":       start,
                 }
                 print(f"  Booking posted — thread: {ts}")
-                d_blocks, d_text = build_delivery_reminder_blocks(b, now_str)
+
+                # Post delivery checklist in thread immediately
+                d_blocks, d_text = build_delivery_checklist_blocks(b, now_str)
                 d_ts = post_message(TARGET_CHANNEL, d_blocks, d_text, thread_ts=ts)
                 if d_ts:
                     bookings[key]["delivery_alerted"] = True
-                    print(f"  Delivery alert posted in thread")
+                    print(f"  Delivery checklist posted in thread")
 
         else:
             stored    = bookings.get(key, {})
@@ -314,6 +343,7 @@ def main():
             thread_ts = stored.get("thread_ts")
             old_end   = stored.get("end_date", "")
 
+            # Extension detected
             if end and old_end and end != old_end and end > old_end:
                 print(f"  EXTENSION: {customer} | {plate} | {old_end} -> {end}")
                 if thread_ts:
@@ -326,15 +356,16 @@ def main():
                 else:
                     bookings[key]["end_date"] = end
 
+            # Pickup checklist — day before end date
             if (end == tomorrow and
                 not stored.get("pickup_alerted") and
                 thread_ts):
-                print(f"  PICKUP REMINDER: {customer} | {plate} | due {end}")
-                p_blocks, p_text = build_pickup_reminder_blocks(b, now_str)
+                print(f"  PICKUP CHECKLIST: {customer} | {plate} | due {end}")
+                p_blocks, p_text = build_pickup_checklist_blocks(b, now_str)
                 p_ts = post_message(TARGET_CHANNEL, p_blocks, p_text, thread_ts=thread_ts)
                 if p_ts:
                     bookings[key]["pickup_alerted"] = True
-                    print(f"  Pickup reminder posted in thread")
+                    print(f"  Pickup checklist posted in thread")
 
     store["bookings"] = bookings
     save_store(store)
@@ -348,3 +379,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+Done
