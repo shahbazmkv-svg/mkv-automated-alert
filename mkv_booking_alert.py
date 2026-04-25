@@ -134,7 +134,7 @@ def main():
     # ── SEED MODE ──────────────────────────────────
     # True  = first run, stores all bookings silently
     # False = normal mode, posts new bookings to Slack
-    SEED_MODE = False
+    SEED_MODE = True
     # ───────────────────────────────────────────────
 
     store = load_store()
