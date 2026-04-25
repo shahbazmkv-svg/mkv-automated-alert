@@ -15,7 +15,6 @@ TARGET_CHANNEL     = CHANNEL_TEST if TEST_MODE else CHANNEL_BOOKINGS
 APPIC_BOOKINGS_URL = "https://www.appicfleet.com/appiccar-apis-mkv/get-mkv-bookings.php"
 STORE_FILE         = "booking_thread_store.json"
 DUBAI_TZ           = timezone(timedelta(hours=4))
-
 SLACK_HEADERS      = {
     "Authorization": f"Bearer {SLACK_BOT_TOKEN}",
     "Content-Type": "application/json"
@@ -44,11 +43,7 @@ def save_store(store):
         json.dump(store, f, indent=2)
 
 def post_message(channel, blocks, text, thread_ts=None):
-    payload = {
-        "channel": channel,
-        "text":    text,
-        "blocks":  blocks,
-    }
+    payload = {"channel": channel, "text": text, "blocks": blocks}
     if thread_ts:
         payload["thread_ts"] = thread_ts
     try:
@@ -248,9 +243,16 @@ def main():
     now_str  = now.strftime("%d %b %Y | %I:%M %p Dubai Time")
     tomorrow = (now + timedelta(days=1)).strftime("%Y-%m-%d")
 
+    # ── SEED MODE ──────────────────────────────
+    # True  = first run, stores all silently
+    # False = normal, posts new bookings
+    SEED_MODE = True
+    # ───────────────────────────────────────────
+
     print("=" * 56)
     print("  MKV BOOKING BOT")
     print(f"  {now_str}")
+    print(f"  SEED MODE: {SEED_MODE}")
     print("=" * 56)
 
     store    = load_store()
@@ -263,20 +265,26 @@ def main():
         key      = booking_key(b)
         if not key:
             continue
+
         plate    = (b.get("vehiclePlate") or "").strip()
         start    = (b.get("startDate")    or "").strip()
         end      = (b.get("endDate")      or "").strip()
         customer = (b.get("customerName") or "").strip()
 
-       SEED_MODE = True
         if SEED_MODE:
-            bookings[key] = {"thread_ts": None, "end_date": (b.get("endDate") or "").strip(),
-                            "pickup_alerted": False, "delivery_alerted": True,
-                            "plate": (b.get("vehiclePlate") or "").strip(),
-                            "customer": (b.get("customerName") or "").strip(),
-                            "vehicle": (b.get("vehicleName") or "").strip(),
-                            "start_date": (b.get("startDate") or "").strip()}
+            if key not in bookings:
+                bookings[key] = {
+                    "thread_ts":        None,
+                    "end_date":         end,
+                    "plate":            plate,
+                    "customer":         customer,
+                    "vehicle":          (b.get("vehicleName") or "").strip(),
+                    "delivery_alerted": True,
+                    "pickup_alerted":   False,
+                    "start_date":       start,
+                }
             continue
+
         if key not in bookings:
             print(f"  NEW: {customer} | {plate} | {start}")
             blocks, text = build_new_booking_blocks(b, now_str)
@@ -298,20 +306,29 @@ def main():
                 if d_ts:
                     bookings[key]["delivery_alerted"] = True
                     print(f"  Delivery alert posted in thread")
-        elif isinstance(bookings.get(key), dict) and bookings[key].get("thread_ts"):
-            stored    = bookings[key]
+
+        else:
+            stored    = bookings.get(key, {})
+            if not isinstance(stored, dict):
+                continue
             thread_ts = stored.get("thread_ts")
+            old_end   = stored.get("end_date", "")
 
-            if end != old_end and end > old_end:
+            if end and old_end and end != old_end and end > old_end:
                 print(f"  EXTENSION: {customer} | {plate} | {old_end} -> {end}")
-                e_blocks, e_text = build_extension_blocks(b, now_str, old_end, end)
-                e_ts = post_message(TARGET_CHANNEL, e_blocks, e_text, thread_ts=thread_ts)
-                if e_ts:
-                    bookings[key]["end_date"]       = end
-                    bookings[key]["pickup_alerted"] = False
-                    print(f"  Extension posted in thread")
+                if thread_ts:
+                    e_blocks, e_text = build_extension_blocks(b, now_str, old_end, end)
+                    e_ts = post_message(TARGET_CHANNEL, e_blocks, e_text, thread_ts=thread_ts)
+                    if e_ts:
+                        bookings[key]["end_date"]       = end
+                        bookings[key]["pickup_alerted"] = False
+                        print(f"  Extension posted in thread")
+                else:
+                    bookings[key]["end_date"] = end
 
-            if end == tomorrow and not stored.get("pickup_alerted") and thread_ts:
+            if (end == tomorrow and
+                not stored.get("pickup_alerted") and
+                thread_ts):
                 print(f"  PICKUP REMINDER: {customer} | {plate} | due {end}")
                 p_blocks, p_text = build_pickup_reminder_blocks(b, now_str)
                 p_ts = post_message(TARGET_CHANNEL, p_blocks, p_text, thread_ts=thread_ts)
@@ -321,6 +338,10 @@ def main():
 
     store["bookings"] = bookings
     save_store(store)
+
+    if SEED_MODE:
+        print(f"  SEED MODE ON — {len(bookings)} bookings stored silently")
+
     print("=" * 56)
     print("  Done")
     print("=" * 56)
