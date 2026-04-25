@@ -1,0 +1,34 @@
+name: MKV Booking Bot
+
+on:
+  schedule:
+    - cron: '0,15,30,45 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  run-booking-bot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install requests
+      - name: Run MKV Booking Bot
+        env:
+          APPIC_KEY:       ${{ secrets.APPIC_KEY }}
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+        run: python mkv_booking_bot.py
+      - name: Save booking thread store
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add booking_thread_store.json || true
+          git diff --cached --quiet || git commit -m "chore: update booking_thread_store $(date +'%Y-%m-%d %H:%M')"
+          git push || true
