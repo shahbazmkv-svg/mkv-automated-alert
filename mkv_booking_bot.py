@@ -268,8 +268,16 @@ def main():
         end      = (b.get("endDate")      or "").strip()
         customer = (b.get("customerName") or "").strip()
 
-        SEED_MODE = True
-        if key not in bookings and not SEED_MODE:
+       SEED_MODE = True
+        if SEED_MODE:
+            bookings[key] = {"thread_ts": None, "end_date": (b.get("endDate") or "").strip(),
+                            "pickup_alerted": False, "delivery_alerted": True,
+                            "plate": (b.get("vehiclePlate") or "").strip(),
+                            "customer": (b.get("customerName") or "").strip(),
+                            "vehicle": (b.get("vehicleName") or "").strip(),
+                            "start_date": (b.get("startDate") or "").strip()}
+            continue
+        if key not in bookings:
             print(f"  NEW: {customer} | {plate} | {start}")
             blocks, text = build_new_booking_blocks(b, now_str)
             ts = post_message(TARGET_CHANNEL, blocks, text)
@@ -290,10 +298,9 @@ def main():
                 if d_ts:
                     bookings[key]["delivery_alerted"] = True
                     print(f"  Delivery alert posted in thread")
-        else:
+        elif isinstance(bookings.get(key), dict) and bookings[key].get("thread_ts"):
             stored    = bookings[key]
             thread_ts = stored.get("thread_ts")
-            old_end   = stored.get("end_date", "")
 
             if end != old_end and end > old_end:
                 print(f"  EXTENSION: {customer} | {plate} | {old_end} -> {end}")
