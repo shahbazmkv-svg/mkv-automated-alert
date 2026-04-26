@@ -1220,6 +1220,17 @@
       "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-04-26"
+    },
+    "33789|2026-04-27|00:58:14": {
+      "thread_ts": "1777240642.849239",
+      "end_date": "2026-05-02",
+      "plate": "33789",
+      "customer": "Mohammad Wassim Allawz Albadaouie",
+      "vehicle": "Bentley Bentayga",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-04-27"
     }
   }
 }
