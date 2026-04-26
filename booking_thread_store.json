@@ -1209,6 +1209,17 @@
       "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-04-25"
+    },
+    "60137|2026-04-26|18:14:47": {
+      "thread_ts": "1777214035.151739",
+      "end_date": "2026-04-27",
+      "plate": "60137",
+      "customer": "Vishal Chitkara",
+      "vehicle": "Mercedes-Benz Mercedes  G63",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-04-26"
     }
   }
 }
