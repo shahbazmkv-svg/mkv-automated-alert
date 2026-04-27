@@ -179,10 +179,16 @@ SOCIAL_CHECK_FNS = {
 # ── Slack ─────────────────────────────────────────────────────────────────────
 
 def post_slack(blocks):
+    payload = {
+        "channel":    SLACK_CHANNEL,
+        "username":   "MKV Website Monitor",
+        "icon_emoji": ":globe_with_meridians:",
+        "blocks":     blocks,
+    }
     r = requests.post(
         "https://slack.com/api/chat.postMessage",
         headers={"Authorization": f"Bearer {SLACK_TOKEN}", "Content-Type": "application/json"},
-        data=json.dumps({"channel": SLACK_CHANNEL, "blocks": blocks}),
+        data=json.dumps(payload),
         timeout=15,
     )
     result = r.json()
