@@ -171,7 +171,12 @@ def post_to_slack(message: dict):
     r = requests.post(
         "https://slack.com/api/chat.postMessage",
         headers={"Authorization": f"Bearer {SLACK_TOKEN}", "Content-Type": "application/json"},
-        data=json.dumps({"channel": SLACK_CHANNEL, **message}),
+        data=json.dumps({
+            "channel":    SLACK_CHANNEL,
+            "username":   "MKV Fleet Status",
+            "icon_emoji": ":car:",
+            **message
+        }),
         timeout=15,
     )
     result = r.json()
