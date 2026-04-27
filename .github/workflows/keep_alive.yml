@@ -2,19 +2,132 @@ name: Keep Alive
 
 on:
   schedule:
-    - cron: '0 6 * * *'
+    - cron: '0 6 * * *'          # 10:00 AM Dubai — Fleet Availability Post
+    - cron: '0 7 * * *'          # 11:00 AM Dubai — Daily Leads + Website Snapshot
+    - cron: '0 15 * * *'         # 07:00 PM Dubai — Pickup Alert
+    - cron: '0,15,30,45 * * * *' # Every 15 min  — Booking Bot
   workflow_dispatch:
 
 jobs:
-  keep-alive:
+
+  # ── Fleet Availability Post — 10:00 AM Dubai ─────────────────────────────
+  fleet-availability:
+    if: github.event.schedule == '0 6 * * *' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install requests --break-system-packages
+      - name: Run Fleet Availability Post
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+        run: python mkv_fleet_availability.py
       - name: Keep repo active
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git commit --allow-empty -m "chore: keep alive $(date +'%Y-%m-%d')"
+          git commit --allow-empty -m "chore: fleet availability ran $(date +'%Y-%m-%d')"
           git push
+
+  # ── Daily Leads Report — 11:00 AM Dubai ──────────────────────────────────
+  daily-leads:
+    if: github.event.schedule == '0 7 * * *' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install requests --break-system-packages
+      - name: Run Daily Leads Report
+        env:
+          SLACK_BOT_TOKEN:     ${{ secrets.SLACK_BOT_TOKEN }}
+          GALLABOX_API_KEY:    ${{ secrets.GALLABOX_API_KEY }}
+          GALLABOX_API_SECRET: ${{ secrets.GALLABOX_API_SECRET }}
+          GALLABOX_ACCOUNT_ID: ${{ secrets.GALLABOX_ACCOUNT_ID }}
+        run: python mkv_gallabox_snapshot.py
+      - name: Keep repo active
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git commit --allow-empty -m "chore: leads report ran $(date +'%Y-%m-%d')"
+          git push
+
+  # ── Website Snapshot — 11:00 AM Dubai ────────────────────────────────────
+  website-snapshot:
+    if: github.event.schedule == '0 7 * * *' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install requests beautifulsoup4 lxml --break-system-packages
+      - name: Run Website Snapshot
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+        run: python mkv_website_monitor.py
+      - name: Keep repo active
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git commit --allow-empty -m "chore: website snapshot ran $(date +'%Y-%m-%d')"
+          git push
+
+  # ── Pickup Alert — 7:00 PM Dubai ─────────────────────────────────────────
+  pickup-alert:
+    if: github.event.schedule == '0 15 * * *' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install requests --break-system-packages
+      - name: Run Pickup Alert
+        env:
+          APPIC_KEY:        ${{ secrets.APPIC_KEY }}
+          WEBHOOK_DELIVERY: ${{ secrets.WEBHOOK_DELIVERY }}
+          WEBHOOK_PICKUP:   ${{ secrets.WEBHOOK_PICKUP }}
+        run: python mkv_pickup_alert.py
+      - name: Keep repo active
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git commit --allow-empty -m "chore: pickup alert ran $(date +'%Y-%m-%d')"
+          git push
+
+  # ── Booking Bot — Every 15 minutes ───────────────────────────────────────
+  booking-bot:
+    if: github.event.schedule == '0,15,30,45 * * * *' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install requests --break-system-packages
+      - name: Run Booking Bot
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+          APPIC_KEY:       ${{ secrets.APPIC_KEY }}
+        run: python mkv_booking_bot.py
+      - name: Commit store updates
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add booking_thread_store.json || true
+          git commit -m "chore: booking bot store $(date +'%Y-%m-%d %H:%M')" || true
+          git push || true
