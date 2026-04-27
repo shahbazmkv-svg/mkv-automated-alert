@@ -244,7 +244,7 @@
     },
     "009868-DOMI-Land Rover": {
       "thread_ts": null,
-      "end_date": "2026-04-25",
+      "end_date": "2026-04-27",
       "plate": "94545",
       "customer": "Dominic Anthony Murphy",
       "vehicle": "Land Rover Sport",
@@ -1337,6 +1337,17 @@
       "plate": "66789",
       "customer": "Ibrahim Qubtan",
       "vehicle": "Mercedes-Benz Mercedes G3 (Brabus)",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-04-27"
+    },
+    "009888-WOUT-Land Rover": {
+      "thread_ts": "1777281064.326069",
+      "end_date": "2026-04-29",
+      "plate": "68620",
+      "customer": "Wout Hems Dinand Assink",
+      "vehicle": "Land Rover Range Rover Velar",
       "delivery_alerted": true,
       "pickup_alerted": false,
       "closed": false,
