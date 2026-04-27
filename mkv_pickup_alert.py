@@ -1,37 +1,190 @@
-name: MKV Pickup Alert
+import requests
+import json
+import os
+from datetime import datetime, timedelta
+import pytz
 
-on:
-  schedule:
-    - cron: '30 15 * * *'
-  workflow_dispatch:
+APPIC_KEY         = os.environ["APPIC_KEY"]
+WEBHOOK_DELIVERY  = os.environ["WEBHOOK_DELIVERY"]
+WEBHOOK_PICKUP    = os.environ["WEBHOOK_PICKUP"]
 
-jobs:
-  send-pickup-alert:
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
+APPIC_BOOKINGS    = "https://www.appicfleet.com/appiccar-apis-mkv/get-mkv-bookings.php"
+APPIC_VEHICLES    = "https://www.appicfleet.com/appiccar-apis-mkv/get-all-vehicles.php"
+DUBAI_TZ          = pytz.timezone("Asia/Dubai")
 
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+def dubai_now():
+    return datetime.now(DUBAI_TZ)
 
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
+def tomorrow_str():
+    return (dubai_now() + timedelta(days=1)).strftime("%Y-%m-%d")
 
-      - run: pip install requests pytz
+def today_str():
+    return dubai_now().strftime("%Y-%m-%d")
 
-      - name: Run MKV Pickup Alert
-        env:
-          APPIC_KEY:        ${{ secrets.APPIC_KEY }}
-          WEBHOOK_DELIVERY: ${{ secrets.WEBHOOK_DELIVERY }}
-          WEBHOOK_PICKUP:   ${{ secrets.WEBHOOK_PICKUP }}
-        run: python mkv_pickup_alert.py
+def fetch(url, params=None):
+    p = {"key": APPIC_KEY}
+    if params:
+        p.update(params)
+    try:
+        r = requests.get(url, params=p, timeout=15)
+        r.raise_for_status()
+        return r.json()
+    except Exception as e:
+        print(f"  API error [{url}]: {e}")
+        return []
 
-      - name: Save pickup store
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add pickup_alert_store.json || true
-          git diff --cached --quiet || git commit -m "chore: update pickup_store $(date +'%Y-%m-%d')"
-          git push || true
+def fetch_post(url, data):
+    try:
+        r = requests.post(url, data=data, timeout=15)
+        r.raise_for_status()
+        return r.json()
+    except Exception as e:
+        print(f"  API error [{url}]: {e}")
+        return {}
+
+def post_slack(webhook, payload):
+    try:
+        r = requests.post(webhook, json=payload, timeout=10)
+        return r.status_code == 200
+    except Exception as e:
+        print(f"  Slack error: {e}")
+        return False
+
+def build_vehicle_map():
+    vehicles = fetch(APPIC_VEHICLES)
+    vmap = {}
+    if isinstance(vehicles, list):
+        for v in vehicles:
+            vid   = str(v.get("id") or v.get("vehicle_id") or "")
+            plate = v.get("plate_number") or v.get("license_plate") or "N/A"
+            model = v.get("make_model") or v.get("model") or v.get("vehicle_name") or "Unknown"
+            color = v.get("color") or ""
+            vmap[vid] = {"plate": plate, "model": model, "color": color}
+    return vmap
+
+def get_bookings(date, vmap):
+    data = fetch_post(APPIC_BOOKINGS, {
+        "key": APPIC_KEY,
+        "startDate": date,
+        "endDate": date
+    })
+    bookings = data.get("bookings", []) if isinstance(data, dict) else []
+    results = []
+    for b in bookings:
+        vid    = str(b.get("vehicle_id") or "")
+        cname  = b.get("customerName") or b.get("name") or "N/A"
+        cphone = b.get("mobile") or b.get("phone") or "N/A"
+        vinfo  = vmap.get(vid, {})
+        plate  = b.get("vehiclePlate") or vinfo.get("plate", "N/A")
+        model  = b.get("vehicleName")  or vinfo.get("model", "N/A")
+        color  = vinfo.get("color", "")
+        results.append({
+            "customer":   cname,
+            "phone":      cphone,
+            "vehicle":    model,
+            "plate":      plate,
+            "color":      color,
+            "start_date": str(b.get("startDate") or "")[:10],
+            "end_date":   str(b.get("endDate")   or "")[:10],
+        })
+    return results
+
+def build_delivery_message(deliveries, tomorrow):
+    now_str = dubai_now().strftime("%d %b %Y | %I:%M %p")
+    if not deliveries:
+        return {
+            "text": f"📦 No deliveries scheduled for {tomorrow}",
+            "blocks": [
+                {"type": "header", "text": {"type": "plain_text", "text": f"📦 MKV DELIVERY ALERT — {tomorrow}"}},
+                {"type": "section", "text": {"type": "mrkdwn", "text": "✅ No deliveries scheduled for tomorrow."}},
+            ]
+        }
+    rows = ""
+    for i, d in enumerate(deliveries, 1):
+        color_str = f" ({d['color']})" if d['color'] else ""
+        rows += (
+            f"*{i}. {d['vehicle']}{color_str}* — `{d['plate']}`\n"
+            f"   👤 {d['customer']}  |  📞 {d['phone']}\n"
+            f"   📅 {d['start_date']} → {d['end_date']}\n\n"
+        )
+    return {
+        "text": f"📦 MKV Delivery Alert — {tomorrow} | {len(deliveries)} vehicle(s)",
+        "blocks": [
+            {"type": "header", "text": {"type": "plain_text", "text": f"📦 MKV DELIVERY ALERT — {tomorrow}"}},
+            {"type": "context", "elements": [{"type": "mrkdwn", "text": f"Sent: {now_str}  |  Vehicles to deliver: *{len(deliveries)}*"}]},
+            {"type": "divider"},
+            {"type": "section", "text": {"type": "mrkdwn", "text": rows.strip()}},
+            {"type": "divider"},
+            {"type": "context", "elements": [{"type": "mrkdwn", "text": "MKV Car Rental — Auto Alert via GitHub Actions"}]},
+        ]
+    }
+
+def build_pickup_message(returns, tomorrow):
+    now_str = dubai_now().strftime("%d %b %Y | %I:%M %p")
+    if not returns:
+        return {
+            "text": f"🔑 No returns scheduled for {tomorrow}",
+            "blocks": [
+                {"type": "header", "text": {"type": "plain_text", "text": f"🔑 MKV PICKUP ALERT — {tomorrow}"}},
+                {"type": "section", "text": {"type": "mrkdwn", "text": "✅ No returns scheduled for tomorrow."}},
+            ]
+        }
+    rows = ""
+    for i, r in enumerate(returns, 1):
+        color_str = f" ({r['color']})" if r['color'] else ""
+        rows += (
+            f"*{i}. {r['vehicle']}{color_str}* — `{r['plate']}`\n"
+            f"   👤 {r['customer']}  |  📞 {r['phone']}\n"
+            f"   📅 {r['start_date']} → {r['end_date']}\n\n"
+        )
+    return {
+        "text": f"🔑 MKV Pickup Alert — {tomorrow} | {len(returns)} vehicle(s)",
+        "blocks": [
+            {"type": "header", "text": {"type": "plain_text", "text": f"🔑 MKV PICKUP ALERT — {tomorrow}"}},
+            {"type": "context", "elements": [{"type": "mrkdwn", "text": f"Sent: {now_str}  |  Vehicles to collect: *{len(returns)}*"}]},
+            {"type": "divider"},
+            {"type": "section", "text": {"type": "mrkdwn", "text": rows.strip()}},
+            {"type": "divider"},
+            {"type": "context", "elements": [{"type": "mrkdwn", "text": "MKV Car Rental — Auto Alert via GitHub Actions"}]},
+        ]
+    }
+
+def main():
+    now      = dubai_now()
+    tomorrow = tomorrow_str()
+
+    print("=" * 56)
+    print(f"  MKV PICKUP ALERT (for {tomorrow})")
+    print(f"  Sent at: {now.strftime('%d %b %Y | %I:%M %p')} Dubai Time")
+    print("=" * 56)
+
+    print("  Building vehicle map...")
+    vmap = build_vehicle_map()
+
+    print("  Fetching tomorrow deliveries...")
+    deliveries = get_bookings(tomorrow, vmap)
+    # Filter only start_date = tomorrow
+    deliveries = [b for b in deliveries if b["start_date"] == tomorrow]
+    print(f"  Deliveries: {len(deliveries)}")
+
+    print("  Fetching tomorrow returns...")
+    returns = get_bookings(tomorrow, vmap)
+    # Filter only end_date = tomorrow
+    returns = [b for b in returns if b["end_date"] == tomorrow]
+    print(f"  Returns: {len(returns)}")
+
+    print("  Sending to Slack...")
+    delivery_msg = build_delivery_message(deliveries, tomorrow)
+    ok1 = post_slack(WEBHOOK_DELIVERY, delivery_msg)
+    print(f"  Slack {'OK' if ok1 else 'FAILED'} -> #mkv-schedule-for-delivery")
+
+    pickup_msg = build_pickup_message(returns, tomorrow)
+    ok2 = post_slack(WEBHOOK_PICKUP, pickup_msg)
+    print(f"  Slack {'OK' if ok2 else 'FAILED'} -> #mkv-car-pickup")
+
+    print("=" * 56)
+    print("  Done")
+    print("=" * 56)
+
+if __name__ == "__main__":
+    main()
