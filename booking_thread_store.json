@@ -2166,6 +2166,17 @@
       "pickup_alerted": false,
       "closed": false,
       "start_date": ""
+    },
+    "009811-\u00a0 R-Chevrolet Corvette": {
+      "thread_ts": "1777285150.038459",
+      "end_date": "2026-04-15",
+      "plate": "CC 37768",
+      "customer": "Ruslan Niiazymbetov",
+      "vehicle": "Chevrolet Corvette C8",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-04-13"
     }
   }
 }
