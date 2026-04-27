@@ -2175,8 +2175,41 @@
       "vehicle": "Chevrolet Corvette C8",
       "delivery_alerted": true,
       "pickup_alerted": false,
-      "closed": false,
+      "closed": true,
       "start_date": "2026-04-13"
+    },
+    "009889-LAWR-Lotus": {
+      "thread_ts": "1777303654.347099",
+      "end_date": "2026-05-04",
+      "plate": "23652",
+      "customer": "Lawrence Nkeyewo Titaanji",
+      "vehicle": "Lotus Lotus Emira",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-05-01"
+    },
+    "009890-MOSE-GMC": {
+      "thread_ts": "1777303654.840409",
+      "end_date": "2026-05-04",
+      "plate": "69367",
+      "customer": "Moses Tawet Jlkian",
+      "vehicle": "Gmc Yukon",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-04-29"
+    },
+    "009891-GURK-Mercedes-Benz": {
+      "thread_ts": "1777303655.309009",
+      "end_date": "2026-04-29",
+      "plate": "19443",
+      "customer": "Gurkan Ulusoy",
+      "vehicle": "Mercedes-Benz Glb 250",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-04-27"
     }
   }
 }
