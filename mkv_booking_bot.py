@@ -216,29 +216,41 @@ def build_booking_card(f, now_str):
 
 
 def build_delivery_checklist(f, now_str):
-    body = (
+    # Message 1 - Info block (collapsed via context)
+    info = (
+        f"{'AGR#':<14}: {f['agr_no']} | "
+        f"{'Customer'}: {f['customer']} | "
+        f"{'Plate'}: {f['plate']} | "
+        f"{'Date'}: {fmt_date(f['start'])} {f['s_time']} | "
+        f"{'Amount'}: {f['total_amt']}"
+    )
+    # Message 2 - Driver reply template (prominent, easy to copy)
+    reply = (
         f"```\n"
-        f"{'AGR#':<14}: {f['agr_no']}\n"
-        f"{'Customer':<14}: {f['customer']}\n"
-        f"{'Mobile':<14}: {f['mobile']}\n"
-        f"{'Vehicle':<14}: {f['vehicle']}\n"
-        f"{'Plate':<14}: {f['plate']}\n"
-        f"{'Delivery Date':<14}: {fmt_date(f['start'])}\n"
-        f"{'Delivery Time':<14}: {f['s_time']}\n"
-        f"{'Location':<14}: {f['location']}\n"
-        f"{'Amount':<14}: {f['total_amt']}\n"
-        f"{'─' * 36}\n"
-        f"Copy below and reply in this thread:\n"
-        f"{'─' * 36}\n"
         f"AGR#: {f['agr_no']}\n"
         f"Out KM:\n"
         f"Fuel Level:\n"
         f"Driver Name:\n"
         f"Remarks:\n"
-        f"{'─' * 36}\n"
-        f"Attach: Contract PDF + Car Photos + Emirates ID\n"
         f"```"
     )
+    blocks = [
+        {"type": "header",
+         "text": {"type": "plain_text", "text": "DELIVERY CHECKLIST"}},
+        {"type": "context",
+         "elements": [{"type": "mrkdwn", "text": info}]},
+        {"type": "divider"},
+        {"type": "section",
+         "text": {"type": "mrkdwn",
+             "text": "*Copy and reply with delivery details:*\n" + reply}},
+        {"type": "section",
+         "text": {"type": "mrkdwn",
+             "text": "Attach: Contract PDF + Car Photos + Emirates ID"}},
+        {"type": "context",
+         "elements": [{"type": "mrkdwn",
+             "text": f"Posted: {now_str}  |  Status: PENDING DELIVERY"}]},
+    ]
+    return blocks, f"Delivery: {f['customer']} | {f['vehicle']} ({f['plate']}) | {fmt_date(f['start'])} {f['s_time']}"
     blocks = [
         {"type": "header",
          "text": {"type": "plain_text", "text": "DELIVERY CHECKLIST"}},
@@ -257,17 +269,16 @@ def build_extension_checklist(f, now_str, old_end, new_end):
         ext_str = f"+{extra} day{'s' if extra != 1 else ''}"
     except:
         ext_str = "Extended"
-    body = (
+
+    info = (
+        f"AGR#: {f['agr_no']} | "
+        f"Customer: {f['customer']} | "
+        f"Vehicle: {f['vehicle']} ({f['plate']}) | "
+        f"Previous End: {fmt_date(old_end)} | "
+        f"New End: {fmt_date(new_end)} ({ext_str})"
+    )
+    reply = (
         f"```\n"
-        f"{'AGR#':<14}: {f['agr_no']}\n"
-        f"{'Customer':<14}: {f['customer']}\n"
-        f"{'Vehicle':<14}: {f['vehicle']}\n"
-        f"{'Plate':<14}: {f['plate']}\n"
-        f"{'Previous End':<14}: {fmt_date(old_end)}\n"
-        f"{'New End Date':<14}: {fmt_date(new_end)}  ({ext_str})\n"
-        f"{'─' * 36}\n"
-        f"Copy below and reply in this thread:\n"
-        f"{'─' * 36}\n"
         f"AGR#: {f['agr_no']}\n"
         f"Ext Amount: AED\n"
         f"Payment Mode:\n"
@@ -278,8 +289,12 @@ def build_extension_checklist(f, now_str, old_end, new_end):
     blocks = [
         {"type": "header",
          "text": {"type": "plain_text", "text": "CONTRACT EXTENSION"}},
+        {"type": "context",
+         "elements": [{"type": "mrkdwn", "text": info}]},
+        {"type": "divider"},
         {"type": "section",
-         "text": {"type": "mrkdwn", "text": body}},
+         "text": {"type": "mrkdwn",
+             "text": "*Copy and reply with extension details:*\n" + reply}},
         {"type": "context",
          "elements": [{"type": "mrkdwn",
              "text": f"Detected: {now_str}  |  Status: EXTENDED"}]},
@@ -288,18 +303,16 @@ def build_extension_checklist(f, now_str, old_end, new_end):
 
 
 def build_pickup_checklist(f, now_str):
-    body = (
+    info = (
+        f"AGR#: {f['agr_no']} | "
+        f"Customer: {f['customer']} | "
+        f"Mobile: {f['mobile']} | "
+        f"Vehicle: {f['vehicle']} ({f['plate']}) | "
+        f"Delivered: {fmt_date(f['start'])} {f['s_time']} | "
+        f"Return Due: {fmt_date(f['end'])} {f['e_time']}"
+    )
+    reply = (
         f"```\n"
-        f"{'AGR#':<14}: {f['agr_no']}\n"
-        f"{'Customer':<14}: {f['customer']}\n"
-        f"{'Mobile':<14}: {f['mobile']}\n"
-        f"{'Vehicle':<14}: {f['vehicle']}\n"
-        f"{'Plate':<14}: {f['plate']}\n"
-        f"{'Delivered':<14}: {fmt_date(f['start'])}  {f['s_time']}\n"
-        f"{'Return Due':<14}: {fmt_date(f['end'])}  {f['e_time']}\n"
-        f"{'─' * 36}\n"
-        f"Copy below and reply in this thread:\n"
-        f"{'─' * 36}\n"
         f"AGR#: {f['agr_no']}\n"
         f"In KM:\n"
         f"Extra KM:\n"
@@ -315,8 +328,12 @@ def build_pickup_checklist(f, now_str):
     blocks = [
         {"type": "header",
          "text": {"type": "plain_text", "text": "PICKUP CHECKLIST — DUE TOMORROW"}},
+        {"type": "context",
+         "elements": [{"type": "mrkdwn", "text": info}]},
+        {"type": "divider"},
         {"type": "section",
-         "text": {"type": "mrkdwn", "text": body}},
+         "text": {"type": "mrkdwn",
+             "text": "*Copy and reply with pickup details:*\n" + reply}},
         {"type": "context",
          "elements": [{"type": "mrkdwn",
              "text": f"Posted: {now_str}  |  Status: PENDING PICKUP"}]},
