@@ -39,3 +39,4 @@ jobs:
           git add mtd_store.json || true
           git diff --cached --quiet || git commit -m "chore: update mtd_store $(date +'%Y-%m-%d')"
           git push || true
+          
