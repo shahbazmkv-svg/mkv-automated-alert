@@ -22,7 +22,7 @@ from datetime import datetime, timezone, timedelta
 
 # ── Config ────────────────────────────────────────────────────────────────────
 SLACK_TOKEN  = os.environ["SLACK_BOT_TOKEN"]
-APPIC_URL    = os.environ.get("APPIC_API_URL", "")
+APPIC_URL    = os.environ.get("APPIC_API_URL", "https://www.appicfleet.com/appiccar-apis-mkv/vehicle-availability.php")
 APPIC_KEY    = os.environ.get("APPIC_API_KEY", "")
 SLACK_CHANNEL = "C0AVCCCG0S0"   # #mkvtest — switch to live channel when ready
 
@@ -70,17 +70,17 @@ CONTACT_FOOTER = (
 
 def fetch_fleet_from_appic():
     """
-    Fetch all vehicles from Appic.
-    Returns a list of vehicle dicts.
-    Appic is POST-only and requires startDate + endDate.
-    We use today's date for both to get current fleet snapshot.
+    Fetch all vehicles from Appic vehicle-availability API.
+    Endpoint: https://www.appicfleet.com/appiccar-apis-mkv/vehicle-availability.php
+    Auth: IP allowlist (GitHub Actions IPs are whitelisted by Appic).
+    API key sent as header if available.
     """
     today = datetime.now(DUBAI_TZ).strftime("%Y-%m-%d")
 
-    headers = {
-        "Content-Type": "application/json",
-        "Authorization": f"Bearer {APPIC_KEY}",
-    }
+    headers = {"Content-Type": "application/json"}
+    if APPIC_KEY:
+        headers["X-API-Key"] = APPIC_KEY
+
     payload = {
         "startDate": today,
         "endDate":   today,
@@ -90,10 +90,19 @@ def fetch_fleet_from_appic():
         r = requests.post(APPIC_URL, headers=headers, json=payload, timeout=20)
         r.raise_for_status()
         data = r.json()
-        # Appic typically returns {"data": [...]} or a list directly
+        print(f"Raw Appic response type: {type(data)}")
+        print(f"Raw Appic response (first 500 chars): {str(data)[:500]}")
+
+        # Handle various response structures Appic might return
         if isinstance(data, list):
             return data
-        return data.get("data", data.get("vehicles", data.get("fleet", [])))
+        if isinstance(data, dict):
+            for key in ["data", "vehicles", "fleet", "vehicle_list", "results"]:
+                if key in data:
+                    return data[key]
+            # If no known key, return the dict wrapped in list
+            return [data] if data else []
+        return []
     except Exception as e:
         print(f"Appic API error: {e}")
         return []
