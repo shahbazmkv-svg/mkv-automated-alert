@@ -1,10 +1,11 @@
 """
 MKV Luxury – Fleet Availability Daily Post
-Fetches all vehicles from Appic get-all-vehicles.php and posts
-a formatted availability snapshot to Slack.
 
-Slack block text limit = 3000 chars. With 229 vehicles the list
-is split across multiple blocks automatically.
+Two-API approach:
+  1. POST get-mkv-vehicle-assignments.php  → MKV-only counts (booked/service/available etc)
+  2. GET  get-all-vehicles.php             → full list, filter borrowed (fuel_type=null)
+
+Borrowed vehicles are excluded from both counts and vehicle listing.
 """
 
 import os
@@ -17,8 +18,9 @@ SLACK_TOKEN   = os.environ["SLACK_BOT_TOKEN"]
 SLACK_CHANNEL = "C0AVCCCG0S0"   # #mkvtest — switch to live channel when ready
 DUBAI_TZ      = timezone(timedelta(hours=4))
 HEADERS       = {"User-Agent": "Mozilla/5.0 (MKV-Monitor/1.0)"}
-BLOCK_CHAR_LIMIT = 2900          # Slack limit is 3000, use 2900 for safety
+BLOCK_LIMIT   = 2900
 
+ASSIGNMENTS_URL = "https://www.appicfleet.com/appiccar-apis-mkv/get-mkv-vehicle-assignments.php"
 ALL_VEHICLES_URL = "https://www.appicfleet.com/appiccar-apis-mkv/get-all-vehicles.php"
 
 CONTACT_FOOTER = (
@@ -31,20 +33,51 @@ CONTACT_FOOTER = (
     "📍 Al Jreena Street 41, Al Qouz Industrial Third, Dubai, UAE"
 )
 
-# ── Fetch ─────────────────────────────────────────────────────────────────────
+# ── Fetch counts ──────────────────────────────────────────────────────────────
 
-def fetch_all_vehicles():
+def fetch_mkv_counts() -> dict:
+    """
+    POST get-mkv-vehicle-assignments.php
+    Returns counts for MKV-owned vehicles only (borrowed excluded).
+    Expected keys: booked, service, available, unavailable,
+                   totalNonBorrowedVehicles, totalBorrowedVehicles
+    """
+    try:
+        r = requests.post(ASSIGNMENTS_URL, headers=HEADERS, json={}, timeout=20)
+        r.raise_for_status()
+        data = r.json()
+        print(f"Assignments API: issuccess={data.get('issuccess')} | counts={data.get('counts')}")
+        if not data.get("issuccess"):
+            print(f"Assignments API error: {data.get('msg')}")
+            return {}
+        return data.get("counts", {})
+    except Exception as e:
+        print(f"Assignments API error: {e}")
+        return {}
+
+# ── Fetch vehicle list ────────────────────────────────────────────────────────
+
+def fetch_mkv_vehicles() -> list:
+    """
+    GET get-all-vehicles.php then filter out borrowed vehicles.
+    MKV-owned vehicles have fuel_type != null.
+    Borrowed vehicles have fuel_type = null.
+    """
     try:
         r = requests.get(ALL_VEHICLES_URL, headers=HEADERS, timeout=20)
         r.raise_for_status()
         data = r.json()
-        print(f"Appic: issuccess={data.get('issuccess')} | vehicles={len(data.get('data', []))}")
-        if not data.get("issuccess"):
-            print(f"Appic error: {data.get('msg')}")
-            return []
-        return data.get("data", [])
+        all_vehicles = data.get("data", [])
+        print(f"All vehicles API: total={len(all_vehicles)}")
+
+        # Filter to MKV-owned only (fuel_type is not None)
+        mkv_vehicles = [v for v in all_vehicles if v.get("fuel_type") is not None]
+        borrowed     = len(all_vehicles) - len(mkv_vehicles)
+        print(f"After filter: MKV={len(mkv_vehicles)} | Borrowed={borrowed} (excluded)")
+
+        return mkv_vehicles
     except Exception as e:
-        print(f"Appic API error: {e}")
+        print(f"All vehicles API error: {e}")
         return []
 
 # ── Format vehicle name ───────────────────────────────────────────────────────
@@ -60,139 +93,119 @@ def format_vehicle_name(v: dict) -> str:
     if model.startswith(make):
         model = model[len(make):].strip()
 
+    # Skip placeholder makes
+    if make in ("AC", ""):
+        make = ""
+
     parts = []
     if make:  parts.append(make)
     if model: parts.append(model)
-    if year and year not in ("0", ""):
+    if year and year not in ("0", "200", ""):
         parts.append(f"({year})")
     if color and color not in ("", "N/A"):
         parts.append(color)
     if plate:
         parts.append(f"[{plate}]")
 
-    return " ".join(parts) if parts else v.get("vehicle_name", "UNKNOWN")
+    return " ".join(parts) if parts else v.get("vehicle_name", "UNKNOWN").upper()
 
-# ── Split text into Slack-safe blocks ─────────────────────────────────────────
+# ── Split into Slack-safe blocks ──────────────────────────────────────────────
 
 def text_to_blocks(text: str) -> list:
-    """
-    Split a long text string into multiple Slack section blocks,
-    each within the 3000 char limit. Splits on newlines only.
-    """
     blocks = []
     lines  = text.split("\n")
     chunk  = ""
-
     for line in lines:
         candidate = chunk + line + "\n"
-        if len(candidate) > BLOCK_CHAR_LIMIT:
+        if len(candidate) > BLOCK_LIMIT:
             if chunk:
-                blocks.append({
-                    "type": "section",
-                    "text": {"type": "mrkdwn", "text": f"```{chunk.rstrip()}```"}
-                })
+                blocks.append({"type": "section",
+                                "text": {"type": "mrkdwn", "text": f"```{chunk.rstrip()}```"}})
             chunk = line + "\n"
         else:
             chunk = candidate
-
     if chunk.strip():
-        blocks.append({
-            "type": "section",
-            "text": {"type": "mrkdwn", "text": f"```{chunk.rstrip()}```"}
-        })
-
+        blocks.append({"type": "section",
+                        "text": {"type": "mrkdwn", "text": f"```{chunk.rstrip()}```"}})
     return blocks
 
-# ── Build Slack message ───────────────────────────────────────────────────────
+# ── Build message ─────────────────────────────────────────────────────────────
 
-def build_fleet_message(vehicles: list) -> dict:
+def build_fleet_message(counts: dict, vehicles: list) -> dict:
     now      = datetime.now(DUBAI_TZ)
     date_str = now.strftime("%B %d, %Y").upper()
     day_str  = now.strftime("%A").upper()
-    total    = len(vehicles)
 
-    # Available = has availability=Available AND dailyrent > 0
-    available     = [v for v in vehicles
-                     if v.get("availability", "").lower() == "available"
-                     and float(v.get("dailyrent", 0) or 0) > 0]
-    not_available = [v for v in vehicles
-                     if v.get("availability", "").lower() != "available"
-                     or float(v.get("dailyrent", 0) or 0) == 0]
+    # Use counts from assignments API (MKV-only, borrowed excluded)
+    total     = counts.get("totalNonBorrowedVehicles", len(vehicles))
+    rented    = counts.get("booked", 0)
+    service   = counts.get("service", 0)
+    available = counts.get("available", 0)
+    unavail   = counts.get("unavailable", 0)
 
-    # employeeAssigned=true → likely rented/out; else NRV/inactive
-    rented = [v for v in not_available if v.get("employeeAssigned") == "true"]
-    nrv    = [v for v in not_available if v.get("employeeAssigned") != "true"]
+    # Derive Garage/Lease/Longterm/NRV from unavailable
+    # Until Appic adds granular breakdown, show unavailable as NRV
+    nrv       = unavail
 
-    # ── Summary block (always fits in one block) ──
-    summary_lines = [
+    # Available vehicles list — from get-all-vehicles filtered to MKV + available
+    avail_vehicles = [
+        v for v in vehicles
+        if v.get("availability", "").lower() == "available"
+        and float(v.get("dailyrent", 0) or 0) > 0
+    ]
+
+    # ── Summary ──
+    summary = "\n".join([
         f"❝{date_str} {day_str}❞",
         "",
         f"✦ Total : {total}",
         "",
-        f"✦ Rented STR : {len(rented)}",
+        f"✦ Rented STR : {rented}",
         "",
         f"✦ Garage : 0",
         "",
-        f"✦ Service : 0",
+        f"✦ Service : {service}",
         "",
-        f"✦ Available : {len(available)}",
+        f"✦ Available : {available}",
         "",
         f"✦ Lease : 0",
         "",
         f"✦ Longterm : 0",
         "",
-        f"✦ NRV : {len(nrv)}",
-    ]
-    summary_text = "\n".join(summary_lines)
+        f"✦ NRV : {nrv}",
+    ])
 
     # ── Vehicle list ──
     vehicle_lines = []
-    for i, v in enumerate(available, 1):
+    for i, v in enumerate(avail_vehicles, 1):
         vehicle_lines.append(f"{i}. {format_vehicle_name(v)}")
-    vehicle_lines.append("")
-    vehicle_lines.append("For inquiries please contact this number")
-    vehicle_lines.append("")
-    vehicle_lines.append(CONTACT_FOOTER)
+    vehicle_lines += ["", "For inquiries please contact this number", "", CONTACT_FOOTER]
     vehicle_text = "\n".join(vehicle_lines)
 
     # ── Assemble blocks ──
     blocks = []
-
-    # Summary (single block — always short)
-    blocks.append({
-        "type": "section",
-        "text": {"type": "mrkdwn", "text": f"```{summary_text}```"}
-    })
+    blocks.append({"type": "section",
+                   "text": {"type": "mrkdwn", "text": f"```{summary}```"}})
     blocks.append({"type": "divider"})
-
-    # Vehicle list split across as many blocks as needed
     blocks.extend(text_to_blocks(vehicle_text))
-
-    # Footer context
-    blocks.append({
-        "type": "context",
-        "elements": [{"type": "mrkdwn",
-                      "text": "MKV Fleet Availability • Auto-posted daily at 10:00 AM Dubai time"}]
-    })
+    blocks.append({"type": "context", "elements": [{"type": "mrkdwn",
+        "text": f"MKV Fleet (excl. borrowed) • Auto-posted daily 10:00 AM Dubai time"}]})
 
     return {"blocks": blocks, "text": f"MKV Fleet Availability — {date_str} {day_str}"}
 
 # ── Slack post ────────────────────────────────────────────────────────────────
 
 def post_to_slack(message: dict):
-    payload = {"channel": SLACK_CHANNEL, **message}
     r = requests.post(
         "https://slack.com/api/chat.postMessage",
         headers={"Authorization": f"Bearer {SLACK_TOKEN}",
                  "Content-Type": "application/json"},
-        data=json.dumps(payload),
+        data=json.dumps({"channel": SLACK_CHANNEL, **message}),
         timeout=15,
     )
     result = r.json()
     if not result.get("ok"):
         print(f"Slack error: {result.get('error')}")
-        # Print blocks for debugging
-        print("Blocks sent:")
         for i, b in enumerate(message.get("blocks", [])):
             txt = b.get("text", {}).get("text", "")
             print(f"  Block {i}: {len(txt)} chars")
@@ -202,20 +215,22 @@ def post_to_slack(message: dict):
 # ── Main ──────────────────────────────────────────────────────────────────────
 
 if __name__ == "__main__":
-    print("Fetching MKV fleet from Appic...")
-    vehicles = fetch_all_vehicles()
+    print("Fetching MKV fleet data...")
 
-    if not vehicles:
-        print("⚠️  No vehicles returned.")
+    counts   = fetch_mkv_counts()
+    vehicles = fetch_mkv_vehicles()
+
+    if not counts and not vehicles:
         now = datetime.now(DUBAI_TZ)
         warn = {
             "blocks": [{"type": "section", "text": {"type": "mrkdwn",
-                "text": f"⚠️ *MKV Fleet Post — {now.strftime('%B %d, %Y').upper()}*\nNo fleet data from Appic. Check API connection."}}],
+                "text": f"⚠️ *MKV Fleet Post — {now.strftime('%B %d, %Y').upper()}*\nBoth Appic APIs failed. Check connection."}}],
             "text": "MKV Fleet — API Warning"
         }
         post_to_slack(warn)
         raise SystemExit(1)
 
-    message = build_fleet_message(vehicles)
-    print(f"Blocks generated: {len(message['blocks'])}")
+    print(f"Blocks will be generated from {len(vehicles)} MKV vehicles")
+    message = build_fleet_message(counts, vehicles)
+    print(f"Total Slack blocks: {len(message['blocks'])}")
     post_to_slack(message)
