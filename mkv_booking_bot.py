@@ -28,13 +28,13 @@ def dubai_now():
 
 def fmt_date(d):
     try:
-        return datetime.strptime(d, "%Y-%m-%d").strftime("%d %b")
+        return datetime.strptime(d, "%Y-%m-%d").strftime("%d %b %Y")
     except:
         return d or "N/A"
 
-def fmt_date_full(d):
+def fmt_date_short(d):
     try:
-        return datetime.strptime(d, "%Y-%m-%d").strftime("%d %b %Y")
+        return datetime.strptime(d, "%Y-%m-%d").strftime("%d %b")
     except:
         return d or "N/A"
 
@@ -115,7 +115,7 @@ def extract(b):
     e_time = (b.get("endTime")   or "")[:5]
     try:
         dur     = (datetime.strptime(end, "%Y-%m-%d") - datetime.strptime(start, "%Y-%m-%d")).days
-        dur_str = f"{dur}d"
+        dur_str = f"{dur} day{'s' if dur != 1 else ''}"
     except:
         dur_str = "N/A"
     try:
@@ -136,7 +136,7 @@ def extract(b):
         "dur_str":      dur_str,
         "rental_amt":   rental_amt,
         "total_amt":    rental_amt,
-        "agr_no":       b.get("agreementId")      or "—",
+        "agr_no":       b.get("agreementId")      or "Pending API update",
         "lead_source":  b.get("leadSource")       or "—",
         "delivery_loc": b.get("deliveryLocation") or "—",
         "email":        b.get("clientEmail")      or "—",
@@ -152,159 +152,186 @@ def extract(b):
     }
 
 # ─────────────────────────────────────────────
-#  COMPACT MESSAGE BUILDERS
+#  CLEAN ALIGNED MESSAGE BUILDERS
 # ─────────────────────────────────────────────
 def build_booking_card(f, now_str):
-    text_body = (
-        f"*🔖 AGR#:* `{f['agr_no']}`\n"
-        f"━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
-        f"*👤* {f['customer']}  |  *📱* {f['mobile']}\n"
-        f"*📧* {f['email']}\n"
-        f"*🏠* {f['address']}\n"
-        f"*📣 Source:* {f['lead_source']}  |  *👨‍💼 Agent:* {f['agent']}\n"
-        f"━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
-        f"*🚘* {f['vehicle']}  |  *🔢* `{f['plate']}`\n"
-        f"*📅* {fmt_date(f['start'])} {f['s_time']} → {fmt_date(f['end'])} {f['e_time']}  |  *⏱* {f['dur_str']}\n"
-        f"*📍* {f['delivery_loc']}\n"
-        f"━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
-        f"*💰 Rental:* {f['rental_amt']}  |  *🧾 VAT:* {f['vat']}  |  *💳 Total:* {f['total_amt']}\n"
-        f"*🔒 Zero Dep:* {f['zero_dep']}  |  *➕ Add-on:* {f['addon']}  |  *💵 Advance:* {f['advance']}\n"
-        f"*💳 Pay Mode:* {f['pay_mode']}\n"
-        f"━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
-        f"*📝 Remarks:* {f['remarks']}\n"
-        f"━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
-        f"🚚 *Delivery:* `PENDING`  |  🔑 *Pickup:* `PENDING`\n"
-        f"_All updates in this thread_"
+    body = (
+        f"```\n"
+        f"{'AGR#':<14}: {f['agr_no']}\n"
+        f"{'Customer':<14}: {f['customer']}\n"
+        f"{'Mobile':<14}: {f['mobile']}\n"
+        f"{'Email':<14}: {f['email']}\n"
+        f"{'Address':<14}: {f['address']}\n"
+        f"{'Lead Source':<14}: {f['lead_source']}\n"
+        f"{'Sales Agent':<14}: {f['agent']}\n"
+        f"{'─' * 36}\n"
+        f"{'Vehicle':<14}: {f['vehicle']}\n"
+        f"{'Plate':<14}: {f['plate']}\n"
+        f"{'Start':<14}: {fmt_date(f['start'])}  {f['s_time']}\n"
+        f"{'End':<14}: {fmt_date(f['end'])}  {f['e_time']}\n"
+        f"{'Duration':<14}: {f['dur_str']}\n"
+        f"{'Location':<14}: {f['delivery_loc']}\n"
+        f"{'─' * 36}\n"
+        f"{'Rental':<14}: {f['rental_amt']}\n"
+        f"{'Zero Deposit':<14}: {f['zero_dep']}\n"
+        f"{'Add-on':<14}: {f['addon']}\n"
+        f"{'VAT':<14}: {f['vat']}\n"
+        f"{'Total':<14}: {f['total_amt']}\n"
+        f"{'Advance':<14}: {f['advance']}\n"
+        f"{'Payment Mode':<14}: {f['pay_mode']}\n"
+        f"{'─' * 36}\n"
+        f"{'Remarks':<14}: {f['remarks']}\n"
+        f"{'─' * 36}\n"
+        f"{'Delivery':<14}: PENDING\n"
+        f"{'Pickup':<14}: PENDING\n"
+        f"```"
     )
 
     blocks = [
         {"type": "header",
-         "text": {"type": "plain_text", "text": "🚗 NEW BOOKING — MKV CAR RENTAL"}},
+         "text": {"type": "plain_text", "text": "NEW BOOKING — MKV CAR RENTAL"}},
         {"type": "context",
          "elements": [{"type": "mrkdwn",
              "text": f"Detected: {now_str}  |  Auto-alert via GitHub Actions"}]},
         {"type": "section",
-         "text": {"type": "mrkdwn", "text": text_body}},
+         "text": {"type": "mrkdwn", "text": body}},
+        {"type": "context",
+         "elements": [{"type": "mrkdwn",
+             "text": "All updates will appear in this thread"}]},
     ]
-    return blocks, f"🚗 {f['customer']} | {f['vehicle']} ({f['plate']}) | {fmt_date_full(f['start'])} → {fmt_date_full(f['end'])} | {f['total_amt']}"
+    return blocks, f"New Booking: {f['customer']} | {f['vehicle']} ({f['plate']}) | {fmt_date(f['start'])} to {fmt_date(f['end'])} | {f['total_amt']}"
 
 
 def build_delivery_checklist(f, now_str):
-    text_body = (
-        f"*🔖 AGR#:* `{f['agr_no']}`\n"
-        f"*👤* {f['customer']}  |  *📱* {f['mobile']}\n"
-        f"*🚘* {f['vehicle']}  |  *🔢* `{f['plate']}`\n"
-        f"*📅* {fmt_date_full(f['start'])}  {f['s_time']}\n"
-        f"*📍* {f['delivery_loc']}\n"
-        f"*💰* {f['total_amt']}\n"
-        f"━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
-        f"*✏️ Driver — copy and reply:*\n\n"
-        f"OUT KM:\n"
-        f"FUEL LEVEL:\n"
-        f"DRIVER NAME:\n"
-        f"REMARKS:\n"
-        f"━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
-        f"📎 Attach: Contract PDF + Car Photos + Emirates ID"
+    body = (
+        f"```\n"
+        f"{'AGR#':<14}: {f['agr_no']}\n"
+        f"{'Customer':<14}: {f['customer']}\n"
+        f"{'Mobile':<14}: {f['mobile']}\n"
+        f"{'Vehicle':<14}: {f['vehicle']}\n"
+        f"{'Plate':<14}: {f['plate']}\n"
+        f"{'Delivery Date':<14}: {fmt_date(f['start'])}\n"
+        f"{'Delivery Time':<14}: {f['s_time']}\n"
+        f"{'Location':<14}: {f['delivery_loc']}\n"
+        f"{'Amount':<14}: {f['total_amt']}\n"
+        f"{'─' * 36}\n"
+        f"{'Out KM':<14}:\n"
+        f"{'Fuel Level':<14}:\n"
+        f"{'Driver Name':<14}:\n"
+        f"{'Remarks':<14}:\n"
+        f"```\n"
+        f"Attach: Contract PDF + Car Photos + Emirates ID"
     )
 
     blocks = [
         {"type": "header",
-         "text": {"type": "plain_text", "text": "📦 DELIVERY CHECKLIST"}},
+         "text": {"type": "plain_text", "text": "DELIVERY CHECKLIST"}},
         {"type": "section",
-         "text": {"type": "mrkdwn", "text": text_body}},
+         "text": {"type": "mrkdwn", "text": body}},
         {"type": "context",
          "elements": [{"type": "mrkdwn",
-             "text": f"Posted: {now_str}  |  Status: `PENDING DELIVERY`"}]},
+             "text": f"Posted: {now_str}  |  Status: PENDING DELIVERY"}]},
     ]
-    return blocks, f"📦 Delivery: {f['customer']} | {f['vehicle']} ({f['plate']}) | {fmt_date_full(f['start'])} {f['s_time']}"
+    return blocks, f"Delivery Checklist: {f['customer']} | {f['vehicle']} ({f['plate']}) | {fmt_date(f['start'])} {f['s_time']}"
 
 
 def build_extension_checklist(f, now_str, old_end, new_end):
     try:
         extra   = (datetime.strptime(new_end, "%Y-%m-%d") - datetime.strptime(old_end, "%Y-%m-%d")).days
-        ext_str = f"+{extra}d"
+        ext_str = f"+{extra} day{'s' if extra != 1 else ''}"
     except:
         ext_str = "Extended"
 
-    text_body = (
-        f"*🔖 AGR#:* `{f['agr_no']}`\n"
-        f"*👤* {f['customer']}\n"
-        f"*🚘* {f['vehicle']}  |  *🔢* `{f['plate']}`\n"
-        f"*📅 Prev End:* ~{fmt_date_full(old_end)}~\n"
-        f"*📅 New End:* {fmt_date_full(new_end)}  ({ext_str})\n"
-        f"━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
-        f"*✏️ Driver — copy and reply:*\n\n"
-        f"EXTENSION AMOUNT: AED\n"
-        f"PAYMENT MODE:\n"
-        f"PAYMENT STATUS:\n"
-        f"REMARKS:"
+    body = (
+        f"```\n"
+        f"{'AGR#':<14}: {f['agr_no']}\n"
+        f"{'Customer':<14}: {f['customer']}\n"
+        f"{'Vehicle':<14}: {f['vehicle']}\n"
+        f"{'Plate':<14}: {f['plate']}\n"
+        f"{'Previous End':<14}: {fmt_date(old_end)}\n"
+        f"{'New End Date':<14}: {fmt_date(new_end)}  ({ext_str})\n"
+        f"{'─' * 36}\n"
+        f"{'Ext Amount':<14}: AED\n"
+        f"{'Payment Mode':<14}:\n"
+        f"{'Pay Status':<14}:\n"
+        f"{'Remarks':<14}:\n"
+        f"```"
     )
 
     blocks = [
         {"type": "header",
-         "text": {"type": "plain_text", "text": "🔄 CONTRACT EXTENSION"}},
+         "text": {"type": "plain_text", "text": "CONTRACT EXTENSION"}},
         {"type": "section",
-         "text": {"type": "mrkdwn", "text": text_body}},
+         "text": {"type": "mrkdwn", "text": body}},
         {"type": "context",
          "elements": [{"type": "mrkdwn",
-             "text": f"Detected: {now_str}  |  Status: `EXTENDED`"}]},
+             "text": f"Detected: {now_str}  |  Status: EXTENDED"}]},
     ]
-    return blocks, f"🔄 Extension: {f['customer']} | {f['vehicle']} | New end: {fmt_date_full(new_end)} ({ext_str})"
+    return blocks, f"Extension: {f['customer']} | {f['vehicle']} | New end: {fmt_date(new_end)} ({ext_str})"
 
 
 def build_pickup_checklist(f, now_str):
-    text_body = (
-        f"*🔖 AGR#:* `{f['agr_no']}`\n"
-        f"*👤* {f['customer']}  |  *📱* {f['mobile']}\n"
-        f"*🚘* {f['vehicle']}  |  *🔢* `{f['plate']}`\n"
-        f"*📅 Delivered:* {fmt_date_full(f['start'])}  {f['s_time']}\n"
-        f"*📅 Return Due:* {fmt_date_full(f['end'])}  {f['e_time']}\n"
-        f"━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
-        f"*✏️ Driver — copy and reply:*\n\n"
-        f"IN KM:\n"
-        f"EXTRA KM:\n"
-        f"FUEL CHARGE: AED\n"
-        f"SALIK: AED\n"
-        f"FINES: AED\n"
-        f"DAMAGE CHARGES: AED\n"
-        f"AMOUNT COLLECTED: AED\n"
-        f"PAYMENT MODE:\n"
-        f"REMARKS:"
+    body = (
+        f"```\n"
+        f"{'AGR#':<14}: {f['agr_no']}\n"
+        f"{'Customer':<14}: {f['customer']}\n"
+        f"{'Mobile':<14}: {f['mobile']}\n"
+        f"{'Vehicle':<14}: {f['vehicle']}\n"
+        f"{'Plate':<14}: {f['plate']}\n"
+        f"{'Delivered':<14}: {fmt_date(f['start'])}  {f['s_time']}\n"
+        f"{'Return Due':<14}: {fmt_date(f['end'])}  {f['e_time']}\n"
+        f"{'─' * 36}\n"
+        f"{'In KM':<14}:\n"
+        f"{'Extra KM':<14}:\n"
+        f"{'Fuel Charge':<14}: AED\n"
+        f"{'Salik':<14}: AED\n"
+        f"{'Fines':<14}: AED\n"
+        f"{'Damage':<14}: AED\n"
+        f"{'Amt Collected':<14}: AED\n"
+        f"{'Payment Mode':<14}:\n"
+        f"{'Remarks':<14}:\n"
+        f"```"
     )
 
     blocks = [
         {"type": "header",
-         "text": {"type": "plain_text", "text": "🔑 PICKUP CHECKLIST — DUE TOMORROW"}},
+         "text": {"type": "plain_text", "text": "PICKUP CHECKLIST — DUE TOMORROW"}},
         {"type": "section",
-         "text": {"type": "mrkdwn", "text": text_body}},
+         "text": {"type": "mrkdwn", "text": body}},
         {"type": "context",
          "elements": [{"type": "mrkdwn",
-             "text": f"Posted: {now_str}  |  Status: `PENDING PICKUP`"}]},
+             "text": f"Posted: {now_str}  |  Status: PENDING PICKUP"}]},
     ]
-    return blocks, f"🔑 Pickup: {f['customer']} | {f['vehicle']} ({f['plate']}) | Return: {fmt_date_full(f['end'])} {f['e_time']}"
+    return blocks, f"Pickup Checklist: {f['customer']} | {f['vehicle']} ({f['plate']}) | Return: {fmt_date(f['end'])} {f['e_time']}"
 
 
 def build_contract_closed(f, now_str):
-    text_body = (
-        f"*🔖 AGR#:* `{f['agr_no']}`\n"
-        f"*👤* {f['customer']}  |  *📱* {f['mobile']}\n"
-        f"*🚘* {f['vehicle']}  |  *🔢* `{f['plate']}`\n"
-        f"*📅* {fmt_date_full(f['start'])} {f['s_time']} → {fmt_date_full(f['end'])} {f['e_time']}\n"
-        f"*⏱ Duration:* {f['dur_str']}  |  *💰 Total:* {f['total_amt']}\n"
-        f"━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
-        f"✅ *CONTRACT CLOSED — NO FURTHER ACTION REQUIRED*"
+    body = (
+        f"```\n"
+        f"{'AGR#':<14}: {f['agr_no']}\n"
+        f"{'Customer':<14}: {f['customer']}\n"
+        f"{'Mobile':<14}: {f['mobile']}\n"
+        f"{'Vehicle':<14}: {f['vehicle']}\n"
+        f"{'Plate':<14}: {f['plate']}\n"
+        f"{'Start':<14}: {fmt_date(f['start'])}  {f['s_time']}\n"
+        f"{'End':<14}: {fmt_date(f['end'])}  {f['e_time']}\n"
+        f"{'Duration':<14}: {f['dur_str']}\n"
+        f"{'Total':<14}: {f['total_amt']}\n"
+        f"{'─' * 36}\n"
+        f"CONTRACT CLOSED — NO FURTHER ACTION REQUIRED\n"
+        f"```"
     )
 
     blocks = [
         {"type": "header",
-         "text": {"type": "plain_text", "text": "🏁 CONTRACT CLOSED"}},
+         "text": {"type": "plain_text", "text": "CONTRACT CLOSED"}},
         {"type": "section",
-         "text": {"type": "mrkdwn", "text": text_body}},
+         "text": {"type": "mrkdwn", "text": body}},
         {"type": "context",
          "elements": [{"type": "mrkdwn",
              "text": f"Closed: {now_str}  |  Auto-detected from Appic"}]},
     ]
-    return blocks, f"🏁 Closed: {f['customer']} | {f['vehicle']} ({f['plate']})"
+    return blocks, f"Contract Closed: {f['customer']} | {f['vehicle']} ({f['plate']})"
 
 # ─────────────────────────────────────────────
 #  MAIN
