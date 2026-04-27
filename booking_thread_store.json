@@ -55,17 +55,6 @@
       "closed": false,
       "start_date": "2026-04-27"
     },
-    "009887-IBRA-Mercedes-Benz": {
-      "thread_ts": null,
-      "end_date": "2026-04-30",
-      "plate": "66789",
-      "customer": "Ibrahim Qubtan",
-      "vehicle": "Mercedes-Benz Mercedes G3 (Brabus)",
-      "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-04-27"
-    },
     "009877-IBRA-Bentley": {
       "thread_ts": null,
       "end_date": "2026-04-30",
