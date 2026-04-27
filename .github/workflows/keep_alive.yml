@@ -30,6 +30,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+          git pull --rebase origin main || true
           git commit --allow-empty -m "chore: fleet availability ran $(date +'%Y-%m-%d')"
           git push
 
@@ -44,7 +45,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - run: pip install requests --break-system-packages
+      - run: pip install requests pytz --break-system-packages
       - name: Run Daily Leads Report
         env:
           SLACK_BOT_TOKEN:     ${{ secrets.SLACK_BOT_TOKEN }}
@@ -56,6 +57,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+          git pull --rebase origin main || true
           git commit --allow-empty -m "chore: leads report ran $(date +'%Y-%m-%d')"
           git push
 
@@ -79,6 +81,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+          git pull --rebase origin main || true
           git commit --allow-empty -m "chore: website snapshot ran $(date +'%Y-%m-%d')"
           git push
 
@@ -93,7 +96,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - run: pip install requests --break-system-packages
+      - run: pip install requests pytz --break-system-packages
       - name: Run Pickup Alert
         env:
           APPIC_KEY:        ${{ secrets.APPIC_KEY }}
@@ -104,6 +107,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+          git pull --rebase origin main || true
           git commit --allow-empty -m "chore: pickup alert ran $(date +'%Y-%m-%d')"
           git push
 
@@ -129,5 +133,6 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add booking_thread_store.json || true
+          git pull --rebase origin main || true
           git commit -m "chore: booking bot store $(date +'%Y-%m-%d %H:%M')" || true
           git push || true
