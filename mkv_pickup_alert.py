@@ -11,6 +11,16 @@ WEBHOOK_PICKUP    = os.environ["WEBHOOK_PICKUP"]
 APPIC_BOOKINGS    = "https://www.appicfleet.com/appiccar-apis-mkv/get-mkv-bookings.php"
 APPIC_VEHICLES    = "https://www.appicfleet.com/appiccar-apis-mkv/get-all-vehicles.php"
 DUBAI_TZ          = pytz.timezone("Asia/Dubai")
+THREAD_STORE      = "booking_thread_store.json"
+
+# Slack workspace + channels
+SLACK_WORKSPACE   = "mkv-luxury"
+CHANNEL_BOOKINGS  = "C0ABPC606F7"   # #mkv-bookings (live)
+CHANNEL_TEST      = "C0AVCCCG0S0"   # #mkvtest
+
+# Match TEST_MODE in booking bot
+TEST_MODE         = True
+THREAD_CHANNEL    = CHANNEL_TEST if TEST_MODE else CHANNEL_BOOKINGS
 
 def dubai_now():
     return datetime.now(DUBAI_TZ)
@@ -18,28 +28,13 @@ def dubai_now():
 def tomorrow_str():
     return (dubai_now() + timedelta(days=1)).strftime("%Y-%m-%d")
 
-def today_str():
-    return dubai_now().strftime("%Y-%m-%d")
-
-def fetch(url, params=None):
-    p = {"key": APPIC_KEY}
-    if params:
-        p.update(params)
-    try:
-        r = requests.get(url, params=p, timeout=15)
-        r.raise_for_status()
-        return r.json()
-    except Exception as e:
-        print(f"  API error [{url}]: {e}")
-        return []
-
 def fetch_post(url, data):
     try:
         r = requests.post(url, data=data, timeout=15)
         r.raise_for_status()
         return r.json()
     except Exception as e:
-        print(f"  API error [{url}]: {e}")
+        print(f"  API error: {e}")
         return {}
 
 def post_slack(webhook, payload):
@@ -50,102 +45,145 @@ def post_slack(webhook, payload):
         print(f"  Slack error: {e}")
         return False
 
-def build_vehicle_map():
-    vehicles = fetch(APPIC_VEHICLES)
-    vmap = {}
-    if isinstance(vehicles, list):
-        for v in vehicles:
-            vid   = str(v.get("id") or v.get("vehicle_id") or "")
-            plate = v.get("plate_number") or v.get("license_plate") or "N/A"
-            model = v.get("make_model") or v.get("model") or v.get("vehicle_name") or "Unknown"
-            color = v.get("color") or ""
-            vmap[vid] = {"plate": plate, "model": model, "color": color}
-    return vmap
+def load_thread_store():
+    """Load booking thread store to get Slack thread links"""
+    if os.path.exists(THREAD_STORE):
+        try:
+            with open(THREAD_STORE) as f:
+                data = json.load(f)
+                return data.get("bookings", {})
+        except:
+            pass
+    return {}
 
-def get_bookings(date, vmap):
+def get_thread_link(bookings_store, contract_id, plate, start_date):
+    """Find thread_ts for a booking and build Slack link"""
+    # Try by contract ID first
+    if contract_id and contract_id in bookings_store:
+        ts = bookings_store[contract_id].get("thread_ts")
+        if ts:
+            ts_clean = ts.replace(".", "")
+            return f"https://{SLACK_WORKSPACE}.slack.com/archives/{THREAD_CHANNEL}/p{ts_clean}"
+
+    # Fallback: search by plate + start_date
+    for key, val in bookings_store.items():
+        if (val.get("plate", "") == plate and
+            val.get("start_date", "") == start_date and
+            val.get("thread_ts")):
+            ts = val["thread_ts"].replace(".", "")
+            return f"https://{SLACK_WORKSPACE}.slack.com/archives/{THREAD_CHANNEL}/p{ts}"
+
+    return None
+
+def get_bookings(date):
     data = fetch_post(APPIC_BOOKINGS, {
         "key": APPIC_KEY,
         "startDate": date,
         "endDate": date
     })
-    bookings = data.get("bookings", []) if isinstance(data, dict) else []
-    results = []
-    for b in bookings:
-        vid    = str(b.get("vehicle_id") or "")
-        cname  = b.get("customerName") or b.get("name") or "N/A"
-        cphone = b.get("mobile") or b.get("phone") or "N/A"
-        vinfo  = vmap.get(vid, {})
-        plate  = b.get("vehiclePlate") or vinfo.get("plate", "N/A")
-        model  = b.get("vehicleName")  or vinfo.get("model", "N/A")
-        color  = vinfo.get("color", "")
-        results.append({
-            "customer":   cname,
-            "phone":      cphone,
-            "vehicle":    model,
-            "plate":      plate,
-            "color":      color,
-            "start_date": str(b.get("startDate") or "")[:10],
-            "end_date":   str(b.get("endDate")   or "")[:10],
-        })
-    return results
+    return data.get("bookings", []) if isinstance(data, dict) else []
 
-def build_delivery_message(deliveries, tomorrow):
+def build_delivery_message(deliveries, tomorrow, store):
     now_str = dubai_now().strftime("%d %b %Y | %I:%M %p")
     if not deliveries:
         return {
-            "text": f"📦 No deliveries scheduled for {tomorrow}",
+            "text": f"No deliveries scheduled for {tomorrow}",
             "blocks": [
-                {"type": "header", "text": {"type": "plain_text", "text": f"📦 MKV DELIVERY ALERT — {tomorrow}"}},
-                {"type": "section", "text": {"type": "mrkdwn", "text": "✅ No deliveries scheduled for tomorrow."}},
+                {"type": "header",
+                 "text": {"type": "plain_text", "text": f"DELIVERY ALERT — {tomorrow}"}},
+                {"type": "section",
+                 "text": {"type": "mrkdwn", "text": "No deliveries scheduled for tomorrow."}},
             ]
         }
+
     rows = ""
-    for i, d in enumerate(deliveries, 1):
-        color_str = f" ({d['color']})" if d['color'] else ""
+    for i, b in enumerate(deliveries, 1):
+        customer   = (b.get("customerName") or "N/A").strip().title()
+        mobile     = (b.get("mobile")       or "N/A").strip()
+        vehicle    = (b.get("vehicleName")  or "N/A").strip().title()
+        plate      = (b.get("vehiclePlate") or "N/A").strip()
+        s_time     = (b.get("startTime")    or "")[:5]
+        start_date = (b.get("startDate")    or "").strip()
+        contract   = (b.get("contractID")   or "").strip()
+        end_date   = (b.get("endDate")      or "").strip()
+
+        thread_link = get_thread_link(store, contract, plate, start_date)
+        link_text   = f"<{thread_link}|View Booking Thread>" if thread_link else "Thread not found"
+
         rows += (
-            f"*{i}. {d['vehicle']}{color_str}* — `{d['plate']}`\n"
-            f"   👤 {d['customer']}  |  📞 {d['phone']}\n"
-            f"   📅 {d['start_date']} → {d['end_date']}\n\n"
+            f"*{i}. {vehicle}* — `{plate}`\n"
+            f"   Customer : {customer}  |  {mobile}\n"
+            f"   Delivery : {tomorrow}  {s_time}\n"
+            f"   Return   : {end_date}\n"
+            f"   Thread   : {link_text}\n\n"
         )
+
     return {
-        "text": f"📦 MKV Delivery Alert — {tomorrow} | {len(deliveries)} vehicle(s)",
+        "text": f"Delivery Alert — {tomorrow} | {len(deliveries)} vehicle(s)",
         "blocks": [
-            {"type": "header", "text": {"type": "plain_text", "text": f"📦 MKV DELIVERY ALERT — {tomorrow}"}},
-            {"type": "context", "elements": [{"type": "mrkdwn", "text": f"Sent: {now_str}  |  Vehicles to deliver: *{len(deliveries)}*"}]},
+            {"type": "header",
+             "text": {"type": "plain_text", "text": f"DELIVERY ALERT — {tomorrow}"}},
+            {"type": "context",
+             "elements": [{"type": "mrkdwn",
+                 "text": f"Sent: {now_str}  |  Vehicles to deliver: {len(deliveries)}"}]},
             {"type": "divider"},
-            {"type": "section", "text": {"type": "mrkdwn", "text": rows.strip()}},
+            {"type": "section",
+             "text": {"type": "mrkdwn", "text": rows.strip()}},
             {"type": "divider"},
-            {"type": "context", "elements": [{"type": "mrkdwn", "text": "MKV Car Rental — Auto Alert via GitHub Actions"}]},
+            {"type": "context",
+             "elements": [{"type": "mrkdwn",
+                 "text": "MKV Car Rental — Auto Alert via GitHub Actions"}]},
         ]
     }
 
-def build_pickup_message(returns, tomorrow):
+def build_pickup_message(returns, tomorrow, store):
     now_str = dubai_now().strftime("%d %b %Y | %I:%M %p")
     if not returns:
         return {
-            "text": f"🔑 No returns scheduled for {tomorrow}",
+            "text": f"No returns scheduled for {tomorrow}",
             "blocks": [
-                {"type": "header", "text": {"type": "plain_text", "text": f"🔑 MKV PICKUP ALERT — {tomorrow}"}},
-                {"type": "section", "text": {"type": "mrkdwn", "text": "✅ No returns scheduled for tomorrow."}},
+                {"type": "header",
+                 "text": {"type": "plain_text", "text": f"PICKUP ALERT — {tomorrow}"}},
+                {"type": "section",
+                 "text": {"type": "mrkdwn", "text": "No returns scheduled for tomorrow."}},
             ]
         }
+
     rows = ""
-    for i, r in enumerate(returns, 1):
-        color_str = f" ({r['color']})" if r['color'] else ""
+    for i, b in enumerate(returns, 1):
+        customer   = (b.get("customerName") or "N/A").strip().title()
+        mobile     = (b.get("mobile")       or "N/A").strip()
+        vehicle    = (b.get("vehicleName")  or "N/A").strip().title()
+        plate      = (b.get("vehiclePlate") or "N/A").strip()
+        e_time     = (b.get("endTime")      or "")[:5]
+        start_date = (b.get("startDate")    or "").strip()
+        contract   = (b.get("contractID")   or "").strip()
+
+        thread_link = get_thread_link(store, contract, plate, start_date)
+        link_text   = f"<{thread_link}|View Booking Thread>" if thread_link else "Thread not found"
+
         rows += (
-            f"*{i}. {r['vehicle']}{color_str}* — `{r['plate']}`\n"
-            f"   👤 {r['customer']}  |  📞 {r['phone']}\n"
-            f"   📅 {r['start_date']} → {r['end_date']}\n\n"
+            f"*{i}. {vehicle}* — `{plate}`\n"
+            f"   Customer : {customer}  |  {mobile}\n"
+            f"   Return   : {tomorrow}  {e_time}\n"
+            f"   Thread   : {link_text}\n\n"
         )
+
     return {
-        "text": f"🔑 MKV Pickup Alert — {tomorrow} | {len(returns)} vehicle(s)",
+        "text": f"Pickup Alert — {tomorrow} | {len(returns)} vehicle(s)",
         "blocks": [
-            {"type": "header", "text": {"type": "plain_text", "text": f"🔑 MKV PICKUP ALERT — {tomorrow}"}},
-            {"type": "context", "elements": [{"type": "mrkdwn", "text": f"Sent: {now_str}  |  Vehicles to collect: *{len(returns)}*"}]},
+            {"type": "header",
+             "text": {"type": "plain_text", "text": f"PICKUP ALERT — {tomorrow}"}},
+            {"type": "context",
+             "elements": [{"type": "mrkdwn",
+                 "text": f"Sent: {now_str}  |  Vehicles to collect: {len(returns)}"}]},
             {"type": "divider"},
-            {"type": "section", "text": {"type": "mrkdwn", "text": rows.strip()}},
+            {"type": "section",
+             "text": {"type": "mrkdwn", "text": rows.strip()}},
             {"type": "divider"},
-            {"type": "context", "elements": [{"type": "mrkdwn", "text": "MKV Car Rental — Auto Alert via GitHub Actions"}]},
+            {"type": "context",
+             "elements": [{"type": "mrkdwn",
+                 "text": "MKV Car Rental — Auto Alert via GitHub Actions"}]},
         ]
     }
 
@@ -158,27 +196,26 @@ def main():
     print(f"  Sent at: {now.strftime('%d %b %Y | %I:%M %p')} Dubai Time")
     print("=" * 56)
 
-    print("  Building vehicle map...")
-    vmap = build_vehicle_map()
+    print("  Loading booking thread store...")
+    store = load_thread_store()
+    print(f"  Threads in store: {len(store)}")
 
-    print("  Fetching tomorrow deliveries...")
-    deliveries = get_bookings(tomorrow, vmap)
-    # Filter only start_date = tomorrow
-    deliveries = [b for b in deliveries if b["start_date"] == tomorrow]
+    print("  Fetching tomorrow bookings...")
+    all_bookings = get_bookings(tomorrow)
+
+    deliveries = [b for b in all_bookings if (b.get("startDate") or "").strip() == tomorrow]
+    returns    = [b for b in all_bookings if (b.get("endDate")   or "").strip() == tomorrow]
+
     print(f"  Deliveries: {len(deliveries)}")
-
-    print("  Fetching tomorrow returns...")
-    returns = get_bookings(tomorrow, vmap)
-    # Filter only end_date = tomorrow
-    returns = [b for b in returns if b["end_date"] == tomorrow]
     print(f"  Returns: {len(returns)}")
 
     print("  Sending to Slack...")
-    delivery_msg = build_delivery_message(deliveries, tomorrow)
+
+    delivery_msg = build_delivery_message(deliveries, tomorrow, store)
     ok1 = post_slack(WEBHOOK_DELIVERY, delivery_msg)
     print(f"  Slack {'OK' if ok1 else 'FAILED'} -> #mkv-schedule-for-delivery")
 
-    pickup_msg = build_pickup_message(returns, tomorrow)
+    pickup_msg = build_pickup_message(returns, tomorrow, store)
     ok2 = post_slack(WEBHOOK_PICKUP, pickup_msg)
     print(f"  Slack {'OK' if ok2 else 'FAILED'} -> #mkv-car-pickup")
 
