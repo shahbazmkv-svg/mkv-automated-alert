@@ -39,8 +39,14 @@ def fmt_amount(v):
     except:
         return "—"
 
+def fmt_amount_zero(v):
+    """Always show AED value including zero"""
+    try:
+        return f"AED {float(v or 0):,.0f}"
+    except:
+        return "AED 0"
+
 def booking_key(b):
-    # Use contractID as primary key if available, else plate+date+time
     cid = (b.get("contractID") or "").strip()
     if cid:
         return cid
@@ -116,36 +122,26 @@ def extract(b):
         dur_str = f"{dur} day{'s' if dur != 1 else ''}"
     except:
         dur_str = "N/A"
-
-    # Amount + breakdown
     try:
-        amt_val    = float(b.get("amount", 0))
+        amt_val   = float(b.get("amount", 0))
+        vat_val   = float(b.get("vatAmount", 0))
+        total     = amt_val + vat_val
         rental_amt = f"AED {amt_val:,.0f}" if amt_val > 0 else "TBC"
+        total_amt  = f"AED {total:,.0f}"   if total  > 0 else "TBC"
     except:
         rental_amt = "TBC"
+        total_amt  = "TBC"
 
-    try:
-        vat_val = float(b.get("vatAmount", 0))
-        total   = float(b.get("amount", 0)) + vat_val
-        total_amt = f"AED {total:,.0f}" if total > 0 else "TBC"
-    except:
-        total_amt = rental_amt
-
-    # Location
-    pickup_loc  = (b.get("pickupLocation")  or "").strip() or "—"
-    dropoff_loc = (b.get("dropoffLocation") or "").strip() or "—"
-    location    = pickup_loc if pickup_loc != "—" else dropoff_loc
-
-    # Status label
-    status = (b.get("status") or "confirmed").lower()
-    status_label = "DRAFT" if status == "draft" else "CONFIRMED"
+    pickup_loc  = (b.get("pickupLocation")  or "").strip()
+    dropoff_loc = (b.get("dropoffLocation") or "").strip()
+    location    = pickup_loc or dropoff_loc or "—"
+    status      = (b.get("status") or "confirmed").lower()
 
     return {
         "agr_no":       (b.get("contractID")     or "—").strip(),
         "customer":     (b.get("customerName")   or "N/A").strip().title(),
         "mobile":       (b.get("mobile")         or "N/A").strip(),
         "email":        (b.get("clientEmail")    or "—").strip(),
-        "address":      "—",  # Not in API yet
         "lead_source":  (b.get("leadSource")     or "—").strip(),
         "agent":        (b.get("salesAgent")     or "—").strip(),
         "vehicle":      (b.get("vehicleName")    or "N/A").strip().title(),
@@ -157,19 +153,19 @@ def extract(b):
         "dur_str":      dur_str,
         "location":     location,
         "rental_amt":   rental_amt,
-        "zero_dep":     fmt_amount(b.get("zeroDepositFee",  0)),
-        "addon":        fmt_amount(b.get("addOnCharges",    0)),
-        "vat":          fmt_amount(b.get("vatAmount",       0)),
+        "zero_dep":     fmt_amount_zero(b.get("zeroDepositFee", 0)),
+        "addon":        fmt_amount(b.get("addOnCharges", 0)),
+        "vat":          fmt_amount(b.get("vatAmount", 0)),
         "total_amt":    total_amt,
-        "advance":      fmt_amount(b.get("advanceReceived", 0)),
+        "advance":      fmt_amount_zero(b.get("advanceReceived", 0)),
         "pay_mode":     (b.get("paymentMode")    or "—").strip(),
         "remarks":      (b.get("remarks")        or "—").strip() or "—",
         "status":       status,
-        "status_label": status_label,
+        "status_label": "DRAFT" if status == "draft" else "CONFIRMED",
     }
 
 # ─────────────────────────────────────────────
-#  CLEAN ALIGNED MESSAGE BUILDERS
+#  MESSAGE BUILDERS
 # ─────────────────────────────────────────────
 def build_booking_card(f, now_str):
     body = (
@@ -204,7 +200,6 @@ def build_booking_card(f, now_str):
         f"{'Pickup':<14}: PENDING\n"
         f"```"
     )
-
     blocks = [
         {"type": "header",
          "text": {"type": "plain_text", "text": "NEW BOOKING — MKV CAR RENTAL"}},
@@ -233,6 +228,9 @@ def build_delivery_checklist(f, now_str):
         f"{'Location':<14}: {f['location']}\n"
         f"{'Amount':<14}: {f['total_amt']}\n"
         f"{'─' * 36}\n"
+        f"Driver — reply in this thread:\n"
+        f"{'─' * 36}\n"
+        f"{'AGR#':<14}: {f['agr_no']}\n"
         f"{'Out KM':<14}:\n"
         f"{'Fuel Level':<14}:\n"
         f"{'Driver Name':<14}:\n"
@@ -240,7 +238,6 @@ def build_delivery_checklist(f, now_str):
         f"```\n"
         f"Attach: Contract PDF + Car Photos + Emirates ID"
     )
-
     blocks = [
         {"type": "header",
          "text": {"type": "plain_text", "text": "DELIVERY CHECKLIST"}},
@@ -259,7 +256,6 @@ def build_extension_checklist(f, now_str, old_end, new_end):
         ext_str = f"+{extra} day{'s' if extra != 1 else ''}"
     except:
         ext_str = "Extended"
-
     body = (
         f"```\n"
         f"{'AGR#':<14}: {f['agr_no']}\n"
@@ -269,13 +265,15 @@ def build_extension_checklist(f, now_str, old_end, new_end):
         f"{'Previous End':<14}: {fmt_date(old_end)}\n"
         f"{'New End Date':<14}: {fmt_date(new_end)}  ({ext_str})\n"
         f"{'─' * 36}\n"
+        f"Driver — reply in this thread:\n"
+        f"{'─' * 36}\n"
+        f"{'AGR#':<14}: {f['agr_no']}\n"
         f"{'Ext Amount':<14}: AED\n"
         f"{'Payment Mode':<14}:\n"
         f"{'Pay Status':<14}:\n"
         f"{'Remarks':<14}:\n"
         f"```"
     )
-
     blocks = [
         {"type": "header",
          "text": {"type": "plain_text", "text": "CONTRACT EXTENSION"}},
@@ -299,6 +297,9 @@ def build_pickup_checklist(f, now_str):
         f"{'Delivered':<14}: {fmt_date(f['start'])}  {f['s_time']}\n"
         f"{'Return Due':<14}: {fmt_date(f['end'])}  {f['e_time']}\n"
         f"{'─' * 36}\n"
+        f"Driver — reply in this thread:\n"
+        f"{'─' * 36}\n"
+        f"{'AGR#':<14}: {f['agr_no']}\n"
         f"{'In KM':<14}:\n"
         f"{'Extra KM':<14}:\n"
         f"{'Fuel Charge':<14}: AED\n"
@@ -310,7 +311,6 @@ def build_pickup_checklist(f, now_str):
         f"{'Remarks':<14}:\n"
         f"```"
     )
-
     blocks = [
         {"type": "header",
          "text": {"type": "plain_text", "text": "PICKUP CHECKLIST — DUE TOMORROW"}},
@@ -339,7 +339,6 @@ def build_contract_closed(f, now_str):
         f"CONTRACT CLOSED — NO FURTHER ACTION REQUIRED\n"
         f"```"
     )
-
     blocks = [
         {"type": "header",
          "text": {"type": "plain_text", "text": "CONTRACT CLOSED"}},
@@ -350,6 +349,7 @@ def build_contract_closed(f, now_str):
              "text": f"Closed: {now_str}  |  Auto-detected from Appic"}]},
     ]
     return blocks, f"Closed: {f['customer']} | {f['vehicle']} ({f['plate']})"
+
 
 # ─────────────────────────────────────────────
 #  MAIN
@@ -439,7 +439,6 @@ def main():
             if closed:
                 continue
 
-            # Extension detected
             if end and old_end and end != old_end and end > old_end:
                 print(f"  EXTENSION: {customer} | {plate} | {old_end} -> {end}")
                 if thread_ts:
@@ -452,7 +451,6 @@ def main():
                 else:
                     bookings[key]["end_date"] = end
 
-            # Pickup checklist — day before end date
             if end == tomorrow and not stored.get("pickup_alerted") and thread_ts:
                 print(f"  PICKUP CHECKLIST: {customer} | {plate} | due {end}")
                 p_blocks, p_text = build_pickup_checklist(f, now_str)
@@ -461,7 +459,6 @@ def main():
                     bookings[key]["pickup_alerted"] = True
                     print(f"  Pickup checklist posted in thread")
 
-            # Contract closed
             if status == "closed" and not closed and thread_ts:
                 print(f"  CONTRACT CLOSED: {customer} | {plate}")
                 c_blocks, c_text = build_contract_closed(f, now_str)
