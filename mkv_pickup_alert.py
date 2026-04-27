@@ -5,8 +5,11 @@ from datetime import datetime, timedelta
 import pytz
 
 APPIC_KEY         = os.environ["APPIC_KEY"]
-WEBHOOK_DELIVERY  = os.environ["WEBHOOK_DELIVERY"]
-WEBHOOK_PICKUP    = os.environ["WEBHOOK_PICKUP"]
+# ── TEST MODE — replace with mkvtest webhook ──
+TEST_WEBHOOK = "https://hooks.slack.com/services/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"
+WEBHOOK_DELIVERY = TEST_WEBHOOK
+WEBHOOK_PICKUP   = TEST_WEBHOOK
+# ─────────────────────────────────────────────
 
 APPIC_BOOKINGS    = "https://www.appicfleet.com/appiccar-apis-mkv/get-mkv-bookings.php"
 APPIC_VEHICLES    = "https://www.appicfleet.com/appiccar-apis-mkv/get-all-vehicles.php"
