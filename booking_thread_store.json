@@ -2207,6 +2207,17 @@
       "customer": "Gurkan Ulusoy",
       "vehicle": "Mercedes-Benz Glb 250",
       "delivery_alerted": true,
+      "pickup_alerted": true,
+      "closed": false,
+      "start_date": "2026-04-27"
+    },
+    "009892-MUNE-Land Rover": {
+      "thread_ts": "1777320126.049839",
+      "end_date": "2026-04-30",
+      "plate": "78043",
+      "customer": "Muneer Nazarudeen Nazarudeen",
+      "vehicle": "Land Rover Defender",
+      "delivery_alerted": true,
       "pickup_alerted": false,
       "closed": false,
       "start_date": "2026-04-27"
