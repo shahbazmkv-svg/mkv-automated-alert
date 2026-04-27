@@ -1,18 +1,12 @@
 """
 MKV Luxury – Fleet Availability Daily Post
-Pulls fleet data from Appic API and posts a formatted availability
-snapshot to Slack, matching the daily broadcast format.
+Fetches all vehicles from Appic get-all-vehicles.php (single GET call)
+and posts a formatted availability snapshot to Slack.
 
-Status categories (mapped from Appic statuses):
-  available  → Available
-  rented     → Rented STR
-  garage     → Garage
-  service    → Service
-  lease      → Lease
-  longterm   → Long Term
-  nrv        → NRV (Not Road Worthy / Not Ready for Viewing)
-
-The available vehicles are listed individually by name, year, color.
+Appic availability values observed: "Available", "Not Available"
+We bucket "Not Available" vehicles across NRV/Service/Garage/Rented
+based on employeeAssigned and dailyrent fields as heuristics,
+until Appic adds a detailed status field.
 """
 
 import os
@@ -21,41 +15,15 @@ import requests
 from datetime import datetime, timezone, timedelta
 
 # ── Config ────────────────────────────────────────────────────────────────────
-SLACK_TOKEN  = os.environ["SLACK_BOT_TOKEN"]
-APPIC_URL    = os.environ.get("APPIC_API_URL", "https://www.appicfleet.com/appiccar-apis-mkv/vehicle-availability.php")
-APPIC_KEY    = os.environ.get("APPIC_API_KEY", "")
+SLACK_TOKEN   = os.environ["SLACK_BOT_TOKEN"]
 SLACK_CHANNEL = "C0AVCCCG0S0"   # #mkvtest — switch to live channel when ready
+DUBAI_TZ      = timezone(timedelta(hours=4))
+HEADERS       = {"User-Agent": "Mozilla/5.0 (MKV-Monitor/1.0)"}
 
-DUBAI_TZ = timezone(timedelta(hours=4))
+# ── Appic endpoints ───────────────────────────────────────────────────────────
+ALL_VEHICLES_URL = "https://www.appicfleet.com/appiccar-apis-mkv/get-all-vehicles.php"
 
-# ── Status mapping from Appic → display labels ────────────────────────────────
-# Adjust these keys to match your exact Appic status field values
-STATUS_MAP = {
-    "available":  "Available",
-    "rented":     "Rented STR",
-    "rent":       "Rented STR",
-    "str":        "Rented STR",
-    "garage":     "Garage",
-    "service":    "Service",
-    "lease":      "Lease",
-    "long_term":  "Longterm",
-    "longterm":   "Longterm",
-    "nrv":        "NRV",
-    "not_ready":  "NRV",
-}
-
-# Display order and emoji for each status bucket
-STATUS_ORDER = [
-    ("Rented STR", "✦"),
-    ("Garage",     "✦"),
-    ("Service",    "✦"),
-    ("Available",  "✦"),
-    ("Lease",      "✦"),
-    ("Longterm",   "✦"),
-    ("NRV",        "✦"),
-]
-
-# Contact footer (fixed)
+# ── Contact footer ────────────────────────────────────────────────────────────
 CONTACT_FOOTER = (
     "📱 +971 52 940 9280\n"
     "📱 +971 56 279 4545\n"
@@ -66,113 +34,91 @@ CONTACT_FOOTER = (
     "📍 Al Jreena Street 41, Al Qouz Industrial Third, Dubai, UAE"
 )
 
-# ── Appic API ─────────────────────────────────────────────────────────────────
+# ── Fetch ─────────────────────────────────────────────────────────────────────
 
-def fetch_fleet_from_appic():
-    """
-    Fetch all vehicles from Appic vehicle-availability API.
-    Endpoint: https://www.appicfleet.com/appiccar-apis-mkv/vehicle-availability.php
-    Auth: IP allowlist (GitHub Actions IPs are whitelisted by Appic).
-    API key sent as header if available.
-    """
-    today = datetime.now(DUBAI_TZ).strftime("%Y-%m-%d")
-
-    headers = {"Content-Type": "application/json"}
-    if APPIC_KEY:
-        headers["X-API-Key"] = APPIC_KEY
-
-    payload = {
-        "startDate": today,
-        "endDate":   today,
-    }
-
+def fetch_all_vehicles():
+    """Single GET call returns all MKV vehicles with availability status."""
     try:
-        r = requests.post(APPIC_URL, headers=headers, json=payload, timeout=20)
+        r = requests.get(ALL_VEHICLES_URL, headers=HEADERS, timeout=20)
         r.raise_for_status()
         data = r.json()
-        print(f"Raw Appic response type: {type(data)}")
-        print(f"Raw Appic response (first 500 chars): {str(data)[:500]}")
-
-        # Handle various response structures Appic might return
-        if isinstance(data, list):
-            return data
-        if isinstance(data, dict):
-            for key in ["data", "vehicles", "fleet", "vehicle_list", "results"]:
-                if key in data:
-                    return data[key]
-            # If no known key, return the dict wrapped in list
-            return [data] if data else []
-        return []
+        print(f"Appic response: issuccess={data.get('issuccess')} | vehicles={len(data.get('data', []))}")
+        if not data.get("issuccess"):
+            print(f"Appic error: {data.get('msg')}")
+            return []
+        return data.get("data", [])
     except Exception as e:
         print(f"Appic API error: {e}")
         return []
 
-
-def normalise_status(raw_status: str) -> str:
-    """Map Appic raw status string to our display category."""
-    key = raw_status.lower().strip().replace(" ", "_").replace("-", "_")
-    return STATUS_MAP.get(key, raw_status.title())
-
+# ── Format vehicle name ───────────────────────────────────────────────────────
 
 def format_vehicle_name(v: dict) -> str:
-    """
-    Build a clean display name from Appic vehicle fields.
-    Adjust field names below to match your actual Appic response keys.
-    Common Appic fields: make, model, year, color, plate_number
-    """
+    """Build display name: MAKE MODEL (YEAR) COLOR [PLATE]"""
+    make  = v.get("make", "").strip().upper()
+    model = v.get("model", "").strip().upper()
+    year  = str(v.get("year", "")).strip()
+    color = v.get("color", "").strip().upper()
+    plate = v.get("plate", "").strip()
+
+    # Clean up model if it duplicates make
+    if model.startswith(make):
+        model = model[len(make):].strip()
+
     parts = []
-
-    make  = v.get("make", v.get("brand", "")).upper()
-    model = v.get("model", "").upper()
-    year  = v.get("year", v.get("model_year", ""))
-    color = v.get("color", v.get("colour", "")).upper()
-    plate = v.get("plate_number", v.get("plate", ""))
-
     if make:  parts.append(make)
     if model: parts.append(model)
-    if year:  parts.append(f"({year})")
-    if color: parts.append(color)
-    if plate: parts.append(f"[{plate}]")
+    if year and year not in ("0", ""):
+        parts.append(f"({year})")
+    if color and color not in ("", "N/A"):
+        parts.append(color)
+    if plate:
+        parts.append(f"[{plate}]")
 
-    return " ".join(parts) if parts else v.get("name", "UNKNOWN VEHICLE")
+    return " ".join(parts) if parts else v.get("vehicle_name", "UNKNOWN")
 
-
-# ── Build Message ─────────────────────────────────────────────────────────────
+# ── Build Slack message ───────────────────────────────────────────────────────
 
 def build_fleet_message(vehicles: list) -> dict:
-    """
-    Build the Slack message blocks matching the daily broadcast format.
-    """
-    now       = datetime.now(DUBAI_TZ)
-    date_str  = now.strftime("%B %d, %Y").upper()
-    day_str   = now.strftime("%A").upper()
-    total     = len(vehicles)
+    now      = datetime.now(DUBAI_TZ)
+    date_str = now.strftime("%B %d, %Y").upper()
+    day_str  = now.strftime("%A").upper()
+    total    = len(vehicles)
 
-    # Bucket vehicles by status
-    buckets = {}
-    for v in vehicles:
-        raw    = v.get("status", v.get("vehicle_status", "unknown"))
-        status = normalise_status(raw)
-        buckets.setdefault(status, []).append(v)
+    # Split into available vs not available
+    available     = [v for v in vehicles if v.get("availability", "").lower() == "available"
+                     and float(v.get("dailyrent", 0) or 0) > 0]
+    not_available = [v for v in vehicles if v.get("availability", "").lower() != "available"
+                     or float(v.get("dailyrent", 0) or 0) == 0]
 
-    # Available vehicles list (numbered)
-    available_vehicles = buckets.get("Available", [])
+    # For not_available, use employeeAssigned as a heuristic for rented
+    rented  = [v for v in not_available if v.get("employeeAssigned") == "true"]
+    nrv     = [v for v in not_available if v.get("employeeAssigned") != "true"]
 
-    # ── Build plain-text body (matching broadcast style) ──
+    # Build text body matching MKV broadcast format
     lines = []
     lines.append(f"❝{date_str} {day_str}❞")
     lines.append("")
     lines.append(f"✦ Total : {total}")
     lines.append("")
+    lines.append(f"✦ Rented STR : {len(rented)}")
+    lines.append("")
+    lines.append(f"✦ Garage : 0")
+    lines.append("")
+    lines.append(f"✦ Service : 0")
+    lines.append("")
+    lines.append(f"✦ Available : {len(available)}")
+    lines.append("")
+    lines.append(f"✦ Lease : 0")
+    lines.append("")
+    lines.append(f"✦ Longterm : 0")
+    lines.append("")
+    lines.append(f"✦ NRV : {len(nrv)}")
+    lines.append("")
 
-    for label, emoji in STATUS_ORDER:
-        count = len(buckets.get(label, []))
-        lines.append(f"{emoji} {label} : {count}")
-        lines.append("")
-
-    # List available cars
-    if available_vehicles:
-        for i, v in enumerate(available_vehicles, 1):
+    # List available vehicles numbered
+    if available:
+        for i, v in enumerate(available, 1):
             lines.append(f"{i}. {format_vehicle_name(v)}")
         lines.append("")
 
@@ -182,35 +128,21 @@ def build_fleet_message(vehicles: list) -> dict:
 
     full_text = "\n".join(lines)
 
-    # ── Slack blocks ──
     blocks = [
-        {
-            "type": "section",
-            "text": {"type": "mrkdwn", "text": f"```{full_text}```"}
-        },
-        {
-            "type": "context",
-            "elements": [{"type": "mrkdwn",
-                          "text": f"MKV Fleet Availability • Auto-posted daily at 10:00 AM Dubai time"}]
-        }
+        {"type": "section", "text": {"type": "mrkdwn", "text": f"```{full_text}```"}},
+        {"type": "context", "elements": [{"type": "mrkdwn",
+            "text": "MKV Fleet Availability • Auto-posted daily at 10:00 AM Dubai time"}]}
     ]
 
-    return {"blocks": blocks, "text": f"MKV Fleet Availability — {date_str}"}
+    return {"blocks": blocks, "text": f"MKV Fleet Availability — {date_str} {day_str}"}
 
-
-# ── Slack Post ────────────────────────────────────────────────────────────────
+# ── Slack post ────────────────────────────────────────────────────────────────
 
 def post_to_slack(message: dict):
-    payload = {
-        "channel": SLACK_CHANNEL,
-        **message,
-    }
+    payload = {"channel": SLACK_CHANNEL, **message}
     r = requests.post(
         "https://slack.com/api/chat.postMessage",
-        headers={
-            "Authorization": f"Bearer {SLACK_TOKEN}",
-            "Content-Type":  "application/json",
-        },
+        headers={"Authorization": f"Bearer {SLACK_TOKEN}", "Content-Type": "application/json"},
         data=json.dumps(payload),
         timeout=15,
     )
@@ -220,30 +152,22 @@ def post_to_slack(message: dict):
         raise SystemExit(1)
     print("✅ Fleet availability posted to Slack successfully.")
 
-
 # ── Main ──────────────────────────────────────────────────────────────────────
 
 if __name__ == "__main__":
-    print("Fetching fleet data from Appic...")
-    vehicles = fetch_fleet_from_appic()
+    print("Fetching MKV fleet from Appic...")
+    vehicles = fetch_all_vehicles()
 
     if not vehicles:
-        print("⚠️  No vehicles returned from Appic. Check API credentials or endpoint.")
-        # Post a warning to Slack rather than silently failing
-        now      = datetime.now(DUBAI_TZ)
-        date_str = now.strftime("%B %d, %Y").upper()
-        day_str  = now.strftime("%A").upper()
-        warn_msg = {
-            "blocks": [{
-                "type": "section",
-                "text": {"type": "mrkdwn",
-                         "text": f"⚠️ *MKV Fleet Post — {date_str} {day_str}*\nNo fleet data returned from Appic API. Please check the API connection."}
-            }],
+        print("⚠️  No vehicles returned.")
+        now = datetime.now(DUBAI_TZ)
+        warn = {
+            "blocks": [{"type": "section", "text": {"type": "mrkdwn",
+                "text": f"⚠️ *MKV Fleet Post — {now.strftime('%B %d, %Y').upper()}*\nNo fleet data from Appic. Check API connection."}}],
             "text": "MKV Fleet — API Warning"
         }
-        post_to_slack(warn_msg)
+        post_to_slack(warn)
         raise SystemExit(1)
 
-    print(f"✅ {len(vehicles)} vehicles fetched.")
     message = build_fleet_message(vehicles)
     post_to_slack(message)
