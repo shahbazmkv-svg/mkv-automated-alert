@@ -2219,7 +2219,7 @@
       "vehicle": "Land Rover Defender",
       "delivery_alerted": true,
       "pickup_alerted": false,
-      "closed": false,
+      "closed": true,
       "start_date": "2026-04-27"
     },
     "009893-IBRA-Lotus": {
@@ -2230,7 +2230,7 @@
       "vehicle": "Lotus Lotus Emira",
       "delivery_alerted": true,
       "pickup_alerted": false,
-      "closed": false,
+      "closed": true,
       "start_date": "2026-04-28"
     },
     "009894-MUNE-Morgan": {
@@ -2239,6 +2239,17 @@
       "plate": "I 47203",
       "customer": "Muneer Nazarudeen Nazarudeen",
       "vehicle": "Morgan Morgan Supersport",
+      "delivery_alerted": true,
+      "pickup_alerted": true,
+      "closed": false,
+      "start_date": "2026-04-28"
+    },
+    "009895-IBRA-Lotus": {
+      "thread_ts": "1777371320.269679",
+      "end_date": "2026-04-29",
+      "plate": "23652",
+      "customer": "Ibrahim Qubtan",
+      "vehicle": "Lotus Lotus Emira",
       "delivery_alerted": true,
       "pickup_alerted": false,
       "closed": false,
