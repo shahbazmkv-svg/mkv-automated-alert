@@ -2287,6 +2287,17 @@
       "pickup_alerted": false,
       "closed": false,
       "start_date": "2026-04-28"
+    },
+    "009899-YASI-Chevrolet": {
+      "thread_ts": "1777415422.564739",
+      "end_date": "2026-04-30",
+      "plate": "72712",
+      "customer": "Yasir Kareem Ghadhban Otbi",
+      "vehicle": "Chevrolet Corvette",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-04-29"
     }
   }
 }
