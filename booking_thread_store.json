@@ -2241,7 +2241,7 @@
       "vehicle": "Morgan Morgan Supersport",
       "delivery_alerted": true,
       "pickup_alerted": true,
-      "closed": false,
+      "closed": true,
       "start_date": "2026-04-28"
     },
     "009895-IBRA-Lotus": {
@@ -2261,6 +2261,17 @@
       "plate": "70688",
       "customer": "Marc Misdorp",
       "vehicle": "Bmw 420I Convertible",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-04-28"
+    },
+    "009897-MUNE-GMC": {
+      "thread_ts": "1777379422.031899",
+      "end_date": "2026-04-29",
+      "plate": "69367",
+      "customer": "Muneer Nazarudeen Nazarudeen",
+      "vehicle": "Gmc Yukon",
       "delivery_alerted": true,
       "pickup_alerted": false,
       "closed": false,
