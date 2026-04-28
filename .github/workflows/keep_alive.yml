@@ -7,12 +7,27 @@ on:
     - cron: '0 15 * * *'         # 07:00 PM Dubai — Pickup Alert
     - cron: '0,15,30,45 * * * *' # Every 15 min  — Booking Bot
   workflow_dispatch:
+    inputs:
+      job:
+        description: 'Which job to run manually'
+        required: false
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - fleet-availability
+          - daily-leads
+          - website-snapshot
+          - pickup-alert
+          - booking-bot
 
 jobs:
 
   # ── Fleet Availability Post — 10:00 AM Dubai ─────────────────────────────
   fleet-availability:
-    if: github.event.schedule == '0 6 * * *' || github.event_name == 'workflow_dispatch'
+    if: |
+      github.event.schedule == '0 6 * * *' ||
+      (github.event_name == 'workflow_dispatch' && (github.event.inputs.job == 'fleet-availability' || github.event.inputs.job == 'all'))
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -21,7 +36,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - run: pip install requests --break-system-packages
+      - run: pip install requests pytz --break-system-packages
       - name: Run Fleet Availability Post
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
@@ -36,7 +51,9 @@ jobs:
 
   # ── Daily Leads Report — 11:00 AM Dubai ──────────────────────────────────
   daily-leads:
-    if: github.event.schedule == '0 7 * * *' || github.event_name == 'workflow_dispatch'
+    if: |
+      github.event.schedule == '0 7 * * *' ||
+      (github.event_name == 'workflow_dispatch' && (github.event.inputs.job == 'daily-leads' || github.event.inputs.job == 'all'))
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -63,7 +80,9 @@ jobs:
 
   # ── Website Snapshot — 11:00 AM Dubai ────────────────────────────────────
   website-snapshot:
-    if: github.event.schedule == '0 7 * * *' || github.event_name == 'workflow_dispatch'
+    if: |
+      github.event.schedule == '0 7 * * *' ||
+      (github.event_name == 'workflow_dispatch' && (github.event.inputs.job == 'website-snapshot' || github.event.inputs.job == 'all'))
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -72,7 +91,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - run: pip install requests beautifulsoup4 lxml --break-system-packages
+      - run: pip install requests beautifulsoup4 lxml pytz --break-system-packages
       - name: Run Website Snapshot
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
@@ -87,7 +106,9 @@ jobs:
 
   # ── Pickup Alert — 7:00 PM Dubai ─────────────────────────────────────────
   pickup-alert:
-    if: github.event.schedule == '0 15 * * *' || github.event_name == 'workflow_dispatch'
+    if: |
+      github.event.schedule == '0 15 * * *' ||
+      (github.event_name == 'workflow_dispatch' && (github.event.inputs.job == 'pickup-alert' || github.event.inputs.job == 'all'))
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -113,7 +134,9 @@ jobs:
 
   # ── Booking Bot — Every 15 minutes ───────────────────────────────────────
   booking-bot:
-    if: github.event.schedule == '0,15,30,45 * * * *' || github.event_name == 'workflow_dispatch'
+    if: |
+      github.event.schedule == '0,15,30,45 * * * *' ||
+      (github.event_name == 'workflow_dispatch' && (github.event.inputs.job == 'booking-bot' || github.event.inputs.job == 'all'))
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -122,7 +145,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - run: pip install requests --break-system-packages
+      - run: pip install requests pytz --break-system-packages
       - name: Run Booking Bot
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
