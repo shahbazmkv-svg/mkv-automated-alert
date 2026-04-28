@@ -1,15 +1,10 @@
 name: Keep Alive
 
 on:
-  schedule:
-    - cron: '0 6 * * *'          # 10:00 AM Dubai — Fleet Availability Post
-    - cron: '0 7 * * *'          # 11:00 AM Dubai — Daily Leads + Website Snapshot
-    - cron: '0 15 * * *'         # 07:00 PM Dubai — Pickup Alert
-    - cron: '0,15,30,45 * * * *' # Every 15 min  — Booking Bot
   workflow_dispatch:
     inputs:
       job:
-        description: 'Which job to run manually'
+        description: 'Which job to run'
         required: false
         default: 'all'
         type: choice
@@ -23,11 +18,8 @@ on:
 
 jobs:
 
-  # ── Fleet Availability Post — 10:00 AM Dubai ─────────────────────────────
   fleet-availability:
-    if: |
-      github.event.schedule == '0 6 * * *' ||
-      (github.event_name == 'workflow_dispatch' && (github.event.inputs.job == 'fleet-availability' || github.event.inputs.job == 'all'))
+    if: github.event.inputs.job == 'fleet-availability' || github.event.inputs.job == 'all'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -46,14 +38,11 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git pull --rebase origin main || true
-          git commit --allow-empty -m "chore: fleet availability ran $(date +'%Y-%m-%d')"
+          git commit --allow-empty -m "chore: fleet availability ran $(date +'%Y-%m-%d %H:%M')"
           git push
 
-  # ── Daily Leads Report — 11:00 AM Dubai ──────────────────────────────────
   daily-leads:
-    if: |
-      github.event.schedule == '0 7 * * *' ||
-      (github.event_name == 'workflow_dispatch' && (github.event.inputs.job == 'daily-leads' || github.event.inputs.job == 'all'))
+    if: github.event.inputs.job == 'daily-leads' || github.event.inputs.job == 'all'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -75,14 +64,11 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git pull --rebase origin main || true
-          git commit --allow-empty -m "chore: leads report ran $(date +'%Y-%m-%d')"
+          git commit --allow-empty -m "chore: leads report ran $(date +'%Y-%m-%d %H:%M')"
           git push
 
-  # ── Website Snapshot — 11:00 AM Dubai ────────────────────────────────────
   website-snapshot:
-    if: |
-      github.event.schedule == '0 7 * * *' ||
-      (github.event_name == 'workflow_dispatch' && (github.event.inputs.job == 'website-snapshot' || github.event.inputs.job == 'all'))
+    if: github.event.inputs.job == 'website-snapshot' || github.event.inputs.job == 'all'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -101,14 +87,11 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git pull --rebase origin main || true
-          git commit --allow-empty -m "chore: website snapshot ran $(date +'%Y-%m-%d')"
+          git commit --allow-empty -m "chore: website snapshot ran $(date +'%Y-%m-%d %H:%M')"
           git push
 
-  # ── Pickup Alert — 7:00 PM Dubai ─────────────────────────────────────────
   pickup-alert:
-    if: |
-      github.event.schedule == '0 15 * * *' ||
-      (github.event_name == 'workflow_dispatch' && (github.event.inputs.job == 'pickup-alert' || github.event.inputs.job == 'all'))
+    if: github.event.inputs.job == 'pickup-alert' || github.event.inputs.job == 'all'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -129,14 +112,11 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git pull --rebase origin main || true
-          git commit --allow-empty -m "chore: pickup alert ran $(date +'%Y-%m-%d')"
+          git commit --allow-empty -m "chore: pickup alert ran $(date +'%Y-%m-%d %H:%M')"
           git push
 
-  # ── Booking Bot — Every 15 minutes ───────────────────────────────────────
   booking-bot:
-    if: |
-      github.event.schedule == '0,15,30,45 * * * *' ||
-      (github.event_name == 'workflow_dispatch' && (github.event.inputs.job == 'booking-bot' || github.event.inputs.job == 'all'))
+    if: github.event.inputs.job == 'booking-bot' || github.event.inputs.job == 'all'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
