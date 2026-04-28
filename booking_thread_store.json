@@ -2254,6 +2254,17 @@
       "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-04-28"
+    },
+    "009896-MARC-BMW": {
+      "thread_ts": "1777375823.163499",
+      "end_date": "2026-05-03",
+      "plate": "70688",
+      "customer": "Marc Misdorp",
+      "vehicle": "Bmw 420I Convertible",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-04-28"
     }
   }
 }
