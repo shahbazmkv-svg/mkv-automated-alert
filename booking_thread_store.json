@@ -2276,6 +2276,17 @@
       "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-04-28"
+    },
+    "009898-MADA-Ford": {
+      "thread_ts": "1777389327.269559",
+      "end_date": "2026-05-28",
+      "plate": "33567",
+      "customer": "Madan Kumar Desingu",
+      "vehicle": "Ford Bronco",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-04-28"
     }
   }
 }
