@@ -2221,6 +2221,28 @@
       "pickup_alerted": false,
       "closed": false,
       "start_date": "2026-04-27"
+    },
+    "009893-IBRA-Lotus": {
+      "thread_ts": "1777362953.860029",
+      "end_date": "2026-04-29",
+      "plate": "23652",
+      "customer": "Ibrahim Qubtan",
+      "vehicle": "Lotus Lotus Emira",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-04-28"
+    },
+    "009894-MUNE-Morgan": {
+      "thread_ts": "1777362954.128379",
+      "end_date": "2026-04-29",
+      "plate": "I 47203",
+      "customer": "Muneer Nazarudeen Nazarudeen",
+      "vehicle": "Morgan Morgan Supersport",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-04-28"
     }
   }
 }
