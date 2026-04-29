@@ -4,26 +4,33 @@ import os
 from datetime import datetime, timedelta
 import pytz
 
-APPIC_KEY         = os.environ["APPIC_KEY"]
-# ── TEST MODE — replace with mkvtest webhook ──
-TEST_WEBHOOK = "https://hooks.slack.com/services/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"
-WEBHOOK_DELIVERY = TEST_WEBHOOK
-WEBHOOK_PICKUP   = TEST_WEBHOOK
-# ─────────────────────────────────────────────
+APPIC_KEY        = os.environ["APPIC_KEY"]
+SLACK_BOT_TOKEN  = os.environ["SLACK_BOT_TOKEN"]
 
-APPIC_BOOKINGS    = "https://www.appicfleet.com/appiccar-apis-mkv/get-mkv-bookings.php"
-APPIC_VEHICLES    = "https://www.appicfleet.com/appiccar-apis-mkv/get-all-vehicles.php"
-DUBAI_TZ          = pytz.timezone("Asia/Dubai")
-THREAD_STORE      = "booking_thread_store.json"
+# ── Channels ──────────────────────────────────────────────────────────────────
+CHANNEL_DELIVERY = "C0ABPC606F7"   # #mkv-schedule-for-delivery — switch when live
+CHANNEL_PICKUP   = "C0ABPC606F7"   # #mkv-car-pickup — switch when live
+CHANNEL_TEST     = "C0AVCCCG0S0"   # #mkvtest
 
-# Slack workspace + channels
-SLACK_WORKSPACE   = "mkv-luxury"
-CHANNEL_BOOKINGS  = "C0ABPC606F7"   # #mkv-bookings (live)
-CHANNEL_TEST      = "C0AVCCCG0S0"   # #mkvtest
+TEST_MODE        = True
+SEND_DELIVERY_TO = CHANNEL_TEST if TEST_MODE else CHANNEL_DELIVERY
+SEND_PICKUP_TO   = CHANNEL_TEST if TEST_MODE else CHANNEL_PICKUP
 
-# Match TEST_MODE in booking bot
-TEST_MODE         = True
-THREAD_CHANNEL    = CHANNEL_TEST if TEST_MODE else CHANNEL_BOOKINGS
+# ── Appic endpoints ───────────────────────────────────────────────────────────
+APPIC_CHECKINOUT = "https://www.appicfleet.com/appiccar-apis-mkv/get-mkv-checkin-checkout.php"
+APPIC_BOOKINGS   = "https://www.appicfleet.com/appiccar-apis-mkv/get-mkv-bookings.php"
+
+DUBAI_TZ         = pytz.timezone("Asia/Dubai")
+THREAD_STORE     = "booking_thread_store.json"
+
+SLACK_WORKSPACE  = "mkv-luxury"
+
+SLACK_HEADERS = {
+    "Authorization": f"Bearer {SLACK_BOT_TOKEN}",
+    "Content-Type":  "application/json",
+}
+
+# ── Helpers ───────────────────────────────────────────────────────────────────
 
 def dubai_now():
     return datetime.now(DUBAI_TZ)
@@ -31,129 +38,136 @@ def dubai_now():
 def tomorrow_str():
     return (dubai_now() + timedelta(days=1)).strftime("%Y-%m-%d")
 
-def fetch_post(url, data):
+def fetch_checkinout(date, direction):
+    """
+    Use check-in/checkout API.
+    direction=Out → deliveries (vehicles going out)
+    direction=In  → pickups (vehicles coming back)
+    """
     try:
-        r = requests.post(url, data=data, timeout=15)
+        r = requests.post(APPIC_CHECKINOUT, data={
+            "key":       APPIC_KEY,
+            "startDate": date,
+            "endDate":   date,
+            "direction": direction,
+        }, timeout=15)
         r.raise_for_status()
-        return r.json()
+        data = r.json()
+        print(f"  CheckInOut [{direction}]: issuccess={data.get('issuccess')} | records={len(data.get('bookings', []))}")
+        return data.get("bookings", [])
     except Exception as e:
-        print(f"  API error: {e}")
-        return {}
+        print(f"  CheckInOut API error [{direction}]: {e}")
+        return []
 
-def post_slack(webhook, payload):
-    try:
-        r = requests.post(webhook, json=payload, timeout=10)
-        return r.status_code == 200
-    except Exception as e:
-        print(f"  Slack error: {e}")
-        return False
-
-def load_thread_store():
-    """Load booking thread store to get Slack thread links"""
+def load_store():
     if os.path.exists(THREAD_STORE):
         try:
             with open(THREAD_STORE) as f:
-                data = json.load(f)
-                return data.get("bookings", {})
+                return json.load(f).get("bookings", {})
         except:
             pass
     return {}
 
-def get_thread_link(bookings_store, contract_id, plate, start_date):
-    """Find thread_ts for a booking and build Slack link"""
-    # Try by contract ID first
-    if contract_id and contract_id in bookings_store:
-        ts = bookings_store[contract_id].get("thread_ts")
+def get_thread_link(store, contract_id, plate, start_date, channel):
+    """Build direct Slack thread link from booking store."""
+    if contract_id and contract_id in store:
+        ts = store[contract_id].get("thread_ts")
         if ts:
-            ts_clean = ts.replace(".", "")
-            return f"https://{SLACK_WORKSPACE}.slack.com/archives/{THREAD_CHANNEL}/p{ts_clean}"
-
-    # Fallback: search by plate + start_date
-    for key, val in bookings_store.items():
+            return f"https://{SLACK_WORKSPACE}.slack.com/archives/{channel}/p{ts.replace('.', '')}"
+    for key, val in store.items():
         if (val.get("plate", "") == plate and
             val.get("start_date", "") == start_date and
             val.get("thread_ts")):
             ts = val["thread_ts"].replace(".", "")
-            return f"https://{SLACK_WORKSPACE}.slack.com/archives/{THREAD_CHANNEL}/p{ts}"
-
+            return f"https://{SLACK_WORKSPACE}.slack.com/archives/{channel}/p{ts}"
     return None
 
-def get_bookings(date):
-    data = fetch_post(APPIC_BOOKINGS, {
-        "key": APPIC_KEY,
-        "startDate": date,
-        "endDate": date
-    })
-    return data.get("bookings", []) if isinstance(data, dict) else []
+def post_slack(channel, blocks, text):
+    try:
+        r = requests.post(
+            "https://slack.com/api/chat.postMessage",
+            headers=SLACK_HEADERS,
+            json={"channel": channel, "text": text, "blocks": blocks},
+            timeout=10
+        )
+        result = r.json()
+        if not result.get("ok"):
+            print(f"  Slack error: {result.get('error')}")
+            return False
+        return True
+    except Exception as e:
+        print(f"  Slack post error: {e}")
+        return False
 
-def build_delivery_message(deliveries, tomorrow, store):
+def fmt_amount(v):
+    try:
+        f = float(v or 0)
+        return f"AED {f:,.0f}" if f > 0 else "—"
+    except:
+        return "—"
+
+# ── Message builders ──────────────────────────────────────────────────────────
+
+def build_delivery_blocks(bookings, tomorrow, store):
     now_str = dubai_now().strftime("%d %b %Y | %I:%M %p")
-    if not deliveries:
-        return {
-            "text": f"No deliveries scheduled for {tomorrow}",
-            "blocks": [
-                {"type": "header",
-                 "text": {"type": "plain_text", "text": f"DELIVERY ALERT — {tomorrow}"}},
-                {"type": "section",
-                 "text": {"type": "mrkdwn", "text": "No deliveries scheduled for tomorrow."}},
-            ]
-        }
+
+    if not bookings:
+        return [
+            {"type": "header", "text": {"type": "plain_text", "text": f"🚗 DELIVERY ALERT — {tomorrow}"}},
+            {"type": "section", "text": {"type": "mrkdwn", "text": "No deliveries scheduled for tomorrow."}},
+        ], "No deliveries scheduled for tomorrow."
 
     rows = ""
-    for i, b in enumerate(deliveries, 1):
+    for i, b in enumerate(bookings, 1):
         customer   = (b.get("customerName") or "N/A").strip().title()
         mobile     = (b.get("mobile")       or "N/A").strip()
         vehicle    = (b.get("vehicleName")  or "N/A").strip().title()
         plate      = (b.get("vehiclePlate") or "N/A").strip()
         s_time     = (b.get("startTime")    or "")[:5]
         start_date = (b.get("startDate")    or "").strip()
-        contract   = (b.get("contractID")   or "").strip()
         end_date   = (b.get("endDate")      or "").strip()
+        contract   = (b.get("contractID")   or "").strip()
+        total      = fmt_amount(float(b.get("amount",0) or 0) +
+                                float(b.get("vatAmount",0) or 0) +
+                                float(b.get("zeroDepositFee",0) or 0) +
+                                float(b.get("addOnCharges",0) or 0))
 
-        thread_link = get_thread_link(store, contract, plate, start_date)
-        link_text   = f"<{thread_link}|View Booking Thread>" if thread_link else "Thread not found"
+        thread_link = get_thread_link(store, contract, plate, start_date, SEND_DELIVERY_TO)
+        link_text   = f"<{thread_link}|📎 View Booking Thread>" if thread_link else "Thread not found"
 
         rows += (
             f"*{i}. {vehicle}* — `{plate}`\n"
-            f"   Customer : {customer}  |  {mobile}\n"
-            f"   Delivery : {tomorrow}  {s_time}\n"
-            f"   Return   : {end_date}\n"
-            f"   Thread   : {link_text}\n\n"
+            f"   Customer  : {customer}  |  {mobile}\n"
+            f"   Delivery  : {tomorrow}  {s_time}\n"
+            f"   Return    : {end_date}\n"
+            f"   Total     : {total}\n"
+            f"   {link_text}\n\n"
         )
 
-    return {
-        "text": f"Delivery Alert — {tomorrow} | {len(deliveries)} vehicle(s)",
-        "blocks": [
-            {"type": "header",
-             "text": {"type": "plain_text", "text": f"DELIVERY ALERT — {tomorrow}"}},
-            {"type": "context",
-             "elements": [{"type": "mrkdwn",
-                 "text": f"Sent: {now_str}  |  Vehicles to deliver: {len(deliveries)}"}]},
-            {"type": "divider"},
-            {"type": "section",
-             "text": {"type": "mrkdwn", "text": rows.strip()}},
-            {"type": "divider"},
-            {"type": "context",
-             "elements": [{"type": "mrkdwn",
-                 "text": "MKV Car Rental — Auto Alert via GitHub Actions"}]},
-        ]
-    }
+    blocks = [
+        {"type": "header", "text": {"type": "plain_text", "text": f"🚗 DELIVERY ALERT — {tomorrow}"}},
+        {"type": "context", "elements": [{"type": "mrkdwn",
+            "text": f"Sent: {now_str}  |  Vehicles to deliver tomorrow: *{len(bookings)}*"}]},
+        {"type": "divider"},
+        {"type": "section", "text": {"type": "mrkdwn", "text": rows.strip()}},
+        {"type": "divider"},
+        {"type": "context", "elements": [{"type": "mrkdwn",
+            "text": "MKV Car Rental — Auto Alert via GitHub Actions"}]},
+    ]
+    return blocks, f"🚗 Delivery Alert — {tomorrow} | {len(bookings)} vehicle(s)"
 
-def build_pickup_message(returns, tomorrow, store):
+
+def build_pickup_blocks(bookings, tomorrow, store):
     now_str = dubai_now().strftime("%d %b %Y | %I:%M %p")
-    if not returns:
-        return {
-            "text": f"No returns scheduled for {tomorrow}",
-            "blocks": [
-                {"type": "header",
-                 "text": {"type": "plain_text", "text": f"PICKUP ALERT — {tomorrow}"}},
-                {"type": "section",
-                 "text": {"type": "mrkdwn", "text": "No returns scheduled for tomorrow."}},
-            ]
-        }
+
+    if not bookings:
+        return [
+            {"type": "header", "text": {"type": "plain_text", "text": f"🔑 PICKUP ALERT — {tomorrow}"}},
+            {"type": "section", "text": {"type": "mrkdwn", "text": "No returns scheduled for tomorrow."}},
+        ], "No returns scheduled for tomorrow."
 
     rows = ""
-    for i, b in enumerate(returns, 1):
+    for i, b in enumerate(bookings, 1):
         customer   = (b.get("customerName") or "N/A").strip().title()
         mobile     = (b.get("mobile")       or "N/A").strip()
         vehicle    = (b.get("vehicleName")  or "N/A").strip().title()
@@ -161,66 +175,70 @@ def build_pickup_message(returns, tomorrow, store):
         e_time     = (b.get("endTime")      or "")[:5]
         start_date = (b.get("startDate")    or "").strip()
         contract   = (b.get("contractID")   or "").strip()
+        total      = fmt_amount(float(b.get("amount",0) or 0) +
+                                float(b.get("vatAmount",0) or 0) +
+                                float(b.get("zeroDepositFee",0) or 0) +
+                                float(b.get("addOnCharges",0) or 0))
 
-        thread_link = get_thread_link(store, contract, plate, start_date)
-        link_text   = f"<{thread_link}|View Booking Thread>" if thread_link else "Thread not found"
+        thread_link = get_thread_link(store, contract, plate, start_date, SEND_PICKUP_TO)
+        link_text   = f"<{thread_link}|📎 View Booking Thread>" if thread_link else "Thread not found"
 
         rows += (
             f"*{i}. {vehicle}* — `{plate}`\n"
-            f"   Customer : {customer}  |  {mobile}\n"
-            f"   Return   : {tomorrow}  {e_time}\n"
-            f"   Thread   : {link_text}\n\n"
+            f"   Customer  : {customer}  |  {mobile}\n"
+            f"   Return    : {tomorrow}  {e_time}\n"
+            f"   Total     : {total}\n"
+            f"   {link_text}\n\n"
         )
 
-    return {
-        "text": f"Pickup Alert — {tomorrow} | {len(returns)} vehicle(s)",
-        "blocks": [
-            {"type": "header",
-             "text": {"type": "plain_text", "text": f"PICKUP ALERT — {tomorrow}"}},
-            {"type": "context",
-             "elements": [{"type": "mrkdwn",
-                 "text": f"Sent: {now_str}  |  Vehicles to collect: {len(returns)}"}]},
-            {"type": "divider"},
-            {"type": "section",
-             "text": {"type": "mrkdwn", "text": rows.strip()}},
-            {"type": "divider"},
-            {"type": "context",
-             "elements": [{"type": "mrkdwn",
-                 "text": "MKV Car Rental — Auto Alert via GitHub Actions"}]},
-        ]
-    }
+    blocks = [
+        {"type": "header", "text": {"type": "plain_text", "text": f"🔑 PICKUP ALERT — {tomorrow}"}},
+        {"type": "context", "elements": [{"type": "mrkdwn",
+            "text": f"Sent: {now_str}  |  Vehicles to collect tomorrow: *{len(bookings)}*"}]},
+        {"type": "divider"},
+        {"type": "section", "text": {"type": "mrkdwn", "text": rows.strip()}},
+        {"type": "divider"},
+        {"type": "context", "elements": [{"type": "mrkdwn",
+            "text": "MKV Car Rental — Auto Alert via GitHub Actions"}]},
+    ]
+    return blocks, f"🔑 Pickup Alert — {tomorrow} | {len(bookings)} vehicle(s)"
+
+# ── Main ──────────────────────────────────────────────────────────────────────
 
 def main():
     now      = dubai_now()
     tomorrow = tomorrow_str()
 
     print("=" * 56)
-    print(f"  MKV PICKUP ALERT (for {tomorrow})")
-    print(f"  Sent at: {now.strftime('%d %b %Y | %I:%M %p')} Dubai Time")
+    print(f"  MKV PICKUP & DELIVERY ALERT (for {tomorrow})")
+    print(f"  Sent at : {now.strftime('%d %b %Y | %I:%M %p')} Dubai Time")
+    print(f"  TEST MODE: {TEST_MODE}")
     print("=" * 56)
 
-    print("  Loading booking thread store...")
-    store = load_thread_store()
-    print(f"  Threads in store: {len(store)}")
+    store = load_store()
+    print(f"  Booking threads in store: {len(store)}")
 
-    print("  Fetching tomorrow bookings...")
-    all_bookings = get_bookings(tomorrow)
+    # Use check-in/checkout API
+    print(f"\n  Fetching deliveries (direction=Out)...")
+    deliveries = fetch_checkinout(tomorrow, "Out")
 
-    deliveries = [b for b in all_bookings if (b.get("startDate") or "").strip() == tomorrow]
-    returns    = [b for b in all_bookings if (b.get("endDate")   or "").strip() == tomorrow]
+    print(f"  Fetching pickups (direction=In)...")
+    pickups = fetch_checkinout(tomorrow, "In")
 
-    print(f"  Deliveries: {len(deliveries)}")
-    print(f"  Returns: {len(returns)}")
+    print(f"\n  Deliveries tomorrow : {len(deliveries)}")
+    print(f"  Pickups tomorrow    : {len(pickups)}")
 
-    print("  Sending to Slack...")
+    # Post delivery alert
+    print(f"\n  Posting delivery alert → {'#mkvtest' if TEST_MODE else '#mkv-schedule-for-delivery'}...")
+    d_blocks, d_text = build_delivery_blocks(deliveries, tomorrow, store)
+    ok1 = post_slack(SEND_DELIVERY_TO, d_blocks, d_text)
+    print(f"  Delivery alert: {'✅ OK' if ok1 else '❌ FAILED'}")
 
-    delivery_msg = build_delivery_message(deliveries, tomorrow, store)
-    ok1 = post_slack(WEBHOOK_DELIVERY, delivery_msg)
-    print(f"  Slack {'OK' if ok1 else 'FAILED'} -> #mkv-schedule-for-delivery")
-
-    pickup_msg = build_pickup_message(returns, tomorrow, store)
-    ok2 = post_slack(WEBHOOK_PICKUP, pickup_msg)
-    print(f"  Slack {'OK' if ok2 else 'FAILED'} -> #mkv-car-pickup")
+    # Post pickup alert
+    print(f"  Posting pickup alert → {'#mkvtest' if TEST_MODE else '#mkv-car-pickup'}...")
+    p_blocks, p_text = build_pickup_blocks(pickups, tomorrow, store)
+    ok2 = post_slack(SEND_PICKUP_TO, p_blocks, p_text)
+    print(f"  Pickup alert: {'✅ OK' if ok2 else '❌ FAILED'}")
 
     print("=" * 56)
     print("  Done")
