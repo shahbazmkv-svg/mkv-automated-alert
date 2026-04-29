@@ -1393,6 +1393,17 @@
       "customer": "Ali Azlan Khan",
       "vehicle": "Bmw 520I",
       "delivery_alerted": true,
+      "pickup_alerted": true,
+      "closed": false,
+      "start_date": "2026-04-29"
+    },
+    "009902-PRIM-Ferrari": {
+      "thread_ts": "1777456824.872849",
+      "end_date": "2026-05-01",
+      "plate": "97019",
+      "customer": "Prime Keys Car Rental Llc",
+      "vehicle": "Ferrari Purosangue",
+      "delivery_alerted": true,
       "pickup_alerted": false,
       "closed": false,
       "start_date": "2026-04-29"
