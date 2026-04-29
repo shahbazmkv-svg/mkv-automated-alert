@@ -369,7 +369,7 @@ def build_extension_checklist(f, now_str, old_end, new_end):
     return blocks, f"Extension: {f['customer']} | {f['vehicle']} | New end: {fmt_date(new_end)} ({ext_str})"
 
 
-def build_pickup_checklist(f, now_str):
+def build_pickup_checklist(f, now_str, channel=None, thread_ts=None):
     info = (
         f"AGR#: {f['agr_no']} | "
         f"Customer: {f['customer']} | "
@@ -387,6 +387,11 @@ def build_pickup_checklist(f, now_str):
         "driver": "",
         "out_km": "",
     })
+
+    # Build direct link to booking thread in Slack
+    thread_link = ""
+    if channel and thread_ts:
+        thread_link = f" | <https://slack.com/app_redirect?channel={channel}&message_ts={thread_ts}|View Booking Thread>"
 
     blocks = [
         {
@@ -415,7 +420,7 @@ def build_pickup_checklist(f, now_str):
         {
             "type": "context",
             "elements": [{"type": "mrkdwn",
-                "text": f"Posted: {now_str}  |  Status: PENDING PICKUP"}]
+                "text": f"Posted: {now_str}  |  Status: PENDING PICKUP{thread_link}"}]
         },
     ]
     return blocks, f"Pickup: {f['customer']} | {f['vehicle']} ({f['plate']}) | Return: {fmt_date(f['end'])} {f['e_time']}"
@@ -553,7 +558,7 @@ def main():
 
             if end == tomorrow and not stored.get("pickup_alerted") and thread_ts:
                 print(f"  PICKUP CHECKLIST: {customer} | {plate} | due {end}")
-                p_blocks, p_text = build_pickup_checklist(f, now_str)
+                p_blocks, p_text = build_pickup_checklist(f, now_str, TARGET_CHANNEL, thread_ts)
                 p_ts = post_message(TARGET_CHANNEL, p_blocks, p_text, thread_ts=thread_ts)
                 if p_ts:
                     bookings[key]["pickup_alerted"] = True
