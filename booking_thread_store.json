@@ -62,7 +62,7 @@
       "customer": "Muneer Nazarudeen Nazarudeen",
       "vehicle": "Porsche 911 Turbo",
       "delivery_alerted": true,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-04-29"
     },
@@ -106,7 +106,7 @@
       "customer": "Yasir Kareem Ghadhban Otbi",
       "vehicle": "Chevrolet Corvette",
       "delivery_alerted": true,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-04-29"
     },
@@ -129,7 +129,7 @@
       "vehicle": "Gmc Yukon",
       "delivery_alerted": true,
       "pickup_alerted": false,
-      "closed": false,
+      "closed": true,
       "start_date": "2026-04-28"
     },
     "009896-MARC-BMW": {
@@ -162,7 +162,7 @@
       "vehicle": "Lotus Lotus Emira",
       "delivery_alerted": true,
       "pickup_alerted": false,
-      "closed": false,
+      "closed": true,
       "start_date": "2026-04-28"
     },
     "009894-MUNE-Morgan": {
@@ -173,7 +173,7 @@
       "vehicle": "Morgan Morgan Supersport",
       "delivery_alerted": true,
       "pickup_alerted": false,
-      "closed": false,
+      "closed": true,
       "start_date": "2026-04-28"
     },
     "009892-MUNE-Land Rover": {
@@ -184,7 +184,7 @@
       "vehicle": "Land Rover Defender",
       "delivery_alerted": true,
       "pickup_alerted": false,
-      "closed": false,
+      "closed": true,
       "start_date": "2026-04-27"
     },
     "009891-GURK-Mercedes-Benz": {
@@ -195,7 +195,7 @@
       "vehicle": "Mercedes-Benz Glb 250",
       "delivery_alerted": true,
       "pickup_alerted": false,
-      "closed": false,
+      "closed": true,
       "start_date": "2026-04-27"
     },
     "009888-WOUT-Land Rover": {
@@ -206,7 +206,7 @@
       "vehicle": "Land Rover Range Rover Velar",
       "delivery_alerted": true,
       "pickup_alerted": false,
-      "closed": false,
+      "closed": true,
       "start_date": "2026-04-27"
     },
     "009887-IBRA-Mercedes-Benz": {
@@ -216,7 +216,7 @@
       "customer": "Ibrahim Qubtan",
       "vehicle": "Mercedes-Benz Mercedes G3 (Brabus)",
       "delivery_alerted": true,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-04-27"
     },
@@ -227,7 +227,7 @@
       "customer": "Ibrahim Qubtan",
       "vehicle": "Bentley Bentayga",
       "delivery_alerted": true,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-04-27"
     },
@@ -250,7 +250,7 @@
       "vehicle": "Mercedes-Benz Mercedes  G63",
       "delivery_alerted": true,
       "pickup_alerted": false,
-      "closed": false,
+      "closed": true,
       "start_date": "2026-04-26"
     },
     "009880-MARC-Porsche": {
@@ -305,7 +305,7 @@
       "vehicle": "Ford Mustang Coupe",
       "delivery_alerted": true,
       "pickup_alerted": false,
-      "closed": false,
+      "closed": true,
       "start_date": "2026-04-25"
     },
     "009881-MOHA-Kia": {
@@ -316,7 +316,7 @@
       "vehicle": "Kia Sonet",
       "delivery_alerted": true,
       "pickup_alerted": false,
-      "closed": false,
+      "closed": true,
       "start_date": "2026-04-25"
     },
     "009875-DAVI-Audi": {
@@ -327,7 +327,7 @@
       "vehicle": "Audi Rsq3",
       "delivery_alerted": true,
       "pickup_alerted": false,
-      "closed": false,
+      "closed": true,
       "start_date": "2026-04-25"
     },
     "009871-ALEK-Morgan": {
@@ -338,7 +338,7 @@
       "vehicle": "Morgan Morgan Supersport",
       "delivery_alerted": true,
       "pickup_alerted": false,
-      "closed": false,
+      "closed": true,
       "start_date": "2026-04-25"
     },
     "009870-JUAN-Lotus": {
@@ -349,7 +349,7 @@
       "vehicle": "Lotus Lotus Emira",
       "delivery_alerted": false,
       "pickup_alerted": false,
-      "closed": false,
+      "closed": true,
       "start_date": "2026-04-24"
     },
     "009865-ARTE-Land Rover": {
@@ -360,7 +360,7 @@
       "vehicle": "Land Rover Defender",
       "delivery_alerted": false,
       "pickup_alerted": false,
-      "closed": false,
+      "closed": true,
       "start_date": "2026-04-24"
     },
     "009856-MUNE-Land Rover": {
@@ -393,7 +393,7 @@
       "vehicle": "Ford Mustang Convertible",
       "delivery_alerted": false,
       "pickup_alerted": false,
-      "closed": false,
+      "closed": true,
       "start_date": "2026-04-19"
     },
     "009832-HUSS-Mercedes-Benz": {
@@ -404,7 +404,7 @@
       "vehicle": "Mercedes-Benz Mercedes G3 (Brabus)",
       "delivery_alerted": false,
       "pickup_alerted": false,
-      "closed": false,
+      "closed": true,
       "start_date": "2026-04-18"
     },
     "009824-MOHA-Ford": {
@@ -426,7 +426,7 @@
       "vehicle": "Kia Sonet",
       "delivery_alerted": false,
       "pickup_alerted": false,
-      "closed": false,
+      "closed": true,
       "start_date": "2026-04-15"
     },
     "009811-\u00a0 R-Chevrolet Corvette": {
@@ -437,7 +437,7 @@
       "vehicle": "Chevrolet Corvette C8",
       "delivery_alerted": false,
       "pickup_alerted": false,
-      "closed": false,
+      "closed": true,
       "start_date": "2026-04-13"
     },
     "009787-SHAH-McLaren": {
@@ -459,7 +459,7 @@
       "vehicle": "Ferrari Purosangue",
       "delivery_alerted": false,
       "pickup_alerted": false,
-      "closed": false,
+      "closed": true,
       "start_date": "2026-04-10"
     },
     "009792-ALEX-Ferrari": {
@@ -470,7 +470,7 @@
       "vehicle": "Ferrari Fs 90 Spider",
       "delivery_alerted": false,
       "pickup_alerted": false,
-      "closed": false,
+      "closed": true,
       "start_date": "2026-04-09"
     },
     "000-RST -Kia": {
@@ -492,7 +492,7 @@
       "vehicle": "Chevrolet Corvette",
       "delivery_alerted": false,
       "pickup_alerted": false,
-      "closed": false,
+      "closed": true,
       "start_date": "2026-04-05"
     },
     "009769-ABDU-Lamborghini": {
@@ -503,7 +503,7 @@
       "vehicle": "Lamborghini Urus S",
       "delivery_alerted": false,
       "pickup_alerted": false,
-      "closed": false,
+      "closed": true,
       "start_date": "2026-04-04"
     },
     "009763-BLIS-Land Rover": {
@@ -514,7 +514,7 @@
       "vehicle": "Land Rover Range Rover Velar",
       "delivery_alerted": false,
       "pickup_alerted": false,
-      "closed": false,
+      "closed": true,
       "start_date": "2026-03-30"
     },
     "009905-AMAN-Chevrolet": {
@@ -1418,6 +1418,17 @@
       "pickup_alerted": false,
       "closed": false,
       "start_date": "2026-03-30"
+    },
+    "009900-ALI -BMW": {
+      "thread_ts": "1777473493.948839",
+      "end_date": "2026-04-29",
+      "plate": "70691",
+      "customer": "Ali Azlan Khan",
+      "vehicle": "Bmw 520I",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-04-29"
     }
   }
 }
