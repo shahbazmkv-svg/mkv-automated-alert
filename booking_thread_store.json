@@ -1407,6 +1407,17 @@
       "pickup_alerted": false,
       "closed": false,
       "start_date": "2026-04-29"
+    },
+    "009903-GURK-BMW": {
+      "thread_ts": "1777459530.209519",
+      "end_date": "2026-05-02",
+      "plate": "70691",
+      "customer": "Gurkan Ulusoy",
+      "vehicle": "Bmw 520I",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-04-29"
     }
   }
 }
