@@ -41,9 +41,10 @@ def fmt_amount(v):
 
 def fmt_amount_zero(v):
     try:
-        return f"AED {float(v or 0):,.0f}"
+        f = float(v or 0)
+        return f"AED {f:,.0f}" if f > 0 else "—"
     except:
-        return "AED 0"
+        return "—"
 
 def booking_key(b):
     cid = (b.get("contractID") or "").strip()
@@ -122,9 +123,11 @@ def extract(b):
     except:
         dur_str = "N/A"
     try:
-        amt_val   = float(b.get("amount", 0))
-        vat_val   = float(b.get("vatAmount", 0))
-        total     = amt_val + vat_val
+        amt_val    = float(b.get("amount", 0))
+        vat_val    = float(b.get("vatAmount", 0))
+        zero_dep_v = float(b.get("zeroDepositFee", 0))
+        addon_val  = float(b.get("addOnCharges", 0))
+        total      = amt_val + vat_val + zero_dep_v + addon_val
         rental_amt = f"AED {amt_val:,.0f}" if amt_val > 0 else "TBC"
         total_amt  = f"AED {total:,.0f}"   if total  > 0 else "TBC"
     except:
@@ -244,12 +247,6 @@ def build_booking_card(f, now_str):
                     "action_id": "open_pickup",
                     "value": booking_data
                 },
-                {
-                    "type": "button",
-                    "text": {"type": "plain_text", "text": "📋  Extension"},
-                    "action_id": "open_extension",
-                    "value": booking_data
-                },
             ]
         },
         {
@@ -310,63 +307,6 @@ def build_delivery_checklist(f, now_str):
         },
     ]
     return blocks, f"Delivery: {f['customer']} | {f['vehicle']} ({f['plate']}) | {fmt_date(f['start'])} {f['s_time']}"
-
-
-def build_extension_checklist(f, now_str, old_end, new_end):
-    try:
-        days    = (datetime.strptime(new_end, "%Y-%m-%d") - datetime.strptime(old_end, "%Y-%m-%d")).days
-        ext_str = f"+{days} day{'s' if days != 1 else ''}"
-    except:
-        ext_str = "extended"
-
-    info = (
-        f"AGR#: {f['agr_no']} | "
-        f"Customer: {f['customer']} | "
-        f"Vehicle: {f['vehicle']} ({f['plate']}) | "
-        f"Previous End: {fmt_date(old_end)} | "
-        f"New End: {fmt_date(new_end)} ({ext_str})"
-    )
-
-    booking_data = json.dumps({
-        "id":     f["agr_no"],
-        "car":    f"{f['vehicle']} [{f['plate']}]",
-        "date":   fmt_date(f["start"]),
-        "time":   f["s_time"],
-        "driver": "",
-        "out_km": "",
-    })
-
-    blocks = [
-        {
-            "type": "header",
-            "text": {"type": "plain_text", "text": "CONTRACT EXTENSION"}
-        },
-        {
-            "type": "context",
-            "elements": [{"type": "mrkdwn", "text": info}]
-        },
-        {
-            "type": "divider"
-        },
-        {
-            "type": "actions",
-            "elements": [
-                {
-                    "type": "button",
-                    "text": {"type": "plain_text", "text": "📋  Submit Extension"},
-                    "style": "primary",
-                    "action_id": "open_extension",
-                    "value": booking_data
-                },
-            ]
-        },
-        {
-            "type": "context",
-            "elements": [{"type": "mrkdwn",
-                "text": f"Detected: {now_str}  |  Status: EXTENDED"}]
-        },
-    ]
-    return blocks, f"Extension: {f['customer']} | {f['vehicle']} | New end: {fmt_date(new_end)} ({ext_str})"
 
 
 def build_pickup_checklist(f, now_str, channel=None, thread_ts=None):
