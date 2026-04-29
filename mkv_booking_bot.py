@@ -40,7 +40,6 @@ def fmt_amount(v):
         return "—"
 
 def fmt_amount_zero(v):
-    """Always show AED value including zero"""
     try:
         return f"AED {float(v or 0):,.0f}"
     except:
@@ -167,6 +166,7 @@ def extract(b):
 # ─────────────────────────────────────────────
 #  MESSAGE BUILDERS
 # ─────────────────────────────────────────────
+
 def build_booking_card(f, now_str):
     body = (
         f"```\n"
@@ -200,102 +200,124 @@ def build_booking_card(f, now_str):
         f"{'Pickup':<14}: PENDING\n"
         f"```"
     )
-booking_data = json.dumps({
-    "id":   f.get("agr_number", f.get("id", "N/A")),
-    "car":  f"{f.get('vehicle', '')} [{f.get('plate', '')}]",
-    "date": fmt_date(f.get("start", "")),
-    "time": "",
-    "driver": "",
-    "out_km": "",
-})
 
-blocks = [
-    {"type": "header",
-     "text": {"type": "plain_text", "text": "NEW BOOKING — MKV CAR RENTAL"}},
-    {"type": "context",
-     "elements": [{"type": "mrkdwn",
-         "text": f"Detected: {now_str}  |  Auto-alert via GitHub Actions"}]},
-    {"type": "section",
-     "text": {"type": "mrkdwn", "text": body}},
-    {"type": "divider"},
-    {"type": "actions",
-     "elements": [
-         {"type": "button",
-          "text": {"type": "plain_text", "text": "🚗  Delivery"},
-          "style": "primary",
-          "action_id": "open_delivery",
-          "value": booking_data},
-         {"type": "button",
-          "text": {"type": "plain_text", "text": "🔑  Pickup"},
-          "action_id": "open_pickup",
-          "value": booking_data},
-         {"type": "button",
-          "text": {"type": "plain_text", "text": "📋  Extension"},
-          "action_id": "open_extension",
-          "value": booking_data},
-     ]},
-    {"type": "context",
-     "elements": [{"type": "mrkdwn",
-         "text": "All updates will appear in this thread"}]},
-]
+    # Booking data for interactive buttons
+    booking_data = json.dumps({
+        "id":     f["agr_no"],
+        "car":    f"{f['vehicle']} [{f['plate']}]",
+        "date":   fmt_date(f["start"]),
+        "time":   f["s_time"],
+        "driver": "",
+        "out_km": "",
+    })
+
+    blocks = [
+        {
+            "type": "header",
+            "text": {"type": "plain_text", "text": "NEW BOOKING — MKV CAR RENTAL"}
+        },
+        {
+            "type": "context",
+            "elements": [{"type": "mrkdwn",
+                "text": f"Detected: {now_str}  |  Auto-alert via GitHub Actions"}]
+        },
+        {
+            "type": "section",
+            "text": {"type": "mrkdwn", "text": body}
+        },
+        {
+            "type": "divider"
+        },
+        {
+            "type": "actions",
+            "elements": [
+                {
+                    "type": "button",
+                    "text": {"type": "plain_text", "text": "🚗  Delivery"},
+                    "style": "primary",
+                    "action_id": "open_delivery",
+                    "value": booking_data
+                },
+                {
+                    "type": "button",
+                    "text": {"type": "plain_text", "text": "🔑  Pickup"},
+                    "action_id": "open_pickup",
+                    "value": booking_data
+                },
+                {
+                    "type": "button",
+                    "text": {"type": "plain_text", "text": "📋  Extension"},
+                    "action_id": "open_extension",
+                    "value": booking_data
+                },
+            ]
+        },
+        {
+            "type": "context",
+            "elements": [{"type": "mrkdwn",
+                "text": "All updates will appear in this thread"}]
+        },
     ]
     return blocks, f"New Booking: {f['customer']} | {f['vehicle']} ({f['plate']}) | {fmt_date(f['start'])} to {fmt_date(f['end'])} | {f['total_amt']}"
 
 
 def build_delivery_checklist(f, now_str):
-    # Message 1 - Info block (collapsed via context)
     info = (
-        f"{'AGR#':<14}: {f['agr_no']} | "
-        f"{'Customer'}: {f['customer']} | "
-        f"{'Plate'}: {f['plate']} | "
-        f"{'Date'}: {fmt_date(f['start'])} {f['s_time']} | "
-        f"{'Amount'}: {f['total_amt']}"
+        f"AGR#: {f['agr_no']} | "
+        f"Customer: {f['customer']} | "
+        f"Plate: {f['plate']} | "
+        f"Date: {fmt_date(f['start'])} {f['s_time']} | "
+        f"Amount: {f['total_amt']}"
     )
-    # Message 2 - Driver reply template (prominent, easy to copy)
-    reply = (
-        f"```\n"
-        f"AGR#: {f['agr_no']}\n"
-        f"Out KM:\n"
-        f"Fuel Level:\n"
-        f"Driver Name:\n"
-        f"Remarks:\n"
-        f"```"
-    )
+
+    booking_data = json.dumps({
+        "id":     f["agr_no"],
+        "car":    f"{f['vehicle']} [{f['plate']}]",
+        "date":   fmt_date(f["start"]),
+        "time":   f["s_time"],
+        "driver": "",
+        "out_km": "",
+    })
+
     blocks = [
-        {"type": "header",
-         "text": {"type": "plain_text", "text": "DELIVERY CHECKLIST"}},
-        {"type": "context",
-         "elements": [{"type": "mrkdwn", "text": info}]},
-        {"type": "divider"},
-        {"type": "section",
-         "text": {"type": "mrkdwn",
-             "text": "*Copy and reply with delivery details:*\n" + reply}},
-        {"type": "section",
-         "text": {"type": "mrkdwn",
-             "text": "Attach: Contract PDF + Car Photos + Emirates ID"}},
-        {"type": "context",
-         "elements": [{"type": "mrkdwn",
-             "text": f"Posted: {now_str}  |  Status: PENDING DELIVERY"}]},
-    ]
-    return blocks, f"Delivery: {f['customer']} | {f['vehicle']} ({f['plate']}) | {fmt_date(f['start'])} {f['s_time']}"
-    blocks = [
-        {"type": "header",
-         "text": {"type": "plain_text", "text": "DELIVERY CHECKLIST"}},
-        {"type": "section",
-         "text": {"type": "mrkdwn", "text": body}},
-        {"type": "context",
-         "elements": [{"type": "mrkdwn",
-             "text": f"Posted: {now_str}  |  Status: PENDING DELIVERY"}]},
+        {
+            "type": "header",
+            "text": {"type": "plain_text", "text": "DELIVERY CHECKLIST"}
+        },
+        {
+            "type": "context",
+            "elements": [{"type": "mrkdwn", "text": info}]
+        },
+        {
+            "type": "divider"
+        },
+        {
+            "type": "actions",
+            "elements": [
+                {
+                    "type": "button",
+                    "text": {"type": "plain_text", "text": "🚗  Complete Delivery"},
+                    "style": "primary",
+                    "action_id": "open_delivery",
+                    "value": booking_data
+                },
+            ]
+        },
+        {
+            "type": "context",
+            "elements": [{"type": "mrkdwn",
+                "text": f"Posted: {now_str}  |  Status: PENDING DELIVERY"}]
+        },
     ]
     return blocks, f"Delivery: {f['customer']} | {f['vehicle']} ({f['plate']}) | {fmt_date(f['start'])} {f['s_time']}"
 
 
 def build_extension_checklist(f, now_str, old_end, new_end):
     try:
-        extra   = (datetime.strptime(new_end, "%Y-%m-%d") - datetime.strptime(old_end, "%Y-%m-%d")).days
-        ext_str = f"+{extra} day{'s' if extra != 1 else ''}"
+        days    = (datetime.strptime(new_end, "%Y-%m-%d") - datetime.strptime(old_end, "%Y-%m-%d")).days
+        ext_str = f"+{days} day{'s' if days != 1 else ''}"
     except:
-        ext_str = "Extended"
+        ext_str = "extended"
 
     info = (
         f"AGR#: {f['agr_no']} | "
@@ -304,27 +326,45 @@ def build_extension_checklist(f, now_str, old_end, new_end):
         f"Previous End: {fmt_date(old_end)} | "
         f"New End: {fmt_date(new_end)} ({ext_str})"
     )
-    reply = (
-        f"```\n"
-        f"AGR#: {f['agr_no']}\n"
-        f"Ext Amount: AED\n"
-        f"Payment Mode:\n"
-        f"Pay Status:\n"
-        f"Remarks:\n"
-        f"```"
-    )
+
+    booking_data = json.dumps({
+        "id":     f["agr_no"],
+        "car":    f"{f['vehicle']} [{f['plate']}]",
+        "date":   fmt_date(f["start"]),
+        "time":   f["s_time"],
+        "driver": "",
+        "out_km": "",
+    })
+
     blocks = [
-        {"type": "header",
-         "text": {"type": "plain_text", "text": "CONTRACT EXTENSION"}},
-        {"type": "context",
-         "elements": [{"type": "mrkdwn", "text": info}]},
-        {"type": "divider"},
-        {"type": "section",
-         "text": {"type": "mrkdwn",
-             "text": "*Copy and reply with extension details:*\n" + reply}},
-        {"type": "context",
-         "elements": [{"type": "mrkdwn",
-             "text": f"Detected: {now_str}  |  Status: EXTENDED"}]},
+        {
+            "type": "header",
+            "text": {"type": "plain_text", "text": "CONTRACT EXTENSION"}
+        },
+        {
+            "type": "context",
+            "elements": [{"type": "mrkdwn", "text": info}]
+        },
+        {
+            "type": "divider"
+        },
+        {
+            "type": "actions",
+            "elements": [
+                {
+                    "type": "button",
+                    "text": {"type": "plain_text", "text": "📋  Submit Extension"},
+                    "style": "primary",
+                    "action_id": "open_extension",
+                    "value": booking_data
+                },
+            ]
+        },
+        {
+            "type": "context",
+            "elements": [{"type": "mrkdwn",
+                "text": f"Detected: {now_str}  |  Status: EXTENDED"}]
+        },
     ]
     return blocks, f"Extension: {f['customer']} | {f['vehicle']} | New end: {fmt_date(new_end)} ({ext_str})"
 
@@ -338,32 +378,45 @@ def build_pickup_checklist(f, now_str):
         f"Delivered: {fmt_date(f['start'])} {f['s_time']} | "
         f"Return Due: {fmt_date(f['end'])} {f['e_time']}"
     )
-    reply = (
-        f"```\n"
-        f"AGR#: {f['agr_no']}\n"
-        f"In KM:\n"
-        f"Extra KM:\n"
-        f"Fuel Charge: AED\n"
-        f"Salik: AED\n"
-        f"Fines: AED\n"
-        f"Damage: AED\n"
-        f"Amt Collected: AED\n"
-        f"Payment Mode:\n"
-        f"Remarks:\n"
-        f"```"
-    )
+
+    booking_data = json.dumps({
+        "id":     f["agr_no"],
+        "car":    f"{f['vehicle']} [{f['plate']}]",
+        "date":   fmt_date(f["start"]),
+        "time":   f["s_time"],
+        "driver": "",
+        "out_km": "",
+    })
+
     blocks = [
-        {"type": "header",
-         "text": {"type": "plain_text", "text": "PICKUP CHECKLIST — DUE TOMORROW"}},
-        {"type": "context",
-         "elements": [{"type": "mrkdwn", "text": info}]},
-        {"type": "divider"},
-        {"type": "section",
-         "text": {"type": "mrkdwn",
-             "text": "*Copy and reply with pickup details:*\n" + reply}},
-        {"type": "context",
-         "elements": [{"type": "mrkdwn",
-             "text": f"Posted: {now_str}  |  Status: PENDING PICKUP"}]},
+        {
+            "type": "header",
+            "text": {"type": "plain_text", "text": "PICKUP CHECKLIST — DUE TOMORROW"}
+        },
+        {
+            "type": "context",
+            "elements": [{"type": "mrkdwn", "text": info}]
+        },
+        {
+            "type": "divider"
+        },
+        {
+            "type": "actions",
+            "elements": [
+                {
+                    "type": "button",
+                    "text": {"type": "plain_text", "text": "🔑  Complete Pickup"},
+                    "style": "primary",
+                    "action_id": "open_pickup",
+                    "value": booking_data
+                },
+            ]
+        },
+        {
+            "type": "context",
+            "elements": [{"type": "mrkdwn",
+                "text": f"Posted: {now_str}  |  Status: PENDING PICKUP"}]
+        },
     ]
     return blocks, f"Pickup: {f['customer']} | {f['vehicle']} ({f['plate']}) | Return: {fmt_date(f['end'])} {f['e_time']}"
 
@@ -385,13 +438,19 @@ def build_contract_closed(f, now_str):
         f"```"
     )
     blocks = [
-        {"type": "header",
-         "text": {"type": "plain_text", "text": "CONTRACT CLOSED"}},
-        {"type": "section",
-         "text": {"type": "mrkdwn", "text": body}},
-        {"type": "context",
-         "elements": [{"type": "mrkdwn",
-             "text": f"Closed: {now_str}  |  Auto-detected from Appic"}]},
+        {
+            "type": "header",
+            "text": {"type": "plain_text", "text": "CONTRACT CLOSED"}
+        },
+        {
+            "type": "section",
+            "text": {"type": "mrkdwn", "text": body}
+        },
+        {
+            "type": "context",
+            "elements": [{"type": "mrkdwn",
+                "text": f"Closed: {now_str}  |  Auto-detected from Appic"}]
+        },
     ]
     return blocks, f"Closed: {f['customer']} | {f['vehicle']} ({f['plate']})"
 
@@ -404,11 +463,7 @@ def main():
     now_str  = now.strftime("%d %b %Y | %I:%M %p Dubai Time")
     tomorrow = (now + timedelta(days=1)).strftime("%Y-%m-%d")
 
-    # ── SEED MODE ──────────────────────────────
-    # True  = stores all bookings silently (first run)
-    # False = normal mode, posts new bookings
     SEED_MODE = False
-    # ───────────────────────────────────────────
 
     print("=" * 56)
     print("  MKV BOOKING BOT")
