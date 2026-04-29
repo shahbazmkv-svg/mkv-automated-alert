@@ -129,7 +129,11 @@ def extract(b):
         addon_val  = float(b.get("addOnCharges", 0))
         total      = amt_val + vat_val + zero_dep_v + addon_val
         rental_amt = f"AED {amt_val:,.0f}" if amt_val > 0 else "TBC"
-        total_amt  = f"AED {total:,.0f}"   if total  > 0 else "TBC"
+        # Show total if any component has value, even if rental is TBC
+        if total > 0:
+            total_amt = f"AED {total:,.0f}" + (" *" if amt_val == 0 else "")
+        else:
+            total_amt = "TBC"
     except:
         rental_amt = "TBC"
         total_amt  = "TBC"
