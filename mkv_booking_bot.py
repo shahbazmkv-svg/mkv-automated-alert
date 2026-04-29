@@ -125,14 +125,22 @@ def extension_modal(b, trigger, ch, ts):
         ]})
 
 def handle_delivery(payload):
-    meta = json.loads(payload["view"]["private_metadata"])
-    state = payload["view"]["state"]
-    user = payload["user"]["name"]
+    meta    = json.loads(payload["view"]["private_metadata"])
+    state   = payload["view"]["state"]
+    user    = payload["user"]["name"]
     booking = meta["booking"]
-    driver = val(state,"driver_name"); out_km = val(state,"out_km")
-    booking.update({"driver":driver,"out_km":out_km})
-    post_msg(meta["channel"],[
-        {"type":"section","text":{"type":"mrkdwn","text":f"✅ *DELIVERY COMPLETED*\n```\n{'Driver':<14}: {driver}\n{'Out KM':<14}: {out_km}\n{'Fuel Level':<14}: {val(state,'fuel_level')}\n{'Photos':<14}: {val(state,'photos_uploaded')}\n{'Remarks':<14}: {val(state,'remarks')}\n```"}},
+    driver  = val(state, "driver_name")
+    out_km  = val(state, "out_km")
+    booking.update({"driver": driver, "out_km": out_km})
+    post_msg(meta["channel"], [
+        {"type":"section","text":{"type":"mrkdwn","text":(
+            f"✅ *DELIVERY COMPLETED*\n```\n"
+            f"{'Driver':<14}: {driver}\n"
+            f"{'Out KM':<14}: {out_km}\n"
+            f"{'Fuel Level':<14}: {val(state,'fuel_level')}\n"
+            f"{'Photos':<14}: {val(state,'photos_uploaded')}\n"
+            f"{'Remarks':<14}: {val(state,'remarks')}\n```"
+        )}},
         {"type":"divider"},
         {"type":"actions","elements":[
             {"type":"button","text":{"type":"plain_text","text":"🔑  Pickup"},"style":"primary","action_id":"open_pickup","value":json.dumps(booking)},
@@ -142,11 +150,23 @@ def handle_delivery(payload):
     ], f"✅ Delivery completed by {user}", meta["ts"])
 
 def handle_pickup(payload):
-    meta = json.loads(payload["view"]["private_metadata"])
+    meta  = json.loads(payload["view"]["private_metadata"])
     state = payload["view"]["state"]
-    user = payload["user"]["name"]
-    post_msg(meta["channel"],[
-        {"type":"section","text":{"type":"mrkdwn","text":f"✅ *CONTRACT CLOSED*\n```\n{'In KM':<16}: {val(state,'in_km')}\n{'Extra KM':<16}: {val(state,'extra_km')}\n{'Salik':<16}: {val(state,'salik')}\n{'Fines':<16}: {val(state,'fines')}\n{'Fuel Charge':<16}: {val(state,'fuel_charge')}\n{'Damage':<16}: {val(state,'damage_charges')}\n{'Amt Collected':<16}: {val(state,'amount_collected')}\n{'Payment Mode':<16}: {val(state,'payment_mode')}\n{'Remarks':<16}: {val(state,'remarks')}\n```\n*CONTRACT CLOSED — NO FURTHER ACTION REQUIRED*"}},
+    user  = payload["user"]["name"]
+    post_msg(meta["channel"], [
+        {"type":"section","text":{"type":"mrkdwn","text":(
+            f"✅ *CONTRACT CLOSED*\n```\n"
+            f"{'In KM':<16}: {val(state,'in_km')}\n"
+            f"{'Extra KM':<16}: {val(state,'extra_km')}\n"
+            f"{'Salik':<16}: {val(state,'salik')}\n"
+            f"{'Fines':<16}: {val(state,'fines')}\n"
+            f"{'Fuel Charge':<16}: {val(state,'fuel_charge')}\n"
+            f"{'Damage':<16}: {val(state,'damage_charges')}\n"
+            f"{'Amt Collected':<16}: {val(state,'amount_collected')}\n"
+            f"{'Payment Mode':<16}: {val(state,'payment_mode')}\n"
+            f"{'Remarks':<16}: {val(state,'remarks')}\n```\n"
+            f"*CONTRACT CLOSED — NO FURTHER ACTION REQUIRED*"
+        )}},
         {"type":"context","elements":[{"type":"mrkdwn","text":f"Submitted by @{user}"}]},
     ], f"✅ Contract closed by {user}", meta["ts"])
 
@@ -159,27 +179,87 @@ def handle_extension(payload):
     new_date = val(state, "new_return_date")
     payment  = val(state, "extension_payment_mode")
     remarks  = val(state, "remarks")
-    msg = (
-        "📋 *CONTRACT EXTENDED*\n"
-        "```\n"
-        f"{'Driver':<20}: {driver}\n"
-        f"{'New Return Date':<20}: {new_date}\n"
-        f"{'Payment Mode':<20}: {payment}\n"
-        f"{'Remarks':<20}: {remarks}\n"
-        "```\n"
-        "*CONTRACT ACTIVE — EXTENDED | Final Pickup: PENDING*"
-    )
     post_msg(meta["channel"], [
-        {"type": "section", "text": {"type": "mrkdwn", "text": msg}},
-        {"type": "divider"},
-        {"type": "actions", "elements": [
-            {"type": "button", "text": {"type": "plain_text", "text": "🔑  Final Pickup"},
-             "style": "primary", "action_id": "open_pickup", "value": json.dumps(booking)},
+        {"type":"section","text":{"type":"mrkdwn","text":(
+            f"📋 *CONTRACT EXTENDED*\n```\n"
+            f"{'Driver':<20}: {driver}\n"
+            f"{'New Return Date':<20}: {new_date}\n"
+            f"{'Payment Mode':<20}: {payment}\n"
+            f"{'Remarks':<20}: {remarks}\n```\n"
+            f"*CONTRACT ACTIVE — EXTENDED | Final Pickup: PENDING*"
+        )}},
+        {"type":"divider"},
+        {"type":"actions","elements":[
+            {"type":"button","text":{"type":"plain_text","text":"🔑  Final Pickup"},
+             "style":"primary","action_id":"open_pickup","value":json.dumps(booking)},
         ]},
-        {"type": "context", "elements": [{"type": "mrkdwn",
-            "text": f"Extended by @{user} | Driver: {driver} | New Return: {new_date} | Payment: {payment}"}]},
+        {"type":"context","elements":[{"type":"mrkdwn",
+            "text":f"Extended by @{user} | Driver: {driver} | New Return: {new_date} | Payment: {payment}"}]},
     ], f"📋 Contract extended by {user}", meta["ts"])
 
+# ── HTTP Handler ──────────────────────────────────────────────────────────────
+
+class Handler(BaseHTTPRequestHandler):
+    def log_message(self, f, *a): print(f"[{self.address_string()}] {f%a}")
+
+    def send_json(self, code=200, body=b""):
+        self.send_response(code)
+        self.send_header("Content-Type", "application/json")
+        self.end_headers()
+        self.wfile.write(body)
+
+    def do_GET(self):
+        print(f"GET {self.path}")
+        self.send_json(200, b'{"status":"ok","service":"MKV Slack App"}')
+
+    def do_POST(self):
+        n    = int(self.headers.get("Content-Length", 0))
+        body = self.rfile.read(n)
+        ts   = self.headers.get("X-Slack-Request-Timestamp", "0")
+        sig  = self.headers.get("X-Slack-Signature", "")
+        print(f"POST {self.path} [{n} bytes]")
+
+        # URL verification challenge
+        try:
+            jb = json.loads(body.decode())
+            if jb.get("type") == "url_verification":
+                print("URL verification OK")
+                self.send_json(200, json.dumps({"challenge": jb["challenge"]}).encode())
+                return
+        except: pass
+
+        if not verify(body, ts, sig):
+            print("Sig failed")
+            self.send_json(401, b'{"error":"invalid_signature"}')
+            return
+
+        raw     = parse_qs(body.decode())
+        payload = json.loads(unquote_plus(raw.get("payload", ["{}"])[0]))
+        ptype   = payload.get("type")
+        print(f"Type: {ptype}")
+
+        if ptype == "block_actions":
+            aid     = payload["actions"][0]["action_id"]
+            trigger = payload["trigger_id"]
+            ch      = payload["container"]["channel_id"]
+            mts     = payload["container"]["message_ts"]
+            try: bk = json.loads(payload["actions"][0].get("value", "{}"))
+            except: bk = {}
+            print(f"Action: {aid}")
+            if aid == "open_delivery":   delivery_modal(bk, trigger, ch, mts)
+            elif aid == "open_pickup":   pickup_modal(bk, trigger, ch, mts)
+            elif aid == "open_extension": extension_modal(bk, trigger, ch, mts)
+            self.send_json(200, b"")
+
+        elif ptype == "view_submission":
+            cb = payload["view"]["callback_id"]
+            print(f"Submit: {cb}")
+            if cb == "delivery_submit":   handle_delivery(payload)
+            elif cb == "pickup_submit":   handle_pickup(payload)
+            elif cb == "extension_submit": handle_extension(payload)
+            self.send_json(200, b'{"response_action":"clear"}')
+        else:
+            self.send_json(200, b"")
 
 if __name__ == "__main__":
     print(f"MKV Slack App starting on 0.0.0.0:{PORT}")
