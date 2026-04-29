@@ -200,17 +200,44 @@ def build_booking_card(f, now_str):
         f"{'Pickup':<14}: PENDING\n"
         f"```"
     )
-    blocks = [
-        {"type": "header",
-         "text": {"type": "plain_text", "text": "NEW BOOKING — MKV CAR RENTAL"}},
-        {"type": "context",
-         "elements": [{"type": "mrkdwn",
-             "text": f"Detected: {now_str}  |  Auto-alert via GitHub Actions"}]},
-        {"type": "section",
-         "text": {"type": "mrkdwn", "text": body}},
-        {"type": "context",
-         "elements": [{"type": "mrkdwn",
-             "text": "All updates will appear in this thread"}]},
+booking_data = json.dumps({
+    "id":   f.get("agr_number", f.get("id", "N/A")),
+    "car":  f"{f.get('vehicle', '')} [{f.get('plate', '')}]",
+    "date": fmt_date(f.get("start", "")),
+    "time": "",
+    "driver": "",
+    "out_km": "",
+})
+
+blocks = [
+    {"type": "header",
+     "text": {"type": "plain_text", "text": "NEW BOOKING — MKV CAR RENTAL"}},
+    {"type": "context",
+     "elements": [{"type": "mrkdwn",
+         "text": f"Detected: {now_str}  |  Auto-alert via GitHub Actions"}]},
+    {"type": "section",
+     "text": {"type": "mrkdwn", "text": body}},
+    {"type": "divider"},
+    {"type": "actions",
+     "elements": [
+         {"type": "button",
+          "text": {"type": "plain_text", "text": "🚗  Delivery"},
+          "style": "primary",
+          "action_id": "open_delivery",
+          "value": booking_data},
+         {"type": "button",
+          "text": {"type": "plain_text", "text": "🔑  Pickup"},
+          "action_id": "open_pickup",
+          "value": booking_data},
+         {"type": "button",
+          "text": {"type": "plain_text", "text": "📋  Extension"},
+          "action_id": "open_extension",
+          "value": booking_data},
+     ]},
+    {"type": "context",
+     "elements": [{"type": "mrkdwn",
+         "text": "All updates will appear in this thread"}]},
+]
     ]
     return blocks, f"New Booking: {f['customer']} | {f['vehicle']} ({f['plate']}) | {fmt_date(f['start'])} to {fmt_date(f['end'])} | {f['total_amt']}"
 
