@@ -1429,6 +1429,17 @@
       "pickup_alerted": false,
       "closed": true,
       "start_date": "2026-04-29"
+    },
+    "009906-MELH-Cadillac": {
+      "thread_ts": "1777476633.792979",
+      "end_date": "2026-05-02",
+      "plate": "44789",
+      "customer": "Melhem Hadchity",
+      "vehicle": "Cadillac Escalade",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-04-30"
     }
   }
 }
