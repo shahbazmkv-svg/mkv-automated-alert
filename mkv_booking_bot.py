@@ -1,266 +1,586 @@
-import os, json, hashlib, hmac, time
-from http.server import HTTPServer, BaseHTTPRequestHandler
-from urllib.parse import parse_qs, unquote_plus
 import requests
+import json
+import os
+from datetime import datetime, timezone, timedelta
 
-SLACK_BOT_TOKEN      = os.environ.get("SLACK_BOT_TOKEN", "")
-SLACK_SIGNING_SECRET = os.environ.get("SLACK_SIGNING_SECRET", "")
-PORT                 = int(os.environ.get("PORT", 3000))
+# ─────────────────────────────────────────────
+#  CONFIG
+# ─────────────────────────────────────────────
+APPIC_KEY          = os.environ["APPIC_KEY"]
+SLACK_BOT_TOKEN    = os.environ["SLACK_BOT_TOKEN"]
 
-HEADERS = {"Authorization": f"Bearer {SLACK_BOT_TOKEN}", "Content-Type": "application/json; charset=utf-8"}
+CHANNEL_BOOKINGS   = "C0ABPC606F7"   # #mkv-bookings (live)
+CHANNEL_TEST       = "C0AVCCCG0S0"   # #mkvtest
 
-FUEL_OPTIONS = [
-    {"text": {"type": "plain_text", "text": "4/4 — Full"},  "value": "4/4"},
-    {"text": {"type": "plain_text", "text": "3/4"},          "value": "3/4"},
-    {"text": {"type": "plain_text", "text": "2/4 — Half"},   "value": "2/4"},
-    {"text": {"type": "plain_text", "text": "1/4"},          "value": "1/4"},
-    {"text": {"type": "plain_text", "text": "0/4 — Empty"},  "value": "0/4"},
-]
+TEST_MODE          = True
+TARGET_CHANNEL     = CHANNEL_TEST if TEST_MODE else CHANNEL_BOOKINGS
 
-def slack(endpoint, payload):
-    r = requests.post(f"https://slack.com/api/{endpoint}", headers=HEADERS, json=payload, timeout=15)
-    res = r.json()
-    if not res.get("ok"): print(f"Slack error [{endpoint}]: {res.get('error')}")
-    return res
+APPIC_BOOKINGS_URL = "https://www.appicfleet.com/appiccar-apis-mkv/get-mkv-bookings.php"
+STORE_FILE         = "booking_thread_store.json"
+DUBAI_TZ           = timezone(timedelta(hours=4))
+SLACK_HEADERS      = {
+    "Authorization": f"Bearer {SLACK_BOT_TOKEN}",
+    "Content-Type": "application/json"
+}
 
-def open_modal(trigger_id, modal): slack("views.open", {"trigger_id": trigger_id, "view": modal})
+def dubai_now():
+    return datetime.now(DUBAI_TZ)
 
-def post_msg(channel, blocks, text, ts=None):
-    p = {"channel": channel, "text": text, "blocks": blocks}
-    if ts: p["thread_ts"] = ts
-    slack("chat.postMessage", p)
-
-def val(state, block_id):
+def fmt_date(d):
     try:
-        action = state["values"][block_id]["value"]
-        if isinstance(action, dict):
-            if action.get("value") is not None:
-                return action["value"]
-            if action.get("selected_option"):
-                return action["selected_option"]["value"]
-            if action.get("selected_date"):
-                return action["selected_date"]
-        return str(action) if action else "—"
-    except: return "—"
+        return datetime.strptime(d, "%Y-%m-%d").strftime("%d %b %Y")
+    except:
+        return d or "N/A"
 
-def verify(body, ts, sig):
+def fmt_amount(v):
     try:
-        if abs(time.time() - int(ts)) > 300: return False
-        base = f"v0:{ts}:{body.decode()}"
-        comp = "v0=" + hmac.new(SLACK_SIGNING_SECRET.encode(), base.encode(), hashlib.sha256).hexdigest()
-        return hmac.compare_digest(comp, sig)
-    except: return False
+        f = float(v)
+        return f"AED {f:,.0f}" if f > 0 else "—"
+    except:
+        return "—"
 
-def delivery_modal(b, trigger, ch, ts):
-    open_modal(trigger, {"type":"modal","callback_id":"delivery_submit",
-        "private_metadata": json.dumps({"channel":ch,"ts":ts,"booking":b}),
-        "title":{"type":"plain_text","text":"Vehicle Delivered"},
-        "submit":{"type":"plain_text","text":"Submit"},
-        "close":{"type":"plain_text","text":"Cancel"},
-        "blocks":[
-            {"type":"section","text":{"type":"mrkdwn","text":f"*{b.get('id','—')}* | {b.get('car','—')} | {b.get('date','—')} {b.get('time','')}"}},
-            {"type":"divider"},
-            {"type":"input","block_id":"driver_name","label":{"type":"plain_text","text":"Driver Name"},
-             "element":{"type":"plain_text_input","action_id":"value","placeholder":{"type":"plain_text","text":"e.g. Ahmed"}}},
-            {"type":"input","block_id":"out_km","label":{"type":"plain_text","text":"Out KM"},
-             "element":{"type":"plain_text_input","action_id":"value","placeholder":{"type":"plain_text","text":"e.g. 12500"}}},
-            {"type":"input","block_id":"fuel_level","label":{"type":"plain_text","text":"Fuel Level"},
-             "element":{"type":"static_select","action_id":"value","placeholder":{"type":"plain_text","text":"Select fuel level"},"options":FUEL_OPTIONS}},
-            {"type":"input","block_id":"photos_uploaded","label":{"type":"plain_text","text":"Photos Uploaded"},
-             "element":{"type":"static_select","action_id":"value","placeholder":{"type":"plain_text","text":"Select"},
-             "options":[{"text":{"type":"plain_text","text":"Yes"},"value":"Yes"},{"text":{"type":"plain_text","text":"No"},"value":"No"}]}},
-            {"type":"input","block_id":"remarks","label":{"type":"plain_text","text":"Remarks"},"optional":True,
-             "element":{"type":"plain_text_input","action_id":"value","multiline":True,"placeholder":{"type":"plain_text","text":"Optional"}}},
-        ]})
+def fmt_amount_zero(v):
+    try:
+        return f"AED {float(v or 0):,.0f}"
+    except:
+        return "AED 0"
 
-def pickup_modal(b, trigger, ch, ts):
-    open_modal(trigger, {"type":"modal","callback_id":"pickup_submit",
-        "private_metadata": json.dumps({"channel":ch,"ts":ts,"booking":b}),
-        "title":{"type":"plain_text","text":"Contract Closed"},
-        "submit":{"type":"plain_text","text":"Submit"},
-        "close":{"type":"plain_text","text":"Cancel"},
-        "blocks":[
-            {"type":"section","text":{"type":"mrkdwn","text":f"*{b.get('id','—')}* | {b.get('car','—')} | Driver: {b.get('driver','—')} | Out KM: {b.get('out_km','—')}"}},
-            {"type":"divider"},
-            {"type":"input","block_id":"in_km","label":{"type":"plain_text","text":"In KM"},
-             "element":{"type":"plain_text_input","action_id":"value","placeholder":{"type":"plain_text","text":"e.g. 12850"}}},
-            {"type":"input","block_id":"extra_km","label":{"type":"plain_text","text":"Extra KM (if any)"},"optional":True,
-             "element":{"type":"plain_text_input","action_id":"value","placeholder":{"type":"plain_text","text":"e.g. 350"}}},
-            {"type":"input","block_id":"salik","label":{"type":"plain_text","text":"Salik"},"optional":True,
-             "element":{"type":"plain_text_input","action_id":"value","placeholder":{"type":"plain_text","text":"e.g. AED 50"}}},
-            {"type":"input","block_id":"fines","label":{"type":"plain_text","text":"Fines"},"optional":True,
-             "element":{"type":"plain_text_input","action_id":"value","placeholder":{"type":"plain_text","text":"e.g. AED 0"}}},
-            {"type":"input","block_id":"fuel_charge","label":{"type":"plain_text","text":"Fuel Charge"},"optional":True,
-             "element":{"type":"plain_text_input","action_id":"value","placeholder":{"type":"plain_text","text":"e.g. AED 0"}}},
-            {"type":"input","block_id":"damage_charges","label":{"type":"plain_text","text":"Damage Charges"},"optional":True,
-             "element":{"type":"plain_text_input","action_id":"value","placeholder":{"type":"plain_text","text":"e.g. AED 0"}}},
-            {"type":"input","block_id":"amount_collected","label":{"type":"plain_text","text":"Amount Collected"},
-             "element":{"type":"plain_text_input","action_id":"value","placeholder":{"type":"plain_text","text":"e.g. AED 2,143"}}},
-            {"type":"input","block_id":"payment_mode","label":{"type":"plain_text","text":"Payment Mode"},
-             "element":{"type":"static_select","action_id":"value","placeholder":{"type":"plain_text","text":"Select"},
-             "options":[{"text":{"type":"plain_text","text":"Cash"},"value":"Cash"},{"text":{"type":"plain_text","text":"Card"},"value":"Card"},{"text":{"type":"plain_text","text":"Bank Transfer"},"value":"Bank Transfer"}]}},
-            {"type":"input","block_id":"remarks","label":{"type":"plain_text","text":"Remarks"},"optional":True,
-             "element":{"type":"plain_text_input","action_id":"value","multiline":True,"placeholder":{"type":"plain_text","text":"Optional"}}},
-        ]})
+def booking_key(b):
+    cid = (b.get("contractID") or "").strip()
+    if cid:
+        return cid
+    plate = (b.get("vehiclePlate") or "").strip()
+    sdate = (b.get("startDate")    or "").strip()
+    stime = (b.get("startTime")    or "").strip()
+    return f"{plate}|{sdate}|{stime}"
 
-def extension_modal(b, trigger, ch, ts):
-    open_modal(trigger, {"type":"modal","callback_id":"extension_submit",
-        "private_metadata": json.dumps({"channel":ch,"ts":ts,"booking":b}),
-        "title":{"type":"plain_text","text":"Contract Extension"},
-        "submit":{"type":"plain_text","text":"Submit"},
-        "close":{"type":"plain_text","text":"Cancel"},
-        "blocks":[
-            {"type":"section","text":{"type":"mrkdwn","text":f"*{b.get('id','—')}* | {b.get('car','—')} | {b.get('date','—')}"}},
-            {"type":"context","elements":[{"type":"mrkdwn","text":"_Other charges (Salik, Fines, KM, Damage) will be captured at final Pickup_"}]},
-            {"type":"divider"},
-            {"type":"input","block_id":"driver_name","label":{"type":"plain_text","text":"Driver Name"},
-             "element":{"type":"plain_text_input","action_id":"value","placeholder":{"type":"plain_text","text":"e.g. Ahmed"}}},
-            {"type":"input","block_id":"new_return_date","label":{"type":"plain_text","text":"New Return Date"},
-             "element":{"type":"datepicker","action_id":"value","placeholder":{"type":"plain_text","text":"Select new return date"}}},
-            {"type":"input","block_id":"extension_payment_mode","label":{"type":"plain_text","text":"Extension Payment Mode"},
-             "element":{"type":"static_select","action_id":"value","placeholder":{"type":"plain_text","text":"Select payment mode"},
-             "options":[{"text":{"type":"plain_text","text":"Cash"},"value":"Cash"},{"text":{"type":"plain_text","text":"Card"},"value":"Card"},{"text":{"type":"plain_text","text":"Bank Transfer"},"value":"Bank Transfer"}]}},
-            {"type":"input","block_id":"remarks","label":{"type":"plain_text","text":"Remarks"},"optional":True,
-             "element":{"type":"plain_text_input","action_id":"value","multiline":True,"placeholder":{"type":"plain_text","text":"Optional"}}},
-        ]})
-
-def handle_delivery(payload):
-    meta    = json.loads(payload["view"]["private_metadata"])
-    state   = payload["view"]["state"]
-    user    = payload["user"]["name"]
-    booking = meta["booking"]
-    driver  = val(state, "driver_name")
-    out_km  = val(state, "out_km")
-    booking.update({"driver": driver, "out_km": out_km})
-    post_msg(meta["channel"], [
-        {"type":"section","text":{"type":"mrkdwn","text":(
-            f"✅ *DELIVERY COMPLETED*\n```\n"
-            f"{'Driver':<14}: {driver}\n"
-            f"{'Out KM':<14}: {out_km}\n"
-            f"{'Fuel Level':<14}: {val(state,'fuel_level')}\n"
-            f"{'Photos':<14}: {val(state,'photos_uploaded')}\n"
-            f"{'Remarks':<14}: {val(state,'remarks')}\n```"
-        )}},
-        {"type":"divider"},
-        {"type":"actions","elements":[
-            {"type":"button","text":{"type":"plain_text","text":"🔑  Pickup"},"style":"primary","action_id":"open_pickup","value":json.dumps(booking)},
-            {"type":"button","text":{"type":"plain_text","text":"📋  Extension"},"action_id":"open_extension","value":json.dumps(booking)},
-        ]},
-        {"type":"context","elements":[{"type":"mrkdwn","text":f"Submitted by @{user} | Pickup: PENDING"}]},
-    ], f"✅ Delivery completed by {user}", meta["ts"])
-
-def handle_pickup(payload):
-    meta  = json.loads(payload["view"]["private_metadata"])
-    state = payload["view"]["state"]
-    user  = payload["user"]["name"]
-    post_msg(meta["channel"], [
-        {"type":"section","text":{"type":"mrkdwn","text":(
-            f"✅ *CONTRACT CLOSED*\n```\n"
-            f"{'In KM':<16}: {val(state,'in_km')}\n"
-            f"{'Extra KM':<16}: {val(state,'extra_km')}\n"
-            f"{'Salik':<16}: {val(state,'salik')}\n"
-            f"{'Fines':<16}: {val(state,'fines')}\n"
-            f"{'Fuel Charge':<16}: {val(state,'fuel_charge')}\n"
-            f"{'Damage':<16}: {val(state,'damage_charges')}\n"
-            f"{'Amt Collected':<16}: {val(state,'amount_collected')}\n"
-            f"{'Payment Mode':<16}: {val(state,'payment_mode')}\n"
-            f"{'Remarks':<16}: {val(state,'remarks')}\n```\n"
-            f"*CONTRACT CLOSED — NO FURTHER ACTION REQUIRED*"
-        )}},
-        {"type":"context","elements":[{"type":"mrkdwn","text":f"Submitted by @{user}"}]},
-    ], f"✅ Contract closed by {user}", meta["ts"])
-
-def handle_extension(payload):
-    meta     = json.loads(payload["view"]["private_metadata"])
-    state    = payload["view"]["state"]
-    user     = payload["user"]["name"]
-    booking  = meta["booking"]
-    driver   = val(state, "driver_name")
-    new_date = val(state, "new_return_date")
-    payment  = val(state, "extension_payment_mode")
-    remarks  = val(state, "remarks")
-    post_msg(meta["channel"], [
-        {"type":"section","text":{"type":"mrkdwn","text":(
-            f"📋 *CONTRACT EXTENDED*\n```\n"
-            f"{'Driver':<20}: {driver}\n"
-            f"{'New Return Date':<20}: {new_date}\n"
-            f"{'Payment Mode':<20}: {payment}\n"
-            f"{'Remarks':<20}: {remarks}\n```\n"
-            f"*CONTRACT ACTIVE — EXTENDED | Final Pickup: PENDING*"
-        )}},
-        {"type":"divider"},
-        {"type":"actions","elements":[
-            {"type":"button","text":{"type":"plain_text","text":"🔑  Final Pickup"},
-             "style":"primary","action_id":"open_pickup","value":json.dumps(booking)},
-        ]},
-        {"type":"context","elements":[{"type":"mrkdwn",
-            "text":f"Extended by @{user} | Driver: {driver} | New Return: {new_date} | Payment: {payment}"}]},
-    ], f"📋 Contract extended by {user}", meta["ts"])
-
-# ── HTTP Handler ──────────────────────────────────────────────────────────────
-
-class Handler(BaseHTTPRequestHandler):
-    def log_message(self, f, *a): print(f"[{self.address_string()}] {f%a}")
-
-    def send_json(self, code=200, body=b""):
-        self.send_response(code)
-        self.send_header("Content-Type", "application/json")
-        self.end_headers()
-        self.wfile.write(body)
-
-    def do_GET(self):
-        print(f"GET {self.path}")
-        self.send_json(200, b'{"status":"ok","service":"MKV Slack App"}')
-
-    def do_POST(self):
-        n    = int(self.headers.get("Content-Length", 0))
-        body = self.rfile.read(n)
-        ts   = self.headers.get("X-Slack-Request-Timestamp", "0")
-        sig  = self.headers.get("X-Slack-Signature", "")
-        print(f"POST {self.path} [{n} bytes]")
-
-        # URL verification challenge
+def load_store():
+    if os.path.exists(STORE_FILE):
         try:
-            jb = json.loads(body.decode())
-            if jb.get("type") == "url_verification":
-                print("URL verification OK")
-                self.send_json(200, json.dumps({"challenge": jb["challenge"]}).encode())
-                return
-        except: pass
+            with open(STORE_FILE) as f:
+                return json.load(f)
+        except:
+            pass
+    return {"bookings": {}}
 
-        if not verify(body, ts, sig):
-            print("Sig failed")
-            self.send_json(401, b'{"error":"invalid_signature"}')
-            return
+def save_store(store):
+    with open(STORE_FILE, "w") as f:
+        json.dump(store, f, indent=2)
 
-        raw     = parse_qs(body.decode())
-        payload = json.loads(unquote_plus(raw.get("payload", ["{}"])[0]))
-        ptype   = payload.get("type")
-        print(f"Type: {ptype}")
-
-        if ptype == "block_actions":
-            aid     = payload["actions"][0]["action_id"]
-            trigger = payload["trigger_id"]
-            ch      = payload["container"]["channel_id"]
-            mts     = payload["container"]["message_ts"]
-            try: bk = json.loads(payload["actions"][0].get("value", "{}"))
-            except: bk = {}
-            print(f"Action: {aid}")
-            if aid == "open_delivery":   delivery_modal(bk, trigger, ch, mts)
-            elif aid == "open_pickup":   pickup_modal(bk, trigger, ch, mts)
-            elif aid == "open_extension": extension_modal(bk, trigger, ch, mts)
-            self.send_json(200, b"")
-
-        elif ptype == "view_submission":
-            cb = payload["view"]["callback_id"]
-            print(f"Submit: {cb}")
-            if cb == "delivery_submit":   handle_delivery(payload)
-            elif cb == "pickup_submit":   handle_pickup(payload)
-            elif cb == "extension_submit": handle_extension(payload)
-            self.send_json(200, b'{"response_action":"clear"}')
+def post_message(channel, blocks, text, thread_ts=None):
+    payload = {"channel": channel, "text": text, "blocks": blocks}
+    if thread_ts:
+        payload["thread_ts"] = thread_ts
+    try:
+        r = requests.post(
+            "https://slack.com/api/chat.postMessage",
+            headers=SLACK_HEADERS,
+            json=payload,
+            timeout=10
+        )
+        data = r.json()
+        if data.get("ok"):
+            return data.get("ts")
         else:
-            self.send_json(200, b"")
+            print(f"  Slack error: {data.get('error')}")
+            return None
+    except Exception as e:
+        print(f"  Slack request failed: {e}")
+        return None
+
+def fetch_bookings():
+    now        = dubai_now()
+    start_date = (now - timedelta(days=30)).strftime("%Y-%m-%d")
+    end_date   = (now + timedelta(days=60)).strftime("%Y-%m-%d")
+    try:
+        r = requests.post(
+            APPIC_BOOKINGS_URL,
+            data={"key": APPIC_KEY, "startDate": start_date, "endDate": end_date},
+            timeout=15
+        )
+        r.raise_for_status()
+        data = r.json()
+        if data.get("issuccess"):
+            bookings = data.get("bookings", [])
+            print(f"  Appic returned {len(bookings)} bookings")
+            return bookings
+        else:
+            print(f"  Appic error: {data.get('message')}")
+            return []
+    except Exception as e:
+        print(f"  API error: {e}")
+        return []
+
+def extract(b):
+    start  = (b.get("startDate") or "").strip()
+    end    = (b.get("endDate")   or "").strip()
+    s_time = (b.get("startTime") or "")[:5]
+    e_time = (b.get("endTime")   or "")[:5]
+    try:
+        dur     = (datetime.strptime(end, "%Y-%m-%d") - datetime.strptime(start, "%Y-%m-%d")).days
+        dur_str = f"{dur} day{'s' if dur != 1 else ''}"
+    except:
+        dur_str = "N/A"
+    try:
+        amt_val   = float(b.get("amount", 0))
+        vat_val   = float(b.get("vatAmount", 0))
+        total     = amt_val + vat_val
+        rental_amt = f"AED {amt_val:,.0f}" if amt_val > 0 else "TBC"
+        total_amt  = f"AED {total:,.0f}"   if total  > 0 else "TBC"
+    except:
+        rental_amt = "TBC"
+        total_amt  = "TBC"
+
+    pickup_loc  = (b.get("pickupLocation")  or "").strip()
+    dropoff_loc = (b.get("dropoffLocation") or "").strip()
+    location    = pickup_loc or dropoff_loc or "—"
+    status      = (b.get("status") or "confirmed").lower()
+
+    return {
+        "agr_no":       (b.get("contractID")     or "—").strip(),
+        "customer":     (b.get("customerName")   or "N/A").strip().title(),
+        "mobile":       (b.get("mobile")         or "N/A").strip(),
+        "email":        (b.get("clientEmail")    or "—").strip(),
+        "lead_source":  (b.get("leadSource")     or "—").strip(),
+        "agent":        (b.get("salesAgent")     or "—").strip(),
+        "vehicle":      (b.get("vehicleName")    or "N/A").strip().title(),
+        "plate":        (b.get("vehiclePlate")   or "N/A").strip(),
+        "start":        start,
+        "end":          end,
+        "s_time":       s_time,
+        "e_time":       e_time,
+        "dur_str":      dur_str,
+        "location":     location,
+        "rental_amt":   rental_amt,
+        "zero_dep":     fmt_amount_zero(b.get("zeroDepositFee", 0)),
+        "addon":        fmt_amount(b.get("addOnCharges", 0)),
+        "vat":          fmt_amount(b.get("vatAmount", 0)),
+        "total_amt":    total_amt,
+        "advance":      fmt_amount_zero(b.get("advanceReceived", 0)),
+        "pay_mode":     (b.get("paymentMode")    or "—").strip(),
+        "remarks":      (b.get("remarks")        or "—").strip() or "—",
+        "status":       status,
+        "status_label": "DRAFT" if status == "draft" else "CONFIRMED",
+    }
+
+# ─────────────────────────────────────────────
+#  MESSAGE BUILDERS
+# ─────────────────────────────────────────────
+
+def build_booking_card(f, now_str):
+    body = (
+        f"```\n"
+        f"{'AGR#':<14}: {f['agr_no']}\n"
+        f"{'Status':<14}: {f['status_label']}\n"
+        f"{'─' * 36}\n"
+        f"{'Customer':<14}: {f['customer']}\n"
+        f"{'Mobile':<14}: {f['mobile']}\n"
+        f"{'Email':<14}: {f['email']}\n"
+        f"{'Lead Source':<14}: {f['lead_source']}\n"
+        f"{'Sales Agent':<14}: {f['agent']}\n"
+        f"{'─' * 36}\n"
+        f"{'Vehicle':<14}: {f['vehicle']}\n"
+        f"{'Plate':<14}: {f['plate']}\n"
+        f"{'Start':<14}: {fmt_date(f['start'])}  {f['s_time']}\n"
+        f"{'End':<14}: {fmt_date(f['end'])}  {f['e_time']}\n"
+        f"{'Duration':<14}: {f['dur_str']}\n"
+        f"{'Location':<14}: {f['location']}\n"
+        f"{'─' * 36}\n"
+        f"{'Rental':<14}: {f['rental_amt']}\n"
+        f"{'Zero Deposit':<14}: {f['zero_dep']}\n"
+        f"{'Add-on':<14}: {f['addon']}\n"
+        f"{'VAT':<14}: {f['vat']}\n"
+        f"{'Total':<14}: {f['total_amt']}\n"
+        f"{'Advance':<14}: {f['advance']}\n"
+        f"{'Payment Mode':<14}: {f['pay_mode']}\n"
+        f"{'─' * 36}\n"
+        f"{'Remarks':<14}: {f['remarks']}\n"
+        f"{'─' * 36}\n"
+        f"{'Delivery':<14}: PENDING\n"
+        f"{'Pickup':<14}: PENDING\n"
+        f"```"
+    )
+
+    # Booking data for interactive buttons
+    booking_data = json.dumps({
+        "id":     f["agr_no"],
+        "car":    f"{f['vehicle']} [{f['plate']}]",
+        "date":   fmt_date(f["start"]),
+        "time":   f["s_time"],
+        "driver": "",
+        "out_km": "",
+    })
+
+    blocks = [
+        {
+            "type": "header",
+            "text": {"type": "plain_text", "text": "NEW BOOKING — MKV CAR RENTAL"}
+        },
+        {
+            "type": "context",
+            "elements": [{"type": "mrkdwn",
+                "text": f"Detected: {now_str}  |  Auto-alert via GitHub Actions"}]
+        },
+        {
+            "type": "section",
+            "text": {"type": "mrkdwn", "text": body}
+        },
+        {
+            "type": "divider"
+        },
+        {
+            "type": "actions",
+            "elements": [
+                {
+                    "type": "button",
+                    "text": {"type": "plain_text", "text": "🚗  Delivery"},
+                    "style": "primary",
+                    "action_id": "open_delivery",
+                    "value": booking_data
+                },
+                {
+                    "type": "button",
+                    "text": {"type": "plain_text", "text": "🔑  Pickup"},
+                    "action_id": "open_pickup",
+                    "value": booking_data
+                },
+                {
+                    "type": "button",
+                    "text": {"type": "plain_text", "text": "📋  Extension"},
+                    "action_id": "open_extension",
+                    "value": booking_data
+                },
+            ]
+        },
+        {
+            "type": "context",
+            "elements": [{"type": "mrkdwn",
+                "text": "All updates will appear in this thread"}]
+        },
+    ]
+    return blocks, f"New Booking: {f['customer']} | {f['vehicle']} ({f['plate']}) | {fmt_date(f['start'])} to {fmt_date(f['end'])} | {f['total_amt']}"
+
+
+def build_delivery_checklist(f, now_str):
+    info = (
+        f"AGR#: {f['agr_no']} | "
+        f"Customer: {f['customer']} | "
+        f"Plate: {f['plate']} | "
+        f"Date: {fmt_date(f['start'])} {f['s_time']} | "
+        f"Amount: {f['total_amt']}"
+    )
+
+    booking_data = json.dumps({
+        "id":     f["agr_no"],
+        "car":    f"{f['vehicle']} [{f['plate']}]",
+        "date":   fmt_date(f["start"]),
+        "time":   f["s_time"],
+        "driver": "",
+        "out_km": "",
+    })
+
+    blocks = [
+        {
+            "type": "header",
+            "text": {"type": "plain_text", "text": "DELIVERY CHECKLIST"}
+        },
+        {
+            "type": "context",
+            "elements": [{"type": "mrkdwn", "text": info}]
+        },
+        {
+            "type": "divider"
+        },
+        {
+            "type": "actions",
+            "elements": [
+                {
+                    "type": "button",
+                    "text": {"type": "plain_text", "text": "🚗  Complete Delivery"},
+                    "style": "primary",
+                    "action_id": "open_delivery",
+                    "value": booking_data
+                },
+            ]
+        },
+        {
+            "type": "context",
+            "elements": [{"type": "mrkdwn",
+                "text": f"Posted: {now_str}  |  Status: PENDING DELIVERY"}]
+        },
+    ]
+    return blocks, f"Delivery: {f['customer']} | {f['vehicle']} ({f['plate']}) | {fmt_date(f['start'])} {f['s_time']}"
+
+
+def build_extension_checklist(f, now_str, old_end, new_end):
+    try:
+        days    = (datetime.strptime(new_end, "%Y-%m-%d") - datetime.strptime(old_end, "%Y-%m-%d")).days
+        ext_str = f"+{days} day{'s' if days != 1 else ''}"
+    except:
+        ext_str = "extended"
+
+    info = (
+        f"AGR#: {f['agr_no']} | "
+        f"Customer: {f['customer']} | "
+        f"Vehicle: {f['vehicle']} ({f['plate']}) | "
+        f"Previous End: {fmt_date(old_end)} | "
+        f"New End: {fmt_date(new_end)} ({ext_str})"
+    )
+
+    booking_data = json.dumps({
+        "id":     f["agr_no"],
+        "car":    f"{f['vehicle']} [{f['plate']}]",
+        "date":   fmt_date(f["start"]),
+        "time":   f["s_time"],
+        "driver": "",
+        "out_km": "",
+    })
+
+    blocks = [
+        {
+            "type": "header",
+            "text": {"type": "plain_text", "text": "CONTRACT EXTENSION"}
+        },
+        {
+            "type": "context",
+            "elements": [{"type": "mrkdwn", "text": info}]
+        },
+        {
+            "type": "divider"
+        },
+        {
+            "type": "actions",
+            "elements": [
+                {
+                    "type": "button",
+                    "text": {"type": "plain_text", "text": "📋  Submit Extension"},
+                    "style": "primary",
+                    "action_id": "open_extension",
+                    "value": booking_data
+                },
+            ]
+        },
+        {
+            "type": "context",
+            "elements": [{"type": "mrkdwn",
+                "text": f"Detected: {now_str}  |  Status: EXTENDED"}]
+        },
+    ]
+    return blocks, f"Extension: {f['customer']} | {f['vehicle']} | New end: {fmt_date(new_end)} ({ext_str})"
+
+
+def build_pickup_checklist(f, now_str, channel=None, thread_ts=None):
+    info = (
+        f"AGR#: {f['agr_no']} | "
+        f"Customer: {f['customer']} | "
+        f"Mobile: {f['mobile']} | "
+        f"Vehicle: {f['vehicle']} ({f['plate']}) | "
+        f"Delivered: {fmt_date(f['start'])} {f['s_time']} | "
+        f"Return Due: {fmt_date(f['end'])} {f['e_time']}"
+    )
+
+    booking_data = json.dumps({
+        "id":     f["agr_no"],
+        "car":    f"{f['vehicle']} [{f['plate']}]",
+        "date":   fmt_date(f["start"]),
+        "time":   f["s_time"],
+        "driver": "",
+        "out_km": "",
+    })
+
+    # Build direct link to booking thread in Slack
+    thread_link = ""
+    if channel and thread_ts:
+        thread_link = f" | <https://slack.com/app_redirect?channel={channel}&message_ts={thread_ts}|View Booking Thread>"
+
+    blocks = [
+        {
+            "type": "header",
+            "text": {"type": "plain_text", "text": "PICKUP CHECKLIST — DUE TOMORROW"}
+        },
+        {
+            "type": "context",
+            "elements": [{"type": "mrkdwn", "text": info}]
+        },
+        {
+            "type": "divider"
+        },
+        {
+            "type": "actions",
+            "elements": [
+                {
+                    "type": "button",
+                    "text": {"type": "plain_text", "text": "🔑  Complete Pickup"},
+                    "style": "primary",
+                    "action_id": "open_pickup",
+                    "value": booking_data
+                },
+            ]
+        },
+        {
+            "type": "context",
+            "elements": [{"type": "mrkdwn",
+                "text": f"Posted: {now_str}  |  Status: PENDING PICKUP{thread_link}"}]
+        },
+    ]
+    return blocks, f"Pickup: {f['customer']} | {f['vehicle']} ({f['plate']}) | Return: {fmt_date(f['end'])} {f['e_time']}"
+
+
+def build_contract_closed(f, now_str):
+    body = (
+        f"```\n"
+        f"{'AGR#':<14}: {f['agr_no']}\n"
+        f"{'Customer':<14}: {f['customer']}\n"
+        f"{'Mobile':<14}: {f['mobile']}\n"
+        f"{'Vehicle':<14}: {f['vehicle']}\n"
+        f"{'Plate':<14}: {f['plate']}\n"
+        f"{'Start':<14}: {fmt_date(f['start'])}  {f['s_time']}\n"
+        f"{'End':<14}: {fmt_date(f['end'])}  {f['e_time']}\n"
+        f"{'Duration':<14}: {f['dur_str']}\n"
+        f"{'Total':<14}: {f['total_amt']}\n"
+        f"{'─' * 36}\n"
+        f"CONTRACT CLOSED — NO FURTHER ACTION REQUIRED\n"
+        f"```"
+    )
+    blocks = [
+        {
+            "type": "header",
+            "text": {"type": "plain_text", "text": "CONTRACT CLOSED"}
+        },
+        {
+            "type": "section",
+            "text": {"type": "mrkdwn", "text": body}
+        },
+        {
+            "type": "context",
+            "elements": [{"type": "mrkdwn",
+                "text": f"Closed: {now_str}  |  Auto-detected from Appic"}]
+        },
+    ]
+    return blocks, f"Closed: {f['customer']} | {f['vehicle']} ({f['plate']})"
+
+
+# ─────────────────────────────────────────────
+#  MAIN
+# ─────────────────────────────────────────────
+def main():
+    now      = dubai_now()
+    now_str  = now.strftime("%d %b %Y | %I:%M %p Dubai Time")
+    tomorrow = (now + timedelta(days=1)).strftime("%Y-%m-%d")
+
+    SEED_MODE = False
+
+    print("=" * 56)
+    print("  MKV BOOKING BOT")
+    print(f"  {now_str}")
+    print(f"  SEED MODE: {SEED_MODE}")
+    print(f"  TEST MODE: {TEST_MODE}")
+    print("=" * 56)
+
+    store    = load_store()
+    bookings = store.get("bookings", {})
+
+    print("  Fetching bookings from Appic...")
+    all_bookings = fetch_bookings()
+
+    for b in all_bookings:
+        key = booking_key(b)
+        if not key:
+            continue
+
+        f        = extract(b)
+        end      = f["end"]
+        customer = f["customer"]
+        plate    = f["plate"]
+        start    = f["start"]
+        status   = f["status"]
+
+        if SEED_MODE:
+            if key not in bookings:
+                bookings[key] = {
+                    "thread_ts":        None,
+                    "end_date":         end,
+                    "plate":            plate,
+                    "customer":         customer,
+                    "vehicle":          f["vehicle"],
+                    "delivery_alerted": True,
+                    "pickup_alerted":   False,
+                    "closed":           False,
+                    "start_date":       start,
+                }
+            continue
+
+        if key not in bookings:
+            print(f"  NEW: {customer} | {plate} | {start} | {f['status_label']}")
+            blocks, text = build_booking_card(f, now_str)
+            ts = post_message(TARGET_CHANNEL, blocks, text)
+            if ts:
+                bookings[key] = {
+                    "thread_ts":        ts,
+                    "end_date":         end,
+                    "plate":            plate,
+                    "customer":         customer,
+                    "vehicle":          f["vehicle"],
+                    "delivery_alerted": False,
+                    "pickup_alerted":   False,
+                    "closed":           False,
+                    "start_date":       start,
+                }
+                print(f"  Booking card posted — thread: {ts}")
+                d_blocks, d_text = build_delivery_checklist(f, now_str)
+                d_ts = post_message(TARGET_CHANNEL, d_blocks, d_text, thread_ts=ts)
+                if d_ts:
+                    bookings[key]["delivery_alerted"] = True
+                    print(f"  Delivery checklist posted in thread")
+
+        else:
+            stored    = bookings.get(key, {})
+            if not isinstance(stored, dict):
+                continue
+            thread_ts = stored.get("thread_ts")
+            old_end   = stored.get("end_date", "")
+            closed    = stored.get("closed", False)
+
+            if closed:
+                continue
+
+            if end and old_end and end != old_end and end > old_end:
+                print(f"  EXTENSION: {customer} | {plate} | {old_end} -> {end}")
+                if thread_ts:
+                    e_blocks, e_text = build_extension_checklist(f, now_str, old_end, end)
+                    e_ts = post_message(TARGET_CHANNEL, e_blocks, e_text, thread_ts=thread_ts)
+                    if e_ts:
+                        bookings[key]["end_date"]       = end
+                        bookings[key]["pickup_alerted"] = False
+                        print(f"  Extension checklist posted in thread")
+                else:
+                    bookings[key]["end_date"] = end
+
+            if end == tomorrow and not stored.get("pickup_alerted") and thread_ts:
+                print(f"  PICKUP CHECKLIST: {customer} | {plate} | due {end}")
+                p_blocks, p_text = build_pickup_checklist(f, now_str, TARGET_CHANNEL, thread_ts)
+                p_ts = post_message(TARGET_CHANNEL, p_blocks, p_text, thread_ts=thread_ts)
+                if p_ts:
+                    bookings[key]["pickup_alerted"] = True
+                    print(f"  Pickup checklist posted in thread")
+
+            if status == "closed" and not closed and thread_ts:
+                print(f"  CONTRACT CLOSED: {customer} | {plate}")
+                c_blocks, c_text = build_contract_closed(f, now_str)
+                c_ts = post_message(TARGET_CHANNEL, c_blocks, c_text, thread_ts=thread_ts)
+                if c_ts:
+                    bookings[key]["closed"] = True
+                    print(f"  Contract closed posted in thread")
+
+    store["bookings"] = bookings
+    save_store(store)
+
+    if SEED_MODE:
+        print(f"  SEED MODE ON — {len(bookings)} bookings stored silently")
+
+    print("=" * 56)
+    print("  Done")
+    print("=" * 56)
 
 if __name__ == "__main__":
-    print(f"MKV Slack App starting on 0.0.0.0:{PORT}")
-    HTTPServer(("0.0.0.0", PORT), Handler).serve_forever()
+    main()
