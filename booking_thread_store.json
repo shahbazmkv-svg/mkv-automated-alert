@@ -1408,16 +1408,5 @@
       "closed": false,
       "start_date": "2026-04-29"
     },
-    "009900-ALI -BMW": {
-      "thread_ts": "1777459925.045479",
-      "end_date": "2026-04-30",
-      "plate": "70691",
-      "customer": "Ali Azlan Khan",
-      "vehicle": "Bmw 520I",
-      "delivery_alerted": true,
-      "pickup_alerted": true,
-      "closed": false,
-      "start_date": "2026-04-29"
     }
-  }
 }
