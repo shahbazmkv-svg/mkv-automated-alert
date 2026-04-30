@@ -122,9 +122,6 @@ def extract(b):
         dur_str = f"{dur} day{'s' if dur != 1 else ''}"
     except:
         dur_str = "N/A"
-    # DEBUG — print all fields to find KM field name (remove after confirming)
-    if not hasattr(b, '_printed'):
-        print(f"  ALL APPIC FIELDS: {json.dumps(b, default=str)}")
     try:
         amt_val    = float(b.get("amount", 0) or 0)
         zero_dep_v = float(b.get("zeroDepositFee", 0) or 0)
@@ -133,10 +130,16 @@ def extract(b):
         vat_base   = amt_val + zero_dep_v + addon_val
         api_vat    = float(b.get("vatAmount", 0) or 0)
         vat_val    = api_vat if api_vat > 0 else round(vat_base * 0.05, 2)
-        # Total = Rental + Zero Deposit + Add-ons + VAT
-        total      = amt_val + zero_dep_v + addon_val + vat_val
-        advance    = float(b.get("advanceReceived", 0) or 0)
-        balance    = total - advance
+        # Use Appic grandTotal directly
+        grand_total = float(b.get("grandTotal", 0) or 0)
+        advance     = float(b.get("advanceReceived", 0) or 0)
+        # Recalculate components for display
+        vat_base    = amt_val + zero_dep_v + addon_val
+        api_vat     = float(b.get("vatAmount", 0) or 0)
+        vat_val     = api_vat if api_vat > 0 else round(vat_base * 0.05, 2)
+        # Use grandTotal if available, else calculate
+        total       = grand_total if grand_total > 0 else (amt_val + zero_dep_v + addon_val + vat_val)
+        balance     = total - advance
 
         rental_amt  = f"AED {amt_val:,.0f}"    if amt_val   > 0 else "TBC"
         zero_dep_amt= f"AED {zero_dep_v:,.0f}" if zero_dep_v> 0 else "—"
@@ -144,7 +147,7 @@ def extract(b):
         vat_amt     = f"AED {vat_val:,.0f}"    if vat_val   > 0 else "—"
         advance_amt = f"AED {advance:,.0f}"    if advance   > 0 else "—"
         balance_amt = f"AED {balance:,.0f}"    if balance   > 0 else "—"
-        total_amt   = (f"AED {total:,.0f}" + (" *" if amt_val == 0 else "")) if total > 0 else "TBC"
+        total_amt   = f"AED {total:,.0f}"      if total     > 0 else "TBC"
     except:
         rental_amt = zero_dep_amt = addon_amt = vat_amt = advance_amt = balance_amt = "—"
         total_amt  = "TBC"
@@ -177,9 +180,11 @@ def extract(b):
         "advance":      advance_amt,
         "balance":      balance_amt,
         "pay_mode":     (b.get("paymentMode")    or "—").strip(),
-        "km_allowed":   str(int(float(b.get("dailyKmLimit") or b.get("kmLimit") or 0)) or 0) + " KM"
-                        if float(b.get("dailyKmLimit") or b.get("kmLimit") or 0) > 0
-                        else next((w + " KM" for r in [b.get("remarks","") or ""] for w in r.upper().split() if w.isdigit() and int(w) > 50), "—"),
+        "km_allowed":   (lambda r: next(
+                            (w.rstrip("S") + " KM" for w in r.upper().replace("KMS","KM").replace("KM"," KM ").split()
+                             if w.rstrip("S").isdigit() and 50 < int(w.rstrip("S")) <= 1000),
+                            "—"
+                        ))(b.get("remarks", "") or ""),
         "remarks":      (b.get("remarks")        or "—").strip() or "—",
         "status":       status,
         "status_label": "DRAFT" if status == "draft" else "CONFIRMED",
