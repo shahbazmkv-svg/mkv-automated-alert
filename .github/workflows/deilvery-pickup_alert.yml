@@ -26,7 +26,7 @@ jobs:
         env:
           APPIC_KEY:        ${{ secrets.APPIC_KEY }}
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
-        run: python mkv_pickup_alert.py
+        run: python mkv_delivery-pickup_alert.py
 
       - name: Keep repo active (prevents GitHub disabling scheduled workflows)
         run: |
