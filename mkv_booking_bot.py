@@ -122,6 +122,9 @@ def extract(b):
         dur_str = f"{dur} day{'s' if dur != 1 else ''}"
     except:
         dur_str = "N/A"
+    # DEBUG — print all fields to find KM field name (remove after confirming)
+    if not hasattr(b, '_printed'):
+        print(f"  ALL APPIC FIELDS: {json.dumps(b, default=str)}")
     try:
         amt_val    = float(b.get("amount", 0) or 0)
         zero_dep_v = float(b.get("zeroDepositFee", 0) or 0)
