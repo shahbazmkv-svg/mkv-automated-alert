@@ -14,7 +14,7 @@ from bs4 import BeautifulSoup
 # ── Config ───────────────────────────────────────────────────────────────────
 SITE_BASE     = "https://www.mkvluxury.com"
 SLACK_TOKEN   = os.environ["SLACK_BOT_TOKEN"]
-SLACK_CHANNEL = "C0AVCCCG0S0"   # #mkvtest — switch to live channel when ready
+SLACK_CHANNEL = "C0B0TGBDCDU"   # #mkvtest — switch to live channel when ready
 DUBAI_TZ      = timezone(timedelta(hours=4))
 HEADERS       = {"User-Agent": "Mozilla/5.0 (compatible; MKV-Monitor/1.0)"}
 TIMEOUT       = 15
