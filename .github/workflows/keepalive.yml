@@ -65,6 +65,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git pull --rebase origin main || true
+          git add mtd_store.json || true
           git commit --allow-empty -m "chore: leads report ran $(date +'%Y-%m-%d %H:%M')"
           git push
 
