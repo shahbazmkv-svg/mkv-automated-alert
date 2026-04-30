@@ -2,7 +2,7 @@ name: MKV Pickup Alert
 
 on:
   schedule:
-    - cron: '0 15 * * *'   # 7:00 PM Dubai time (UTC+4 = 15:00 UTC)
+    - cron: '0 15 * * *'  # 7:00 PM Dubai time (UTC+4 = 15:00 UTC)
   workflow_dispatch:
 
 jobs:
@@ -25,16 +25,14 @@ jobs:
       - name: Run Pickup Alert
         env:
           APPIC_KEY:        ${{ secrets.APPIC_KEY }}
-          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
-          WEBHOOK_DELIVERY: ${{ secrets.WEBHOOK_DELIVERY }}
-          WEBHOOK_PICKUP:   ${{ secrets.WEBHOOK_PICKUP }}
+          SLACK_BOT_TOKEN:  ${{ secrets.SLACK_BOT_TOKEN }}
         run: python mkv_pickup_alert.py
 
-      - name: Keep repo active (prevents GitHub disabling scheduled workflows)
+      - name: Keep repo active
         run: |
           git config user.email "actions@github.com"
           git config user.name "GitHub Actions"
-          echo "Last run: $(date -u '+%Y-%m-%d %H:%M UTC') | 7:00 PM Dubai" > .last_pickup_run
+          echo "Last run: $(date -u '+%Y-%m-%d %H:%M:%S UTC') | 7:00 PM Dubai" > .last_pickup_run
           git add .last_pickup_run
           git diff --staged --quiet || git commit -m "chore: pickup alert ran $(date -u '+%Y-%m-%d')"
           git push || true
