@@ -127,13 +127,18 @@ def extract(b):
         vat_val    = float(b.get("vatAmount", 0))
         zero_dep_v = float(b.get("zeroDepositFee", 0))
         addon_val  = float(b.get("addOnCharges", 0))
-        total      = amt_val + vat_val + zero_dep_v + addon_val
-        rental_amt = f"AED {amt_val:,.0f}" if amt_val > 0 else "TBC"
-        # Show total if any component has value, even if rental is TBC
-        if total > 0:
-            total_amt = f"AED {total:,.0f}" + (" *" if amt_val == 0 else "")
+        # Use Appic's own totalAmount field if available
+        appic_total = b.get("totalAmount") or b.get("total_amount") or b.get("grandTotal")
+        if appic_total:
+            total_val = float(appic_total)
+            total_amt = f"AED {total_val:,.0f}" if total_val > 0 else "TBC"
         else:
-            total_amt = "TBC"
+            total = amt_val + vat_val + zero_dep_v + addon_val
+            if total > 0:
+                total_amt = f"AED {total:,.0f}" + (" *" if amt_val == 0 else "")
+            else:
+                total_amt = "TBC"
+        rental_amt = f"AED {amt_val:,.0f}" if amt_val > 0 else "TBC"
     except:
         rental_amt = "TBC"
         total_amt  = "TBC"
@@ -191,7 +196,6 @@ def build_booking_card(f, now_str):
         f"{'Start':<14}: {fmt_date(f['start'])}  {f['s_time']}\n"
         f"{'End':<14}: {fmt_date(f['end'])}  {f['e_time']}\n"
         f"{'Duration':<14}: {f['dur_str']}\n"
-        f"{'Location':<14}: {f['location']}\n"
         f"{'─' * 36}\n"
         f"{'Rental':<14}: {f['rental_amt']}\n"
         f"{'Zero Deposit':<14}: {f['zero_dep']}\n"
