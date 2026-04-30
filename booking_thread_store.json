@@ -145,13 +145,13 @@
     },
     "009895-IBRA-Lotus": {
       "thread_ts": "1777461517.169159",
-      "end_date": "2026-04-29",
+      "end_date": "2026-04-30",
       "plate": "23652",
       "customer": "Ibrahim Qubtan",
       "vehicle": "Lotus Lotus Emira",
       "delivery_alerted": true,
       "pickup_alerted": false,
-      "closed": false,
+      "closed": true,
       "start_date": "2026-04-28"
     },
     "009893-IBRA-Lotus": {
@@ -1484,6 +1484,17 @@
       "pickup_alerted": false,
       "closed": false,
       "start_date": "2026-05-21"
+    },
+    "009900-ALI -BMW": {
+      "thread_ts": "1777544718.605339",
+      "end_date": "2026-04-29",
+      "plate": "70691",
+      "customer": "Ali Azlan Khan",
+      "vehicle": "Bmw 520I",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-04-29"
     }
   }
 }
