@@ -20,7 +20,7 @@ jobs:
           python-version: '3.11'
 
       - name: Install dependencies
-        run: pip install requests --break-system-packages
+        run: pip install requests pytz --break-system-packages
 
       - name: Run Pickup Alert
         env:
