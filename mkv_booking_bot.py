@@ -154,7 +154,18 @@ def extract(b):
 
     pickup_loc  = (b.get("pickupLocation")  or "").strip()
     dropoff_loc = (b.get("dropoffLocation") or "").strip()
-    location    = pickup_loc or dropoff_loc or "—"
+    # Try to extract location from remarks if API fields empty
+    remarks_raw = (b.get("remarks") or "").strip()
+    loc_from_remarks = "—"
+    if not pickup_loc and not dropoff_loc and remarks_raw:
+        import re as _re
+        loc_match = _re.search(
+            r'(?:DELIVERY\s+)?LOCATION\s*[:;]\s*([^\r\n]+)',
+            remarks_raw, _re.IGNORECASE
+        )
+        if loc_match:
+            loc_from_remarks = loc_match.group(1).strip()
+    location = pickup_loc or dropoff_loc or loc_from_remarks
     status      = (b.get("status") or "confirmed").lower()
 
     return {
@@ -211,6 +222,7 @@ def build_booking_card(f, now_str):
         f"{'Start':<14}: {fmt_date(f['start'])}  {f['s_time']}\n"
         f"{'End':<14}: {fmt_date(f['end'])}  {f['e_time']}\n"
         f"{'Duration':<14}: {f['dur_str']}\n"
+        f"{'Delivery To':<14}: {f['location']}\n"
         f"{'─' * 36}\n"
         f"{'Rental':<14}: {f['rental_amt']}\n"
         f"{'Zero Deposit':<14}: {f['zero_dep']}\n"
@@ -231,12 +243,13 @@ def build_booking_card(f, now_str):
 
     # Booking data for interactive buttons
     booking_data = json.dumps({
-        "id":     f["agr_no"],
-        "car":    f"{f['vehicle']} [{f['plate']}]",
-        "date":   fmt_date(f["start"]),
-        "time":   f["s_time"],
-        "driver": "",
-        "out_km": "",
+        "id":       f["agr_no"],
+        "car":      f"{f['vehicle']} [{f['plate']}]",
+        "date":     fmt_date(f["start"]),
+        "time":     f["s_time"],
+        "location": f["location"],
+        "driver":   "",
+        "out_km":   "",
     })
 
     blocks = [
@@ -293,12 +306,13 @@ def build_delivery_checklist(f, now_str):
     )
 
     booking_data = json.dumps({
-        "id":     f["agr_no"],
-        "car":    f"{f['vehicle']} [{f['plate']}]",
-        "date":   fmt_date(f["start"]),
-        "time":   f["s_time"],
-        "driver": "",
-        "out_km": "",
+        "id":       f["agr_no"],
+        "car":      f"{f['vehicle']} [{f['plate']}]",
+        "date":     fmt_date(f["start"]),
+        "time":     f["s_time"],
+        "location": f["location"],
+        "driver":   "",
+        "out_km":   "",
     })
 
     blocks = [
@@ -345,12 +359,13 @@ def build_pickup_checklist(f, now_str, channel=None, thread_ts=None):
     )
 
     booking_data = json.dumps({
-        "id":     f["agr_no"],
-        "car":    f"{f['vehicle']} [{f['plate']}]",
-        "date":   fmt_date(f["start"]),
-        "time":   f["s_time"],
-        "driver": "",
-        "out_km": "",
+        "id":       f["agr_no"],
+        "car":      f"{f['vehicle']} [{f['plate']}]",
+        "date":     fmt_date(f["start"]),
+        "time":     f["s_time"],
+        "location": f["location"],
+        "driver":   "",
+        "out_km":   "",
     })
 
     # Build direct link to booking thread in Slack
@@ -402,6 +417,7 @@ def build_contract_closed(f, now_str):
         f"{'Start':<14}: {fmt_date(f['start'])}  {f['s_time']}\n"
         f"{'End':<14}: {fmt_date(f['end'])}  {f['e_time']}\n"
         f"{'Duration':<14}: {f['dur_str']}\n"
+        f"{'Delivery To':<14}: {f['location']}\n"
         f"{'Total':<14}: {f['total_amt']}\n"
         f"{'─' * 36}\n"
         f"CONTRACT CLOSED — NO FURTHER ACTION REQUIRED\n"
