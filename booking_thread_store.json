@@ -1462,6 +1462,17 @@
       "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-04-30"
+    },
+    "009909-HRUD-Chevrolet": {
+      "thread_ts": "1777532117.190509",
+      "end_date": "2026-05-01",
+      "plate": "72712",
+      "customer": "Hruday Vemuri",
+      "vehicle": "Chevrolet Corvette",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-04-30"
     }
   }
 }
