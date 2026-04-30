@@ -127,6 +127,10 @@ def extract(b):
         vat_val    = float(b.get("vatAmount", 0))
         zero_dep_v = float(b.get("zeroDepositFee", 0))
         addon_val  = float(b.get("addOnCharges", 0))
+        # Debug — print all amount fields from first booking only
+        if b.get("contractID"):
+            amount_fields = {k: v for k, v in b.items() if any(x in k.lower() for x in ['amount','total','fee','charge','deposit','vat','price','cost','rate'])}
+            print(f"  Amount fields: {amount_fields}")
         # Use Appic's own totalAmount field if available
         appic_total = b.get("totalAmount") or b.get("total_amount") or b.get("grandTotal")
         if appic_total:
