@@ -10,7 +10,7 @@ APPIC_KEY          = os.environ["APPIC_KEY"]
 SLACK_BOT_TOKEN    = os.environ["SLACK_BOT_TOKEN"]
 
 CHANNEL_BOOKINGS   = "C0ABPC606F7"   # #mkv-bookings (live)
-CHANNEL_TEST       = "C0AVCCCG0S0"   # #mkvtest
+CHANNEL_TEST       = "C0B0TGBDCDU"   # #mkvtest
 
 TEST_MODE          = True
 TARGET_CHANNEL     = CHANNEL_TEST if TEST_MODE else CHANNEL_BOOKINGS
@@ -433,7 +433,7 @@ def main():
     now_str  = now.strftime("%d %b %Y | %I:%M %p Dubai Time")
     tomorrow = (now + timedelta(days=1)).strftime("%Y-%m-%d")
 
-    SEED_MODE = True
+    SEED_MODE = False
 
     print("=" * 56)
     print("  MKV BOOKING BOT")
