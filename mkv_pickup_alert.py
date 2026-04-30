@@ -7,15 +7,14 @@ import pytz
 APPIC_KEY        = os.environ["APPIC_KEY"]
 SLACK_BOT_TOKEN  = os.environ.get("SLACK_BOT_TOKEN", "")
 
-# ── Webhooks ──────────────────────────────────────────────────────────────────
-TEST_WEBHOOK     = "https://hooks.slack.com/services/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"
-WEBHOOK_DELIVERY = os.environ.get("WEBHOOK_DELIVERY", TEST_WEBHOOK)
-WEBHOOK_PICKUP   = os.environ.get("WEBHOOK_PICKUP",   TEST_WEBHOOK)
+# ── Channels ──────────────────────────────────────────────────────────────────
+CHANNEL_DELIVERY = "C0ABPC606F7"   # #mkv-schedule-for-delivery
+CHANNEL_PICKUP   = "C0ABPC606F7"   # #mkv-car-pickup
+CHANNEL_TEST     = "C0B0TGBDCDU"   # #mkvtest (new)
 
 TEST_MODE        = True
-# When TEST_MODE=True both webhooks point to test channel
-SEND_DELIVERY_TO = TEST_WEBHOOK   if TEST_MODE else WEBHOOK_DELIVERY
-SEND_PICKUP_TO   = TEST_WEBHOOK   if TEST_MODE else WEBHOOK_PICKUP
+SEND_DELIVERY_TO = CHANNEL_TEST if TEST_MODE else CHANNEL_DELIVERY
+SEND_PICKUP_TO   = CHANNEL_TEST if TEST_MODE else CHANNEL_PICKUP
 
 # ── Appic endpoints ───────────────────────────────────────────────────────────
 APPIC_CHECKINOUT = "https://www.appicfleet.com/appiccar-apis-mkv/get-mkv-checkin-checkout.php"
@@ -80,11 +79,18 @@ def get_thread_link(store, contract_id, plate, start_date, channel):
             return f"https://{SLACK_WORKSPACE}.slack.com/archives/{channel}/p{ts}"
     return None
 
-def post_slack(webhook, blocks, text):
+def post_slack(channel, blocks, text):
     try:
-        r = requests.post(webhook, json={"text": text, "blocks": blocks}, timeout=10)
-        if r.status_code != 200:
-            print(f"  Slack error: {r.status_code} {r.text}")
+        r = requests.post(
+            "https://slack.com/api/chat.postMessage",
+            headers={"Authorization": f"Bearer {SLACK_BOT_TOKEN}",
+                     "Content-Type": "application/json"},
+            json={"channel": channel, "text": text, "blocks": blocks},
+            timeout=10
+        )
+        result = r.json()
+        if not result.get("ok"):
+            print(f"  Slack error: {result.get('error')}")
             return False
         return True
     except Exception as e:
