@@ -77,7 +77,7 @@
       "closed": false,
       "start_date": "2026-04-30"
     },
-      "009909-HRUD-Chevrolet": {
+    "009909-HRUD-Chevrolet": {
       "thread_ts": null,
       "end_date": "2026-05-01",
       "plate": "72712",
@@ -1451,6 +1451,17 @@
       "pickup_alerted": false,
       "closed": false,
       "start_date": "2026-04-29"
+    },
+    "009912-ARTE-Ford": {
+      "thread_ts": "1777560994.001589",
+      "end_date": "2026-05-02",
+      "plate": "77491",
+      "customer": "Artem Gorbatov",
+      "vehicle": "Ford Mustang Convertible",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-04-30"
     }
   }
 }
