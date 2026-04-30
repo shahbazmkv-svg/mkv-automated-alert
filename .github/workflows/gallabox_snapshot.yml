@@ -32,11 +32,12 @@ jobs:
           WEBHOOK_LEADS:       ${{ secrets.WEBHOOK_LEADS }}
         run: python mkv_gallabox_snapshot.py
 
-      - name: Save MTD store to repo
+       - name: Keep repo active
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+          git pull --rebase origin main || true
           git add mtd_store.json || true
-          git diff --cached --quiet || git commit -m "chore: update mtd_store $(date +'%Y-%m-%d')"
-          git push || true
+          git commit --allow-empty -m "chore: leads report ran $(date +'%Y-%m-%d')"
+          git push
           
