@@ -11,7 +11,7 @@
       "closed": false,
       "start_date": "2026-05-21"
     },
-       "009651-ABBI-Ford": {
+    "009651-ABBI-Ford": {
       "thread_ts": null,
       "end_date": "2026-05-20",
       "plate": "77491",
@@ -1451,6 +1451,17 @@
       "pickup_alerted": false,
       "closed": false,
       "start_date": "2026-04-30"
+    },
+    "009910-AARO-BMW": {
+      "thread_ts": "1777562926.553189",
+      "end_date": "2026-05-21",
+      "plate": "70688",
+      "customer": "Aaron Gerard Bailey Healy",
+      "vehicle": "Bmw 420I Convertible",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-05-19"
     }
   }
 }
