@@ -24,4 +24,5 @@ jobs:
       - name: Run Fleet Availability Post
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+          APPIC_KEY:       ${{ secrets.APPIC_KEY }}
         run: python mkv_fleet_availability.py
