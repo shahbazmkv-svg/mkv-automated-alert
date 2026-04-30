@@ -1,10 +1,10 @@
 """
 MKV Luxury – Fleet Availability Daily Post
 
-Active fleet filter:
-  - Counts  → get-mkv-vehicle-assignments.php (MKV-only, borrowed excluded by Appic)
-  - Vehicle list → get-all-vehicles.php filtered by dailyrent > 0
-    (Borrowed vehicles have dailyrent = 0 set in Appic)
+Logic:
+  - Active fleet = vehicles with dailyrent > 0 and valid plate
+  - Rented = vehicle has an active contract (from assignments API)
+  - Available = active fleet - rented - service - NRV
 """
 
 import os
@@ -21,6 +21,8 @@ BLOCK_LIMIT   = 2900
 
 ASSIGNMENTS_URL  = "https://www.appicfleet.com/appiccar-apis-mkv/get-mkv-vehicle-assignments.php"
 ALL_VEHICLES_URL = "https://www.appicfleet.com/appiccar-apis-mkv/get-all-vehicles.php"
+BOOKINGS_URL     = "https://www.appicfleet.com/appiccar-apis-mkv/get-mkv-bookings.php"
+APPIC_KEY        = os.environ.get("APPIC_KEY", "")
 
 CONTACT_FOOTER = (
     "📱 +971 52 940 9280\n"
@@ -32,10 +34,10 @@ CONTACT_FOOTER = (
     "📍 Al Jreena Street 41, Al Qouz Industrial Third, Dubai, UAE"
 )
 
-# ── Fetch counts ──────────────────────────────────────────────────────────────
+# ── Fetch data ────────────────────────────────────────────────────────────────
 
 def fetch_mkv_counts() -> dict:
-    """MKV-only counts from assignments API. Borrowed already excluded by Appic."""
+    """MKV-only counts from assignments API."""
     try:
         r = requests.post(ASSIGNMENTS_URL, headers=HEADERS, json={}, timeout=20)
         r.raise_for_status()
@@ -48,13 +50,43 @@ def fetch_mkv_counts() -> dict:
         print(f"Assignments API error: {e}")
         return {}
 
-# ── Fetch active vehicle list ─────────────────────────────────────────────────
+def fetch_active_contracts() -> set:
+    """
+    Get plates of vehicles currently on active contracts (rented).
+    Uses bookings API — confirms bookings = active contracts.
+    """
+    try:
+        now      = datetime.now(DUBAI_TZ)
+        today    = now.strftime("%Y-%m-%d")
+        # Check bookings spanning today
+        r = requests.post(BOOKINGS_URL, data={
+            "key":       APPIC_KEY,
+            "startDate": today,
+            "endDate":   today,
+        }, timeout=20)
+        r.raise_for_status()
+        data = r.json()
+        bookings = data.get("bookings", [])
+        # Return set of plates that have active contracts today
+        rented_plates = set()
+        for b in bookings:
+            plate = str(b.get("vehiclePlate", "")).strip()
+            start = b.get("startDate", "")
+            end   = b.get("endDate", "")
+            status = (b.get("status") or "").lower()
+            # Count as rented if confirmed and active today
+            if plate and status == "confirmed" and start <= today <= end:
+                rented_plates.add(plate)
+        print(f"Active contracts today: {len(rented_plates)} vehicles rented")
+        return rented_plates
+    except Exception as e:
+        print(f"Bookings API error: {e}")
+        return set()
 
 def fetch_active_vehicles() -> list:
     """
-    GET all vehicles, then keep only active ones:
-      - dailyrent > 0  (borrowed vehicles set to 0 in Appic)
-      - has a plate number (excludes test/placeholder entries)
+    GET all vehicles, filter by dailyrent > 0 and valid plate.
+    These are MKV's active fleet (borrowed vehicles have dailyrent=0).
     """
     try:
         r = requests.get(ALL_VEHICLES_URL, headers=HEADERS, timeout=20)
@@ -69,8 +101,7 @@ def fetch_active_vehicles() -> list:
             and str(v.get("plate", "")).strip() not in ("", "0")
         ]
 
-        excluded = len(all_vehicles) - len(active)
-        print(f"Active vehicles: {len(active)} | Excluded (dailyrent=0 or no plate): {excluded}")
+        print(f"Active fleet (dailyrent>0): {len(active)} | Excluded: {len(all_vehicles)-len(active)}")
         return active
     except Exception as e:
         print(f"All vehicles API error: {e}")
@@ -122,37 +153,55 @@ def text_to_blocks(text: str) -> list:
 
 # ── Build message ─────────────────────────────────────────────────────────────
 
-def build_fleet_message(counts: dict, vehicles: list) -> dict:
+def build_fleet_message(counts: dict, vehicles: list, rented_plates: set) -> dict:
     now      = datetime.now(DUBAI_TZ)
     date_str = now.strftime("%B %d, %Y").upper()
     day_str  = now.strftime("%A").upper()
 
-    # Counts from assignments API (MKV-only)
-    total     = counts.get("totalNonBorrowedVehicles", len(vehicles))
-    rented    = counts.get("booked", 0)
-    service   = counts.get("service", 0)
-    available = counts.get("available", 0)
-    nrv       = counts.get("unavailable", 0)
+    # Categorise each vehicle by contract status
+    rented_vehicles    = []
+    available_vehicles = []
+    service_vehicles   = []
+    nrv_vehicles       = []
 
-    # Available vehicle list — active + available status
-    avail_vehicles = [
-        v for v in vehicles
-        if v.get("availability", "").lower() == "available"
-    ]
+    for v in vehicles:
+        plate      = str(v.get("plate", "")).strip()
+        avail      = (v.get("availability") or "").lower().strip()
+        status_raw = (v.get("status") or "").lower().strip()
+
+        # Primary rule: has active contract today → Rented
+        if plate in rented_plates:
+            rented_vehicles.append(v)
+        # Check explicit status from API
+        elif avail in ("service", "maintenance") or status_raw in ("service", "maintenance"):
+            service_vehicles.append(v)
+        elif avail in ("unavailable", "nrv") or status_raw in ("unavailable", "nrv"):
+            nrv_vehicles.append(v)
+        else:
+            # No active contract and no special status → Available
+            available_vehicles.append(v)
+
+    total     = len(vehicles)
+    rented    = len(rented_vehicles)
+    service   = counts.get("service", len(service_vehicles))
+    nrv       = counts.get("unavailable", len(nrv_vehicles))
+    available = len(available_vehicles)
+
+    print(f"Fleet summary — Total: {total} | Rented: {rented} | Available: {available} | Service: {service} | NRV: {nrv}")
 
     summary = "\n".join([
         f"❝{date_str} {day_str}❞", "",
-        f"✦ Total : {total}", "",
-        f"✦ Rented STR : {rented}", "",
-        f"✦ Garage : 0", "",
-        f"✦ Service : {service}", "",
-        f"✦ Available : {available}", "",
-        f"✦ Lease : 0", "",
-        f"✦ Longterm : 0", "",
-        f"✦ NRV : {nrv}",
+        f"✦ Total        : {total}", "",
+        f"✦ Rented STR   : {rented}", "",
+        f"✦ Garage       : 0", "",
+        f"✦ Service      : {service}", "",
+        f"✦ Available    : {available}", "",
+        f"✦ Lease        : 0", "",
+        f"✦ Longterm     : 0", "",
+        f"✦ NRV          : {nrv}",
     ])
 
-    vehicle_lines = [f"{i}. {format_vehicle_name(v)}" for i, v in enumerate(avail_vehicles, 1)]
+    vehicle_lines = [f"{i}. {format_vehicle_name(v)}" for i, v in enumerate(available_vehicles, 1)]
     vehicle_lines += ["", "For inquiries please contact this number", "", CONTACT_FOOTER]
     vehicle_text = "\n".join(vehicle_lines)
 
@@ -189,8 +238,9 @@ def post_to_slack(message: dict):
 
 if __name__ == "__main__":
     print("Fetching MKV fleet data...")
-    counts   = fetch_mkv_counts()
-    vehicles = fetch_active_vehicles()
+    counts         = fetch_mkv_counts()
+    vehicles       = fetch_active_vehicles()
+    rented_plates  = fetch_active_contracts()
 
     if not vehicles:
         now = datetime.now(DUBAI_TZ)
@@ -202,6 +252,6 @@ if __name__ == "__main__":
         post_to_slack(warn)
         raise SystemExit(1)
 
-    message = build_fleet_message(counts, vehicles)
+    message = build_fleet_message(counts, vehicles, rented_plates)
     print(f"Slack blocks: {len(message['blocks'])}")
     post_to_slack(message)
