@@ -1,16 +1,4 @@
 {
-  "bookings": {
-    "009911-AARO-Ferrari": {
-      "thread_ts": null,
-      "end_date": "2026-05-22",
-      "plate": "92770",
-      "customer": "Aaron Gerard Bailey Healy",
-      "vehicle": "Ferrari Ferrari F8 Tributo",
-      "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-21"
-    },
     "009910-AARO-BMW": {
       "thread_ts": null,
       "end_date": "2026-05-21",
