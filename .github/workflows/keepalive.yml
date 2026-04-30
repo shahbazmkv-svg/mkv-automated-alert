@@ -43,7 +43,9 @@ jobs:
           git push
 
   daily-leads:
-    if: github.event.inputs.job == 'daily-leads' || github.event.inputs.job == 'all'
+    if: |
+      github.event.schedule == '0 7 * * *' ||
+      (github.event_name == 'workflow_dispatch' && (github.event.inputs.job == 'daily-leads' || github.event.inputs.job == 'all'))
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -59,15 +61,16 @@ jobs:
           GALLABOX_API_KEY:    ${{ secrets.GALLABOX_API_KEY }}
           GALLABOX_API_SECRET: ${{ secrets.GALLABOX_API_SECRET }}
           GALLABOX_ACCOUNT_ID: ${{ secrets.GALLABOX_ACCOUNT_ID }}
+          WEBHOOK_LEADS:       ${{ secrets.WEBHOOK_LEADS }}
         run: python mkv_gallabox_snapshot.py
-      - name: Keep repo active
+      - name: Save MTD store and keep repo active
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git pull --rebase origin main || true
-          git add mtd_store.json || true
-          git commit --allow-empty -m "chore: leads report ran $(date +'%Y-%m-%d %H:%M')"
-          git push
+          git add mtd_store.json
+          git diff --staged --quiet || git commit -m "chore: leads + MTD store updated $(date +'%Y-%m-%d')"
+          git push || true
 
   website-snapshot:
     if: github.event.inputs.job == 'website-snapshot' || github.event.inputs.job == 'all'
