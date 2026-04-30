@@ -494,15 +494,26 @@ def main():
 
             if end and old_end and end != old_end and end > old_end:
                 print(f"  EXTENSION: {customer} | {plate} | {old_end} -> {end}")
+                # Update end date in store — no extension card posted
+                bookings[key]["end_date"]       = end
+                bookings[key]["pickup_alerted"] = False
                 if thread_ts:
-                    e_blocks, e_text = build_extension_checklist(f, now_str, old_end, end)
-                    e_ts = post_message(TARGET_CHANNEL, e_blocks, e_text, thread_ts=thread_ts)
-                    if e_ts:
-                        bookings[key]["end_date"]       = end
-                        bookings[key]["pickup_alerted"] = False
-                        print(f"  Extension checklist posted in thread")
-                else:
-                    bookings[key]["end_date"] = end
+                    # Post a simple extension note in the booking thread
+                    try:
+                        import datetime as _dt
+                        days = (_dt.datetime.strptime(end, "%Y-%m-%d") - _dt.datetime.strptime(old_end, "%Y-%m-%d")).days
+                        day_label = "days" if days != 1 else "day"
+                        ext_text = (
+                            "📋 *CONTRACT EXTENDED*\n"
+                            + f"Previous End: {fmt_date(old_end)} - New End: {fmt_date(end)} (+{days} {day_label})\n"
+                            + f"Detected: {now_str}"
+                        )
+                        post_message(TARGET_CHANNEL, [
+                            {"type": "section", "text": {"type": "mrkdwn", "text": ext_text}}
+                        ], ext_text, thread_ts=thread_ts)
+                        print(f"  Extension note posted in thread")
+                    except Exception as ex:
+                        print(f"  Extension note error: {ex}")
 
             if end == tomorrow and not stored.get("pickup_alerted") and thread_ts:
                 print(f"  PICKUP CHECKLIST: {customer} | {plate} | due {end}")
