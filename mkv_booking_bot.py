@@ -123,28 +123,27 @@ def extract(b):
     except:
         dur_str = "N/A"
     try:
-        amt_val    = float(b.get("amount", 0))
-        vat_val    = float(b.get("vatAmount", 0))
-        zero_dep_v = float(b.get("zeroDepositFee", 0))
-        addon_val  = float(b.get("addOnCharges", 0))
-        # Debug — print all amount fields from first booking only
-        if b.get("contractID"):
-            amount_fields = {k: v for k, v in b.items() if any(x in k.lower() for x in ['amount','total','fee','charge','deposit','vat','price','cost','rate'])}
-            print(f"  Amount fields: {amount_fields}")
-        # Use Appic's own totalAmount field if available
-        appic_total = b.get("totalAmount") or b.get("total_amount") or b.get("grandTotal")
-        if appic_total:
-            total_val = float(appic_total)
-            total_amt = f"AED {total_val:,.0f}" if total_val > 0 else "TBC"
-        else:
-            total = amt_val + vat_val + zero_dep_v + addon_val
-            if total > 0:
-                total_amt = f"AED {total:,.0f}" + (" *" if amt_val == 0 else "")
-            else:
-                total_amt = "TBC"
-        rental_amt = f"AED {amt_val:,.0f}" if amt_val > 0 else "TBC"
+        amt_val    = float(b.get("amount", 0) or 0)
+        zero_dep_v = float(b.get("zeroDepositFee", 0) or 0)
+        addon_val  = float(b.get("addOnCharges", 0) or 0)
+        # VAT = 5% of (Rental + Zero Deposit + Add-ons)
+        vat_base   = amt_val + zero_dep_v + addon_val
+        api_vat    = float(b.get("vatAmount", 0) or 0)
+        vat_val    = api_vat if api_vat > 0 else round(vat_base * 0.05, 2)
+        # Total = Rental + Zero Deposit + Add-ons + VAT
+        total      = amt_val + zero_dep_v + addon_val + vat_val
+        advance    = float(b.get("advanceReceived", 0) or 0)
+        balance    = total - advance
+
+        rental_amt  = f"AED {amt_val:,.0f}"    if amt_val   > 0 else "TBC"
+        zero_dep_amt= f"AED {zero_dep_v:,.0f}" if zero_dep_v> 0 else "—"
+        addon_amt   = f"AED {addon_val:,.0f}"  if addon_val > 0 else "—"
+        vat_amt     = f"AED {vat_val:,.0f}"    if vat_val   > 0 else "—"
+        advance_amt = f"AED {advance:,.0f}"    if advance   > 0 else "—"
+        balance_amt = f"AED {balance:,.0f}"    if balance   > 0 else "—"
+        total_amt   = (f"AED {total:,.0f}" + (" *" if amt_val == 0 else "")) if total > 0 else "TBC"
     except:
-        rental_amt = "TBC"
+        rental_amt = zero_dep_amt = addon_amt = vat_amt = advance_amt = balance_amt = "—"
         total_amt  = "TBC"
 
     pickup_loc  = (b.get("pickupLocation")  or "").strip()
@@ -168,12 +167,16 @@ def extract(b):
         "dur_str":      dur_str,
         "location":     location,
         "rental_amt":   rental_amt,
-        "zero_dep":     fmt_amount_zero(b.get("zeroDepositFee", 0)),
-        "addon":        fmt_amount(b.get("addOnCharges", 0)),
-        "vat":          fmt_amount(b.get("vatAmount", 0)),
+        "zero_dep":     zero_dep_amt,
+        "addon":        addon_amt,
+        "vat":          vat_amt,
         "total_amt":    total_amt,
-        "advance":      fmt_amount_zero(b.get("advanceReceived", 0)),
+        "advance":      advance_amt,
+        "balance":      balance_amt,
         "pay_mode":     (b.get("paymentMode")    or "—").strip(),
+        "km_allowed":   str(int(float(b.get("dailyKmLimit") or b.get("kmLimit") or 0)) or 0) + " KM"
+                        if float(b.get("dailyKmLimit") or b.get("kmLimit") or 0) > 0
+                        else next((w + " KM" for r in [b.get("remarks","") or ""] for w in r.upper().split() if w.isdigit() and int(w) > 50), "—"),
         "remarks":      (b.get("remarks")        or "—").strip() or "—",
         "status":       status,
         "status_label": "DRAFT" if status == "draft" else "CONFIRMED",
@@ -204,10 +207,12 @@ def build_booking_card(f, now_str):
         f"{'Rental':<14}: {f['rental_amt']}\n"
         f"{'Zero Deposit':<14}: {f['zero_dep']}\n"
         f"{'Add-on':<14}: {f['addon']}\n"
-        f"{'VAT':<14}: {f['vat']}\n"
+        f"{'VAT (5%)':<14}: {f['vat']}\n"
         f"{'Total':<14}: {f['total_amt']}\n"
         f"{'Advance':<14}: {f['advance']}\n"
+        f"{'Balance':<14}: {f['balance']}\n"
         f"{'Payment Mode':<14}: {f['pay_mode']}\n"
+        f"{'KM Allowed':<14}: {f['km_allowed']}\n"
         f"{'─' * 36}\n"
         f"{'Remarks':<14}: {f['remarks']}\n"
         f"{'─' * 36}\n"
