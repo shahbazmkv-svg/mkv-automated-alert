@@ -304,7 +304,7 @@ def build_booking_card(f, now_str):
         {
             "type": "context",
             "elements": [{"type": "mrkdwn",
-                "text": "All updates will appear in this thread"}]
+                "text": "All updates will appear in thread in #mkv-bookings"}]
         },
     ]
     return blocks, f"New Booking: {f['customer']} | {f['vehicle']} ({f['plate']}) | {fmt_date(f['start'])} to {fmt_date(f['end'])} | {f['total_amt']}"
