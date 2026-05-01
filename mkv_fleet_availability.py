@@ -58,24 +58,26 @@ def fetch_active_contracts() -> set:
     try:
         now      = datetime.now(DUBAI_TZ)
         today    = now.strftime("%Y-%m-%d")
-        # Check bookings spanning today
+        # Search 90 days back to catch all active bookings spanning today
+        from datetime import timedelta
+        start_range = (now - timedelta(days=90)).strftime("%Y-%m-%d")
         r = requests.post(BOOKINGS_URL, data={
             "key":       APPIC_KEY,
-            "startDate": today,
+            "startDate": start_range,
             "endDate":   today,
         }, timeout=20)
         r.raise_for_status()
         data = r.json()
         bookings = data.get("bookings", [])
-        # Return set of plates that have active contracts today
+        # Return set of plates with active contracts spanning today
         rented_plates = set()
         for b in bookings:
-            plate = str(b.get("vehiclePlate", "")).strip()
-            start = b.get("startDate", "")
-            end   = b.get("endDate", "")
-            status = (b.get("status") or "").lower()
-            # Count as rented if confirmed and active today
-            if plate and status == "confirmed" and start <= today <= end:
+            plate  = str(b.get("vehiclePlate", "")).strip()
+            start  = (b.get("startDate") or "").strip()
+            end    = (b.get("endDate")   or "").strip()
+            status = (b.get("status")    or "").lower()
+            # Active = confirmed/active AND started on or before today AND ends today or later
+            if plate and status in ("confirmed", "active") and start <= today <= end:
                 rented_plates.add(plate)
         print(f"Active contracts today: {len(rented_plates)} vehicles rented")
         return rented_plates
