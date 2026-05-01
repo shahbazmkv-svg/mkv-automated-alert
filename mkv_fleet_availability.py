@@ -76,8 +76,8 @@ def fetch_active_contracts() -> set:
             start  = (b.get("startDate") or "").strip()
             end    = (b.get("endDate")   or "").strip()
             status = (b.get("status")    or "").lower()
-            # Active = confirmed/active AND started on or before today AND ends today or later
-            if plate and status in ("confirmed", "active") and start <= today <= end:
+            # Active = any booking spanning today (confirmed OR draft = vehicle is out)
+            if plate and start and end and start <= today <= end:
                 rented_plates.add(plate)
         print(f"Active contracts today: {len(rented_plates)} vehicles rented")
         return rented_plates
