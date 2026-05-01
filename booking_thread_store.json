@@ -1484,6 +1484,17 @@
       "pickup_alerted": false,
       "closed": false,
       "start_date": "2026-05-02"
+    },
+    "009835-GUNA-Lamborghini": {
+      "thread_ts": null,
+      "end_date": "2026-05-06",
+      "plate": "94545",
+      "customer": "Gunarajan S/O Shanmugham",
+      "vehicle": "Lamborghini Urus S",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-05-02"
     }
   }
 }
