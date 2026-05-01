@@ -1448,7 +1448,7 @@
       "customer": "Dhurgham Mohammed Sarhan Al Badri",
       "vehicle": "Land Rover Svr",
       "delivery_alerted": true,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-05-01"
     },
@@ -1503,7 +1503,7 @@
       "customer": "David Leon Myers",
       "vehicle": "Land Rover Sport",
       "delivery_alerted": true,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-05-01"
     },
@@ -1547,7 +1547,7 @@
       "customer": "George Adrian Gavrila",
       "vehicle": "Porsche Cayman Gt4 Rs",
       "delivery_alerted": true,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-05-01"
     },
