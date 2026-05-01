@@ -186,16 +186,12 @@ def build_fleet_message(counts: dict, vehicles: list, rented_plates: set) -> dic
             # No active contract and no special status → Available
             available_vehicles.append(v)
 
-    total     = counts.get("totalNonBorrowedVehicles", len(vehicles))
-    rented    = counts.get("booked", len(rented_vehicles))
-    service   = counts.get("service", len(service_vehicles))
-    nrv       = counts.get("unavailable", len(nrv_vehicles))
-    # If assignments API returned counts, use them; else calculate
-    if rented == 0 and len(rented_vehicles) > 0:
-        rented = len(rented_vehicles)
-    available = total - rented - service - nrv
-    if available < 0:
-        available = len(available_vehicles)
+    # Use vehicle categorisation from bookings API (more reliable)
+    total     = len(vehicles)
+    rented    = len(rented_vehicles)
+    service   = len(service_vehicles)
+    nrv       = len(nrv_vehicles)
+    available = len(available_vehicles)
 
     print(f"Fleet summary — Total: {total} | Rented: {rented} | Available: {available} | Service: {service} | NRV: {nrv}")
 
