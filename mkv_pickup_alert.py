@@ -40,25 +40,37 @@ def fetch_checkinout(date, direction):
     Fetch bookings for a specific date.
     direction=Out → deliveries (startDate == date)
     direction=In  → pickups (endDate == date)
-    Uses Bookings API filtered by date range.
+    For pickups: search wider range since booking may have started earlier.
     """
+    from datetime import datetime, timedelta
     try:
+        if direction == "Out":
+            # Deliveries: bookings starting on this date
+            start_range = date
+            end_range   = date
+        else:
+            # Pickups: bookings that END on this date
+            # Search 60 days back to catch all active bookings ending today
+            d = datetime.strptime(date, "%Y-%m-%d")
+            start_range = (d - timedelta(days=60)).strftime("%Y-%m-%d")
+            end_range   = date
+
         r = requests.post(APPIC_BOOKINGS, data={
             "key":       APPIC_KEY,
-            "startDate": date,
-            "endDate":   date,
+            "startDate": start_range,
+            "endDate":   end_range,
         }, timeout=15)
         r.raise_for_status()
         data = r.json()
         all_bookings = data.get("bookings", [])
+
         if direction == "Out":
-            # Deliveries = bookings starting on this date
             result = [b for b in all_bookings
                       if (b.get("startDate") or "").strip() == date]
         else:
-            # Pickups = bookings ending on this date
             result = [b for b in all_bookings
                       if (b.get("endDate") or "").strip() == date]
+
         print(f"  CheckInOut [{direction}]: issuccess={data.get('issuccess')} | records={len(result)}")
         return result
     except Exception as e:
