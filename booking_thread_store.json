@@ -1473,6 +1473,17 @@
       "pickup_alerted": false,
       "closed": false,
       "start_date": "2026-05-01"
+    },
+    "009915-MOHM-McLaren": {
+      "thread_ts": "1777641618.729869",
+      "end_date": "2026-05-02",
+      "plate": "47041",
+      "customer": "Mohmoud Hesham Noaman Ibrahim Etman",
+      "vehicle": "Mclaren Spider Artura",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-05-01"
     }
   }
 }
