@@ -1539,6 +1539,17 @@
       "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-05-01"
+    },
+    "009920-GEOR-Porsche": {
+      "thread_ts": "1777658115.541249",
+      "end_date": "2026-05-03",
+      "plate": "64545",
+      "customer": "George Adrian Gavrila",
+      "vehicle": "Porsche Cayman Gt4 Rs",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-05-01"
     }
   }
 }
