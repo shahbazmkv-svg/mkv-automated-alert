@@ -169,13 +169,21 @@ def build_fleet_message(counts: dict, vehicles: list, rented_plates: set) -> dic
     service_vehicles   = []
     nrv_vehicles       = []
 
+    # Normalize rented plates for comparison
+    rented_plates_norm = set()
+    for p in rented_plates:
+        rented_plates_norm.add(str(p).strip().upper().lstrip("0"))
+        rented_plates_norm.add(str(p).strip().upper())
+        rented_plates_norm.add(str(p).strip())
+
     for v in vehicles:
         plate      = str(v.get("plate", "")).strip()
+        plate_norm = plate.upper().lstrip("0")
         avail      = (v.get("availability") or "").lower().strip()
         status_raw = (v.get("status") or "").lower().strip()
 
         # Primary rule: has active contract today → Rented
-        if plate in rented_plates:
+        if plate in rented_plates or plate_norm in rented_plates_norm or plate.upper() in rented_plates_norm:
             rented_vehicles.append(v)
         # Check explicit status from API
         elif avail in ("service", "maintenance") or status_raw in ("service", "maintenance"):
