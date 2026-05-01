@@ -8,11 +8,11 @@ APPIC_KEY        = os.environ["APPIC_KEY"]
 SLACK_BOT_TOKEN  = os.environ.get("SLACK_BOT_TOKEN", "")
 
 # ── Channels ──────────────────────────────────────────────────────────────────
-CHANNEL_DELIVERY = "C0ABPC606F7"   # #mkv-schedule-for-delivery
-CHANNEL_PICKUP   = "C0ABPC606F7"   # #mkv-car-pickup
-CHANNEL_TEST     = "C0B0TGBDCDU"   # #mkvtest (new)
+CHANNEL_DELIVERY = "C0ACB9C8J01"   # #mkv-schedule-for-delivery (live)
+CHANNEL_PICKUP   = "C0ABW979FML"   # #mkv-car-pickup (live)
+CHANNEL_TEST     = "C0B0TGBDCDU"   # #mkvtest
 
-TEST_MODE        = True
+TEST_MODE        = False
 SEND_DELIVERY_TO = CHANNEL_TEST if TEST_MODE else CHANNEL_DELIVERY
 SEND_PICKUP_TO   = CHANNEL_TEST if TEST_MODE else CHANNEL_PICKUP
 
@@ -37,21 +37,30 @@ def tomorrow_str():
 
 def fetch_checkinout(date, direction):
     """
-    Use check-in/checkout API.
-    direction=Out → deliveries (vehicles going out)
-    direction=In  → pickups (vehicles coming back)
+    Fetch bookings for a specific date.
+    direction=Out → deliveries (startDate == date)
+    direction=In  → pickups (endDate == date)
+    Uses Bookings API filtered by date range.
     """
     try:
-        r = requests.post(APPIC_CHECKINOUT, data={
+        r = requests.post(APPIC_BOOKINGS, data={
             "key":       APPIC_KEY,
             "startDate": date,
             "endDate":   date,
-            "direction": direction,
         }, timeout=15)
         r.raise_for_status()
         data = r.json()
-        print(f"  CheckInOut [{direction}]: issuccess={data.get('issuccess')} | records={len(data.get('bookings', []))}")
-        return data.get("bookings", [])
+        all_bookings = data.get("bookings", [])
+        if direction == "Out":
+            # Deliveries = bookings starting on this date
+            result = [b for b in all_bookings
+                      if (b.get("startDate") or "").strip() == date]
+        else:
+            # Pickups = bookings ending on this date
+            result = [b for b in all_bookings
+                      if (b.get("endDate") or "").strip() == date]
+        print(f"  CheckInOut [{direction}]: issuccess={data.get('issuccess')} | records={len(result)}")
+        return result
     except Exception as e:
         print(f"  CheckInOut API error [{direction}]: {e}")
         return []
