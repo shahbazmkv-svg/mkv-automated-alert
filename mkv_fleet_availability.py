@@ -80,6 +80,9 @@ def fetch_active_contracts() -> set:
             if plate and start and end and start <= today <= end:
                 rented_plates.add(plate)
         print(f"Active contracts today: {len(rented_plates)} vehicles rented")
+        print(f"  Date range searched: {start_range} to {today}")
+        print(f"  Total bookings returned by API: {len(bookings)}")
+        print(f"  Sample rented plates: {list(rented_plates)[:5]}")
         return rented_plates
     except Exception as e:
         print(f"Bookings API error: {e}")
