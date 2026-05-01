@@ -115,6 +115,8 @@ def build_message(vehicles, rented_plates):
 
     rented_v    = []
     available_v = []
+    garage_v    = []
+    service_v   = []
 
     # Normalize rented plates for comparison (numeric only)
     import re
@@ -123,34 +125,54 @@ def build_message(vehicles, rented_plates):
     for v in vehicles:
         plate      = get_plate(v)
         plate_norm = re.sub(r"[^0-9]", "", plate).lstrip("0")
+        avail      = (v.get("availability") or "").lower().strip()
+        status_raw = (v.get("status") or "").lower().strip()
         if plate_norm and plate_norm in rented_norm:
             rented_v.append(v)
+        elif avail in ("garage",) or status_raw in ("garage",):
+            garage_v.append(v)
+        elif avail in ("service","maintenance") or status_raw in ("service","maintenance"):
+            service_v.append(v)
         else:
             available_v.append(v)
 
     total     = len(vehicles)
     rented    = len(rented_v)
     available = len(available_v)
-    print(f"Fleet — Total:{total} | Rented:{rented} | Available:{available}")
-
-    # Cross-check: print sample vehicle plates vs rented plates
-    veh_plates = [get_plate(v) for v in vehicles[:5]]
-    print(f"Sample vehicle plates: {veh_plates}")
-    print(f"Sample rented plates:  {list(rented_plates)[:5]}")
+    garage    = len(garage_v)
+    service   = len(service_v)
+    print(f"Fleet — Total:{total} | Rented:{rented} | Available:{available} | Garage:{garage} | Service:{service}")
 
     summary = "\n".join([
         f"❝{date_str} {day_str}❞","",
         f"✦ Total        : {total}","",
         f"✦ Rented STR   : {rented}","",
-        f"✦ Garage       : 0","",
-        f"✦ Service      : 0","",
+        f"✦ Garage       : {garage}","",
+        f"✦ Service      : {service}","",
         f"✦ Available    : {available}","",
         f"✦ Lease        : 0","",
         f"✦ Longterm     : 0","",
         f"✦ NRV          : 0",
     ])
 
-    lines  = [f"{i}. {fmt_name(v)}" for i, v in enumerate(available_v, 1)]
+    lines = []
+    if available_v:
+        lines.append("AVAILABLE")
+        lines.append("-" * 30)
+        for i, v in enumerate(available_v, 1):
+            lines.append(f"{i}. {fmt_name(v)}")
+    if garage_v:
+        lines.append("")
+        lines.append("GARAGE")
+        lines.append("-" * 30)
+        for i, v in enumerate(garage_v, 1):
+            lines.append(f"{i}. {fmt_name(v)}")
+    if service_v:
+        lines.append("")
+        lines.append("SERVICE")
+        lines.append("-" * 30)
+        for i, v in enumerate(service_v, 1):
+            lines.append(f"{i}. {fmt_name(v)}")
     lines += ["","For inquiries please contact this number","", CONTACT_FOOTER]
 
     blocks = [
