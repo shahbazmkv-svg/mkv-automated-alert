@@ -1430,7 +1430,7 @@
       "closed": false,
       "start_date": "2026-04-01"
     },
-     "009912-ARTE-Ford": {
+    "009912-ARTE-Ford": {
       "thread_ts": "1777560994.001589",
       "end_date": "2026-05-02",
       "plate": "77491",
@@ -1451,6 +1451,17 @@
       "pickup_alerted": false,
       "closed": false,
       "start_date": "2026-05-19"
+    },
+    "009900-ALI -BMW": {
+      "thread_ts": null,
+      "end_date": "2026-04-29",
+      "plate": "70691",
+      "customer": "Ali Azlan Khan",
+      "vehicle": "Bmw 520I",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-04-29"
     }
   }
 }
