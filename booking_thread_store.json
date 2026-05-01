@@ -1473,6 +1473,17 @@
       "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-05-01"
+    },
+    "009879-IBRA-Chevrolet": {
+      "thread_ts": null,
+      "end_date": "2026-05-03",
+      "plate": "72712",
+      "customer": "Ibrahim Qubtan",
+      "vehicle": "Chevrolet Corvette",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-05-02"
     }
   }
 }
