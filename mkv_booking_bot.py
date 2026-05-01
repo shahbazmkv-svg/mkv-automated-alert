@@ -199,11 +199,17 @@ def extract(b):
         "advance":      advance_amt,
         "balance":      balance_amt,
         "pay_mode":     (b.get("paymentMode")    or "—").strip(),
-        "km_allowed":   (lambda r: next(
+        "km_allowed":   (
+                        # Check dedicated Appic fields first
+                        (str(int(float(b.get("dailyKmLimit") or b.get("dailyKmsLimit") or b.get("kmLimit") or b.get("kmsLimit") or 0))) + " KM")
+                        if float(b.get("dailyKmLimit") or b.get("dailyKmsLimit") or b.get("kmLimit") or b.get("kmsLimit") or 0) > 0
+                        # Fall back to parsing remarks
+                        else (lambda r: next(
                             (w.rstrip("S") + " KM" for w in r.upper().replace("KMS","KM").replace("KM"," KM ").split()
                              if w.rstrip("S").isdigit() and 50 < int(w.rstrip("S")) <= 1000),
                             "—"
-                        ))(b.get("remarks", "") or ""),
+                        ))(b.get("remarks", "") or "")
+                    ),
         "remarks":      (b.get("remarks")        or "—").strip() or "—",
         "status":       status,
         "status_label": "DRAFT" if status == "draft" else "CONFIRMED",
@@ -503,8 +509,9 @@ def main():
             print(f"  NEW: {customer} | {plate} | {start} | {f['status_label']}")
             blocks, text = build_booking_card(f, now_str)
             ts = post_message(TARGET_CHANNEL, blocks, text)
-            # Also post to #mkv-schedule-for-delivery
-            post_message(TARGET_DELIVERY, blocks, text)
+            # Post notification-only (no buttons) to #mkv-schedule-for-delivery
+            notif_blocks = [b for b in blocks if b.get("type") != "actions"]
+            post_message(TARGET_DELIVERY, notif_blocks, text)
             if ts:
                 bookings[key] = {
                     "thread_ts":        ts,
