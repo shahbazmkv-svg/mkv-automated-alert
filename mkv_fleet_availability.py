@@ -1,28 +1,20 @@
 """
 MKV Luxury – Fleet Availability Daily Post
-
-Logic:
-  - Active fleet = vehicles with dailyrent > 0 and valid plate
-  - Rented = vehicle has an active contract (from assignments API)
-  - Available = active fleet - rented - service - NRV
 """
 
-import os
-import json
-import requests
+import os, json, requests
 from datetime import datetime, timezone, timedelta
 
-# ── Config ────────────────────────────────────────────────────────────────────
-SLACK_TOKEN   = os.environ["SLACK_BOT_TOKEN"]
-SLACK_CHANNEL = "C0B0TGBDCDU"   # #mkvtest — switch to live channel when ready
-DUBAI_TZ      = timezone(timedelta(hours=4))
-HEADERS       = {"User-Agent": "Mozilla/5.0 (MKV-Monitor/1.0)"}
-BLOCK_LIMIT   = 2900
+SLACK_TOKEN      = os.environ["SLACK_BOT_TOKEN"]
+APPIC_KEY        = os.environ.get("APPIC_KEY", "")
+SLACK_CHANNEL    = "C0B0TGBDCDU"   # #mkvtest — switch to live channel when ready
+DUBAI_TZ         = timezone(timedelta(hours=4))
+HEADERS          = {"User-Agent": "Mozilla/5.0 (MKV-Monitor/1.0)"}
+BLOCK_LIMIT      = 2900
 
 ASSIGNMENTS_URL  = "https://www.appicfleet.com/appiccar-apis-mkv/get-mkv-vehicle-assignments.php"
 ALL_VEHICLES_URL = "https://www.appicfleet.com/appiccar-apis-mkv/get-all-vehicles.php"
 BOOKINGS_URL     = "https://www.appicfleet.com/appiccar-apis-mkv/get-mkv-bookings.php"
-APPIC_KEY        = os.environ.get("APPIC_KEY", "")
 
 CONTACT_FOOTER = (
     "📱 +971 52 940 9280\n"
@@ -34,32 +26,28 @@ CONTACT_FOOTER = (
     "📍 Al Jreena Street 41, Al Qouz Industrial Third, Dubai, UAE"
 )
 
-# ── Fetch data ────────────────────────────────────────────────────────────────
-
-def fetch_mkv_counts() -> dict:
-    """MKV-only counts from assignments API."""
+def fetch_active_vehicles() -> list:
     try:
-        r = requests.post(ASSIGNMENTS_URL, headers=HEADERS, json={}, timeout=20)
+        r = requests.get(ALL_VEHICLES_URL, headers=HEADERS, timeout=20)
         r.raise_for_status()
         data = r.json()
-        print(f"Assignments API: issuccess={data.get('issuccess')} | counts={data.get('counts')}")
-        if not data.get("issuccess"):
-            return {}
-        return data.get("counts", {})
+        all_v = data.get("data", [])
+        active = [v for v in all_v
+                  if float(v.get("dailyrent", 0) or 0) > 0
+                  and str(v.get("plate", "")).strip() not in ("", "0")]
+        print(f"Total vehicles: {len(all_v)} | Active (dailyrent>0): {len(active)}")
+        # Print sample plates from vehicles API
+        sample = [str(v.get("plate","")).strip() for v in active[:5]]
+        print(f"Sample vehicle plates: {sample}")
+        return active
     except Exception as e:
-        print(f"Assignments API error: {e}")
-        return {}
+        print(f"All vehicles API error: {e}")
+        return []
 
-def fetch_active_contracts() -> set:
-    """
-    Get plates of vehicles currently on active contracts (rented).
-    Uses bookings API — confirms bookings = active contracts.
-    """
+def fetch_rented_plates() -> set:
     try:
-        now      = datetime.now(DUBAI_TZ)
-        today    = now.strftime("%Y-%m-%d")
-        # Search 90 days back to catch all active bookings spanning today
-        from datetime import timedelta
+        now         = datetime.now(DUBAI_TZ)
+        today       = now.strftime("%Y-%m-%d")
         start_range = (now - timedelta(days=90)).strftime("%Y-%m-%d")
         r = requests.post(BOOKINGS_URL, data={
             "key":       APPIC_KEY,
@@ -67,78 +55,37 @@ def fetch_active_contracts() -> set:
             "endDate":   today,
         }, timeout=20)
         r.raise_for_status()
-        data = r.json()
+        data     = r.json()
         bookings = data.get("bookings", [])
-        # Return set of plates with active contracts spanning today
-        rented_plates = set()
+        rented   = set()
         for b in bookings:
-            plate  = str(b.get("vehiclePlate", "")).strip()
-            start  = (b.get("startDate") or "").strip()
-            end    = (b.get("endDate")   or "").strip()
-            status = (b.get("status")    or "").lower()
-            # Active = any booking spanning today (confirmed OR draft = vehicle is out)
+            plate = str(b.get("vehiclePlate", "")).strip()
+            start = (b.get("startDate") or "").strip()
+            end   = (b.get("endDate")   or "").strip()
             if plate and start and end and start <= today <= end:
-                rented_plates.add(plate)
-        print(f"Active contracts today: {len(rented_plates)} vehicles rented")
-        print(f"  Date range searched: {start_range} to {today}")
-        print(f"  Total bookings returned by API: {len(bookings)}")
-        print(f"  Sample rented plates: {list(rented_plates)[:5]}")
-        return rented_plates
+                rented.add(plate)
+        print(f"Rented plates from bookings API: {len(rented)}")
+        print(f"Sample rented plates: {list(rented)[:5]}")
+        return rented
     except Exception as e:
         print(f"Bookings API error: {e}")
         return set()
 
-def fetch_active_vehicles() -> list:
-    """
-    GET all vehicles, filter by dailyrent > 0 and valid plate.
-    These are MKV's active fleet (borrowed vehicles have dailyrent=0).
-    """
-    try:
-        r = requests.get(ALL_VEHICLES_URL, headers=HEADERS, timeout=20)
-        r.raise_for_status()
-        data = r.json()
-        all_vehicles = data.get("data", [])
-        print(f"Total vehicles from API: {len(all_vehicles)}")
-
-        active = [
-            v for v in all_vehicles
-            if float(v.get("dailyrent", 0) or 0) > 0
-            and str(v.get("plate", "")).strip() not in ("", "0")
-        ]
-
-        print(f"Active fleet (dailyrent>0): {len(active)} | Excluded: {len(all_vehicles)-len(active)}")
-        return active
-    except Exception as e:
-        print(f"All vehicles API error: {e}")
-        return []
-
-# ── Format vehicle name ───────────────────────────────────────────────────────
-
 def format_vehicle_name(v: dict) -> str:
-    make  = v.get("make", "").strip().upper()
+    make  = v.get("make",  "").strip().upper()
     model = v.get("model", "").strip().upper()
     year  = str(v.get("year", "")).strip()
     color = v.get("color", "").strip().upper()
     plate = v.get("plate", "").strip()
-
-    if model.startswith(make):
-        model = model[len(make):].strip()
-    if make in ("AC", ""):
-        make = ""
-
+    if model.startswith(make): model = model[len(make):].strip()
+    if make in ("AC", ""): make = ""
     parts = []
     if make:  parts.append(make)
     if model: parts.append(model)
-    if year and year not in ("0", "200", ""):
-        parts.append(f"({year})")
-    if color and color not in ("", "N/A"):
-        parts.append(color)
-    if plate:
-        parts.append(f"[{plate}]")
-
+    if year and year not in ("0", "200", ""): parts.append(f"({year})")
+    if color and color not in ("", "N/A"): parts.append(color)
+    if plate: parts.append(f"[{plate}]")
     return " ".join(parts) if parts else v.get("vehicle_name", "UNKNOWN").upper()
-
-# ── Split into Slack-safe blocks ──────────────────────────────────────────────
 
 def text_to_blocks(text: str) -> list:
     blocks, chunk = [], ""
@@ -156,68 +103,42 @@ def text_to_blocks(text: str) -> list:
                         "text": {"type": "mrkdwn", "text": f"```{chunk.rstrip()}```"}})
     return blocks
 
-# ── Build message ─────────────────────────────────────────────────────────────
-
-def build_fleet_message(counts: dict, vehicles: list, rented_plates: set) -> dict:
+def build_fleet_message(vehicles: list, rented_plates: set) -> dict:
     now      = datetime.now(DUBAI_TZ)
     date_str = now.strftime("%B %d, %Y").upper()
     day_str  = now.strftime("%A").upper()
 
-    # Categorise each vehicle by contract status
-    rented_vehicles    = []
-    available_vehicles = []
-    service_vehicles   = []
-    nrv_vehicles       = []
-
-    # Normalize rented plates for comparison
-    rented_plates_norm = set()
-    for p in rented_plates:
-        rented_plates_norm.add(str(p).strip().upper().lstrip("0"))
-        rented_plates_norm.add(str(p).strip().upper())
-        rented_plates_norm.add(str(p).strip())
+    rented_v    = []
+    available_v = []
 
     for v in vehicles:
-        plate      = str(v.get("plate", "")).strip()
-        plate_norm = plate.upper().lstrip("0")
-        avail      = (v.get("availability") or "").lower().strip()
-        status_raw = (v.get("status") or "").lower().strip()
-
-        # Primary rule: has active contract today → Rented
-        if plate in rented_plates or plate_norm in rented_plates_norm or plate.upper() in rented_plates_norm:
-            rented_vehicles.append(v)
-        # Check explicit status from API
-        elif avail in ("service", "maintenance") or status_raw in ("service", "maintenance"):
-            service_vehicles.append(v)
-        elif avail in ("unavailable", "nrv") or status_raw in ("unavailable", "nrv"):
-            nrv_vehicles.append(v)
+        plate = str(v.get("plate", "")).strip()
+        if plate in rented_plates:
+            rented_v.append(v)
         else:
-            # No active contract and no special status → Available
-            available_vehicles.append(v)
+            available_v.append(v)
 
-    # Use vehicle categorisation from bookings API (more reliable)
     total     = len(vehicles)
-    rented    = len(rented_vehicles)
-    service   = len(service_vehicles)
-    nrv       = len(nrv_vehicles)
-    available = len(available_vehicles)
+    rented    = len(rented_v)
+    available = len(available_v)
 
-    print(f"Fleet summary — Total: {total} | Rented: {rented} | Available: {available} | Service: {service} | NRV: {nrv}")
+    print(f"Fleet — Total: {total} | Rented: {rented} | Available: {available}")
 
     summary = "\n".join([
         f"❝{date_str} {day_str}❞", "",
         f"✦ Total        : {total}", "",
         f"✦ Rented STR   : {rented}", "",
         f"✦ Garage       : 0", "",
-        f"✦ Service      : {service}", "",
+        f"✦ Service      : 0", "",
         f"✦ Available    : {available}", "",
         f"✦ Lease        : 0", "",
         f"✦ Longterm     : 0", "",
-        f"✦ NRV          : {nrv}",
+        f"✦ NRV          : 0",
     ])
 
-    vehicle_lines = [f"{i}. {format_vehicle_name(v)}" for i, v in enumerate(available_vehicles, 1)]
+    vehicle_lines = [f"{i}. {format_vehicle_name(v)}" for i, v in enumerate(available_v, 1)]
     vehicle_lines += ["", "For inquiries please contact this number", "", CONTACT_FOOTER]
-    vehicle_text = "\n".join(vehicle_lines)
+    vehicle_text  = "\n".join(vehicle_lines)
 
     blocks = []
     blocks.append({"type": "section", "text": {"type": "mrkdwn", "text": f"```{summary}```"}})
@@ -228,16 +149,16 @@ def build_fleet_message(counts: dict, vehicles: list, rented_plates: set) -> dic
 
     return {"blocks": blocks, "text": f"MKV Fleet Availability — {date_str} {day_str}"}
 
-# ── Slack post ────────────────────────────────────────────────────────────────
-
 def post_to_slack(message: dict):
     r = requests.post(
         "https://slack.com/api/chat.postMessage",
         headers={"Authorization": f"Bearer {SLACK_TOKEN}", "Content-Type": "application/json"},
         data=json.dumps({
-            "channel":    SLACK_CHANNEL,
-            "username":   "MKV Fleet Status",
-            "icon_emoji": ":car:",
+            "channel":      SLACK_CHANNEL,
+            "username":     "MKV Fleet Status",
+            "icon_emoji":   ":car:",
+            "unfurl_links": False,
+            "unfurl_media": False,
             **message
         }),
         timeout=15,
@@ -248,24 +169,18 @@ def post_to_slack(message: dict):
         raise SystemExit(1)
     print("✅ Fleet availability posted to Slack successfully.")
 
-# ── Main ──────────────────────────────────────────────────────────────────────
-
 if __name__ == "__main__":
     print("Fetching MKV fleet data...")
-    counts         = fetch_mkv_counts()
-    vehicles       = fetch_active_vehicles()
-    rented_plates  = fetch_active_contracts()
+    vehicles      = fetch_active_vehicles()
+    rented_plates = fetch_rented_plates()
 
     if not vehicles:
-        now = datetime.now(DUBAI_TZ)
-        warn = {
-            "blocks": [{"type": "section", "text": {"type": "mrkdwn",
-                "text": f"⚠️ *MKV Fleet — {now.strftime('%B %d, %Y').upper()}*\nNo active vehicles returned. Check API."}}],
-            "text": "MKV Fleet — Warning"
-        }
+        now  = datetime.now(DUBAI_TZ)
+        warn = {"blocks": [{"type": "section", "text": {"type": "mrkdwn",
+                "text": f"⚠️ *MKV Fleet — {now.strftime('%B %d, %Y').upper()}*\nNo active vehicles. Check API."}}],
+                "text": "MKV Fleet — Warning"}
         post_to_slack(warn)
         raise SystemExit(1)
 
-    message = build_fleet_message(counts, vehicles, rented_plates)
-    print(f"Slack blocks: {len(message['blocks'])}")
+    message = build_fleet_message(vehicles, rented_plates)
     post_to_slack(message)
