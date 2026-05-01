@@ -10,10 +10,12 @@ APPIC_KEY          = os.environ["APPIC_KEY"]
 SLACK_BOT_TOKEN    = os.environ["SLACK_BOT_TOKEN"]
 
 CHANNEL_BOOKINGS   = "C0ABPC606F7"   # #mkv-bookings (live)
+CHANNEL_DELIVERY   = "C0ACB9C8J01"   # #mkv-schedule-for-delivery (live)
 CHANNEL_TEST       = "C0B0TGBDCDU"   # #mkvtest
 
 TEST_MODE          = False
 TARGET_CHANNEL     = CHANNEL_TEST if TEST_MODE else CHANNEL_BOOKINGS
+TARGET_DELIVERY    = CHANNEL_TEST if TEST_MODE else CHANNEL_DELIVERY
 
 APPIC_BOOKINGS_URL = "https://www.appicfleet.com/appiccar-apis-mkv/get-mkv-bookings.php"
 STORE_FILE         = "booking_thread_store.json"
@@ -69,7 +71,13 @@ def save_store(store):
         json.dump(store, f, indent=2)
 
 def post_message(channel, blocks, text, thread_ts=None):
-    payload = {"channel": channel, "text": text, "blocks": blocks}
+    payload = {
+        "channel":       channel,
+        "text":          text,
+        "blocks":        blocks,
+        "unfurl_links":  False,
+        "unfurl_media":  False,
+    }
     if thread_ts:
         payload["thread_ts"] = thread_ts
     try:
@@ -449,7 +457,7 @@ def main():
     now_str  = now.strftime("%d %b %Y | %I:%M %p Dubai Time")
     tomorrow = (now + timedelta(days=1)).strftime("%Y-%m-%d")
 
-    SEED_MODE = True
+    SEED_MODE = False
 
     print("=" * 56)
     print("  MKV BOOKING BOT")
@@ -495,6 +503,8 @@ def main():
             print(f"  NEW: {customer} | {plate} | {start} | {f['status_label']}")
             blocks, text = build_booking_card(f, now_str)
             ts = post_message(TARGET_CHANNEL, blocks, text)
+            # Also post to #mkv-schedule-for-delivery
+            post_message(TARGET_DELIVERY, blocks, text)
             if ts:
                 bookings[key] = {
                     "thread_ts":        ts,
