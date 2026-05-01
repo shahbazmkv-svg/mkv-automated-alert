@@ -12,7 +12,7 @@ SLACK_BOT_TOKEN    = os.environ["SLACK_BOT_TOKEN"]
 CHANNEL_BOOKINGS   = "C0ABPC606F7"   # #mkv-bookings (live)
 CHANNEL_TEST       = "C0B0TGBDCDU"   # #mkvtest
 
-TEST_MODE          = True
+TEST_MODE          = False
 TARGET_CHANNEL     = CHANNEL_TEST if TEST_MODE else CHANNEL_BOOKINGS
 
 APPIC_BOOKINGS_URL = "https://www.appicfleet.com/appiccar-apis-mkv/get-mkv-bookings.php"
@@ -449,7 +449,7 @@ def main():
     now_str  = now.strftime("%d %b %Y | %I:%M %p Dubai Time")
     tomorrow = (now + timedelta(days=1)).strftime("%Y-%m-%d")
 
-    SEED_MODE = False
+    SEED_MODE = True
 
     print("=" * 56)
     print("  MKV BOOKING BOT")
