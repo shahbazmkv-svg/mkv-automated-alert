@@ -1405,7 +1405,7 @@
       "vehicle": "Ford Mustang Convertible",
       "delivery_alerted": true,
       "pickup_alerted": true,
-      "closed": false,
+      "closed": true,
       "start_date": "2026-04-30"
     },
     "009910-AARO-BMW": {
