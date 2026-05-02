@@ -1682,6 +1682,17 @@
       "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-05-02"
+    },
+    "009933-Reha-Suzuki": {
+      "thread_ts": "1777749018.645469",
+      "end_date": "2026-05-03",
+      "plate": "26603",
+      "customer": "Reham Mustafa",
+      "vehicle": "Suzuki Swift",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-05-02"
     }
   }
 }
