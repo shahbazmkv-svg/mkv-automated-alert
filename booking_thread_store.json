@@ -1668,7 +1668,7 @@
       "customer": "D S S Black Rent A Car Llc",
       "vehicle": "Ferrari Purosangue",
       "delivery_alerted": true,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-05-02"
     }
