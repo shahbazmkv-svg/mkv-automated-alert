@@ -1613,7 +1613,7 @@
       "customer": "Mohammed Huzaifah Alyas",
       "vehicle": "Chevrolet Corvette",
       "delivery_alerted": true,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-05-02"
     },
@@ -1635,7 +1635,7 @@
       "customer": "Abdoulaye Njoya",
       "vehicle": "Audi A6",
       "delivery_alerted": true,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-05-02"
     },
@@ -1646,7 +1646,7 @@
       "customer": "Syed Nabeel Hussain Shah Syed Mehmood  Hussain Shah",
       "vehicle": "Mclaren Spider Artura",
       "delivery_alerted": true,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-05-02"
     },
