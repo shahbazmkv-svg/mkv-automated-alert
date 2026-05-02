@@ -1583,6 +1583,17 @@
       "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-05-01"
+    },
+    "009924-GUNA-Lamborghini": {
+      "thread_ts": "1777703419.938579",
+      "end_date": "2026-05-06",
+      "plate": "N 56026",
+      "customer": "Gunarajan S/O Shanmugham",
+      "vehicle": "Lamborghini Urus",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-05-02"
     }
   }
 }
