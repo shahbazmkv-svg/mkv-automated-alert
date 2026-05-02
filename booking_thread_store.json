@@ -1572,6 +1572,17 @@
       "pickup_alerted": false,
       "closed": false,
       "start_date": "2026-05-02"
+    },
+    "009923-GEOR-Porsche": {
+      "thread_ts": "1777681225.816699",
+      "end_date": "2026-05-03",
+      "plate": "42165",
+      "customer": "George Adrian Gavrila",
+      "vehicle": "Porsche 911 Turbo",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-05-01"
     }
   }
 }
