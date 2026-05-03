@@ -23,27 +23,63 @@ CONTACT_FOOTER = (
 def now_dubai():
     return datetime.now(DUBAI_TZ)
 
+def parse_date(date_str: str):
+    """Parse a date string in any common format into a date object. Returns None on failure."""
+    if not date_str:
+        return None
+    date_str = date_str.strip()
+    for fmt in ("%Y-%m-%d", "%Y-%m-%d %H:%M:%S", "%d/%m/%Y", "%m/%d/%Y", "%d-%m-%Y"):
+        try:
+            return datetime.strptime(date_str, fmt).date()
+        except ValueError:
+            continue
+    return None
+
 def fetch_rented_plates() -> set:
-    """Get plates of all vehicles on active contracts today."""
+    """
+    Get plates of all vehicles on active contracts today.
+
+    Fixes vs old version:
+    1. Dates parsed properly (not string-compared) — handles any format Appic returns.
+    2. endDate in API call set 1 year ahead so future-end contracts are included.
+    3. Cancelled / voided statuses are excluded.
+    """
     try:
-        today = now_dubai().strftime("%Y-%m-%d")
-        start = (now_dubai() - timedelta(days=90)).strftime("%Y-%m-%d")
+        today      = now_dubai().date()
+        start_str  = (now_dubai() - timedelta(days=365)).strftime("%Y-%m-%d")   # 1 yr back
+        end_str    = (now_dubai() + timedelta(days=365)).strftime("%Y-%m-%d")   # 1 yr ahead
         r = requests.post(BOOKINGS_URL, data={
-            "key": APPIC_KEY, "startDate": start, "endDate": today
+            "key": APPIC_KEY, "startDate": start_str, "endDate": end_str
         }, timeout=20)
         r.raise_for_status()
         bookings = r.json().get("bookings", [])
+        print(f"  Bookings returned from API: {len(bookings)}")
+
         rented = set()
         for b in bookings:
+            # Skip cancelled / voided contracts
+            booking_status = str(b.get("status") or b.get("bookingStatus") or "").lower().strip()
+            if booking_status in ("cancelled", "canceled", "voided", "void", "deleted"):
+                continue
+
             plate = str(b.get("vehiclePlate", "") or "").strip()
-            s = (b.get("startDate") or "").strip()
-            e = (b.get("endDate")   or "").strip()
-            if plate and s and e and s <= today <= e:
+            if not plate:
+                continue
+
+            start_date = parse_date(b.get("startDate") or "")
+            end_date   = parse_date(b.get("endDate")   or "")
+
+            if start_date is None or end_date is None:
+                continue
+
+            # Active contract = today falls within [startDate, endDate] inclusive
+            if start_date <= today <= end_date:
                 rented.add(plate)
-        print(f"Rented plates today: {len(rented)}")
+
+        print(f"  Active rented plates today ({today}): {len(rented)}")
         return rented
     except Exception as ex:
-        print(f"Bookings API error: {ex}")
+        print(f"  Bookings API error: {ex}")
         return set()
 
 def fetch_vehicles() -> list:
