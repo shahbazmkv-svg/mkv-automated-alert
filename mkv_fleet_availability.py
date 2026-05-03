@@ -74,7 +74,7 @@ def fetch_rented_plates() -> set:
 
             # Active contract = today falls within [startDate, endDate] inclusive
             if start_date <= today <= end_date:
-                rented.add(plate)
+                rented.add(normalize_plate(plate))   # store normalized so matching is consistent
 
         print(f"  Active rented plates today ({today}): {len(rented)}")
         return rented
@@ -110,12 +110,20 @@ def get_plate(v: dict) -> str:
     return ""
 
 def normalize_plate(plate: str) -> str:
-    """Extract numeric part only for comparison.
-    'I 47203' -> '47203', 'B15789' -> '15789', '77540' -> '77540'
+    """
+    Normalize a plate for matching: uppercase, remove spaces and hyphens only.
+    Preserves letters so 'BB 60137' -> 'BB60137' and 'B 60137' -> 'B60137'
+    — these are different plates and must NOT collide.
+
+    Examples:
+      'I 47203'    -> 'I47203'
+      'BB 60137'   -> 'BB60137'
+      'X 33678'    -> 'X33678'
+      'AA78042'    -> 'AA78042'
+      'F83209'     -> 'F83209'
     """
     import re
-    digits = re.sub(r"[^0-9]", "", plate)
-    return digits.lstrip("0") if digits else plate
+    return re.sub(r"[\s\-]", "", plate).upper().strip()
 
 def fmt_name(v: dict) -> str:
     make  = v.get("make",  "").strip().upper()
@@ -154,13 +162,13 @@ def build_message(vehicles, rented_plates):
     garage_v    = []
     service_v   = []
 
-    # Normalize rented plates for comparison (numeric only)
-    import re
-    rented_norm = set(re.sub(r"[^0-9]", "", p).lstrip("0") for p in rented_plates)
+    # Normalize rented plates — preserve full plate (letters + digits, no spaces)
+    # e.g. "BB 60137" -> "BB60137", "I 47203" -> "I47203"
+    rented_norm = set(normalize_plate(p) for p in rented_plates if p)
 
     for v in vehicles:
         plate      = get_plate(v)
-        plate_norm = re.sub(r"[^0-9]", "", plate).lstrip("0")
+        plate_norm = normalize_plate(plate)
         avail      = (v.get("availability") or "").lower().strip()
         status_raw = (v.get("status") or "").lower().strip()
         if plate_norm and plate_norm in rented_norm:
