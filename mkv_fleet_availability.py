@@ -1,22 +1,18 @@
 """
 MKV Luxury – Fleet Availability
 
-APIs used:
-  1. get-all-vehicles          — fleet (filter dailyrent > 0)
-  2. get-mkv-bookings          — active contracts today → Rented STR
-  3. get-mkv-checkin-checkout  — Out = Delivery Today | In = Returning Today
+Classification rules (dailyrent > 0 vehicles only):
+  1. RENTED STR      — confirmed contract active today (start <= today <= end)
+  2. RETURNING TODAY — checkin direction=In today
+  3. DELIVERY TODAY  — draft contract with start date = today (expected out)
+  4. AVAILABLE       — no confirmed or draft contract touching today
 
 Plate matching:
-  All 3 APIs return plates in different formats:
-    Bookings:    digits only   → '26603'
-    CheckIn/Out: letter+digits → 'R26603', 'CC83762'
-    Vehicles:    letter+digits → 'B15789', 'G/9358'
-  FIX: extract digits only from all plates for comparison.
-
-Active contract filter:
-  Only 'confirmed' status counts as rented.
-  'draft'  → not confirmed, skip
-  'closed' → completed, skip
+  All 3 APIs use different formats. Extract digits only for comparison:
+    Bookings:    '26603'   (digits only)
+    CheckIn/Out: 'R26603'  (letter prefix)
+    Vehicles:    'B15789'  (letter prefix), 'G/9358' (slash format)
+  plate_digits() → '26603' across all three ✅
 """
 import os, json, re, requests
 from datetime import datetime, timezone, timedelta
@@ -37,9 +33,6 @@ CONTACT_FOOTER = (
     "✉️  contact@mkvluxury.com\n📍 Al Jreena Street 41, Al Qouz Industrial Third, Dubai, UAE"
 )
 
-# Only these statuses count as an active rental
-ACTIVE_STATUSES = {"confirmed"}
-
 def now_dubai():
     return datetime.now(DUBAI_TZ)
 
@@ -54,7 +47,7 @@ def parse_date(date_str: str):
             continue
     return None
 
-def plate_digits(plate: str) -> str:
+def plate_digits(plate) -> str:
     """
     Extract digits only — the common key across all 3 Appic APIs.
       Bookings:    '26603'   → '26603'
@@ -64,7 +57,6 @@ def plate_digits(plate: str) -> str:
     return re.sub(r"[^0-9]", "", str(plate or ""))
 
 def get_plate_raw(v: dict) -> str:
-    """Get raw plate string from vehicle dict."""
     for key in ["plate", "vehiclePlate", "plateNo", "plate_no", "number_plate", "licensePlate"]:
         val = str(v.get(key, "") or "").strip()
         if val and val not in ("0", ""):
@@ -93,7 +85,6 @@ def fmt_name(v: dict) -> str:
 # ══════════════════════════════════════════════════════════════════════════════
 
 def fetch_vehicles() -> list:
-    """All vehicles with dailyrent > 0."""
     try:
         r = requests.get(ALL_VEHICLES_URL,
                          headers={"User-Agent": "Mozilla/5.0"}, timeout=20)
@@ -107,11 +98,13 @@ def fetch_vehicles() -> list:
         return []
 
 
-def fetch_active_plates(today) -> set:
+def fetch_booking_sets(today) -> dict:
     """
-    Plates with a CONFIRMED contract active today.
-    Only status='confirmed' counts — draft and closed are excluded.
-    Returns set of digit-only plate strings.
+    Returns:
+      confirmed_plates — digit plates with confirmed contract active today
+                         (start <= today <= end)
+      draft_today_plates — digit plates with draft contract starting today
+                           (start == today)  → Delivery Today
     """
     start_str = (now_dubai() - timedelta(days=365)).strftime("%Y-%m-%d")
     end_str   = (now_dubai() + timedelta(days=365)).strftime("%Y-%m-%d")
@@ -123,16 +116,15 @@ def fetch_active_plates(today) -> set:
                           timeout=20)
         r.raise_for_status()
         bookings = r.json().get("bookings", [])
-        print(f"  Bookings: {len(bookings)} total records")
+        print(f"  Bookings API: {len(bookings)} records")
 
-        active = set()
+        confirmed_plates   = set()   # confirmed & active today → Rented
+        draft_today_plates = set()   # draft & start==today     → Delivery
+
         status_counts = {}
         for b in bookings:
             status = str(b.get("status") or "").lower().strip()
             status_counts[status] = status_counts.get(status, 0) + 1
-
-            if status not in ACTIVE_STATUSES:
-                continue                        # skip draft, closed, etc.
 
             plate = plate_digits(b.get("vehiclePlate", ""))
             if not plate:
@@ -140,23 +132,31 @@ def fetch_active_plates(today) -> set:
 
             s = parse_date(b.get("startDate") or "")
             e = parse_date(b.get("endDate")   or "")
-            if s and e and s <= today <= e:
-                active.add(plate)
+            if not s or not e:
+                continue
 
-        print(f"  Booking status breakdown: {status_counts}")
-        print(f"  Confirmed & active today: {len(active)} plates → {sorted(active)}")
-        return active
+            if status == "confirmed":
+                # Active confirmed contract spanning today
+                if s <= today <= e:
+                    confirmed_plates.add(plate)
+
+            elif status == "draft":
+                # Draft contract starting today = expected delivery
+                if s == today:
+                    draft_today_plates.add(plate)
+
+        print(f"  Status breakdown: {status_counts}")
+        print(f"  Confirmed active today:  {len(confirmed_plates)} → {sorted(confirmed_plates)}")
+        print(f"  Draft delivery today:    {len(draft_today_plates)} → {sorted(draft_today_plates)}")
+        return {"confirmed": confirmed_plates, "draft_today": draft_today_plates}
 
     except Exception as ex:
         print(f"  [ERROR] Bookings: {ex}")
-        return set()
+        return {"confirmed": set(), "draft_today": set()}
 
 
 def fetch_checkinout_plates(today, direction: str) -> set:
-    """
-    Plates checked out (direction='Out') or checked in (direction='In') today.
-    Returns set of digit-only plate strings.
-    """
+    """Digit plates physically checked out (Out) or in (In) today."""
     today_str = today.strftime("%Y-%m-%d")
     try:
         r = requests.post(CHECKINOUT_URL,
@@ -166,23 +166,19 @@ def fetch_checkinout_plates(today, direction: str) -> set:
                                 "direction": direction},
                           timeout=20)
         r.raise_for_status()
-        raw     = r.json()
-        records = raw.get("data", [])
+        records = r.json().get("data", [])
         print(f"  CheckIn/Out [{direction}]: {len(records)} records")
 
         plates = set()
         for rec in records:
-            raw_plate = str(
-                rec.get("vehiclePlate") or rec.get("plate") or
-                rec.get("plateNo") or ""
-            ).strip()
-            d = plate_digits(raw_plate)
+            raw = str(rec.get("vehiclePlate") or rec.get("plate") or
+                      rec.get("plateNo") or "").strip()
+            d = plate_digits(raw)
             if d:
                 plates.add(d)
 
-        print(f"  {direction} digit-plates: {sorted(plates)}")
+        print(f"  {direction} plates: {sorted(plates)}")
         return plates
-
     except Exception as ex:
         print(f"  [ERROR] CheckIn/Out [{direction}]: {ex}")
         return set()
@@ -192,18 +188,19 @@ def fetch_checkinout_plates(today, direction: str) -> set:
 # CLASSIFY
 # ══════════════════════════════════════════════════════════════════════════════
 
-def classify(vehicles, active_plates, checkout_plates, checkin_plates):
+def classify(vehicles, confirmed_plates, draft_today_plates,
+             checkout_plates, checkin_plates):
     """
-    Priority order per vehicle:
-      1. checkout today (Out) → DELIVERY TODAY
-      2. checkin  today (In)  → RETURNING TODAY
-      3. confirmed contract   → RENTED STR
-      4. garage/service field → GARAGE / SERVICE
-      5. none of the above    → AVAILABLE
+    Rule priority (first match wins):
+      1. checkin today (In)          → RETURNING TODAY
+      2. confirmed contract today    → RENTED STR
+      3. draft contract, start today → DELIVERY TODAY
+      4. no contract                 → AVAILABLE
+    Garage/Service from vehicle availability field (separate from above).
     """
-    delivery_v  = []
     returning_v = []
     rented_v    = []
+    delivery_v  = []
     available_v = []
     garage_v    = []
     service_v   = []
@@ -213,28 +210,28 @@ def classify(vehicles, active_plates, checkout_plates, checkin_plates):
         avail      = (v.get("availability") or "").lower().strip()
         status_raw = (v.get("status")       or "").lower().strip()
 
-        if d and d in checkout_plates:
-            delivery_v.append(v)
-        elif d and d in checkin_plates:
-            returning_v.append(v)
-        elif d and d in active_plates:
-            rented_v.append(v)
-        elif avail in ("garage",) or status_raw in ("garage",):
+        if avail in ("garage",) or status_raw in ("garage",):
             garage_v.append(v)
         elif avail in ("service", "maintenance") or status_raw in ("service", "maintenance"):
             service_v.append(v)
+        elif d and d in checkin_plates:
+            returning_v.append(v)        # physically returning today
+        elif d and d in confirmed_plates:
+            rented_v.append(v)           # confirmed contract active today
+        elif d and d in draft_today_plates:
+            delivery_v.append(v)         # draft contract starting today
         else:
-            available_v.append(v)
+            available_v.append(v)        # no contract → available
 
-    print(f"  Classification → Delivery:{len(delivery_v)} | Returning:{len(returning_v)} | "
-          f"Rented:{len(rented_v)} | Available:{len(available_v)} | "
+    print(f"  Result → Rented:{len(rented_v)} | Returning:{len(returning_v)} | "
+          f"Delivery:{len(delivery_v)} | Available:{len(available_v)} | "
           f"Garage:{len(garage_v)} | Service:{len(service_v)}")
 
-    return delivery_v, returning_v, rented_v, available_v, garage_v, service_v
+    return rented_v, returning_v, delivery_v, available_v, garage_v, service_v
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-# SLACK MESSAGE
+# SLACK
 # ══════════════════════════════════════════════════════════════════════════════
 
 def text_to_blocks(text):
@@ -254,7 +251,7 @@ def text_to_blocks(text):
     return blocks
 
 
-def build_message(delivery_v, returning_v, rented_v,
+def build_message(rented_v, returning_v, delivery_v,
                   available_v, garage_v, service_v, total):
     now      = now_dubai()
     date_str = now.strftime("%B %d, %Y").upper()
@@ -264,8 +261,8 @@ def build_message(delivery_v, returning_v, rented_v,
         f"❝{date_str} {day_str}❞", "",
         f"✦ Total           : {total}", "",
         f"✦ Rented STR      : {len(rented_v)}", "",
-        f"✦ Delivery Today  : {len(delivery_v)}", "",
         f"✦ Returning Today : {len(returning_v)}", "",
+        f"✦ Delivery Today  : {len(delivery_v)}", "",
         f"✦ Available       : {len(available_v)}", "",
         f"✦ Garage          : {len(garage_v)}", "",
         f"✦ Service         : {len(service_v)}", "",
@@ -286,8 +283,8 @@ def build_message(delivery_v, returning_v, rented_v,
         for i, v in enumerate(lst, 1):
             lines.append(f"{i}. {fmt_name(v)}")
 
-    section("🚗", "DELIVERY TODAY",  delivery_v)
     section("🔁", "RETURNING TODAY", returning_v)
+    section("🚗", "DELIVERY TODAY",  delivery_v)
     section("✅", "AVAILABLE",       available_v)
     section("🔧", "GARAGE",          garage_v)
     section("⚙️",  "SERVICE",        service_v)
@@ -333,25 +330,28 @@ if __name__ == "__main__":
 
     today = now_dubai().date()
 
-    print("\n[1/4] Fetching vehicles...")
+    print("\n[1/4] Fetching vehicles (dailyrent > 0)...")
     vehicles = fetch_vehicles()
     if not vehicles:
         print("  No vehicles — aborting")
         raise SystemExit(1)
 
-    print("\n[2/4] Fetching confirmed active contracts...")
-    active_plates = fetch_active_plates(today)
+    print("\n[2/4] Fetching bookings (confirmed + draft)...")
+    booking_sets = fetch_booking_sets(today)
+    confirmed_plates   = booking_sets["confirmed"]
+    draft_today_plates = booking_sets["draft_today"]
 
-    print("\n[3/4] Fetching check-outs (Delivery) and check-ins (Returning) today...")
-    checkout_plates = fetch_checkinout_plates(today, "Out")
+    print("\n[3/4] Fetching check-ins / check-outs today...")
     checkin_plates  = fetch_checkinout_plates(today, "In")
+    checkout_plates = fetch_checkinout_plates(today, "Out")
 
-    print("\n[4/4] Classifying and posting to Slack...")
-    (delivery_v, returning_v, rented_v,
+    print("\n[4/4] Classifying fleet...")
+    (rented_v, returning_v, delivery_v,
      available_v, garage_v, service_v) = classify(
-        vehicles, active_plates, checkout_plates, checkin_plates)
+        vehicles, confirmed_plates, draft_today_plates,
+        checkout_plates, checkin_plates)
 
-    msg = build_message(delivery_v, returning_v, rented_v,
+    msg = build_message(rented_v, returning_v, delivery_v,
                         available_v, garage_v, service_v,
                         total=len(vehicles))
     post_slack(msg)
