@@ -1,4 +1,23 @@
 {
-  "month": "",
-  "days": {}
+  "month": "2026-05",
+  "days": {
+    "2026-05-02": {
+      "a_r_Reham-MKV": 11,
+      "a_t_Reham-MKV": 6,
+      "s_Google Ads": 16,
+      "g_Lead created": 20,
+      "g_Qualified lead": 8,
+      "a_r_Rafithath-MKV": 8,
+      "a_t_Rafithath-MKV": 7,
+      "a_r_Tapan-MKV": 8,
+      "a_t_Tapan-MKV": 5,
+      "s_Instagram DMs": 5,
+      "g_Unknown": 5,
+      "a_r_Unassigned": 7,
+      "a_t_Unassigned": 3,
+      "s_Facebook / Instagram": 7,
+      "s_OneClickDrive": 6,
+      "g_Converted lead": 1
+    }
+  }
 }
