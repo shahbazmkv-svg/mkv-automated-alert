@@ -44,6 +44,7 @@ def load_mtd_store():
     return {"month": cur_month, "days": {}}
 
 def save_mtd_store(store):
+    store["month"] = cur_month   # always stamp current month on every write — self-healing
     with open(MTD_STORE, "w", encoding="utf-8") as f:
         json.dump(store, f, indent=2, ensure_ascii=False)
 
