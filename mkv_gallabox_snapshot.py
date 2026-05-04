@@ -15,7 +15,13 @@ MTD_STORE            = os.path.join(os.path.dirname(os.path.abspath(__file__)), 
 GALLABOX_HEADERS = {"apiKey": API_KEY, "apiSecret": API_SECRET, "Content-Type": "application/json"}
 BASE_URL         = "https://server.gallabox.com/devapi/accounts/" + ACCOUNT_ID
 
-# ── Time setup (Dubai = UTC+4) ─────────────────────────────────────────────────
+GALLABOX_CHANNELS = [
+    {"name": "MKV Luxury Main",       "id": "675a90ddda3020e52915beff"},
+    {"name": "MKV Luxury Car Rental", "id": "66e930025e9ef7252ccc8a25"},
+    {"name": "Rent to Own",           "id": "699d8cca452cc56936e21e45"},
+]
+
+# ── Time setup ────────────────────────────────────────────────────────────────
 dubai_tz        = timezone(timedelta(hours=4))
 utc_tz          = timezone.utc
 now_dubai       = datetime.now(dubai_tz)
@@ -26,12 +32,12 @@ yesterday_key   = yesterday_dubai.strftime("%Y-%m-%d")
 cur_month       = now_dubai.strftime("%Y-%m")
 days_in_mtd     = yesterday_dubai.day
 
-# Yesterday full day in UTC  (Dubai midnight = UTC 20:00 previous day)
+# Full yesterday window in UTC
 yday_utc_start = yesterday_dubai.replace(hour=0,  minute=0,  second=0,  microsecond=0).astimezone(utc_tz)
 yday_utc_end   = yesterday_dubai.replace(hour=23, minute=59, second=59, microsecond=0).astimezone(utc_tz)
 
 # ══════════════════════════════════════════════════════════════════════════════
-# MTD STORE  (one JSON file committed to the repo)
+# MTD STORE
 # ══════════════════════════════════════════════════════════════════════════════
 
 def load_mtd_store():
@@ -52,13 +58,13 @@ def save_mtd_store(store):
         json.dump(store, f, indent=2, ensure_ascii=False)
 
 def update_and_get_mtd(store, snap):
-    """Save yesterday's snapshot (idempotent) and return full MTD sum."""
+    """Save yesterday snapshot once (idempotent), return full MTD sum."""
     if yesterday_key not in store["days"]:
         store["days"][yesterday_key] = snap
         save_mtd_store(store)
         print("  MTD store: saved " + yesterday_key)
     else:
-        print("  MTD store: " + yesterday_key + " already present — not overwriting")
+        print("  MTD store: " + yesterday_key + " already saved — skipping overwrite")
     mtd = {}
     for day_data in store["days"].values():
         for k, v in day_data.items():
@@ -66,8 +72,8 @@ def update_and_get_mtd(store, snap):
     return mtd
 
 # ══════════════════════════════════════════════════════════════════════════════
-# GALLABOX API
-# Fetch ALL contacts newest-first, stop once past yesterday, filter in Python.
+# GALLABOX — CONVERSATIONS (the only working list endpoint)
+# Fetch ALL pages per channel, filter by createdAt == yesterday in Python
 # ══════════════════════════════════════════════════════════════════════════════
 
 def parse_utc(ts):
@@ -78,173 +84,192 @@ def parse_utc(ts):
     except:
         return None
 
-def fetch_yesterday_contacts():
+def fetch_yesterday_conversations():
     """
-    Page through /contacts sorted newest→oldest.
-    Collect contacts whose createdAt falls within yesterday (Dubai time).
-    Stop paging once we hit contacts older than yesterday.
+    Fetch conversations across all channels with NO page limit.
+    API returns newest-first → stop paging a channel once createdAt < yesterday.
+    Deduplicates by conversation ID across channels.
+    Returns only conversations created on yesterday (Dubai date).
     """
-    results  = []
-    seen_ids = set()
-    page     = 1
+    yesterday_convs = []
+    seen_conv_ids   = set()
 
-    print("  UTC window: " + yday_utc_start.strftime("%Y-%m-%d %H:%M") +
-          " → " + yday_utc_end.strftime("%Y-%m-%d %H:%M"))
-
-    while True:
-        params = {"limit": 100, "page": page, "sortBy": "createdAt", "sortOrder": "desc"}
-        try:
-            r = requests.get(BASE_URL + "/contacts",
-                             headers=GALLABOX_HEADERS, params=params, timeout=20)
-            r.raise_for_status()
-            raw = r.json()
-        except Exception as e:
-            print("  [ERROR] /contacts page " + str(page) + ": " + str(e))
-            break
-
-        # Gallabox wraps list in different keys depending on version
-        if isinstance(raw, list):
-            items = raw
-        else:
-            items = (raw.get("data") or raw.get("contacts") or
-                     raw.get("list") or raw.get("items") or [])
-
-        if not items:
-            print("  Page " + str(page) + ": empty — done")
-            break
-
-        done = False
-        for c in items:
-            cid = c.get("_id") or c.get("id", "")
-            if cid in seen_ids:
-                continue
-            seen_ids.add(cid)
-            ts = parse_utc(c.get("createdAt", ""))
-            if ts is None:
-                continue
-            if ts < yday_utc_start:
-                # Sorted newest→oldest: everything from here is older
-                done = True
+    for ch in GALLABOX_CHANNELS:
+        print("  Channel: " + ch["name"])
+        page = 1
+        while True:
+            params = {
+                "limit":       100,
+                "page":        page,
+                "channelId":   ch["id"],
+                "channelType": "whatsapp",
+            }
+            try:
+                r = requests.get(BASE_URL + "/conversations",
+                                 headers=GALLABOX_HEADERS, params=params, timeout=15)
+                r.raise_for_status()
+                raw   = r.json()
+                convs = raw if isinstance(raw, list) else raw.get("data", [])
+            except Exception as e:
+                print("  [ERROR] " + ch["name"] + " page " + str(page) + ": " + str(e))
                 break
-            if ts <= yday_utc_end:
-                results.append(c)
 
-        print("  Page " + str(page) + ": scanned " + str(len(items)) +
-              " | yesterday so far: " + str(len(results)))
+            if not convs:
+                break
 
-        if done or len(items) < 100:
-            break
-        page += 1
+            done      = False
+            new_count = 0
+            for conv in convs:
+                cid = conv.get("_id") or conv.get("id", "")
+                if cid in seen_conv_ids:
+                    continue
+                seen_conv_ids.add(cid)
+                new_count += 1
 
-    return results
+                ts = parse_utc(conv.get("createdAt", ""))
+                if ts is None:
+                    continue
+
+                # Sorted newest→oldest: once below yesterday window, stop
+                if ts < yday_utc_start:
+                    done = True
+                    break
+
+                if ts <= yday_utc_end:
+                    yesterday_convs.append(conv)
+
+            print("    Page " + str(page) + ": " + str(new_count) +
+                  " scanned | yesterday total: " + str(len(yesterday_convs)))
+
+            if done or len(convs) < 100:
+                break
+            page += 1
+
+    return yesterday_convs
 
 def fetch_contact_detail(contact_id):
-    """Full contact record to get fieldValuesKV (source/stage/tags/owner)."""
+    """Fetch full contact to get lead_source, lead_stage, tags, owner."""
     try:
         r = requests.get(BASE_URL + "/contacts/" + contact_id,
                          headers=GALLABOX_HEADERS, timeout=10)
         r.raise_for_status()
         d     = r.json()
-        tags  = [t.get("name","").lower() for t in (d.get("tags") or [])]
+        tags  = [t.get("name", "").lower() for t in (d.get("tags") or [])]
         kv    = d.get("fieldValuesKV") or {}
         src   = (kv.get("lead_source") or "").strip()
         stg   = (kv.get("lead_stage")  or "").strip()
         own   = d.get("contactOwner") or d.get("user") or {}
-        agent = (own.get("name") if isinstance(own,dict) else str(own)).strip() or "Unassigned"
+        agent = (own.get("name") if isinstance(own, dict) else str(own)).strip() or "Unassigned"
         if not src: src = "Instagram DMs"
         if not stg: stg = "Unknown"
-        return {"agent": agent, "source": src, "stage": stg, "triggered": "triggered" in tags}
+        return {"agent": agent, "source": src, "stage": stg,
+                "triggered": "triggered" in tags}
     except:
-        return {"agent":"Unassigned","source":"Instagram DMs","stage":"Unknown","triggered":False}
+        return {"agent": "Unassigned", "source": "Instagram DMs",
+                "stage": "Unknown", "triggered": False}
 
-def enrich_contact(c):
-    """Try inline data first; call detail endpoint only if fields missing."""
-    kv    = c.get("fieldValuesKV") or {}
-    src   = (kv.get("lead_source") or c.get("leadSource") or "").strip()
-    stg   = (kv.get("lead_stage")  or c.get("leadStatus") or "").strip()
-    own   = c.get("contactOwner") or c.get("user") or {}
-    agent = (own.get("name") if isinstance(own,dict) else str(own)).strip() or ""
-    tags  = [t.get("name","").lower() for t in (c.get("tags") or [])]
-    trig  = "triggered" in tags
-
-    if not src or not agent:
-        cid    = c.get("_id") or c.get("id","")
-        detail = fetch_contact_detail(cid)
-        if not src:   src   = detail["source"]
-        if not stg:   stg   = detail["stage"]
-        if not agent: agent = detail["agent"]
-        trig = trig or detail["triggered"]
-
-    SOURCE_MAP = {
-        "google ads":"Google Ads","googleads":"Google Ads",
-        "facebook":"Facebook / Instagram","instagram":"Facebook / Instagram",
-        "facebook / instagram":"Facebook / Instagram",
-        "instagram dms":"Instagram DMs","instagramdms":"Instagram DMs",
-        "oneclickdrive":"OneClickDrive","one click drive":"OneClickDrive",
-        "website":"Website",
+def normalize_source(s):
+    MAP = {
+        "google ads": "Google Ads", "googleads": "Google Ads",
+        "facebook": "Facebook / Instagram", "instagram": "Facebook / Instagram",
+        "facebook / instagram": "Facebook / Instagram",
+        "instagram dms": "Instagram DMs", "instagramdms": "Instagram DMs",
+        "oneclickdrive": "OneClickDrive", "one click drive": "OneClickDrive",
+        "website": "Website",
     }
-    STAGE_MAP = {
-        "lead created":"Lead created","qualified lead":"Qualified lead",
-        "converted lead":"Converted lead","unknown":"Unknown",
+    return MAP.get(s.lower(), s) if s else "Instagram DMs"
+
+def normalize_stage(s):
+    MAP = {
+        "lead created": "Lead created", "qualified lead": "Qualified lead",
+        "converted lead": "Converted lead", "unknown": "Unknown",
     }
-    src   = SOURCE_MAP.get(src.lower(), src)   if src   else "Instagram DMs"
-    stg   = STAGE_MAP.get(stg.lower(),  stg)   if stg   else "Unknown"
-    agent = agent or "Unassigned"
-    return agent, src, stg, trig
+    return MAP.get(s.lower(), s) if s else "Unknown"
 
 # ══════════════════════════════════════════════════════════════════════════════
 # PROCESS — FTD + MTD
 # ══════════════════════════════════════════════════════════════════════════════
 
 def process_gallabox(store):
-    raw_ftd = fetch_yesterday_contacts()
-    print("  FTD contacts found: " + str(len(raw_ftd)))
+    # ── FTD: conversations created yesterday ──────────────────────────────────
+    raw_convs = fetch_yesterday_conversations()
+    print("  FTD conversations (yesterday): " + str(len(raw_convs)))
 
-    ftd_agents={}; ftd_sources={}; ftd_stages={}; ytd_snap={}
-    existing_ytd = store.get("days",{}).get(yesterday_key,{})
+    ftd_agents = {}; ftd_sources = {}; ftd_stages = {}; ytd_snap = {}
+    existing_ytd = store.get("days", {}).get(yesterday_key, {})
 
-    if len(raw_ftd) == 0 and existing_ytd:
-        print("  No API contacts — using stored FTD snapshot")
-        for k,v in existing_ytd.items():
+    if len(raw_convs) == 0 and existing_ytd:
+        # Nothing from API — use what we stored yesterday
+        print("  No API data — restoring FTD from store")
+        for k, v in existing_ytd.items():
             if   k.startswith("a_r_"): n=k[4:]; ftd_agents.setdefault(n,{"recd":0,"trig":0}); ftd_agents[n]["recd"]+=v
             elif k.startswith("a_t_"): n=k[4:]; ftd_agents.setdefault(n,{"recd":0,"trig":0}); ftd_agents[n]["trig"]+=v
             elif k.startswith("s_"):   ftd_sources[k[2:]]=ftd_sources.get(k[2:],0)+v
             elif k.startswith("g_"):   ftd_stages[k[2:]] =ftd_stages.get(k[2:], 0)+v
         ytd_snap = dict(existing_ytd)
     else:
-        # Enrich in parallel
-        cache = {}
+        # Extract unique contact IDs from conversations
+        contact_ids = list({
+            conv.get("contactId") or (conv.get("contact") or {}).get("id", "") or
+            (conv.get("contact") or {}).get("_id", "")
+            for conv in raw_convs
+        } - {""})
+        print("  Unique contacts to enrich: " + str(len(contact_ids)))
+
+        # Fetch contact details in parallel
+        contact_cache = {}
         with ThreadPoolExecutor(max_workers=10) as ex:
-            futures = {ex.submit(enrich_contact, c): c for c in raw_ftd}
+            futures = {ex.submit(fetch_contact_detail, cid): cid for cid in contact_ids}
             for fut in as_completed(futures):
-                c   = futures[fut]
-                cid = c.get("_id") or c.get("id","")
-                try:    cache[cid] = fut.result()
-                except: cache[cid] = ("Unassigned","Instagram DMs","Unknown",False)
+                cid = futures[fut]
+                try:    contact_cache[cid] = fut.result()
+                except: contact_cache[cid] = {"agent":"Unassigned","source":"Instagram DMs","stage":"Unknown","triggered":False}
 
-        for c in raw_ftd:
-            cid = c.get("_id") or c.get("id","")
-            agent,src,stg,trig = cache.get(cid,("Unassigned","Instagram DMs","Unknown",False))
-            ti = 1 if trig else 0
-            ftd_agents.setdefault(agent,{"recd":0,"trig":0})
-            ftd_agents[agent]["recd"]+=1; ftd_agents[agent]["trig"]+=ti
-            ftd_sources[src]=ftd_sources.get(src,0)+1
-            ftd_stages[stg] =ftd_stages.get(stg, 0)+1
-            ytd_snap["a_r_"+agent]=ytd_snap.get("a_r_"+agent,0)+1
-            ytd_snap["a_t_"+agent]=ytd_snap.get("a_t_"+agent,0)+ti
-            ytd_snap["s_"+src]    =ytd_snap.get("s_"+src,    0)+1
-            ytd_snap["g_"+stg]    =ytd_snap.get("g_"+stg,    0)+1
+        # Also read agent from conversation itself (more reliable than contact owner)
+        def get_agent_from_conv(conv):
+            u = conv.get("user") or conv.get("assignedUser") or {}
+            if isinstance(u, dict):
+                return (u.get("name") or "").strip() or "Unassigned"
+            return str(u).strip() or "Unassigned"
 
-    mtd_flat=update_and_get_mtd(store, ytd_snap)
+        seen_contact_ids = set()  # one entry per unique contact (not per conversation)
+        for conv in raw_convs:
+            cid = (conv.get("contactId") or
+                   (conv.get("contact") or {}).get("id", "") or
+                   (conv.get("contact") or {}).get("_id", ""))
+
+            # Count each contact once (same contact may have >1 conversation)
+            if cid in seen_contact_ids:
+                continue
+            seen_contact_ids.add(cid)
+
+            detail = contact_cache.get(cid, {"agent":"Unassigned","source":"Instagram DMs","stage":"Unknown","triggered":False})
+            agent  = get_agent_from_conv(conv) if get_agent_from_conv(conv) != "Unassigned" else detail["agent"]
+            src    = normalize_source(detail["source"])
+            stg    = normalize_stage(detail["stage"])
+            ti     = 1 if detail["triggered"] else 0
+
+            ftd_agents.setdefault(agent, {"recd":0,"trig":0})
+            ftd_agents[agent]["recd"] += 1
+            ftd_agents[agent]["trig"] += ti
+            ftd_sources[src] = ftd_sources.get(src, 0) + 1
+            ftd_stages[stg]  = ftd_stages.get(stg,  0) + 1
+            ytd_snap["a_r_"+agent] = ytd_snap.get("a_r_"+agent, 0) + 1
+            ytd_snap["a_t_"+agent] = ytd_snap.get("a_t_"+agent, 0) + ti
+            ytd_snap["s_"+src]     = ytd_snap.get("s_"+src,     0) + 1
+            ytd_snap["g_"+stg]     = ytd_snap.get("g_"+stg,     0) + 1
+
+    # ── MTD: store + sum ──────────────────────────────────────────────────────
+    mtd_flat = update_and_get_mtd(store, ytd_snap)
     mtd_agents={}; mtd_sources={}; mtd_stages={}
-    for k,v in mtd_flat.items():
+    for k, v in mtd_flat.items():
         if   k.startswith("a_r_"): n=k[4:]; mtd_agents.setdefault(n,{"recd":0,"trig":0}); mtd_agents[n]["recd"]+=v
         elif k.startswith("a_t_"): n=k[4:]; mtd_agents.setdefault(n,{"recd":0,"trig":0}); mtd_agents[n]["trig"]+=v
         elif k.startswith("s_"):   mtd_sources[k[2:]]=mtd_sources.get(k[2:],0)+v
         elif k.startswith("g_"):   mtd_stages[k[2:]] =mtd_stages.get(k[2:], 0)+v
 
-    return {"ftd_agents":ftd_agents,"ftd_sources":ftd_sources,"ftd_stages":ftd_stages,
-            "mtd_agents":mtd_agents,"mtd_sources":mtd_sources,"mtd_stages":mtd_stages}
+    return {"ftd_agents":ftd_agents, "ftd_sources":ftd_sources, "ftd_stages":ftd_stages,
+            "mtd_agents":mtd_agents, "mtd_sources":mtd_sources, "mtd_stages":mtd_stages}
 
 # ══════════════════════════════════════════════════════════════════════════════
 # SLACK MESSAGE
@@ -262,8 +287,8 @@ def build_msg_gallabox(g):
         ag += "{:<20} {:>6} {:>6} {:>7} {:>7}\n".format(n[:20],f["recd"],f["trig"],m["recd"],m["trig"])
     ag += "-"*50+"\n"
     ag += "{:<20} {:>6} {:>6} {:>7} {:>7}".format("TOTAL",
-        sum(v["recd"] for v in fa.values()),sum(v["trig"] for v in fa.values()),
-        sum(v["recd"] for v in ma.values()),sum(v["trig"] for v in ma.values()))
+        sum(v["recd"] for v in fa.values()), sum(v["trig"] for v in fa.values()),
+        sum(v["recd"] for v in ma.values()), sum(v["trig"] for v in ma.values()))
 
     SOURCE_ORDER=["Google Ads","Facebook / Instagram","Instagram DMs","OneClickDrive","Website"]
     all_srcs=SOURCE_ORDER+[s for s in sorted(set(list(fs.keys())+list(ms.keys()))) if s not in SOURCE_ORDER]
@@ -319,7 +344,7 @@ def main():
     store = load_mtd_store()
     print("  Month: " + store["month"] + " | Days stored: " + str(len(store.get("days",{}))))
 
-    print("\n[2/3] Fetching FTD contacts from Gallabox...")
+    print("\n[2/3] Fetching yesterday conversations from Gallabox...")
     gallabox  = process_gallabox(store)
     ftd_total = sum(v["recd"] for v in gallabox["ftd_agents"].values())
     mtd_total = sum(v["recd"] for v in gallabox["mtd_agents"].values())
