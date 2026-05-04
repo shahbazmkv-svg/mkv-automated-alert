@@ -1693,6 +1693,17 @@
       "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-05-02"
+    },
+    "009934-NIKI-McLaren": {
+      "thread_ts": "1777881920.780449",
+      "end_date": "2026-05-06",
+      "plate": "47041",
+      "customer": "Nikita Fedotov",
+      "vehicle": "Mclaren Spider Artura",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-05-05"
     }
   }
 }
