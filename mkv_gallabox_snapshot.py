@@ -32,7 +32,7 @@ yesterday_key   = yesterday_dubai.strftime("%Y-%m-%d")
 cur_month       = now_dubai.strftime("%Y-%m")
 days_in_mtd     = yesterday_dubai.day
 
-# Full yesterday window in UTC
+# Yesterday full day window in UTC (Dubai is UTC+4)
 yday_utc_start = yesterday_dubai.replace(hour=0,  minute=0,  second=0,  microsecond=0).astimezone(utc_tz)
 yday_utc_end   = yesterday_dubai.replace(hour=23, minute=59, second=59, microsecond=0).astimezone(utc_tz)
 
@@ -54,17 +54,21 @@ def load_mtd_store():
     return {"month": cur_month, "days": {}}
 
 def save_mtd_store(store):
+    store["month"] = cur_month   # always stamp current month
     with open(MTD_STORE, "w", encoding="utf-8") as f:
         json.dump(store, f, indent=2, ensure_ascii=False)
 
 def update_and_get_mtd(store, snap):
-    """Save yesterday snapshot once (idempotent), return full MTD sum."""
+    """
+    Save yesterday snapshot (idempotent — won't overwrite if already saved).
+    Return sum of all days in the store as flat MTD dict.
+    """
     if yesterday_key not in store["days"]:
         store["days"][yesterday_key] = snap
         save_mtd_store(store)
         print("  MTD store: saved " + yesterday_key)
     else:
-        print("  MTD store: " + yesterday_key + " already saved — skipping overwrite")
+        print("  MTD store: " + yesterday_key + " already stored — not overwriting")
     mtd = {}
     for day_data in store["days"].values():
         for k, v in day_data.items():
@@ -72,8 +76,10 @@ def update_and_get_mtd(store, snap):
     return mtd
 
 # ══════════════════════════════════════════════════════════════════════════════
-# GALLABOX — CONVERSATIONS (the only working list endpoint)
-# Fetch ALL pages per channel, filter by createdAt == yesterday in Python
+# GALLABOX API — CONVERSATIONS
+#
+# IMPORTANT: conversations are sorted by updatedAt (last message), NOT createdAt.
+# So we CANNOT use early-stop. We must fetch ALL pages and filter by createdAt.
 # ══════════════════════════════════════════════════════════════════════════════
 
 def parse_utc(ts):
@@ -84,18 +90,16 @@ def parse_utc(ts):
     except:
         return None
 
-def fetch_yesterday_conversations():
+def fetch_all_conversations():
     """
-    Fetch conversations across all channels with NO page limit.
-    API returns newest-first → stop paging a channel once createdAt < yesterday.
-    Deduplicates by conversation ID across channels.
-    Returns only conversations created on yesterday (Dubai date).
+    Fetch ALL conversations across all channels (all pages, no limit).
+    Returns every conversation regardless of date — caller filters by createdAt.
+    Conversations are sorted by updatedAt desc, so we cannot break early.
     """
-    yesterday_convs = []
-    seen_conv_ids   = set()
+    all_convs = []
+    seen_ids  = set()
 
     for ch in GALLABOX_CHANNELS:
-        print("  Channel: " + ch["name"])
         page = 1
         while True:
             params = {
@@ -117,38 +121,28 @@ def fetch_yesterday_conversations():
             if not convs:
                 break
 
-            done      = False
-            new_count = 0
+            new_found = False
             for conv in convs:
                 cid = conv.get("_id") or conv.get("id", "")
-                if cid in seen_conv_ids:
+                if cid in seen_ids:
                     continue
-                seen_conv_ids.add(cid)
-                new_count += 1
-
+                seen_ids.add(cid)
+                new_found = True
                 ts = parse_utc(conv.get("createdAt", ""))
-                if ts is None:
-                    continue
+                if ts:
+                    all_convs.append({"conv": conv, "ts": ts})
 
-                # Sorted newest→oldest: once below yesterday window, stop
-                if ts < yday_utc_start:
-                    done = True
-                    break
+            print("  " + ch["name"] + " page " + str(page) +
+                  ": " + str(len(convs)) + " convs | total so far: " + str(len(all_convs)))
 
-                if ts <= yday_utc_end:
-                    yesterday_convs.append(conv)
-
-            print("    Page " + str(page) + ": " + str(new_count) +
-                  " scanned | yesterday total: " + str(len(yesterday_convs)))
-
-            if done or len(convs) < 100:
+            if not new_found or len(convs) < 100:
                 break
             page += 1
 
-    return yesterday_convs
+    return all_convs
 
 def fetch_contact_detail(contact_id):
-    """Fetch full contact to get lead_source, lead_stage, tags, owner."""
+    """Fetch individual contact for lead_source, lead_stage, tags, owner."""
     try:
         r = requests.get(BASE_URL + "/contacts/" + contact_id,
                          headers=GALLABOX_HEADERS, timeout=10)
@@ -186,21 +180,34 @@ def normalize_stage(s):
     }
     return MAP.get(s.lower(), s) if s else "Unknown"
 
+def get_agent_from_conv(conv):
+    u = conv.get("user") or conv.get("assignedUser") or {}
+    if isinstance(u, dict):
+        return (u.get("name") or "").strip() or "Unassigned"
+    return str(u).strip() or "Unassigned"
+
+def get_contact_id(conv):
+    return (conv.get("contactId") or
+            (conv.get("contact") or {}).get("_id", "") or
+            (conv.get("contact") or {}).get("id", ""))
+
 # ══════════════════════════════════════════════════════════════════════════════
 # PROCESS — FTD + MTD
 # ══════════════════════════════════════════════════════════════════════════════
 
 def process_gallabox(store):
-    # ── FTD: conversations created yesterday ──────────────────────────────────
-    raw_convs = fetch_yesterday_conversations()
-    print("  FTD conversations (yesterday): " + str(len(raw_convs)))
+    # Step 1 — fetch ALL conversations, filter yesterday by createdAt
+    all_convs  = fetch_all_conversations()
+    ytd_convs  = [c for c in all_convs
+                  if yday_utc_start <= c["ts"] <= yday_utc_end]
+    print("\n  Total convs fetched : " + str(len(all_convs)))
+    print("  Yesterday convs     : " + str(len(ytd_convs)))
 
     ftd_agents = {}; ftd_sources = {}; ftd_stages = {}; ytd_snap = {}
     existing_ytd = store.get("days", {}).get(yesterday_key, {})
 
-    if len(raw_convs) == 0 and existing_ytd:
-        # Nothing from API — use what we stored yesterday
-        print("  No API data — restoring FTD from store")
+    if len(ytd_convs) == 0 and existing_ytd:
+        print("  No API convs for yesterday — restoring FTD from store")
         for k, v in existing_ytd.items():
             if   k.startswith("a_r_"): n=k[4:]; ftd_agents.setdefault(n,{"recd":0,"trig":0}); ftd_agents[n]["recd"]+=v
             elif k.startswith("a_t_"): n=k[4:]; ftd_agents.setdefault(n,{"recd":0,"trig":0}); ftd_agents[n]["trig"]+=v
@@ -208,15 +215,10 @@ def process_gallabox(store):
             elif k.startswith("g_"):   ftd_stages[k[2:]] =ftd_stages.get(k[2:], 0)+v
         ytd_snap = dict(existing_ytd)
     else:
-        # Extract unique contact IDs from conversations
-        contact_ids = list({
-            conv.get("contactId") or (conv.get("contact") or {}).get("id", "") or
-            (conv.get("contact") or {}).get("_id", "")
-            for conv in raw_convs
-        } - {""})
+        # Step 2 — enrich contacts in parallel
+        contact_ids = list({get_contact_id(c["conv"]) for c in ytd_convs} - {""})
         print("  Unique contacts to enrich: " + str(len(contact_ids)))
 
-        # Fetch contact details in parallel
         contact_cache = {}
         with ThreadPoolExecutor(max_workers=10) as ex:
             futures = {ex.submit(fetch_contact_detail, cid): cid for cid in contact_ids}
@@ -225,29 +227,22 @@ def process_gallabox(store):
                 try:    contact_cache[cid] = fut.result()
                 except: contact_cache[cid] = {"agent":"Unassigned","source":"Instagram DMs","stage":"Unknown","triggered":False}
 
-        # Also read agent from conversation itself (more reliable than contact owner)
-        def get_agent_from_conv(conv):
-            u = conv.get("user") or conv.get("assignedUser") or {}
-            if isinstance(u, dict):
-                return (u.get("name") or "").strip() or "Unassigned"
-            return str(u).strip() or "Unassigned"
-
-        seen_contact_ids = set()  # one entry per unique contact (not per conversation)
-        for conv in raw_convs:
-            cid = (conv.get("contactId") or
-                   (conv.get("contact") or {}).get("id", "") or
-                   (conv.get("contact") or {}).get("_id", ""))
-
-            # Count each contact once (same contact may have >1 conversation)
-            if cid in seen_contact_ids:
+        # Step 3 — count one entry per unique contact (not per conversation)
+        seen_contacts = set()
+        for item in ytd_convs:
+            conv = item["conv"]
+            cid  = get_contact_id(conv)
+            if cid in seen_contacts:
                 continue
-            seen_contact_ids.add(cid)
+            seen_contacts.add(cid)
 
             detail = contact_cache.get(cid, {"agent":"Unassigned","source":"Instagram DMs","stage":"Unknown","triggered":False})
-            agent  = get_agent_from_conv(conv) if get_agent_from_conv(conv) != "Unassigned" else detail["agent"]
-            src    = normalize_source(detail["source"])
-            stg    = normalize_stage(detail["stage"])
-            ti     = 1 if detail["triggered"] else 0
+            agent  = get_agent_from_conv(conv)
+            if agent == "Unassigned":
+                agent = detail["agent"]
+            src = normalize_source(detail["source"])
+            stg = normalize_stage(detail["stage"])
+            ti  = 1 if detail["triggered"] else 0
 
             ftd_agents.setdefault(agent, {"recd":0,"trig":0})
             ftd_agents[agent]["recd"] += 1
@@ -259,7 +254,7 @@ def process_gallabox(store):
             ytd_snap["s_"+src]     = ytd_snap.get("s_"+src,     0) + 1
             ytd_snap["g_"+stg]     = ytd_snap.get("g_"+stg,     0) + 1
 
-    # ── MTD: store + sum ──────────────────────────────────────────────────────
+    # Step 4 — MTD store
     mtd_flat = update_and_get_mtd(store, ytd_snap)
     mtd_agents={}; mtd_sources={}; mtd_stages={}
     for k, v in mtd_flat.items():
@@ -344,11 +339,11 @@ def main():
     store = load_mtd_store()
     print("  Month: " + store["month"] + " | Days stored: " + str(len(store.get("days",{}))))
 
-    print("\n[2/3] Fetching yesterday conversations from Gallabox...")
+    print("\n[2/3] Fetching conversations from Gallabox...")
     gallabox  = process_gallabox(store)
     ftd_total = sum(v["recd"] for v in gallabox["ftd_agents"].values())
     mtd_total = sum(v["recd"] for v in gallabox["mtd_agents"].values())
-    print("\n  FTD leads: " + str(ftd_total) + " | MTD leads: " + str(mtd_total))
+    print("\n  ✅ FTD leads: " + str(ftd_total) + " | MTD leads: " + str(mtd_total))
 
     print("\n[3/3] Sending to Slack...")
     msg = build_msg_gallabox(gallabox)
