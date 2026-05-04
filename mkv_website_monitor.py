@@ -212,7 +212,44 @@ def check_car_page(page):
     return {"name": page["name"], "status": "✅ Page loads" if not issues else "⚠️", "issues": issues}
 
 # ══════════════════════════════════════════════════════════════════════════════
-# 4. TRUSTPILOT — rating + review count + latest review
+# 4. SEO CHECK — meta description + title on ALL pages
+# ══════════════════════════════════════════════════════════════════════════════
+
+def check_seo(page):
+    r = fetch(page["url"])
+    if not r or r.status_code != 200:
+        return {"name": page["name"], "url": page["url"], "missing_meta": False, "missing_title": False, "error": True}
+    soup       = BeautifulSoup(r.text, "lxml")
+    meta_desc  = soup.find("meta", {"name": "description"})
+    title_tag  = soup.find("title")
+    has_meta   = bool(meta_desc and meta_desc.get("content", "").strip())
+    has_title  = bool(title_tag and title_tag.text.strip())
+    meta_len   = len(meta_desc.get("content", "")) if meta_desc else 0
+    meta_warn  = has_meta and (meta_len < 50 or meta_len > 160)
+    return {
+        "name":         page["name"],
+        "url":          page["url"],
+        "has_meta":     has_meta,
+        "has_title":    has_title,
+        "meta_len":     meta_len,
+        "meta_warn":    meta_warn,
+        "missing_meta": not has_meta,
+        "missing_title":not has_title,
+        "error":        False,
+    }
+
+def run_seo_checks():
+    all_pages = PAGES_TO_CHECK + CAR_PAGES
+    results   = []
+    with ThreadPoolExecutor(max_workers=8) as ex:
+        futures = {ex.submit(check_seo, p): p for p in all_pages}
+        for fut in as_completed(futures):
+            results.append(fut.result())
+    order = {p["name"]: i for i, p in enumerate(all_pages)}
+    return sorted(results, key=lambda x: order.get(x["name"], 99))
+
+# ══════════════════════════════════════════════════════════════════════════════
+# 5. TRUSTPILOT — rating + review count + latest review
 # ══════════════════════════════════════════════════════════════════════════════
 
 def check_trustpilot():
@@ -391,6 +428,7 @@ def build_report():
         f_pages   = ex.submit(run_page_checks)
         f_links   = ex.submit(check_broken_links)
         f_cars    = ex.submit(lambda: [check_car_page(c) for c in CAR_PAGES])
+        f_seo     = ex.submit(run_seo_checks)
         f_faq     = ex.submit(check_faq_duplicates)
         f_tp      = ex.submit(check_trustpilot)
         f_tiktok  = ex.submit(check_tiktok)
@@ -399,6 +437,7 @@ def build_report():
     page_results = f_pages.result()
     broken_links = f_links.result()
     car_results  = f_cars.result()
+    seo_results  = f_seo.result()
     faq_dupes    = f_faq.result()
     trustpilot   = f_tp.result()
     tiktok       = f_tiktok.result()
@@ -482,7 +521,35 @@ def build_report():
     ))
     blocks.append(mk_divider())
 
-    # ── SECTION 3: REPUTATION ─────────────────────────────────────────────────
+    blocks.append(mk_section("*🔍 SEO HEALTH*\n" + "\n".join(seo_lines)))
+    missing_meta  = [r for r in seo_results if r["missing_meta"] and not r["error"]]
+    missing_title = [r for r in seo_results if r["missing_title"] and not r["error"]]
+    warn_meta     = [r for r in seo_results if r.get("meta_warn") and not r["missing_meta"]]
+    seo_ok        = not missing_meta and not missing_title
+
+    if seo_ok:
+        seo_lines = ["✅ All pages have meta descriptions and titles"]
+    else:
+        seo_lines = []
+        if missing_meta:
+            seo_lines.append(f"*Missing meta description ({len(missing_meta)} pages):*")
+            for r in missing_meta:
+                short = r["url"].replace("https://www.mkvluxury.com", "") or "/"
+                seo_lines.append(f"  🔴 <{r['url']}|{r['name']}> — add meta description")
+        if missing_title:
+            seo_lines.append(f"*Missing page title ({len(missing_title)} pages):*")
+            for r in missing_title:
+                seo_lines.append(f"  🔴 <{r['url']}|{r['name']}>")
+        if warn_meta:
+            seo_lines.append(f"*Meta description length warning ({len(warn_meta)} pages):*")
+            for r in warn_meta:
+                tip = "too short (<50 chars)" if r["meta_len"] < 50 else "too long (>160 chars)"
+                seo_lines.append(f"  🟡 <{r['url']}|{r['name']}> — {r['meta_len']} chars ({tip})")
+
+    blocks.append(mk_section("*🔍 SEO HEALTH*\n" + "\n".join(seo_lines)))
+    blocks.append(mk_divider())
+
+    # ── SECTION 4: REPUTATION ─────────────────────────────────────────────────
     tp_text = trustpilot.get("note", "Unavailable")
     if trustpilot.get("latest"):
         tp_text += f'\n  💬 Latest review: _"{trustpilot["latest"]}"_'
@@ -520,7 +587,12 @@ def build_report():
         actions.append(f"⚡ Optimize {len(slow_pages)} slow page(s) — avg load >{3000}ms")
     for r in car_results:
         for issue in r["issues"]:
-            actions.append(f"🚗 {r['name']}: {issue}")
+            if "meta description" not in issue:   # SEO now has its own section
+                actions.append(f"🚗 {r['name']}: {issue}")
+    if missing_meta:
+        actions.append(f"🔍 Add meta descriptions to {len(missing_meta)} page(s) — impacts Google ranking")
+    if warn_meta:
+        actions.append(f"🔍 Fix meta description length on {len(warn_meta)} page(s) (target: 50–160 chars)")
     if faq_dupes:
         actions.append(f"❓ Remove {len(faq_dupes)} duplicate FAQ question(s)")
     if not tiktok.get("last_post") or "day" in str(tiktok.get("last_post","")) and int(re.search(r'\d+', str(tiktok.get("last_post","0"))).group()) > 2:
