@@ -1,6 +1,23 @@
 {
   "month": "2026-05",
   "days": {
-    "2026-05-03": {}
+    "2026-05-03": {
+      "a_r_Jidhu Joseph": 1,
+      "a_t_Jidhu Joseph": 0,
+      "a_r_Rafithath-MKV": 9,
+      "a_t_Rafithath-MKV": 9,
+      "a_r_Reham-MKV": 3,
+      "a_t_Reham-MKV": 3,
+      "a_r_Tapan-MKV": 7,
+      "a_t_Tapan-MKV": 5,
+      "s_Google Ads": 10,
+      "s_Facebook / Instagram": 8,
+      "s_Instagram DMs": 1,
+      "s_OneClickDrive": 1,
+      "g_Lead created": 15,
+      "g_Qualified lead": 3,
+      "g_Unknown": 1,
+      "g_B2B / Broker": 1
+    }
   }
 }
