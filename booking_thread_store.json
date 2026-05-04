@@ -1737,6 +1737,17 @@
       "pickup_alerted": false,
       "closed": false,
       "start_date": "2026-05-04"
+    },
+    "009938-WALY-McLaren": {
+      "thread_ts": "1777891228.388829",
+      "end_date": "2026-05-18",
+      "plate": "47041",
+      "customer": "Walyd Belkass",
+      "vehicle": "Mclaren Spider Artura",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-05-14"
     }
   }
 }
