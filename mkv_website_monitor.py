@@ -1,25 +1,34 @@
 """
-MKV Luxury – Website Daily Snapshot Monitor
-Checks the live site and posts a Slack report.
-Also monitors social media pages for recent activity.
+MKV Luxury — Digital Marketing Dashboard
+Phase 1: Website Health + Broken Links + Trustpilot + TikTok + Social Monitor
+Runs daily via GitHub Actions → posts to Slack
 """
 
 import os
 import re
 import json
+import time
 import requests
 from datetime import datetime, timezone, timedelta
 from bs4 import BeautifulSoup
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
-# ── Config ───────────────────────────────────────────────────────────────────
+# ── Config ────────────────────────────────────────────────────────────────────
 SITE_BASE     = "https://www.mkvluxury.com"
 SLACK_TOKEN   = os.environ["SLACK_BOT_TOKEN"]
-SLACK_CHANNEL = "C0B0TGBDCDU"   # #mkvtest — switch to live channel when ready
+SLACK_CHANNEL = "C0B0TGBDCDU"
 DUBAI_TZ      = timezone(timedelta(hours=4))
-HEADERS       = {"User-Agent": "Mozilla/5.0 (compatible; MKV-Monitor/1.0)"}
-TIMEOUT       = 15
+TIMEOUT       = 20
 
-# Pages to probe
+BROWSER_HEADERS = {
+    "User-Agent":      "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36",
+    "Accept":          "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+    "Accept-Language": "en-US,en;q=0.5",
+    "Accept-Encoding": "gzip, deflate, br",
+    "Connection":      "keep-alive",
+}
+
+# ── Pages to check ────────────────────────────────────────────────────────────
 PAGES_TO_CHECK = [
     {"name": "Homepage",       "url": f"{SITE_BASE}/"},
     {"name": "Fleet",          "url": f"{SITE_BASE}/cars"},
@@ -31,54 +40,134 @@ PAGES_TO_CHECK = [
     {"name": "Blog",           "url": f"{SITE_BASE}/blog"},
 ]
 
-# Car listing spot-checks
 CAR_PAGES = [
     {"name": "Ferrari Purosangue 2025",  "url": f"{SITE_BASE}/car/ferrari-purosangue-2025"},
-    {"name": "Lamborghini Urus S",       "url": f"{SITE_BASE}/car/lamborghini-urus-s-2025"},
+    {"name": "Lamborghini Urus S 2025",  "url": f"{SITE_BASE}/car/lamborghini-urus-s-2025"},
     {"name": "McLaren Artura Spider",    "url": f"{SITE_BASE}/car/mclaren-artura-spider-2025"},
     {"name": "Mercedes AMG G63 Retro",   "url": f"{SITE_BASE}/car/mercedes-amg-g63-retro"},
     {"name": "Bentley Bentayga Mansory", "url": f"{SITE_BASE}/car/bentley-bentayga-mansory"},
 ]
 
-# Social media profiles
+# ── Social profiles ───────────────────────────────────────────────────────────
 SOCIAL_PROFILES = [
-    {"name": "Instagram", "emoji": "📸", "url": "https://www.instagram.com/mkvluxurydubai/",          "check_fn": "check_instagram"},
-    {"name": "Facebook",  "emoji": "📘", "url": "https://www.facebook.com/mkvluxury/",                "check_fn": "check_facebook"},
-    {"name": "TikTok",    "emoji": "🎵", "url": "https://www.tiktok.com/@mkv.luxury",                 "check_fn": "check_tiktok"},
-    {"name": "YouTube",   "emoji": "▶️", "url": "https://www.youtube.com/@MKVLuxuryCarRentalDubai",  "check_fn": "check_youtube"},
+    {"name": "Instagram", "emoji": "📸", "url": "https://www.instagram.com/mkvluxurydubai/",         "handle": "mkvluxurydubai"},
+    {"name": "Facebook",  "emoji": "📘", "url": "https://www.facebook.com/mkvluxury/",               "handle": "mkvluxury"},
+    {"name": "TikTok",    "emoji": "🎵", "url": "https://www.tiktok.com/@mkv.luxury",                "handle": "mkv.luxury"},
+    {"name": "YouTube",   "emoji": "▶️", "url": "https://www.youtube.com/@MKVLuxuryCarRentalDubai", "handle": "MKVLuxuryCarRentalDubai"},
+    {"name": "X",         "emoji": "𝕏",  "url": "https://x.com/mkvluxury",                          "handle": "mkvluxury"},
 ]
 
-# ── Helpers ──────────────────────────────────────────────────────────────────
+# ══════════════════════════════════════════════════════════════════════════════
+# HELPERS
+# ══════════════════════════════════════════════════════════════════════════════
 
-def fetch(url, extra_headers=None):
-    h = {**HEADERS, **(extra_headers or {})}
+def fetch(url, extra_headers=None, timeout=None):
+    h = {**BROWSER_HEADERS, **(extra_headers or {})}
     try:
-        return requests.get(url, headers=h, timeout=TIMEOUT, allow_redirects=True)
-    except Exception:
+        r = requests.get(url, headers=h, timeout=timeout or TIMEOUT,
+                         allow_redirects=True)
+        return r
+    except Exception as e:
+        print(f"  [FETCH ERROR] {url}: {e}")
         return None
 
-def status_emoji(code):
-    if code is None:       return "🔴"
-    if code == 200:        return "✅"
-    if code in (301, 302): return "↪️"
-    if code >= 400:        return "🔴"
+def speed_label(ms):
+    if ms is None:   return "⚫ timeout"
+    if ms < 1500:    return f"✅ {ms}ms"
+    if ms < 3000:    return f"🟡 {ms}ms (slow)"
+    return               f"🔴 {ms}ms (critical)"
+
+def code_emoji(code):
+    if code is None: return "🔴"
+    if code == 200:  return "✅"
+    if code in (301,302): return "↪️"
+    if code >= 400:  return "🔴"
     return "🟡"
 
-# ── Page Load Checks ─────────────────────────────────────────────────────────
+# ══════════════════════════════════════════════════════════════════════════════
+# 1. WEBSITE HEALTH — page availability + speed
+# ══════════════════════════════════════════════════════════════════════════════
 
-def check_page_load(page):
-    r       = fetch(page["url"])
-    code    = r.status_code if r else None
-    load_ms = int(r.elapsed.total_seconds() * 1000) if r else None
-    speed   = (f"`{load_ms}ms`" + (" ⚠️ slow" if load_ms > 3000 else "")) if load_ms else ""
-    return {"name": page["name"], "code": code, "emoji": status_emoji(code), "speed": speed}
+def check_page(page):
+    r    = fetch(page["url"])
+    code = r.status_code if r else None
+    ms   = int(r.elapsed.total_seconds() * 1000) if r else None
+    return {
+        "name":  page["name"],
+        "url":   page["url"],
+        "code":  code,
+        "ms":    ms,
+        "emoji": code_emoji(code),
+        "speed": speed_label(ms),
+    }
 
-# ── Car Page Checks ───────────────────────────────────────────────────────────
+def run_page_checks():
+    results = []
+    with ThreadPoolExecutor(max_workers=6) as ex:
+        futures = {ex.submit(check_page, p): p for p in PAGES_TO_CHECK}
+        for fut in as_completed(futures):
+            results.append(fut.result())
+    # Preserve original order
+    order = {p["name"]: i for i, p in enumerate(PAGES_TO_CHECK)}
+    return sorted(results, key=lambda x: order.get(x["name"], 99))
+
+# ══════════════════════════════════════════════════════════════════════════════
+# 2. BROKEN LINKS — crawl homepage + fleet page for 4xx links
+# ══════════════════════════════════════════════════════════════════════════════
+
+def check_broken_links():
+    """
+    Fetches homepage + cars page, extracts all internal <a href> links,
+    checks each one for 4xx status. Returns list of broken links.
+    """
+    broken   = []
+    checked  = set()
+    to_check = set()
+
+    for seed_url in [f"{SITE_BASE}/", f"{SITE_BASE}/cars"]:
+        r = fetch(seed_url)
+        if not r or r.status_code != 200:
+            continue
+        soup = BeautifulSoup(r.text, "lxml")
+        for a in soup.find_all("a", href=True):
+            href = a["href"].strip()
+            # Only check internal links
+            if href.startswith("/"):
+                full = SITE_BASE + href.split("?")[0].split("#")[0]
+                to_check.add(full)
+            elif href.startswith(SITE_BASE):
+                to_check.add(href.split("?")[0].split("#")[0])
+
+    # Limit to 40 links max to keep runtime reasonable
+    to_check = list(to_check)[:40]
+    print(f"  Checking {len(to_check)} internal links...")
+
+    def check_link(url):
+        if url in checked:
+            return None
+        checked.add(url)
+        r = fetch(url, timeout=10)
+        if r and r.status_code >= 400:
+            return {"url": url, "code": r.status_code}
+        return None
+
+    with ThreadPoolExecutor(max_workers=10) as ex:
+        futures = [ex.submit(check_link, url) for url in to_check]
+        for fut in as_completed(futures):
+            result = fut.result()
+            if result:
+                broken.append(result)
+
+    return broken
+
+# ══════════════════════════════════════════════════════════════════════════════
+# 3. CAR LISTING CHECKS — price, images, float bugs
+# ══════════════════════════════════════════════════════════════════════════════
 
 def check_car_page(page):
     r = fetch(page["url"])
     if not r or r.status_code != 200:
-        return {"name": page["name"], "emoji": "🔴", "issues": ["Page did not load"]}
+        return {"name": page["name"], "status": "🔴 Not loading", "issues": ["Page returned " + str(r.status_code if r else "timeout")]}
     soup   = BeautifulSoup(r.text, "lxml")
     text   = soup.get_text(" ", strip=True)
     issues = []
@@ -87,102 +176,161 @@ def check_car_page(page):
     if not re.search(r'AED\s*[\d,]+', text):
         issues.append("No AED price found")
     if len(soup.find_all("img")) < 3:
-        issues.append("Fewer than 3 images detected")
-    return {"name": page["name"], "emoji": "✅" if not issues else "⚠️", "issues": issues}
+        issues.append("Fewer than 3 images")
+    # Check WhatsApp / booking CTA exists
+    if "book" not in text.lower() and "whatsapp" not in text.lower():
+        issues.append("No booking CTA detected")
+    return {"name": page["name"], "status": "✅ OK" if not issues else "⚠️", "issues": issues}
 
-# ── Homepage Checks ───────────────────────────────────────────────────────────
+# ══════════════════════════════════════════════════════════════════════════════
+# 4. TRUSTPILOT — rating + review count + latest review
+# ══════════════════════════════════════════════════════════════════════════════
 
-def check_homepage_extras():
-    r = fetch(f"{SITE_BASE}/")
+def check_trustpilot():
+    url = "https://www.trustpilot.com/review/mkvluxury.com"
+    r   = fetch(url, extra_headers={"Accept": "text/html"})
     if not r or r.status_code != 200:
-        return ["Homepage fetch failed"]
-    soup      = BeautifulSoup(r.text, "lxml")
-    img_attrs = " ".join(f"{i.get('src','')} {i.get('alt','')}" for i in soup.find_all("img")).lower()
-    text      = soup.get_text(" ", strip=True)
-    issues    = []
-    for badge, kw in [("Trustpilot", "trustpilot"), ("Google", "google"), ("Tripadvisor", "tripadvisor")]:
-        if kw not in img_attrs:
-            issues.append(f"Review badge missing: {badge}")
-    for cat in ["Supercars", "Luxury Cars", "Luxury SUV", "Convertible"]:
-        if cat not in text:
-            issues.append(f"Category filter missing: {cat}")
-    return issues
+        return {"ok": False, "note": f"Blocked (HTTP {r.status_code if r else 'timeout'})"}
 
-# ── FAQ Duplicate Check ───────────────────────────────────────────────────────
+    soup = BeautifulSoup(r.text, "lxml")
+    text = soup.get_text(" ", strip=True)
+
+    # Rating
+    rating_match = re.search(r'TrustScore\s+([\d.]+)', text) or \
+                   re.search(r'"ratingValue"\s*:\s*"?([\d.]+)"?', r.text)
+    rating = rating_match.group(1) if rating_match else None
+
+    # Review count
+    count_match = re.search(r'([\d,]+)\s+reviews?', text, re.IGNORECASE)
+    count = count_match.group(1) if count_match else None
+
+    # Latest review snippet
+    review_tags = soup.find_all("p", {"data-service-review-text-typography": True})
+    if not review_tags:
+        review_tags = soup.find_all("p", class_=re.compile(r'review', re.I))
+    latest = review_tags[0].get_text(strip=True)[:80] + "…" if review_tags else None
+
+    if rating or count:
+        stars = "⭐" * round(float(rating)) if rating else ""
+        return {
+            "ok":     True,
+            "rating": rating,
+            "count":  count,
+            "stars":  stars,
+            "latest": latest,
+            "note":   f"{stars} {rating}/5 — {count} reviews" if rating and count else f"Reviews: {count or '?'}"
+        }
+    return {"ok": True, "note": "Profile reachable — data parsing limited", "rating": None, "count": None, "latest": None}
+
+# ══════════════════════════════════════════════════════════════════════════════
+# 5. TIKTOK — last post, followers, views (scrape JSON-LD)
+# ══════════════════════════════════════════════════════════════════════════════
+
+def check_tiktok():
+    url = "https://www.tiktok.com/@mkv.luxury"
+    r   = fetch(url, extra_headers={
+        "Accept":  "text/html,application/xhtml+xml",
+        "Referer": "https://www.google.com/"
+    })
+    if not r or r.status_code != 200:
+        return {"ok": False, "note": f"Blocked (HTTP {r.status_code if r else 'timeout'})"}
+
+    text = r.text
+
+    # Followers from JSON in page
+    followers = None
+    fans_match = re.search(r'"followerCount"\s*:\s*(\d+)', text) or \
+                 re.search(r'"fans"\s*:\s*(\d+)', text)
+    if fans_match:
+        n = int(fans_match.group(1))
+        followers = f"{n/1000:.1f}K" if n >= 1000 else str(n)
+
+    # Heart/likes count
+    likes = None
+    heart_match = re.search(r'"heartCount"\s*:\s*(\d+)', text) or \
+                  re.search(r'"heart"\s*:\s*(\d+)', text)
+    if heart_match:
+        n = int(heart_match.group(1))
+        likes = f"{n/1000:.1f}K" if n >= 1000 else str(n)
+
+    # Last post time
+    last_post = None
+    time_match = re.search(r'(\d+)\s*(hour|day|week|month)s?\s*ago', text, re.IGNORECASE)
+    if time_match:
+        last_post = time_match.group(0)
+
+    if followers or likes:
+        return {
+            "ok":        True,
+            "followers": followers or "?",
+            "likes":     likes or "?",
+            "last_post": last_post or "check manually",
+            "note":      f"👥 {followers or '?'} followers | ❤️ {likes or '?'} total likes | 🕐 Last post: {last_post or 'unknown'}"
+        }
+    return {"ok": True, "note": "Profile reachable — data limited (TikTok JS-rendered)", "followers": None, "likes": None, "last_post": None}
+
+# ══════════════════════════════════════════════════════════════════════════════
+# 6. SOCIAL REACHABILITY — Instagram, Facebook, YouTube, X
+# ══════════════════════════════════════════════════════════════════════════════
+
+def check_social(profile):
+    r = fetch(profile["url"], extra_headers={"Referer": "https://www.google.com/"})
+    if not r or r.status_code not in (200, 301, 302):
+        return {"name": profile["name"], "emoji": profile["emoji"],
+                "ok": False, "note": "🔴 Profile unreachable", "detail": ""}
+
+    text      = r.text.lower()
+    handle    = profile["handle"].lower()
+    reachable = handle in text or profile["name"].lower() in text
+
+    # YouTube: try to extract subscriber count + last upload
+    extra = ""
+    if profile["name"] == "YouTube":
+        subs = re.search(r'"subscriberCountText":\{"simpleText":"([^"]+)"', r.text)
+        last = re.search(r'(\d+\s*(hour|day|week|month)s?\s*ago)', r.text, re.IGNORECASE)
+        if subs:  extra += f" | 👥 {subs.group(1)}"
+        if last:  extra += f" | 🕐 Last upload: {last.group(1)}"
+
+    status = "✅ Reachable" if reachable else "🟡 Loaded but handle not confirmed"
+    return {"name": profile["name"], "emoji": profile["emoji"],
+            "ok": reachable, "note": status + extra, "url": profile["url"]}
+
+# ══════════════════════════════════════════════════════════════════════════════
+# 7. FAQ DUPLICATES
+# ══════════════════════════════════════════════════════════════════════════════
 
 def check_faq_duplicates():
-    """
-    Collect all <h3> question texts and flag only those appearing MORE THAN ONCE.
-    Previously the script was incorrectly flagging every question because it marked
-    the first occurrence as 'seen' and then treated all others as duplicates of it.
-    Fix: count occurrences first, then report only count > 1.
-    """
     r = fetch(f"{SITE_BASE}/faqs")
     if not r or r.status_code != 200:
-        return ["FAQ page fetch failed"]
+        return []
     soup      = BeautifulSoup(r.text, "lxml")
     questions = [h.get_text(strip=True) for h in soup.find_all("h3") if len(h.get_text(strip=True)) > 10]
     counts    = {}
     for q in questions:
         counts[q] = counts.get(q, 0) + 1
-    return [f'"{q[:70]}"' for q, n in counts.items() if n > 1]
+    return [f'"{q[:60]}"' for q, n in counts.items() if n > 1]
 
-# ── Social Media Checks ───────────────────────────────────────────────────────
+# ══════════════════════════════════════════════════════════════════════════════
+# SLACK — build blocks
+# ══════════════════════════════════════════════════════════════════════════════
 
-def check_instagram():
-    r = fetch("https://www.instagram.com/mkvluxurydubai/",
-              extra_headers={"Accept-Language": "en-US,en;q=0.9"})
-    if not r or r.status_code != 200:
-        return {"reachable": False, "note": "Profile page blocked or unavailable"}
-    if "mkvluxurydubai" in r.text.lower():
-        return {"reachable": True, "note": "Profile loads ✅ — verify latest post manually"}
-    return {"reachable": False, "note": "Profile not found in response"}
+def mk_section(text):
+    return {"type": "section", "text": {"type": "mrkdwn", "text": text}}
 
-def check_facebook():
-    r = fetch("https://www.facebook.com/mkvluxury/",
-              extra_headers={"Accept-Language": "en-US,en;q=0.9"})
-    if not r or r.status_code != 200:
-        return {"reachable": False, "note": "Profile page blocked or unavailable"}
-    if "mkvluxury" in r.text.lower():
-        return {"reachable": True, "note": "Profile loads ✅ — verify latest post manually"}
-    return {"reachable": False, "note": "Profile not found in response"}
+def mk_divider():
+    return {"type": "divider"}
 
-def check_tiktok():
-    r = fetch("https://www.tiktok.com/@mkv.luxury",
-              extra_headers={"Accept-Language": "en-US,en;q=0.9"})
-    if not r or r.status_code != 200:
-        return {"reachable": False, "note": "Profile unavailable"}
-    if "mkv" in r.text.lower():
-        return {"reachable": True, "note": "Profile loads ✅ — verify latest video manually"}
-    return {"reachable": False, "note": "Profile not found in response"}
+def mk_header(text):
+    return {"type": "header", "text": {"type": "plain_text", "text": text, "emoji": True}}
 
-def check_youtube():
-    r = fetch("https://www.youtube.com/@MKVLuxuryCarRentalDubai",
-              extra_headers={"Accept-Language": "en-US,en;q=0.9"})
-    if not r or r.status_code != 200:
-        return {"reachable": False, "note": "Channel unavailable"}
-    text   = r.text
-    recent = re.search(r'"(\d+ (hour|day|minute)s? ago|yesterday)"', text)
-    if recent:
-        return {"reachable": True, "note": f"Recent upload detected: {recent.group(1)} ✅"}
-    if "mkv" in text.lower():
-        return {"reachable": True, "note": "Channel loads ✅ — verify latest video manually"}
-    return {"reachable": False, "note": "Channel not found in response"}
-
-SOCIAL_CHECK_FNS = {
-    "check_instagram": check_instagram,
-    "check_facebook":  check_facebook,
-    "check_tiktok":    check_tiktok,
-    "check_youtube":   check_youtube,
-}
-
-# ── Slack ─────────────────────────────────────────────────────────────────────
+def mk_context(text):
+    return {"type": "context", "elements": [{"type": "mrkdwn", "text": text}]}
 
 def post_slack(blocks):
     payload = {
         "channel":    SLACK_CHANNEL,
-        "username":   "MKV Website Monitor",
-        "icon_emoji": ":globe_with_meridians:",
+        "username":   "MKV Marketing Dashboard",
+        "icon_emoji": ":bar_chart:",
         "blocks":     blocks,
     }
     r = requests.post(
@@ -195,79 +343,177 @@ def post_slack(blocks):
     if not result.get("ok"):
         print(f"Slack error: {result.get('error')}")
     else:
-        print("✅ Snapshot posted to Slack successfully.")
+        print("✅ Dashboard posted to Slack")
 
-# ── Build Report ──────────────────────────────────────────────────────────────
+# ══════════════════════════════════════════════════════════════════════════════
+# BUILD FULL REPORT
+# ══════════════════════════════════════════════════════════════════════════════
 
 def build_report():
-    now_dubai = datetime.now(DUBAI_TZ).strftime("%d %b %Y, %I:%M %p")
+    now_str = datetime.now(DUBAI_TZ).strftime("%d %b %Y | %I:%M %p Dubai Time")
+    print("Running all checks in parallel...")
 
-    page_results    = [check_page_load(p) for p in PAGES_TO_CHECK]
-    car_results     = [check_car_page(c)  for c in CAR_PAGES]
-    homepage_issues = check_homepage_extras()
-    faq_dupes       = check_faq_duplicates()
-    social_results  = [{**p, "result": SOCIAL_CHECK_FNS[p["check_fn"]]()} for p in SOCIAL_PROFILES]
+    # Run all checks concurrently
+    with ThreadPoolExecutor(max_workers=8) as ex:
+        f_pages   = ex.submit(run_page_checks)
+        f_links   = ex.submit(check_broken_links)
+        f_cars    = ex.submit(lambda: [check_car_page(c) for c in CAR_PAGES])
+        f_faq     = ex.submit(check_faq_duplicates)
+        f_tp      = ex.submit(check_trustpilot)
+        f_tiktok  = ex.submit(check_tiktok)
+        f_social  = ex.submit(lambda: [check_social(p) for p in SOCIAL_PROFILES])
 
-    pages_ok  = all(r["code"] == 200 for r in page_results)
-    cars_ok   = all(not r["issues"] for r in car_results)
-    all_clear = pages_ok and cars_ok and not homepage_issues and not faq_dupes
+    page_results = f_pages.result()
+    broken_links = f_links.result()
+    car_results  = f_cars.result()
+    faq_dupes    = f_faq.result()
+    trustpilot   = f_tp.result()
+    tiktok       = f_tiktok.result()
+    social       = f_social.result()
+
+    # ── Compute overall health score ─────────────────────────────────────────
+    issues_count = 0
+    issues_count += sum(1 for r in page_results if r["code"] != 200)
+    issues_count += len(broken_links)
+    issues_count += sum(1 for r in car_results if r["issues"])
+    issues_count += len(faq_dupes)
+
+    avg_ms   = int(sum(r["ms"] for r in page_results if r["ms"]) / max(1, sum(1 for r in page_results if r["ms"])))
+    slow_pages = [r for r in page_results if r["ms"] and r["ms"] > 3000]
+
+    if issues_count == 0 and not slow_pages:
+        health_status = "✅ All systems operational"
+        health_emoji  = "🟢"
+    elif issues_count <= 2:
+        health_status = f"🟡 {issues_count} issue(s) detected"
+        health_emoji  = "🟡"
+    else:
+        health_status = f"🔴 {issues_count} issues need attention"
+        health_emoji  = "🔴"
 
     blocks = []
 
-    # Header
-    blocks.append({"type": "header", "text": {"type": "plain_text", "text": f"🌐 MKV Website Daily Snapshot — {now_dubai}"}})
-    blocks.append({"type": "divider"})
+    # ── HEADER ────────────────────────────────────────────────────────────────
+    blocks.append(mk_header(f"📊 MKV DIGITAL MARKETING DASHBOARD — {now_str}"))
+    blocks.append(mk_section(
+        f"*Overall Status:* {health_status}   |   *Avg Page Speed:* {avg_ms}ms\n"
+        f"*Website* {health_emoji}  |  *Reputation* {'✅' if trustpilot['ok'] else '⚠️'}  |  "
+        f"*Social* {'✅' if all(s['ok'] for s in social) else '⚠️'}"
+    ))
+    blocks.append(mk_divider())
 
-    # Overall
-    status = "✅ All systems operational" if all_clear else "⚠️ Issues detected — review below"
-    blocks.append({"type": "section", "text": {"type": "mrkdwn", "text": f"*Overall Status:* {status}"}})
-    blocks.append({"type": "divider"})
+    # ── SECTION 1: WEBSITE HEALTH ─────────────────────────────────────────────
+    page_lines = []
+    for r in page_results:
+        line = f"{r['emoji']} *{r['name']}* — `{r['code']}` {r['speed']}"
+        page_lines.append(line)
 
-    # Page availability
-    lines = [f"{r['emoji']} *{r['name']}* — `{r['code']}` {r['speed']}" for r in page_results]
-    blocks.append({"type": "section", "text": {"type": "mrkdwn", "text": "*📄 Page Availability*\n" + "\n".join(lines)}})
-    blocks.append({"type": "divider"})
+    blocks.append(mk_section(
+        "*🌐 WEBSITE HEALTH*\n" + "\n".join(page_lines)
+    ))
 
-    # Car checks
+    # Broken links — clickable in Slack
+    if broken_links:
+        bl_lines = []
+        for b in broken_links[:10]:
+            short = b["url"].replace("https://www.mkvluxury.com", "") or "/"
+            bl_lines.append(f"🔴 `{b['code']}` — <{b['url']}|{short}>")
+        if len(broken_links) > 10:
+            bl_lines.append(f"_...and {len(broken_links) - 10} more_")
+        blocks.append(mk_section(f"*🔗 Broken Links ({len(broken_links)} found)*\n" + "\n".join(bl_lines)))
+    else:
+        blocks.append(mk_section("*🔗 Broken Links* — ✅ None found"))
+
+    # Slow pages alert
+    if slow_pages:
+        sp_lines = "\n".join(f"⚠️ *{r['name']}* — {r['ms']}ms (target <3000ms)" for r in slow_pages)
+        blocks.append(mk_section(f"*⚡ Page Speed Alerts*\n{sp_lines}"))
+
+    blocks.append(mk_divider())
+
+    # ── SECTION 2: CAR LISTINGS ───────────────────────────────────────────────
     car_lines = []
     for r in car_results:
         if r["issues"]:
-            car_lines.append(f"⚠️ *{r['name']}*\n  " + "\n  ".join(f"• {i}" for i in r["issues"]))
+            car_lines.append(f"⚠️ *{r['name']}*\n  " + " | ".join(r["issues"]))
         else:
-            car_lines.append(f"✅ *{r['name']}* — OK")
-    blocks.append({"type": "section", "text": {"type": "mrkdwn", "text": "*🚗 Car Listing Spot Checks*\n" + "\n".join(car_lines)}})
-    blocks.append({"type": "divider"})
-
-    # Homepage
-    hp = "*🏠 Homepage Checks* — ✅ All OK" if not homepage_issues else \
-         "*🏠 Homepage Issues*\n" + "\n".join(f"⚠️ {i}" for i in homepage_issues)
-    blocks.append({"type": "section", "text": {"type": "mrkdwn", "text": hp}})
+            car_lines.append(f"✅ *{r['name']}*")
 
     # FAQ
-    faq_text = "*❓ FAQ Page* — ✅ No duplicate questions" if not faq_dupes else \
-               "*❓ FAQ — Duplicate Questions Found*\n" + "\n".join(f"⚠️ Duplicate: {d}" for d in faq_dupes)
-    blocks.append({"type": "section", "text": {"type": "mrkdwn", "text": faq_text}})
-    blocks.append({"type": "divider"})
+    faq_text = "✅ No duplicate questions" if not faq_dupes else \
+               f"⚠️ {len(faq_dupes)} duplicate(s): " + ", ".join(faq_dupes[:3])
 
-    # Social media
+    blocks.append(mk_section(
+        "*🚗 CAR LISTING CHECKS*\n" + "\n".join(car_lines) +
+        f"\n\n*❓ FAQ Page* — {faq_text}"
+    ))
+    blocks.append(mk_divider())
+
+    # ── SECTION 3: REPUTATION ─────────────────────────────────────────────────
+    tp_text = trustpilot.get("note", "Unavailable")
+    if trustpilot.get("latest"):
+        tp_text += f'\n  💬 Latest review: _"{trustpilot["latest"]}"_'
+
+    blocks.append(mk_section(
+        f"*⭐ REPUTATION TRACKING*\n"
+        f"🟢 *Trustpilot* — {tp_text}\n"
+        f"_(Google Reviews — Phase 2 with API key)_"
+    ))
+    blocks.append(mk_divider())
+
+    # ── SECTION 4: SOCIAL MEDIA ───────────────────────────────────────────────
     social_lines = []
-    for s in social_results:
-        res   = s["result"]
-        reach = "✅" if res["reachable"] else "🔴"
-        social_lines.append(f"{reach} {s['emoji']} *{s['name']}* — {res['note']}\n  ↳ <{s['url']}|View Profile>")
-    blocks.append({"type": "section", "text": {"type": "mrkdwn", "text": "*📱 Social Media Profiles*\n" + "\n".join(social_lines)}})
-    blocks.append({"type": "context", "elements": [{"type": "mrkdwn",
-        "text": "ℹ️ Social platforms block automated post-date reads. Profile reachability is auto-checked; latest post dates require manual verification."}]})
-    blocks.append({"type": "divider"})
 
-    # Footer
-    blocks.append({"type": "context", "elements": [{"type": "mrkdwn",
-        "text": f"MKV Website Monitor • Daily 11:00 AM Dubai time • <{SITE_BASE}|mkvluxury.com>"}]})
+    # TikTok first (we have more data)
+    tk_note = tiktok.get("note", "Unavailable")
+    social_lines.append(f"{'✅' if tiktok['ok'] else '🔴'} 🎵 *TikTok* — {tk_note}\n  ↳ <https://www.tiktok.com/@mkv.luxury|@mkv.luxury>")
+
+    # Other socials
+    for s in social:
+        social_lines.append(f"{s['note'][:60] if s['ok'] else '🔴 Unreachable'} {s['emoji']} *{s['name']}*\n  ↳ <{s['url']}|View Profile>")
+
+    blocks.append(mk_section("*📱 SOCIAL MEDIA*\n" + "\n".join(social_lines)))
+    blocks.append(mk_context(
+        "ℹ️ Full metrics (post dates, likes, followers) for Instagram/Facebook/YouTube require API setup — Phase 2.\n"
+        "TikTok & social reachability checked automatically."
+    ))
+    blocks.append(mk_divider())
+
+    # ── SECTION 5: ACTION ITEMS ───────────────────────────────────────────────
+    actions = []
+    if broken_links:
+        actions.append(f"🔴 Fix {len(broken_links)} broken link(s) on website")
+    if slow_pages:
+        actions.append(f"⚡ Optimize {len(slow_pages)} slow page(s) — avg load >{3000}ms")
+    for r in car_results:
+        for issue in r["issues"]:
+            actions.append(f"🚗 {r['name']}: {issue}")
+    if faq_dupes:
+        actions.append(f"❓ Remove {len(faq_dupes)} duplicate FAQ question(s)")
+    if not tiktok.get("last_post") or "day" in str(tiktok.get("last_post","")) and int(re.search(r'\d+', str(tiktok.get("last_post","0"))).group()) > 2:
+        actions.append("📱 TikTok: check if last post is within 48hrs (target: daily)")
+    if not actions:
+        actions.append("✅ No immediate actions required — great work!")
+
+    blocks.append(mk_section("*🚨 ACTION ITEMS*\n" + "\n".join(f"• {a}" for a in actions)))
+
+    # ── FOOTER ────────────────────────────────────────────────────────────────
+    blocks.append(mk_context(
+        f"MKV Digital Dashboard • Phase 1 • Daily 11:00 AM Dubai time • "
+        f"<{SITE_BASE}|mkvluxury.com> • Phase 2: Google Reviews + Meta API"
+    ))
 
     return blocks
 
 
+# ══════════════════════════════════════════════════════════════════════════════
+# MAIN
+# ══════════════════════════════════════════════════════════════════════════════
+
 if __name__ == "__main__":
-    print("Running MKV Website Snapshot...")
+    print("="*56)
+    print("  MKV DIGITAL MARKETING DASHBOARD")
+    print("  " + datetime.now(DUBAI_TZ).strftime("%d %b %Y | %I:%M %p"))
+    print("="*56)
     blocks = build_report()
     post_slack(blocks)
