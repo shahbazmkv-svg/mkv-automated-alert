@@ -1,6 +1,8 @@
 name: Keep Alive
 
 on:
+  schedule:
+    - cron: '0 4 * * *'    # 8:00 AM Dubai time (UTC+4)
   workflow_dispatch:
     inputs:
       job:
