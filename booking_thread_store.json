@@ -1481,7 +1481,7 @@
       "customer": "Sasa Dujmovic",
       "vehicle": "Lotus Lotus Emira",
       "delivery_alerted": true,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-05-02"
     },
@@ -1569,7 +1569,7 @@
       "customer": "Gunarajan S/O Shanmugham",
       "vehicle": "Lamborghini Urus",
       "delivery_alerted": true,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-05-02"
     },
@@ -1591,7 +1591,7 @@
       "customer": "Gunarajan S/O Shanmugham",
       "vehicle": "Lamborghini Urus",
       "delivery_alerted": true,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-05-02"
     },
@@ -1657,7 +1657,7 @@
       "customer": "Waqar Ahmad Mukhtiar Ahmad",
       "vehicle": "Mercedes-Benz S500",
       "delivery_alerted": true,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-05-02"
     },
@@ -1701,7 +1701,7 @@
       "customer": "Nikita Fedotov",
       "vehicle": "Mclaren Spider Artura",
       "delivery_alerted": true,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-05-05"
     },
