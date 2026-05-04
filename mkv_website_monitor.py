@@ -117,29 +117,47 @@ def run_page_checks():
 
 def check_broken_links():
     """
-    Fetches homepage + cars page, extracts all internal <a href> links,
-    checks each one for 4xx status. Returns list of broken links.
+    Collects internal URLs from sitemap.xml first, falls back to crawling
+    homepage + cars page. Checks each URL for 4xx status.
     """
     broken   = []
     checked  = set()
     to_check = set()
 
-    for seed_url in [f"{SITE_BASE}/", f"{SITE_BASE}/cars"]:
-        r = fetch(seed_url)
-        if not r or r.status_code != 200:
-            continue
-        soup = BeautifulSoup(r.text, "lxml")
-        for a in soup.find_all("a", href=True):
-            href = a["href"].strip()
-            # Only check internal links
-            if href.startswith("/"):
-                full = SITE_BASE + href.split("?")[0].split("#")[0]
-                to_check.add(full)
-            elif href.startswith(SITE_BASE):
-                to_check.add(href.split("?")[0].split("#")[0])
+    # Try sitemap first (most reliable source of all URLs)
+    for sitemap_url in [f"{SITE_BASE}/sitemap.xml", f"{SITE_BASE}/sitemap_index.xml"]:
+        r = fetch(sitemap_url)
+        if r and r.status_code == 200:
+            soup = BeautifulSoup(r.text, "xml")
+            for loc in soup.find_all("loc"):
+                url = loc.text.strip()
+                if url.startswith(SITE_BASE):
+                    to_check.add(url.split("?")[0].split("#")[0])
+            if to_check:
+                print(f"  Sitemap: found {len(to_check)} URLs")
+                break
 
-    # Limit to 40 links max to keep runtime reasonable
-    to_check = list(to_check)[:40]
+    # Fallback: crawl homepage + cars page for links
+    if not to_check:
+        for seed_url in [f"{SITE_BASE}/", f"{SITE_BASE}/cars"]:
+            r = fetch(seed_url)
+            if not r or r.status_code != 200:
+                continue
+            soup = BeautifulSoup(r.text, "lxml")
+            for a in soup.find_all("a", href=True):
+                href = a["href"].strip()
+                if href.startswith("/"):
+                    full = SITE_BASE + href.split("?")[0].split("#")[0]
+                    to_check.add(full)
+                elif href.startswith(SITE_BASE):
+                    to_check.add(href.split("?")[0].split("#")[0])
+
+    # Always add known critical pages
+    for p in PAGES_TO_CHECK + CAR_PAGES:
+        to_check.add(p["url"])
+
+    # Limit to 50 links
+    to_check = list(to_check)[:50]
     print(f"  Checking {len(to_check)} internal links...")
 
     def check_link(url):
@@ -276,7 +294,7 @@ def check_tiktok():
 def check_social(profile):
     r = fetch(profile["url"], extra_headers={"Referer": "https://www.google.com/"})
     if not r or r.status_code not in (200, 301, 302):
-        return {"name": profile["name"], "emoji": profile["emoji"],
+        return {"name": profile["name"], "emoji": profile["emoji"], "url": profile["url"],
                 "ok": False, "note": "🔴 Profile unreachable", "detail": ""}
 
     text      = r.text.lower()
