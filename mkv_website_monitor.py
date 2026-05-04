@@ -521,7 +521,6 @@ def build_report():
     ))
     blocks.append(mk_divider())
 
-    blocks.append(mk_section("*🔍 SEO HEALTH*\n" + "\n".join(seo_lines)))
     missing_meta  = [r for r in seo_results if r["missing_meta"] and not r["error"]]
     missing_title = [r for r in seo_results if r["missing_title"] and not r["error"]]
     warn_meta     = [r for r in seo_results if r.get("meta_warn") and not r["missing_meta"]]
