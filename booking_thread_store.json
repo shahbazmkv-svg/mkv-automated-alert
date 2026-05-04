@@ -1726,6 +1726,17 @@
       "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-05-04"
+    },
+    "009936-LUJO-Ferrari": {
+      "thread_ts": "1777890316.428799",
+      "end_date": "2026-05-08",
+      "plate": "97019",
+      "customer": "Lujo Car Rental Llc",
+      "vehicle": "Ferrari Purosangue",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-05-04"
     }
   }
 }
