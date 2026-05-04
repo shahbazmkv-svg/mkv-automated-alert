@@ -1,0 +1,44 @@
+name: Daily Executive Snapshot
+
+on:
+  # Runs automatically every day at 8:30 AM Dubai time (04:30 UTC)
+  # Gives daily-leads and website-snapshot enough time to finish first
+  schedule:
+    - cron: '30 4 * * *'
+
+  # Also triggerable manually from Actions tab
+  workflow_dispatch:
+
+jobs:
+
+  daily-snapshot:
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install requests --break-system-packages
+
+      - name: Run Daily Executive Snapshot
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+          APPIC_KEY:       ${{ secrets.APPIC_KEY }}
+          CLAUDE_API_KEY:  ${{ secrets.CLAUDE_API_KEY }}
+        run: python mkv_daily_snapshot.py
+
+      - name: Keep repo active
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git pull --rebase origin main || true
+          git commit --allow-empty -m "chore: daily snapshot ran $(date +'%Y-%m-%d')"
+          git push || true
