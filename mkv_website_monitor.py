@@ -532,8 +532,7 @@ def build_report():
 
     # ── FOOTER ────────────────────────────────────────────────────────────────
     blocks.append(mk_context(
-        f"MKV Digital Dashboard • Phase 1 • Daily 11:00 AM Dubai time • "
-        f"<{SITE_BASE}|mkvluxury.com> • Phase 2: Google Reviews + Meta API"
+        f"MKV Website & Online Presence Report • Daily 11:30 AM Dubai time • <{SITE_BASE}|mkvluxury.com>"
     ))
 
     return blocks
