@@ -2,7 +2,7 @@ name: Keep Alive
 
 on:
   schedule:
-    - cron: '0 4 * * *'    # 8:00 AM Dubai time (UTC+4)
+    - cron: '30 7 * * *'   # 11:30 AM Dubai time (UTC+4) — website & online presence report
   workflow_dispatch:
     inputs:
       job:
@@ -14,7 +14,7 @@ on:
           - all
           - fleet-availability
           - daily-leads
-          - website-snapshot
+          - website-online-report
           - pickup-alert
           - booking-bot
 
@@ -72,8 +72,11 @@ jobs:
           git diff --staged --quiet || git commit -m "chore: leads + MTD store updated $(date +'%Y-%m-%d')"
           git push || true
 
-  website-snapshot:
-    if: github.event.inputs.job == 'website-snapshot' || github.event.inputs.job == 'all'
+  website-online-report:
+    if: >
+      github.event_name == 'schedule' ||
+      github.event.inputs.job == 'website-online-report' ||
+      github.event.inputs.job == 'all'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -82,8 +85,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - run: pip install requests beautifulsoup4 lxml pytz --break-system-packages
-      - name: Run Website Snapshot
+      - run: pip install requests beautifulsoup4 lxml --break-system-packages
+      - name: Run Website & Online Presence Report
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
         run: python mkv_website_monitor.py
@@ -92,8 +95,8 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git pull --rebase origin main || true
-          git commit --allow-empty -m "chore: website snapshot ran $(date +'%Y-%m-%d')"
-          git push
+          git commit --allow-empty -m "chore: website report ran $(date +'%Y-%m-%d')"
+          git push || true
 
   pickup-alert:
     if: github.event.inputs.job == 'pickup-alert' || github.event.inputs.job == 'all'
