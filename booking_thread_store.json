@@ -1647,7 +1647,7 @@
       "vehicle": "Mclaren Spider Artura",
       "delivery_alerted": true,
       "pickup_alerted": true,
-      "closed": false,
+      "closed": true,
       "start_date": "2026-05-02"
     },
     "009930-WAQA-Mercedes-Benz": {
