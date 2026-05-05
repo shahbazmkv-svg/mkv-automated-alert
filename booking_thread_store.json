@@ -1811,7 +1811,7 @@
       "customer": "Gunarajan S/O Shanmugham",
       "vehicle": "Mercedes-Benz Mercedes G3 (Brabus)",
       "delivery_alerted": true,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-05-05"
     }
