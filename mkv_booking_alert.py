@@ -1,6 +1,7 @@
 import requests
 import json
 import os
+import re
 from datetime import datetime, timezone, timedelta
 
 # ─────────────────────────────────────────────
@@ -119,6 +120,7 @@ def extract(b):
     end    = (b.get("endDate")   or "").strip()
     s_time = (b.get("startTime") or "")[:5]
     e_time = (b.get("endTime")   or "")[:5]
+    dur = 0
     try:
         dur     = (datetime.strptime(end, "%Y-%m-%d") - datetime.strptime(start, "%Y-%m-%d")).days
         dur_str = f"{dur} day{'s' if dur != 1 else ''}"
@@ -128,18 +130,14 @@ def extract(b):
         amt_val    = float(b.get("amount", 0) or 0)
         zero_dep_v = float(b.get("zeroDepositFee", 0) or 0)
         addon_val  = float(b.get("addOnCharges", 0) or 0)
-        # VAT = 5% of (Rental + Zero Deposit + Add-ons)
         vat_base   = amt_val + zero_dep_v + addon_val
         api_vat    = float(b.get("vatAmount", 0) or 0)
         vat_val    = api_vat if api_vat > 0 else round(vat_base * 0.05, 2)
-        # Use Appic grandTotal directly
         grand_total = float(b.get("grandTotal", 0) or 0)
         advance     = float(b.get("advanceReceived", 0) or 0)
-        # Recalculate components for display
         vat_base    = amt_val + zero_dep_v + addon_val
         api_vat     = float(b.get("vatAmount", 0) or 0)
         vat_val     = api_vat if api_vat > 0 else round(vat_base * 0.05, 2)
-        # Use grandTotal if available, else calculate
         total       = grand_total if grand_total > 0 else (amt_val + zero_dep_v + addon_val + vat_val)
         balance     = total - advance
 
@@ -156,51 +154,86 @@ def extract(b):
 
     pickup_loc  = (b.get("pickupLocation")  or "").strip()
     dropoff_loc = (b.get("dropoffLocation") or "").strip()
-    # Try to extract location from remarks if API fields empty
     remarks_raw = (b.get("remarks") or "").strip()
     loc_from_remarks = "—"
     if not pickup_loc and not dropoff_loc and remarks_raw:
-        import re as _re
-        loc_match = _re.search(
+        loc_match = re.search(
             r'(?:DELIVERY\s+)?LOCATION\s*[:;]\s*([^\r\n]+)',
-            remarks_raw, _re.IGNORECASE
+            remarks_raw, re.IGNORECASE
         )
         if loc_match:
             loc_from_remarks = loc_match.group(1).strip()
     location = pickup_loc or dropoff_loc or loc_from_remarks
-    status      = (b.get("status") or "confirmed").lower()
+    status   = (b.get("status") or "confirmed").lower()
+
+    # ── KM Allowed: Priority 1 = Appic API field, 2 = remarks "XKM PER DAY", 3 = any KM in remarks
+    def resolve_km(api_km, remarks):
+        r = remarks.upper()
+        if api_km:
+            try:
+                v = float(api_km)
+                if v > 0:
+                    return f"{int(v)} KM"
+            except:
+                pass
+        m = re.search(r'(\d+)\s*KM[S]?\s*PER\s*DAY', r)
+        if m:
+            return f"{m.group(1)} KM"
+        m2 = re.search(r'(\d+)\s*KM[S]?\b', r)
+        if m2:
+            return f"{m2.group(1)} KM"
+        return "—"
+
+    api_km_field = (
+        b.get("dailyKmsLimit") or
+        b.get("dailyKmLimit") or
+        b.get("kmLimit") or
+        ""
+    )
+
+    # ── Extra KM Charge: read directly from Appic API
+    def resolve_extra_km(val):
+        try:
+            v = float(val or 0)
+            return f"AED {int(v)}/KM" if v > 0 else "—"
+        except:
+            return "—"
+
+    extra_km_field = (
+        b.get("extraKmCharge") or
+        b.get("extraKmRate") or
+        b.get("extraKmFee") or
+        0
+    )
 
     return {
-        "agr_no":       (b.get("contractID")     or "—").strip(),
-        "customer":     (b.get("customerName")   or "N/A").strip().title(),
-        "mobile":       (b.get("mobile")         or "N/A").strip(),
-        "email":        (b.get("clientEmail")    or "—").strip(),
-        "lead_source":  (b.get("leadSource")     or "—").strip(),
-        "agent":        (b.get("salesAgent")     or "—").strip(),
-        "vehicle":      (b.get("vehicleName")    or "N/A").strip().title(),
-        "plate":        (b.get("vehiclePlate")   or "N/A").strip(),
-        "start":        start,
-        "end":          end,
-        "s_time":       s_time,
-        "e_time":       e_time,
-        "dur_str":      dur_str,
-        "location":     location,
-        "rental_amt":   rental_amt,
-        "zero_dep":     zero_dep_amt,
-        "addon":        addon_amt,
-        "vat":          vat_amt,
-        "total_amt":    total_amt,
-        "advance":      advance_amt,
-        "balance":      balance_amt,
-        "pay_mode":     (b.get("paymentMode")    or "—").strip(),
-        "km_allowed":   (lambda r: next(
-                            (w.rstrip("S") + " KM" for w in r.upper().replace("KMS","KM").replace("KM"," KM ").split()
-                             if w.rstrip("S").isdigit() and 50 < int(w.rstrip("S")) <= 1000),
-                            "—"
-                        ))(b.get("remarks", "") or ""),
-        "remarks":      (b.get("remarks")        or "—").strip() or "—",
-        "status":       status,
-        "status_label": "DRAFT" if status == "draft" else "CONFIRMED",
+        "agr_no":          (b.get("contractID")     or "—").strip(),
+        "customer":        (b.get("customerName")   or "N/A").strip().title(),
+        "mobile":          (b.get("mobile")         or "N/A").strip(),
+        "email":           (b.get("clientEmail")    or "—").strip(),
+        "lead_source":     (b.get("leadSource")     or "—").strip(),
+        "agent":           (b.get("salesAgent")     or "—").strip(),
+        "vehicle":         (b.get("vehicleName")    or "N/A").strip().title(),
+        "plate":           (b.get("vehiclePlate")   or "N/A").strip(),
+        "start":           start,
+        "end":             end,
+        "s_time":          s_time,
+        "e_time":          e_time,
+        "dur_str":         dur_str,
+        "location":        location,
+        "rental_amt":      rental_amt,
+        "zero_dep":        zero_dep_amt,
+        "addon":           addon_amt,
+        "vat":             vat_amt,
+        "total_amt":       total_amt,
+        "advance":         advance_amt,
+        "balance":         balance_amt,
+        "pay_mode":        (b.get("paymentMode")    or "—").strip(),
+        "km_allowed":      resolve_km(api_km_field, b.get("remarks", "") or ""),
+        "extra_km_charge": resolve_extra_km(extra_km_field),
+        "remarks":         (b.get("remarks")        or "—").strip() or "—",
+        "status":          status,
+        "status_label":    "DRAFT" if status == "draft" else "CONFIRMED",
     }
 
 # ─────────────────────────────────────────────
@@ -235,6 +268,7 @@ def build_booking_card(f, now_str):
         f"{'Balance':<14}: {f['balance']}\n"
         f"{'Payment Mode':<14}: {f['pay_mode']}\n"
         f"{'KM Allowed':<14}: {f['km_allowed']}\n"
+        f"{'Extra KM':<14}: {f['extra_km_charge']}\n"
         f"{'─' * 36}\n"
         f"{'Remarks':<14}: {f['remarks']}\n"
         f"{'─' * 36}\n"
@@ -243,7 +277,6 @@ def build_booking_card(f, now_str):
         f"```"
     )
 
-    # Booking data for interactive buttons
     booking_data = json.dumps({
         "id":       f["agr_no"],
         "car":      f"{f['vehicle']} [{f['plate']}]",
@@ -370,7 +403,6 @@ def build_pickup_checklist(f, now_str, channel=None, thread_ts=None):
         "out_km":   "",
     })
 
-    # Build direct link to booking thread in Slack
     thread_link = ""
     if channel and thread_ts:
         thread_link = f" | <https://slack.com/app_redirect?channel={channel}&message_ts={thread_ts}|View Booking Thread>"
@@ -531,11 +563,9 @@ def main():
 
             if end and old_end and end != old_end and end > old_end:
                 print(f"  EXTENSION: {customer} | {plate} | {old_end} -> {end}")
-                # Update end date in store — no extension card posted
                 bookings[key]["end_date"]       = end
                 bookings[key]["pickup_alerted"] = False
                 if thread_ts:
-                    # Post a simple extension note in the booking thread
                     try:
                         import datetime as _dt
                         days = (_dt.datetime.strptime(end, "%Y-%m-%d") - _dt.datetime.strptime(old_end, "%Y-%m-%d")).days
