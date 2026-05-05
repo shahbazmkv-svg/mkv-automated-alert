@@ -1630,13 +1630,13 @@
     },
     "009928-ABDO-Audi": {
       "thread_ts": "1777720517.386529",
-      "end_date": "2026-05-04",
+      "end_date": "2026-05-05",
       "plate": "89438",
       "customer": "Abdoulaye Njoya",
       "vehicle": "Audi A6",
       "delivery_alerted": true,
-      "pickup_alerted": true,
-      "closed": false,
+      "pickup_alerted": false,
+      "closed": true,
       "start_date": "2026-05-02"
     },
     "009929-SYED-McLaren": {
