@@ -200,6 +200,14 @@ def build_booking_card(f, now_str):
         f"{'Pickup':<14}: PENDING\n"
         f"```"
     )
+    booking_value = json.dumps({
+        "id":   f["agr_no"],
+        "car":  f"{f['vehicle']} ({f['plate']})",
+        "date": fmt_date(f["start"]),
+        "time": f["s_time"],
+        "driver": "—",
+        "out_km": "—"
+    })
     blocks = [
         {"type": "header",
          "text": {"type": "plain_text", "text": "NEW BOOKING — MKV CAR RENTAL"}},
@@ -208,6 +216,23 @@ def build_booking_card(f, now_str):
              "text": f"Detected: {now_str}  |  Auto-alert via GitHub Actions"}]},
         {"type": "section",
          "text": {"type": "mrkdwn", "text": body}},
+        {"type": "divider"},
+        {"type": "actions", "elements": [
+            {
+                "type": "button",
+                "text": {"type": "plain_text", "text": "🚗  Delivery"},
+                "style": "primary",
+                "action_id": "open_delivery",
+                "value": booking_value
+            },
+            {
+                "type": "button",
+                "text": {"type": "plain_text", "text": "🔑  Pickup"},
+                "style": "danger",
+                "action_id": "open_pickup",
+                "value": booking_value
+            }
+        ]},
         {"type": "context",
          "elements": [{"type": "mrkdwn",
              "text": "All updates will appear in this thread"}]},
