@@ -1880,6 +1880,17 @@
       "pickup_alerted": false,
       "closed": false,
       "start_date": "2026-05-06"
+    },
+    "009953-HAYK-BMW": {
+      "thread_ts": "1778071528.930829",
+      "end_date": "2026-05-08",
+      "plate": "78051",
+      "customer": "Hayk Mkhitaryan",
+      "vehicle": "Bmw 735I",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-05-06"
     }
   }
 }
