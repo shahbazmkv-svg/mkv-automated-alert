@@ -1734,7 +1734,7 @@
       "customer": "Lujo Car Rental Llc",
       "vehicle": "Ferrari Purosangue",
       "delivery_alerted": true,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-05-04"
     },
@@ -1778,7 +1778,7 @@
       "customer": "Hayk Mkhitaryan",
       "vehicle": "Audi A6",
       "delivery_alerted": true,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-05-05"
     },
@@ -1800,7 +1800,7 @@
       "customer": "Sagi Shaken",
       "vehicle": "Mclaren Spider Artura",
       "delivery_alerted": true,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-05-07"
     },
@@ -1833,7 +1833,7 @@
       "customer": "Gunarajan S/O Shanmugham",
       "vehicle": "Mercedes-Benz Mercedes  G63",
       "delivery_alerted": true,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-05-06"
     },
@@ -1888,7 +1888,7 @@
       "customer": "Hayk Mkhitaryan",
       "vehicle": "Bmw 735I",
       "delivery_alerted": false,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-05-06"
     },
