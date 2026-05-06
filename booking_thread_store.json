@@ -1844,7 +1844,7 @@
       "customer": "Mansour Malick Jeng",
       "vehicle": "Ferrari Purosangue",
       "delivery_alerted": false,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-05-06"
     }
