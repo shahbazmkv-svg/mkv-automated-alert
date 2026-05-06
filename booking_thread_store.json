@@ -1902,6 +1902,17 @@
       "pickup_alerted": false,
       "closed": false,
       "start_date": "2026-05-07"
+    },
+    "009955-ABDU-Land Rover": {
+      "thread_ts": "1778083239.394639",
+      "end_date": "2026-05-07",
+      "plate": "55789",
+      "customer": "Abdul Ghaffar Imdad Ali Kanwar",
+      "vehicle": "Land Rover Sport",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-05-06"
     }
   }
 }
