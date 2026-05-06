@@ -1847,6 +1847,17 @@
       "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-05-06"
+    },
+    "009948-FAST-Land Rover": {
+      "thread_ts": "1778067927.863779",
+      "end_date": "2026-06-05",
+      "plate": "77540",
+      "customer": "Faster Rent A Car",
+      "vehicle": "Land Rover Svr",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-05-06"
     }
   }
 }
