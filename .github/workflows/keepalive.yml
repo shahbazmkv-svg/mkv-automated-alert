@@ -2,11 +2,11 @@ name: Keep Alive
 
 on:
   schedule:
-    - cron: '0 3 * * *'    # Fleet Availability  — 7:00 AM Dubai (UTC+4)
-    - cron: '0 7 * * *'    # Daily Leads         — 11:00 AM Dubai
-    - cron: '30 7 * * *'   # Website Snapshot    — 11:30 AM Dubai
-    - cron: '0 15 * * *'   # Pickup & Delivery   — 7:00 PM Dubai
-    - cron: '*/15 * * * *' # Booking Bot         — every 15 min (polling)
+    - cron: '0 3 * * *'     # fleet-availability    — 7:00 AM Dubai (UTC+4)
+    - cron: '0 7 * * *'     # daily-leads           — 11:00 AM Dubai
+    - cron: '30 7 * * *'    # website-snapshot      — 11:30 AM Dubai
+    - cron: '0 15 * * *'    # pickup-alert          — 7:00 PM Dubai
+    - cron: '*/5 * * * *'   # booking-bot           — every 5 minutes
   workflow_dispatch:
     inputs:
       job:
@@ -124,10 +124,10 @@ jobs:
       - run: pip install requests pytz --break-system-packages
       - name: Run Pickup & Delivery Alert
         env:
-          APPIC_KEY:         ${{ secrets.APPIC_KEY }}
-          SLACK_BOT_TOKEN:   ${{ secrets.SLACK_BOT_TOKEN }}
-          WEBHOOK_DELIVERY:  ${{ secrets.WEBHOOK_DELIVERY }}   # ← was missing!
-          WEBHOOK_PICKUP:    ${{ secrets.WEBHOOK_PICKUP }}     # ← was missing!
+          APPIC_KEY:        ${{ secrets.APPIC_KEY }}
+          SLACK_BOT_TOKEN:  ${{ secrets.SLACK_BOT_TOKEN }}
+          WEBHOOK_DELIVERY: ${{ secrets.WEBHOOK_DELIVERY }}
+          WEBHOOK_PICKUP:   ${{ secrets.WEBHOOK_PICKUP }}
         run: python mkv_pickup_alert.py
       - name: Keep repo active
         run: |
@@ -139,7 +139,7 @@ jobs:
 
   booking-bot:
     if: >
-      (github.event_name == 'schedule' && github.event.schedule == '*/15 * * * *') ||
+      (github.event_name == 'schedule' && github.event.schedule == '*/5 * * * *') ||
       github.event.inputs.job == 'booking-bot' ||
       github.event.inputs.job == 'all'
     runs-on: ubuntu-latest
