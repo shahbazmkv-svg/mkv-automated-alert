@@ -1724,7 +1724,7 @@
       "vehicle": "Land Rover Svr",
       "delivery_alerted": true,
       "pickup_alerted": true,
-      "closed": false,
+      "closed": true,
       "start_date": "2026-05-04"
     },
     "009936-LUJO-Ferrari": {
@@ -1861,6 +1861,17 @@
     },
     "009950-FAST-Land Rover": {
       "thread_ts": "1778068829.632459",
+      "end_date": "2026-06-05",
+      "plate": "77540",
+      "customer": "Faster Rent A Car",
+      "vehicle": "Land Rover Svr",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-05-06"
+    },
+    "009951-FAST-Land Rover": {
+      "thread_ts": "1778070622.392219",
       "end_date": "2026-06-05",
       "plate": "77540",
       "customer": "Faster Rent A Car",
