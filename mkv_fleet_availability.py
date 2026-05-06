@@ -1,17 +1,13 @@
 """
 MKV Luxury - Fleet Availability
-Accurate classification using bookings API:
-- Rented STR  : confirmed contracts <= 30 days active today
-- Lease       : confirmed contracts 31-180 days active today  
-- Longterm    : confirmed contracts > 180 days active today
-- Available   : STR fleet minus Rented STR
+Accurate classification using bookings API.
 """
 import os, json, requests, re
 from datetime import datetime, timezone, timedelta
 
 SLACK_TOKEN   = os.environ["SLACK_BOT_TOKEN"]
 APPIC_KEY     = os.environ.get("APPIC_KEY", "")
-SLACK_CHANNEL = "C0B0TGBDCDU"   # #mkvtest — update to live channel when ready
+SLACK_CHANNEL = "C0B0TGBDCDU"   # #mkvtest
 DUBAI_TZ      = timezone(timedelta(hours=4))
 BLOCK_LIMIT   = 2900
 
@@ -28,104 +24,16 @@ CONTACT_FOOTER = (
 def now_dubai():
     return datetime.now(DUBAI_TZ)
 
-def normalize_plate(plate):
+def norm(plate):
+    """Normalize plate to digits only for comparison."""
     digits = re.sub(r"[^0-9]", "", str(plate or ""))
-    return digits.lstrip("0") if digits else str(plate or "").strip()
+    return digits.lstrip("0") if digits else ""
 
-def contract_duration_days(start, end):
+def duration_days(start, end):
     try:
         return (datetime.strptime(end, "%Y-%m-%d") - datetime.strptime(start, "%Y-%m-%d")).days
     except:
         return 0
-
-def fetch_active_contracts(today):
-    """Fetch all confirmed contracts active today, classified by duration."""
-    try:
-        start_window = (datetime.strptime(today, "%Y-%m-%d") - timedelta(days=365)).strftime("%Y-%m-%d")
-        r = requests.post(BOOKINGS_URL, data={
-            "key": APPIC_KEY,
-            "startDate": start_window,
-            "endDate": today
-        }, timeout=20)
-        r.raise_for_status()
-        bookings = r.json().get("bookings", [])
-
-        str_plates      = set()
-        lease_plates    = set()
-        longterm_plates = set()
-        str_bookings    = []
-        lease_bookings  = []
-        longterm_bookings = []
-        seen_plates     = set()
-
-        for b in bookings:
-            status = (b.get("status") or "").lower().strip()
-            start  = (b.get("startDate") or "").strip()
-            end    = (b.get("endDate")   or "").strip()
-            plate  = (b.get("vehiclePlate") or "").strip()
-
-            if status not in ("confirmed", "active", "ongoing"):
-                continue
-            if not (start <= today <= end):
-                continue
-            if not plate:
-                continue
-
-            plate_norm = normalize_plate(plate)
-            if plate_norm in seen_plates:
-                continue
-            seen_plates.add(plate_norm)
-
-            duration = contract_duration_days(start, end)
-
-            if duration > 180:
-                longterm_plates.add(plate_norm)
-                longterm_bookings.append(b)
-            elif duration > 30:
-                lease_plates.add(plate_norm)
-                lease_bookings.append(b)
-            else:
-                str_plates.add(plate_norm)
-                str_bookings.append(b)
-
-        print(f"  Active contracts → STR:{len(str_plates)} | Lease:{len(lease_plates)} | Longterm:{len(longterm_plates)}")
-        return str_plates, lease_plates, longterm_plates, str_bookings, lease_bookings, longterm_bookings
-
-    except Exception as ex:
-        print(f"Bookings API error: {ex}")
-        return set(), set(), set(), [], [], []
-
-def fetch_checkinout(today, direction):
-    """Fetch check-in or check-out records for today."""
-    try:
-        r = requests.post(CHECKINOUT_URL, data={
-            "key": APPIC_KEY,
-            "startDate": today,
-            "endDate": today,
-            "direction": direction
-        }, timeout=20)
-        r.raise_for_status()
-        data = r.json()
-        records = data.get("data") or []
-        print(f"  CheckIn/Out [{direction}]: {len(records)} records")
-        return records
-    except Exception as ex:
-        print(f"CheckIn/Out API error: {ex}")
-        return []
-
-def fetch_vehicles():
-    """Get all STR vehicles (dailyrent > 0)."""
-    try:
-        r = requests.get(ALL_VEHICLES_URL,
-                        headers={"User-Agent": "Mozilla/5.0"}, timeout=20)
-        r.raise_for_status()
-        all_v = r.json().get("data", [])
-        str_v = [v for v in all_v if float(v.get("dailyrent", 0) or 0) > 0]
-        print(f"  Vehicles: total={len(all_v)} | STR fleet={len(str_v)}")
-        return all_v, str_v
-    except Exception as ex:
-        print(f"Vehicles API error: {ex}")
-        return [], []
 
 def get_plate(v):
     for key in ["plate", "vehiclePlate", "plateNo", "plate_no"]:
@@ -165,17 +73,84 @@ def text_to_blocks(text):
         blocks.append({"type": "section", "text": {"type": "mrkdwn", "text": f"```{chunk.rstrip()}```"}})
     return blocks
 
+def fetch_vehicles():
+    r = requests.get(ALL_VEHICLES_URL, headers={"User-Agent": "Mozilla/5.0"}, timeout=20)
+    r.raise_for_status()
+    all_v = r.json().get("data", [])
+    str_v = [v for v in all_v if float(v.get("dailyrent", 0) or 0) > 0]
+    print(f"  Vehicles: total={len(all_v)} | STR={len(str_v)}")
+    return str_v
+
+def fetch_active_contracts(today):
+    """
+    Classify confirmed active contracts by duration:
+    - STR      : <= 30 days
+    - Lease    : 31-365 days  
+    - Longterm : > 365 days
+    Only CONFIRMED status — excludes draft/closed.
+    Deduplicates by plate (keeps longest contract per plate).
+    """
+    start_window = (datetime.strptime(today, "%Y-%m-%d") - timedelta(days=400)).strftime("%Y-%m-%d")
+    r = requests.post(BOOKINGS_URL, data={
+        "key": APPIC_KEY, "startDate": start_window, "endDate": today
+    }, timeout=20)
+    r.raise_for_status()
+    bookings = r.json().get("bookings", [])
+
+    # Only confirmed, active today
+    active = {}
+    for b in bookings:
+        status = (b.get("status") or "").lower().strip()
+        start  = (b.get("startDate") or "").strip()
+        end    = (b.get("endDate")   or "").strip()
+        plate  = norm(b.get("vehiclePlate") or "")
+
+        if status != "confirmed":
+            continue
+        if not plate or not (start <= today <= end):
+            continue
+
+        days = duration_days(start, end)
+        # Keep longest contract per plate
+        if plate not in active or days > active[plate]["days"]:
+            active[plate] = {"days": days, "booking": b}
+
+    str_norm     = set()
+    lease_norm   = set()
+    longterm_norm = set()
+
+    for plate_n, info in active.items():
+        days = info["days"]
+        if days > 365:
+            longterm_norm.add(plate_n)
+        elif days > 30:
+            lease_norm.add(plate_n)
+        else:
+            str_norm.add(plate_n)
+
+    print(f"  Confirmed active → STR:{len(str_norm)} | Lease:{len(lease_norm)} | Longterm:{len(longterm_norm)}")
+    return str_norm, lease_norm, longterm_norm
+
+def fetch_checkinout(today, direction):
+    r = requests.post(CHECKINOUT_URL, data={
+        "key": APPIC_KEY, "startDate": today, "endDate": today, "direction": direction
+    }, timeout=20)
+    r.raise_for_status()
+    records = r.json().get("data") or []
+    print(f"  CheckIn/Out [{direction}]: {len(records)} records")
+    return records
+
 def build_message(today):
     now      = now_dubai()
     date_str = now.strftime("%B %d, %Y").upper()
     day_str  = now.strftime("%A").upper()
 
-    print("[1/4] Fetching vehicles...")
-    all_vehicles, str_vehicles = fetch_vehicles()
-    str_total = len(str_vehicles)
+    print("[1/4] Fetching STR vehicles...")
+    str_vehicles = fetch_vehicles()
+    str_total    = len(str_vehicles)
 
     print("[2/4] Fetching active contracts...")
-    str_plates, lease_plates, longterm_plates, str_bookings, lease_bookings, longterm_bookings = fetch_active_contracts(today)
+    str_norm, lease_norm, longterm_norm = fetch_active_contracts(today)
 
     print("[3/4] Fetching check-ins/check-outs today...")
     out_records = fetch_checkinout(today, "Out")
@@ -183,28 +158,23 @@ def build_message(today):
 
     print("[4/4] Classifying fleet...")
 
-    # Rented = confirmed STR contracts active today
-    rented    = len(str_plates)
-    lease     = len(lease_plates)
-    longterm  = len(longterm_plates)
-
-    # Available = STR fleet minus rented STR
-    available = max(0, str_total - rented)
-
-    # Returning today = check-in records
+    rented   = len(str_norm)
+    lease    = len(lease_norm)
+    longterm = len(longterm_norm)
     returning = len(in_records)
-
-    # Delivery today = check-out records
     delivery  = len(out_records)
 
-    # Available vehicles list
-    str_norm_plates = set(normalize_plate(get_plate(v)) for v in str_vehicles)
-    available_v = [v for v in str_vehicles
-                   if normalize_plate(get_plate(v)) not in str_plates
-                   and normalize_plate(get_plate(v)) not in lease_plates
-                   and normalize_plate(get_plate(v)) not in longterm_plates]
+    # All rented norm plates (STR + Lease + Longterm)
+    all_rented_norm = str_norm | lease_norm | longterm_norm
 
-    print(f"  Result → STR Total:{str_total} | Rented:{rented} | Lease:{lease} | Longterm:{longterm} | Available:{available} | Returning:{returning} | Delivery:{delivery}")
+    # Available = STR vehicles NOT in any active contract
+    available_v = [
+        v for v in str_vehicles
+        if norm(get_plate(v)) not in all_rented_norm
+    ]
+    available = len(available_v)
+
+    print(f"  Result → STR:{str_total} | Rented:{rented} | Lease:{lease} | Longterm:{longterm} | Available:{available} | Returning:{returning} | Delivery:{delivery}")
 
     summary = "\n".join([
         f"❝{date_str} {day_str}❞", "",
@@ -256,14 +226,8 @@ def post_slack(message):
     r = requests.post(
         "https://slack.com/api/chat.postMessage",
         headers={"Authorization": f"Bearer {SLACK_TOKEN}", "Content-Type": "application/json"},
-        data=json.dumps({
-            "channel":      SLACK_CHANNEL,
-            "username":     "MKV Fleet Status",
-            "icon_emoji":   ":car:",
-            "unfurl_links": False,
-            "unfurl_media": False,
-            **message
-        }),
+        data=json.dumps({"channel": SLACK_CHANNEL, "username": "MKV Fleet Status",
+                         "icon_emoji": ":car:", "unfurl_links": False, "unfurl_media": False, **message}),
         timeout=15,
     )
     res = r.json()
