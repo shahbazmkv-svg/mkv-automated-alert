@@ -286,12 +286,6 @@ def build_booking_card(f, now_str):
                     "action_id": "open_delivery",
                     "value": booking_data
                 },
-                {
-                    "type": "button",
-                    "text": {"type": "plain_text", "text": "🔑  Pickup"},
-                    "action_id": "open_pickup",
-                    "value": booking_data
-                },
             ]
         },
         {
@@ -502,8 +496,6 @@ def main():
             print(f"  NEW: {customer} | {plate} | {start} | {f['status_label']}")
             blocks, text = build_booking_card(f, now_str)
             ts = post_message(TARGET_CHANNEL, blocks, text)
-            # Also post to #mkv-schedule-for-delivery
-            post_message(TARGET_DELIVERY, blocks, text)
             if ts:
                 bookings[key] = {
                     "thread_ts":        ts,
@@ -517,11 +509,6 @@ def main():
                     "start_date":       start,
                 }
                 print(f"  Booking card posted — thread: {ts}")
-                d_blocks, d_text = build_delivery_checklist(f, now_str)
-                d_ts = post_message(TARGET_CHANNEL, d_blocks, d_text, thread_ts=ts)
-                if d_ts:
-                    bookings[key]["delivery_alerted"] = True
-                    print(f"  Delivery checklist posted in thread")
 
         else:
             stored    = bookings.get(key, {})
