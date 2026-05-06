@@ -144,7 +144,7 @@ jobs:
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
           APPIC_KEY:       ${{ secrets.APPIC_KEY }}
-        run: python mkv_booking_bot.py
+        run: python mkv_booking_alert.py
       - name: Commit store updates
         run: |
           git config user.name "github-actions[bot]"
