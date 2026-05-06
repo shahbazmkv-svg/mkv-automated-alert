@@ -198,8 +198,11 @@ def extract(b):
         "advance":      advance_amt,
         "balance":      balance_amt,
         "pay_mode":     (b.get("paymentMode")    or "—").strip(),
-        "km_allowed":   (f"{float(b.get('dailyKmsLimit', 0) or 0):,.0f} KM" if b.get('dailyKmsLimit') else "—"),
-        "extra_km_charge": (f"AED {float(b.get('extraKmCharge', 0) or 0):,.0f} / KM" if b.get('extraKmCharge') else "—"),
+        "km_allowed":   (lambda r: next(
+                            (w.rstrip("S") + " KM" for w in r.upper().replace("KMS","KM").replace("KM"," KM ").split()
+                             if w.rstrip("S").isdigit() and 50 < int(w.rstrip("S")) <= 1000),
+                            "—"
+                        ))(b.get("remarks", "") or ""),
         "remarks":      (b.get("remarks")        or "—").strip() or "—",
         "status":       status,
         "status_label": "DRAFT" if status == "draft" else "CONFIRMED",
@@ -237,7 +240,6 @@ def build_booking_card(f, now_str):
         f"{'Balance':<14}: {f['balance']}\n"
         f"{'Payment Mode':<14}: {f['pay_mode']}\n"
         f"{'KM Allowed':<14}: {f['km_allowed']}\n"
-        f"{'Extra KM':<14}: {f['extra_km_charge']}\n"
         f"{'─' * 36}\n"
         f"{'Remarks':<14}: {f['remarks']}\n"
         f"{'─' * 36}\n"
@@ -440,6 +442,60 @@ def build_contract_closed(f, now_str):
     return blocks, f"Closed: {f['customer']} | {f['vehicle']} ({f['plate']})"
 
 
+def build_documents_thread(b, agr_no, customer):
+    """
+    Build a thread message with document images/links from Appic.
+    Images displayed inline, PDFs as clickable links.
+    Only includes fields that are populated.
+    """
+    fields = [
+        ("passportImg",      "🪪 Passport"),
+        ("passportExpImg",   "🪪 Passport Expiry"),
+        ("licenseImg",       "🚗 License"),
+        ("licenseExpiryImg", "🚗 License Expiry"),
+        ("tradeLicenseImg",  "📄 Trade License"),
+    ]
+
+    blocks = [
+        {"type": "header",
+         "text": {"type": "plain_text", "text": "📎 DOCUMENTS"}},
+        {"type": "context",
+         "elements": [{"type": "mrkdwn",
+             "text": f"AGR#: {agr_no}  |  {customer}"}]},
+        {"type": "divider"},
+    ]
+
+    has_docs = False
+    for field, label in fields:
+        url = (b.get(field) or "").strip()
+        if not url:
+            continue
+        has_docs = True
+        is_pdf = url.lower().endswith(".pdf") or "pdf" in url.lower()
+        if is_pdf:
+            blocks.append({
+                "type": "section",
+                "text": {"type": "mrkdwn",
+                    "text": f"{label}  →  <{url}|View PDF>"}
+            })
+        else:
+            blocks.append({
+                "type": "image",
+                "title": {"type": "plain_text", "text": label},
+                "image_url": url,
+                "alt_text": label
+            })
+
+    if not has_docs:
+        return None, None
+
+    blocks.append({"type": "context",
+        "elements": [{"type": "mrkdwn",
+            "text": "Documents uploaded in Appic — auto-fetched on booking creation"}]})
+
+    return blocks, f"Documents: {agr_no} | {customer}"
+
+
 # ─────────────────────────────────────────────
 #  MAIN
 # ─────────────────────────────────────────────
@@ -507,6 +563,14 @@ def main():
                     "start_date":       start,
                 }
                 print(f"  Booking card posted — thread: {ts}")
+                # Post documents as follow-on thread message
+                doc_blocks, doc_text = build_documents_thread(b, f["agr_no"], f["customer"])
+                if doc_blocks:
+                    d_ts = post_message(TARGET_CHANNEL, doc_blocks, doc_text, thread_ts=ts)
+                    if d_ts:
+                        print(f"  Documents posted in thread")
+                    else:
+                        print(f"  No documents available for this booking")
 
         else:
             stored    = bookings.get(key, {})
