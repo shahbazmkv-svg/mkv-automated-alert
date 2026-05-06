@@ -198,11 +198,8 @@ def extract(b):
         "advance":      advance_amt,
         "balance":      balance_amt,
         "pay_mode":     (b.get("paymentMode")    or "—").strip(),
-        "km_allowed":   (lambda r: next(
-                            (w.rstrip("S") + " KM" for w in r.upper().replace("KMS","KM").replace("KM"," KM ").split()
-                             if w.rstrip("S").isdigit() and 50 < int(w.rstrip("S")) <= 1000),
-                            "—"
-                        ))(b.get("remarks", "") or ""),
+        "km_allowed":   (f"{float(b.get('dailyKmsLimit', 0) or 0):,.0f} KM" if b.get('dailyKmsLimit') else "—"),
+        "extra_km_charge": (f"AED {float(b.get('extraKmCharge', 0) or 0):,.0f} / KM" if b.get('extraKmCharge') else "—"),
         "remarks":      (b.get("remarks")        or "—").strip() or "—",
         "status":       status,
         "status_label": "DRAFT" if status == "draft" else "CONFIRMED",
@@ -240,6 +237,7 @@ def build_booking_card(f, now_str):
         f"{'Balance':<14}: {f['balance']}\n"
         f"{'Payment Mode':<14}: {f['pay_mode']}\n"
         f"{'KM Allowed':<14}: {f['km_allowed']}\n"
+        f"{'Extra KM':<14}: {f['extra_km_charge']}\n"
         f"{'─' * 36}\n"
         f"{'Remarks':<14}: {f['remarks']}\n"
         f"{'─' * 36}\n"
