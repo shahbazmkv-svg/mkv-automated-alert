@@ -1,12 +1,6 @@
 name: Keep Alive
 
 on:
-  schedule:
-    - cron: '0 3 * * *'     # fleet-availability    — 7:00 AM Dubai (UTC+4)
-    - cron: '0 7 * * *'     # daily-leads           — 11:00 AM Dubai
-    - cron: '30 7 * * *'    # website-snapshot      — 11:30 AM Dubai
-    - cron: '0 15 * * *'    # pickup-alert          — 7:00 PM Dubai
-    - cron: '*/5 * * * *'   # booking-bot           — every 5 minutes
   workflow_dispatch:
     inputs:
       job:
@@ -26,7 +20,6 @@ jobs:
 
   fleet-availability:
     if: >
-      (github.event_name == 'schedule' && github.event.schedule == '0 3 * * *') ||
       github.event.inputs.job == 'fleet-availability' ||
       github.event.inputs.job == 'all'
     runs-on: ubuntu-latest
@@ -53,7 +46,6 @@ jobs:
 
   daily-leads:
     if: >
-      (github.event_name == 'schedule' && github.event.schedule == '0 7 * * *') ||
       github.event.inputs.job == 'daily-leads' ||
       github.event.inputs.job == 'all'
     runs-on: ubuntu-latest
@@ -84,7 +76,6 @@ jobs:
 
   website-snapshot:
     if: >
-      (github.event_name == 'schedule' && github.event.schedule == '30 7 * * *') ||
       github.event.inputs.job == 'website-snapshot' ||
       github.event.inputs.job == 'all'
     runs-on: ubuntu-latest
@@ -110,7 +101,6 @@ jobs:
 
   pickup-alert:
     if: >
-      (github.event_name == 'schedule' && github.event.schedule == '0 15 * * *') ||
       github.event.inputs.job == 'pickup-alert' ||
       github.event.inputs.job == 'all'
     runs-on: ubuntu-latest
@@ -139,7 +129,6 @@ jobs:
 
   booking-bot:
     if: >
-      (github.event_name == 'schedule' && github.event.schedule == '*/5 * * * *') ||
       github.event.inputs.job == 'booking-bot' ||
       github.event.inputs.job == 'all'
     runs-on: ubuntu-latest
