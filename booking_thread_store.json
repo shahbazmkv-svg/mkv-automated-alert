@@ -1836,6 +1836,17 @@
       "pickup_alerted": false,
       "closed": false,
       "start_date": "2026-05-06"
+    },
+    "009947-MANS-Ferrari": {
+      "thread_ts": "1778060127.208129",
+      "end_date": "2026-05-07",
+      "plate": "97019",
+      "customer": "Mansour Malick Jeng",
+      "vehicle": "Ferrari Purosangue",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-05-06"
     }
   }
 }
