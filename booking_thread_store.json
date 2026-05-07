@@ -1979,6 +1979,17 @@
       "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-05-07"
+    },
+    "009962-ZENI-Audi": {
+      "thread_ts": "1778162437.222779",
+      "end_date": "2026-06-07",
+      "plate": "90154",
+      "customer": "Zenith Super Car Rental Llc",
+      "vehicle": "Audi A3",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-05-07"
     }
   }
 }
