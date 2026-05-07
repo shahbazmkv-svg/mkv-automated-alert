@@ -1924,6 +1924,17 @@
       "pickup_alerted": false,
       "closed": false,
       "start_date": "2026-05-07"
+    },
+    "009957-MAJI-Bentley": {
+      "thread_ts": "1778117429.579759",
+      "end_date": "2026-05-14",
+      "plate": "33789",
+      "customer": "Majid Ahmed Abdalla",
+      "vehicle": "Bentley Bentayga",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-05-07"
     }
   }
 }
