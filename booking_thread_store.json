@@ -1965,6 +1965,17 @@
       "customer": "Muneer Nazarudeen Nazarudeen",
       "vehicle": "Morgan Morgan Supersport",
       "delivery_alerted": false,
+      "pickup_alerted": true,
+      "closed": false,
+      "start_date": "2026-05-07"
+    },
+    "009961-JOHN-Porsche": {
+      "thread_ts": "1778160632.048709",
+      "end_date": "2026-05-08",
+      "plate": "42165",
+      "customer": "John Alex Githua Mwangi",
+      "vehicle": "Porsche 911 Turbo",
+      "delivery_alerted": false,
       "pickup_alerted": false,
       "closed": false,
       "start_date": "2026-05-07"
