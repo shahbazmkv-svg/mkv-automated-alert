@@ -1957,6 +1957,17 @@
       "pickup_alerted": true,
       "closed": true,
       "start_date": "2026-05-07"
+    },
+    "009960-MUNE-Morgan": {
+      "thread_ts": "1778159730.117959",
+      "end_date": "2026-05-08",
+      "plate": "I 47203",
+      "customer": "Muneer Nazarudeen Nazarudeen",
+      "vehicle": "Morgan Morgan Supersport",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-05-07"
     }
   }
 }
