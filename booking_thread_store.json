@@ -1990,6 +1990,17 @@
       "pickup_alerted": false,
       "closed": false,
       "start_date": "2026-05-07"
+    },
+    "009963-SAHI-Nissan": {
+      "thread_ts": "1778163339.510509",
+      "end_date": "2026-06-07",
+      "plate": "69703",
+      "customer": "Sahil Narang Triloki Nath Narang",
+      "vehicle": "Nissan Patrol Se Platinum City",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-05-07"
     }
   }
 }
