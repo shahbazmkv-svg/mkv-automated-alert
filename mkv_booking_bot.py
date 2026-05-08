@@ -9,24 +9,21 @@ from datetime import datetime, timezone, timedelta
 APPIC_KEY          = os.environ["APPIC_KEY"]
 SLACK_BOT_TOKEN    = os.environ["SLACK_BOT_TOKEN"]
 
-CHANNEL_BOOKINGS   = "C0ABPC606F7"   # #mkv-bookings (ROOT)
+CHANNEL_BOOKINGS   = "C0ABPC606F7"   # #mkv-bookings (live)
 CHANNEL_TEST       = "C0AVCCCG0S0"   # #mkvtest
 
-TEST_MODE          = False
+TEST_MODE          = True
 TARGET_CHANNEL     = CHANNEL_TEST if TEST_MODE else CHANNEL_BOOKINGS
 
-SLACK_WORKSPACE    = "mkv-luxury"
-APPIC_BOOKINGS_URL = "https://www.appicfleet.com/appiccar-apis-mkv/get-mkv-bookings.php"
-STORE_FILE         = "booking_thread_store.json"
-DUBAI_TZ           = timezone(timedelta(hours=4))
-SLACK_HEADERS      = {
+APPIC_BOOKINGS_URL  = "https://www.appicfleet.com/appiccar-apis-mkv/get-mkv-bookings.php"
+APPIC_CHECKINOUT_URL= "https://www.appicfleet.com/appiccar-apis-mkv/get-mkv-checkin-checkout.php"
+STORE_FILE          = "booking_thread_store.json"
+DUBAI_TZ            = timezone(timedelta(hours=4))
+SLACK_HEADERS       = {
     "Authorization": f"Bearer {SLACK_BOT_TOKEN}",
-    "Content-Type":  "application/json"
+    "Content-Type": "application/json"
 }
 
-# ─────────────────────────────────────────────
-#  HELPERS
-# ─────────────────────────────────────────────
 def dubai_now():
     return datetime.now(DUBAI_TZ)
 
@@ -44,6 +41,7 @@ def fmt_amount(v):
         return "—"
 
 def fmt_amount_zero(v):
+    """Always show AED value including zero"""
     try:
         return f"AED {float(v or 0):,.0f}"
     except:
@@ -92,13 +90,6 @@ def post_message(channel, blocks, text, thread_ts=None):
         print(f"  Slack request failed: {e}")
         return None
 
-def thread_link(channel, ts):
-    ts_clean = ts.replace(".", "")
-    return f"https://{SLACK_WORKSPACE}.slack.com/archives/{channel}/p{ts_clean}"
-
-# ─────────────────────────────────────────────
-#  APPIC FETCH — robust issuccess check
-# ─────────────────────────────────────────────
 def fetch_bookings():
     now        = dubai_now()
     start_date = (now - timedelta(days=30)).strftime("%Y-%m-%d")
@@ -111,34 +102,17 @@ def fetch_bookings():
         )
         r.raise_for_status()
         data = r.json()
-        print(f"  Appic raw keys: {list(data.keys())[:8]}")
-
-        # Handle both "issuccess" and "isSuccess" and boolean True
-        success = (
-            data.get("issuccess") or
-            data.get("isSuccess") or
-            data.get("success")   or
-            data.get("status") == "success"
-        )
-        bookings = data.get("bookings") or data.get("data") or []
-
-        # If no success key but bookings list is present — trust it
-        if not success and isinstance(bookings, list) and len(bookings) > 0:
-            success = True
-
-        if success and isinstance(bookings, list):
+        if data.get("issuccess"):
+            bookings = data.get("bookings", [])
             print(f"  Appic returned {len(bookings)} bookings")
             return bookings
         else:
-            print(f"  Appic error or empty: {data.get('message') or data}")
+            print(f"  Appic error: {data.get('message')}")
             return []
     except Exception as e:
         print(f"  API error: {e}")
         return []
 
-# ─────────────────────────────────────────────
-#  EXTRACT BOOKING FIELDS
-# ─────────────────────────────────────────────
 def extract(b):
     start  = (b.get("startDate") or "").strip()
     end    = (b.get("endDate")   or "").strip()
@@ -150,9 +124,9 @@ def extract(b):
     except:
         dur_str = "N/A"
     try:
-        amt_val    = float(b.get("amount", 0))
-        vat_val    = float(b.get("vatAmount", 0))
-        total      = amt_val + vat_val
+        amt_val   = float(b.get("amount", 0))
+        vat_val   = float(b.get("vatAmount", 0))
+        total     = amt_val + vat_val
         rental_amt = f"AED {amt_val:,.0f}" if amt_val > 0 else "TBC"
         total_amt  = f"AED {total:,.0f}"   if total  > 0 else "TBC"
     except:
@@ -162,17 +136,17 @@ def extract(b):
     pickup_loc  = (b.get("pickupLocation")  or "").strip()
     dropoff_loc = (b.get("dropoffLocation") or "").strip()
     location    = pickup_loc or dropoff_loc or "—"
-    status      = (b.get("status") or "confirmed").lower().strip()
+    status      = (b.get("status") or "confirmed").lower()
 
     return {
-        "agr_no":       (b.get("contractID")   or "—").strip(),
-        "customer":     (b.get("customerName") or "N/A").strip().title(),
-        "mobile":       (b.get("mobile")       or "N/A").strip(),
-        "email":        (b.get("clientEmail")  or "—").strip(),
-        "lead_source":  (b.get("leadSource")   or "—").strip(),
-        "agent":        (b.get("salesAgent")   or "—").strip(),
-        "vehicle":      (b.get("vehicleName")  or "N/A").strip().title(),
-        "plate":        (b.get("vehiclePlate") or "N/A").strip(),
+        "agr_no":       (b.get("contractID")     or "—").strip(),
+        "customer":     (b.get("customerName")   or "N/A").strip().title(),
+        "mobile":       (b.get("mobile")         or "N/A").strip(),
+        "email":        (b.get("clientEmail")    or "—").strip(),
+        "lead_source":  (b.get("leadSource")     or "—").strip(),
+        "agent":        (b.get("salesAgent")     or "—").strip(),
+        "vehicle":      (b.get("vehicleName")    or "N/A").strip().title(),
+        "plate":        (b.get("vehiclePlate")   or "N/A").strip(),
         "start":        start,
         "end":          end,
         "s_time":       s_time,
@@ -185,8 +159,8 @@ def extract(b):
         "vat":          fmt_amount(b.get("vatAmount", 0)),
         "total_amt":    total_amt,
         "advance":      fmt_amount_zero(b.get("advanceReceived", 0)),
-        "pay_mode":     (b.get("paymentMode")  or "—").strip(),
-        "remarks":      (b.get("remarks")      or "—").strip() or "—",
+        "pay_mode":     (b.get("paymentMode")    or "—").strip(),
+        "remarks":      (b.get("remarks")        or "—").strip() or "—",
         "status":       status,
         "status_label": "DRAFT" if status == "draft" else "CONFIRMED",
     }
@@ -195,11 +169,6 @@ def extract(b):
 #  MESSAGE BUILDERS
 # ─────────────────────────────────────────────
 def build_booking_card(f, now_str):
-    """
-    Posted to #mkv-bookings (ROOT).
-    Has ONLY the 🚗 Delivery button.
-    On submit → slack_app.py posts to #mkv-delivery with 🔑 Pickup button.
-    """
     body = (
         f"```\n"
         f"{'AGR#':<14}: {f['agr_no']}\n"
@@ -232,12 +201,6 @@ def build_booking_card(f, now_str):
         f"{'Pickup':<14}: PENDING\n"
         f"```"
     )
-    delivery_value = json.dumps({
-        "id":   f["agr_no"],
-        "car":  f"{f['vehicle']} ({f['plate']})",
-        "date": fmt_date(f["start"]),
-        "time": f["s_time"],
-    })
     blocks = [
         {"type": "header",
          "text": {"type": "plain_text", "text": "NEW BOOKING — MKV CAR RENTAL"}},
@@ -246,24 +209,59 @@ def build_booking_card(f, now_str):
              "text": f"Detected: {now_str}  |  Auto-alert via GitHub Actions"}]},
         {"type": "section",
          "text": {"type": "mrkdwn", "text": body}},
-        {"type": "divider"},
-        {"type": "actions", "elements": [
-            {
-                "type":      "button",
-                "text":      {"type": "plain_text", "text": "🚗  Delivery"},
-                "style":     "primary",
-                "action_id": "open_delivery",
-                "value":     delivery_value
-            }
-        ]},
         {"type": "context",
          "elements": [{"type": "mrkdwn",
              "text": "All updates will appear in this thread"}]},
     ]
-    return blocks, (
-        f"New Booking: {f['customer']} | {f['vehicle']} ({f['plate']}) | "
-        f"{fmt_date(f['start'])} → {fmt_date(f['end'])} | {f['total_amt']}"
+    return blocks, f"New Booking: {f['customer']} | {f['vehicle']} ({f['plate']}) | {fmt_date(f['start'])} to {fmt_date(f['end'])} | {f['total_amt']}"
+
+
+def build_delivery_checklist(f, now_str):
+    # Message 1 - Info block (collapsed via context)
+    info = (
+        f"{'AGR#':<14}: {f['agr_no']} | "
+        f"{'Customer'}: {f['customer']} | "
+        f"{'Plate'}: {f['plate']} | "
+        f"{'Date'}: {fmt_date(f['start'])} {f['s_time']} | "
+        f"{'Amount'}: {f['total_amt']}"
     )
+    # Message 2 - Driver reply template (prominent, easy to copy)
+    reply = (
+        f"```\n"
+        f"AGR#: {f['agr_no']}\n"
+        f"Out KM:\n"
+        f"Fuel Level:\n"
+        f"Driver Name:\n"
+        f"Remarks:\n"
+        f"```"
+    )
+    blocks = [
+        {"type": "header",
+         "text": {"type": "plain_text", "text": "DELIVERY CHECKLIST"}},
+        {"type": "context",
+         "elements": [{"type": "mrkdwn", "text": info}]},
+        {"type": "divider"},
+        {"type": "section",
+         "text": {"type": "mrkdwn",
+             "text": "*Copy and reply with delivery details:*\n" + reply}},
+        {"type": "section",
+         "text": {"type": "mrkdwn",
+             "text": "Attach: Contract PDF + Car Photos + Emirates ID"}},
+        {"type": "context",
+         "elements": [{"type": "mrkdwn",
+             "text": f"Posted: {now_str}  |  Status: PENDING DELIVERY"}]},
+    ]
+    return blocks, f"Delivery: {f['customer']} | {f['vehicle']} ({f['plate']}) | {fmt_date(f['start'])} {f['s_time']}"
+    blocks = [
+        {"type": "header",
+         "text": {"type": "plain_text", "text": "DELIVERY CHECKLIST"}},
+        {"type": "section",
+         "text": {"type": "mrkdwn", "text": body}},
+        {"type": "context",
+         "elements": [{"type": "mrkdwn",
+             "text": f"Posted: {now_str}  |  Status: PENDING DELIVERY"}]},
+    ]
+    return blocks, f"Delivery: {f['customer']} | {f['vehicle']} ({f['plate']}) | {fmt_date(f['start'])} {f['s_time']}"
 
 
 def build_extension_checklist(f, now_str, old_end, new_end):
@@ -272,10 +270,13 @@ def build_extension_checklist(f, now_str, old_end, new_end):
         ext_str = f"+{extra} day{'s' if extra != 1 else ''}"
     except:
         ext_str = "Extended"
+
     info = (
-        f"AGR#: {f['agr_no']} | Customer: {f['customer']} | "
+        f"AGR#: {f['agr_no']} | "
+        f"Customer: {f['customer']} | "
         f"Vehicle: {f['vehicle']} ({f['plate']}) | "
-        f"Previous End: {fmt_date(old_end)} | New End: {fmt_date(new_end)} ({ext_str})"
+        f"Previous End: {fmt_date(old_end)} | "
+        f"New End: {fmt_date(new_end)} ({ext_str})"
     )
     reply = (
         f"```\n"
@@ -302,8 +303,46 @@ def build_extension_checklist(f, now_str, old_end, new_end):
     return blocks, f"Extension: {f['customer']} | {f['vehicle']} | New end: {fmt_date(new_end)} ({ext_str})"
 
 
+def build_pickup_checklist(f, now_str):
+    info = (
+        f"AGR#: {f['agr_no']} | "
+        f"Customer: {f['customer']} | "
+        f"Mobile: {f['mobile']} | "
+        f"Vehicle: {f['vehicle']} ({f['plate']}) | "
+        f"Delivered: {fmt_date(f['start'])} {f['s_time']} | "
+        f"Return Due: {fmt_date(f['end'])} {f['e_time']}"
+    )
+    reply = (
+        f"```\n"
+        f"AGR#: {f['agr_no']}\n"
+        f"In KM:\n"
+        f"Extra KM:\n"
+        f"Fuel Charge: AED\n"
+        f"Salik: AED\n"
+        f"Fines: AED\n"
+        f"Damage: AED\n"
+        f"Amt Collected: AED\n"
+        f"Payment Mode:\n"
+        f"Remarks:\n"
+        f"```"
+    )
+    blocks = [
+        {"type": "header",
+         "text": {"type": "plain_text", "text": "PICKUP CHECKLIST — DUE TOMORROW"}},
+        {"type": "context",
+         "elements": [{"type": "mrkdwn", "text": info}]},
+        {"type": "divider"},
+        {"type": "section",
+         "text": {"type": "mrkdwn",
+             "text": "*Copy and reply with pickup details:*\n" + reply}},
+        {"type": "context",
+         "elements": [{"type": "mrkdwn",
+             "text": f"Posted: {now_str}  |  Status: PENDING PICKUP"}]},
+    ]
+    return blocks, f"Pickup: {f['customer']} | {f['vehicle']} ({f['plate']}) | Return: {fmt_date(f['end'])} {f['e_time']}"
+
+
 def build_contract_closed(f, now_str):
-    """Auto-detected from Appic status — posted in #mkv-bookings thread"""
     body = (
         f"```\n"
         f"{'AGR#':<14}: {f['agr_no']}\n"
@@ -332,21 +371,169 @@ def build_contract_closed(f, now_str):
 
 
 # ─────────────────────────────────────────────
+#  DOCUMENT FETCH & UPLOAD
+# ─────────────────────────────────────────────
+
+# Map of Appic field name → friendly label shown in Slack
+DOC_FIELDS = [
+    ("passportFile",       "Passport"),
+    ("passportExpiry",     "Passport Expiry"),
+    ("licenseFile",        "Driving Licence"),
+    ("licenseExpiry",      "Licence Expiry"),
+    ("emiratesIdFile",     "Emirates ID"),
+    ("emiratesIdExpiry",   "Emirates ID Expiry"),
+    ("visaFile",           "Visa"),
+    ("otherDoc",           "Other Document"),
+]
+
+def fetch_documents(agr_no, start_date, end_date):
+    """
+    Call get-mkv-checkin-checkout with direction=Out to retrieve
+    document URLs attached to this contract.
+    Returns list of (label, url) tuples for non-empty URLs.
+    """
+    try:
+        r = requests.post(
+            APPIC_CHECKINOUT_URL,
+            data={
+                "key":       APPIC_KEY,
+                "startDate": start_date,
+                "endDate":   end_date,
+                "direction": "Out",
+            },
+            timeout=15
+        )
+        r.raise_for_status()
+        data    = r.json()
+        records = data.get("data", data.get("checkinout", data.get("records", [])))
+        print(f"  Checkin/out API: {len(records)} records for docs")
+
+        # Find the record matching this contract
+        for rec in records:
+            cid = str(rec.get("contractID") or rec.get("agrNo") or "").strip()
+            if cid == agr_no:
+                docs = []
+                for field, label in DOC_FIELDS:
+                    url = str(rec.get(field) or "").strip()
+                    if url and url.startswith("http"):
+                        docs.append((label, url))
+                print(f"  Found {len(docs)} docs for {agr_no}")
+                return docs
+
+        print(f"  No checkin/out record found for {agr_no}")
+        return []
+    except Exception as e:
+        print(f"  fetch_documents error: {e}")
+        return []
+
+
+def upload_file_to_slack(channel, thread_ts, filename, file_bytes, filetype="auto"):
+    """
+    Upload a file to Slack using the v2 upload API.
+    Returns True on success.
+    """
+    try:
+        # Step 1 — get upload URL
+        r1 = requests.post(
+            "https://slack.com/api/files.getUploadURLExternal",
+            headers={"Authorization": f"Bearer {SLACK_BOT_TOKEN}"},
+            data={"filename": filename, "length": len(file_bytes)},
+            timeout=15
+        )
+        d1 = r1.json()
+        if not d1.get("ok"):
+            print(f"  getUploadURL error: {d1.get('error')}")
+            return False
+        upload_url = d1["upload_url"]
+        file_id    = d1["file_id"]
+
+        # Step 2 — upload bytes
+        r2 = requests.post(upload_url, data=file_bytes, timeout=30)
+        if r2.status_code not in (200, 201):
+            print(f"  Upload PUT failed: {r2.status_code}")
+            return False
+
+        # Step 3 — complete upload and share to channel/thread
+        r3 = requests.post(
+            "https://slack.com/api/files.completeUploadExternal",
+            headers={"Authorization": f"Bearer {SLACK_BOT_TOKEN}",
+                     "Content-Type": "application/json"},
+            json={
+                "files":    [{"id": file_id, "title": filename}],
+                "channel_id": channel,
+                "thread_ts":  thread_ts,
+            },
+            timeout=15
+        )
+        d3 = r3.json()
+        if not d3.get("ok"):
+            print(f"  completeUpload error: {d3.get('error')}")
+            return False
+        return True
+    except Exception as e:
+        print(f"  upload_file_to_slack error: {e}")
+        return False
+
+
+def post_documents(channel, thread_ts, agr_no, customer, docs):
+    """
+    Post a DOCUMENTS header message then upload each doc file into the thread.
+    """
+    if not docs:
+        print(f"  No documents to post for {agr_no}")
+        return
+
+    # Header message
+    post_message(channel, [
+        {"type": "section", "text": {"type": "mrkdwn",
+            "text": f"📎 *DOCUMENTS*\nAGR#: {agr_no} | {customer}"}},
+    ], f"Documents: {agr_no}", thread_ts=thread_ts)
+
+    # Upload each document
+    for label, url in docs:
+        try:
+            print(f"  Downloading: {label} — {url}")
+            r = requests.get(url, timeout=20)
+            if r.status_code != 200:
+                print(f"  Download failed ({r.status_code}): {url}")
+                continue
+            content_type = r.headers.get("Content-Type", "")
+            if "pdf" in content_type:
+                ext = ".pdf"
+            elif "png" in content_type:
+                ext = ".png"
+            elif "jpeg" in content_type or "jpg" in content_type:
+                ext = ".jpg"
+            else:
+                ext = ""
+            filename = f"{label.replace(' ', '_')}{ext}"
+            size_kb  = len(r.content) // 1024
+            print(f"  Uploading: {filename} ({size_kb} kB)")
+            ok = upload_file_to_slack(channel, thread_ts, filename, r.content)
+            print(f"  Upload {'OK' if ok else 'FAILED'}: {filename}")
+        except Exception as e:
+            print(f"  Document upload error for {label}: {e}")
+
+
+# ─────────────────────────────────────────────
 #  MAIN
 # ─────────────────────────────────────────────
 def main():
-    now     = dubai_now()
-    now_str = now.strftime("%d %b %Y | %I:%M %p Dubai Time")
+    now      = dubai_now()
+    now_str  = now.strftime("%d %b %Y | %I:%M %p Dubai Time")
+    tomorrow = (now + timedelta(days=1)).strftime("%Y-%m-%d")
 
-    # SEED MODE: True = store all bookings silently, no Slack posts (first-run only)
+    # ── SEED MODE ──────────────────────────────
+    # True  = stores all bookings silently (first run)
+    # False = normal mode, posts new bookings
     SEED_MODE = False
+    # ───────────────────────────────────────────
 
     print("=" * 56)
     print("  MKV BOOKING BOT")
     print(f"  {now_str}")
-    print(f"  SEED MODE : {SEED_MODE}")
-    print(f"  TEST MODE : {TEST_MODE}")
-    print(f"  CHANNEL   : {TARGET_CHANNEL}")
+    print(f"  SEED MODE: {SEED_MODE}")
+    print(f"  TEST MODE: {TEST_MODE}")
     print("=" * 56)
 
     store    = load_store()
@@ -355,60 +542,61 @@ def main():
     print("  Fetching bookings from Appic...")
     all_bookings = fetch_bookings()
 
-    if not all_bookings:
-        print("  No bookings returned — exiting")
-        save_store(store)
-        return
-
-    new_count = 0
-    ext_count = 0
-    cls_count = 0
-
     for b in all_bookings:
         key = booking_key(b)
         if not key:
             continue
 
-        f      = extract(b)
-        end    = f["end"]
-        start  = f["start"]
-        status = f["status"]
+        f        = extract(b)
+        end      = f["end"]
+        customer = f["customer"]
+        plate    = f["plate"]
+        start    = f["start"]
+        status   = f["status"]
 
-        # ── SEED MODE ──────────────────────────────────────────
         if SEED_MODE:
             if key not in bookings:
                 bookings[key] = {
-                    "thread_ts":    None,
-                    "end_date":     end,
-                    "plate":        f["plate"],
-                    "customer":     f["customer"],
-                    "vehicle":      f["vehicle"],
-                    "closed":       False,
-                    "start_date":   start,
+                    "thread_ts":        None,
+                    "end_date":         end,
+                    "plate":            plate,
+                    "customer":         customer,
+                    "vehicle":          f["vehicle"],
+                    "delivery_alerted": True,
+                    "pickup_alerted":   False,
+                    "closed":           False,
+                    "start_date":       start,
                 }
             continue
 
-        # ── NEW BOOKING ────────────────────────────────────────
         if key not in bookings:
-            print(f"  NEW: {f['customer']} | {f['plate']} | {start} → {end} | {f['status_label']}")
+            print(f"  NEW: {customer} | {plate} | {start} | {f['status_label']}")
             blocks, text = build_booking_card(f, now_str)
             ts = post_message(TARGET_CHANNEL, blocks, text)
             if ts:
                 bookings[key] = {
-                    "thread_ts":  ts,
-                    "end_date":   end,
-                    "plate":      f["plate"],
-                    "customer":   f["customer"],
-                    "vehicle":    f["vehicle"],
-                    "closed":     False,
-                    "start_date": start,
+                    "thread_ts":        ts,
+                    "end_date":         end,
+                    "plate":            plate,
+                    "customer":         customer,
+                    "vehicle":          f["vehicle"],
+                    "delivery_alerted": False,
+                    "pickup_alerted":   False,
+                    "closed":           False,
+                    "start_date":       start,
                 }
-                new_count += 1
                 print(f"  Booking card posted — thread: {ts}")
-            else:
-                print(f"  Failed to post card for {key}")
 
-        # ── EXISTING BOOKING ───────────────────────────────────
+                # Post documents in thread
+                docs = fetch_documents(f["agr_no"], start, end)
+                post_documents(TARGET_CHANNEL, ts, f["agr_no"], f["customer"], docs)
+
+                d_blocks, d_text = build_delivery_checklist(f, now_str)
+                d_ts = post_message(TARGET_CHANNEL, d_blocks, d_text, thread_ts=ts)
+                if d_ts:
+                    bookings[key]["delivery_alerted"] = True
+                    print(f"  Delivery checklist posted in thread")
+
         else:
             stored    = bookings.get(key, {})
             if not isinstance(stored, dict):
@@ -420,40 +608,40 @@ def main():
             if closed:
                 continue
 
-            # Extension detected
             if end and old_end and end != old_end and end > old_end:
-                print(f"  EXTENSION: {f['customer']} | {f['plate']} | {old_end} → {end}")
+                print(f"  EXTENSION: {customer} | {plate} | {old_end} -> {end}")
                 if thread_ts:
                     e_blocks, e_text = build_extension_checklist(f, now_str, old_end, end)
                     e_ts = post_message(TARGET_CHANNEL, e_blocks, e_text, thread_ts=thread_ts)
                     if e_ts:
-                        bookings[key]["end_date"] = end
-                        ext_count += 1
-                        print(f"  Extension posted in thread")
+                        bookings[key]["end_date"]       = end
+                        bookings[key]["pickup_alerted"] = False
+                        print(f"  Extension checklist posted in thread")
                 else:
                     bookings[key]["end_date"] = end
 
-            # Contract closed detected from Appic
-            if status in ("closed", "completed") and not closed and thread_ts:
-                print(f"  CONTRACT CLOSED (Appic): {f['customer']} | {f['plate']}")
+            if end == tomorrow and not stored.get("pickup_alerted") and thread_ts:
+                print(f"  PICKUP CHECKLIST: {customer} | {plate} | due {end}")
+                p_blocks, p_text = build_pickup_checklist(f, now_str)
+                p_ts = post_message(TARGET_CHANNEL, p_blocks, p_text, thread_ts=thread_ts)
+                if p_ts:
+                    bookings[key]["pickup_alerted"] = True
+                    print(f"  Pickup checklist posted in thread")
+
+            if status == "closed" and not closed and thread_ts:
+                print(f"  CONTRACT CLOSED: {customer} | {plate}")
                 c_blocks, c_text = build_contract_closed(f, now_str)
                 c_ts = post_message(TARGET_CHANNEL, c_blocks, c_text, thread_ts=thread_ts)
                 if c_ts:
                     bookings[key]["closed"] = True
-                    cls_count += 1
                     print(f"  Contract closed posted in thread")
 
     store["bookings"] = bookings
     save_store(store)
 
-    print("=" * 56)
     if SEED_MODE:
-        print(f"  SEED MODE — {len(bookings)} bookings stored silently")
-    else:
-        print(f"  New bookings posted : {new_count}")
-        print(f"  Extensions posted   : {ext_count}")
-        print(f"  Contracts closed    : {cls_count}")
-        print(f"  Total in store      : {len(bookings)}")
+        print(f"  SEED MODE ON — {len(bookings)} bookings stored silently")
+
     print("=" * 56)
     print("  Done")
     print("=" * 56)
