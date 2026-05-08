@@ -1822,7 +1822,7 @@
       "customer": "Tom Hardstaff",
       "vehicle": "Land Rover Defender",
       "delivery_alerted": true,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-05-07"
     },
@@ -2009,7 +2009,7 @@
       "customer": "Lawrence Nkeyewo Titaanji",
       "vehicle": "Lotus Lotus Emira",
       "delivery_alerted": false,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-05-08"
     },
@@ -2031,7 +2031,7 @@
       "customer": "Dreamrides Car Rental L.L.C",
       "vehicle": "Ferrari Purosangue",
       "delivery_alerted": false,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-05-08"
     },
@@ -2064,7 +2064,7 @@
       "customer": "David Leon Myers",
       "vehicle": "Porsche 911 Turbo",
       "delivery_alerted": false,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-05-08"
     },
