@@ -178,7 +178,7 @@
     },
     "009896-MARC-BMW": {
       "thread_ts": null,
-      "end_date": "2026-05-05",
+      "end_date": "2026-05-09",
       "plate": "70688",
       "customer": "Marc Misdorp",
       "vehicle": "Bmw 420I Convertible",
@@ -2067,6 +2067,17 @@
       "pickup_alerted": false,
       "closed": false,
       "start_date": "2026-05-08"
+    },
+    "009970-ANGE-Cadillac": {
+      "thread_ts": "1778262328.411579",
+      "end_date": "2026-05-13",
+      "plate": "44789",
+      "customer": "Angel Uriel Vizcaino Magana",
+      "vehicle": "Cadillac Escalade",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-05-09"
     }
   }
 }
