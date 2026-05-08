@@ -2001,6 +2001,17 @@
       "pickup_alerted": false,
       "closed": false,
       "start_date": "2026-05-07"
+    },
+    "009964-LAWR-Lotus": {
+      "thread_ts": "1778221830.077299",
+      "end_date": "2026-05-10",
+      "plate": "23652",
+      "customer": "Lawrence Nkeyewo Titaanji",
+      "vehicle": "Lotus Lotus Emira",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-05-08"
     }
   }
 }
