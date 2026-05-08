@@ -2023,6 +2023,17 @@
       "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-05-08"
+    },
+    "009966-DREA-Ferrari": {
+      "thread_ts": "1778235328.653689",
+      "end_date": "2026-05-10",
+      "plate": "97019",
+      "customer": "Dreamrides Car Rental L.L.C",
+      "vehicle": "Ferrari Purosangue",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-05-08"
     }
   }
 }
