@@ -2045,6 +2045,17 @@
       "pickup_alerted": false,
       "closed": false,
       "start_date": "2026-05-09"
+    },
+    "009968-SAHI-Mercedes-Benz": {
+      "thread_ts": "1778246132.245679",
+      "end_date": "2026-05-09",
+      "plate": "66789",
+      "customer": "Sahil Narang Triloki Nath Narang",
+      "vehicle": "Mercedes-Benz Mercedes G3 (Brabus)",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-05-08"
     }
   }
 }
