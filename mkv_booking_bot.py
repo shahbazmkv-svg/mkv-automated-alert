@@ -12,7 +12,7 @@ SLACK_BOT_TOKEN    = os.environ["SLACK_BOT_TOKEN"]
 CHANNEL_BOOKINGS   = "C0ABPC606F7"   # #mkv-bookings (live)
 CHANNEL_TEST       = "C0AVCCCG0S0"   # #mkvtest
 
-TEST_MODE          = True
+TEST_MODE          = False
 TARGET_CHANNEL     = CHANNEL_TEST if TEST_MODE else CHANNEL_BOOKINGS
 
 APPIC_BOOKINGS_URL  = "https://www.appicfleet.com/appiccar-apis-mkv/get-mkv-bookings.php"
