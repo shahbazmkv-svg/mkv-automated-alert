@@ -2034,6 +2034,17 @@
       "pickup_alerted": false,
       "closed": false,
       "start_date": "2026-05-08"
+    },
+    "009967-BIMA-McLaren": {
+      "thread_ts": "1778242529.765679",
+      "end_date": "2026-05-11",
+      "plate": "47041",
+      "customer": "Bimal Kumar Kunwar Pal Sharma",
+      "vehicle": "Mclaren Spider Artura",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-05-09"
     }
   }
 }
