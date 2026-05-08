@@ -2020,7 +2020,7 @@
       "customer": "Asmaa Hanine",
       "vehicle": "Mercedes-Benz Mercedes  G63",
       "delivery_alerted": false,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-05-08"
     }
