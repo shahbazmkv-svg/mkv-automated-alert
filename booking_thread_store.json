@@ -2056,6 +2056,17 @@
       "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-05-08"
+    },
+    "009969-DAVI-Porsche": {
+      "thread_ts": "1778253328.868599",
+      "end_date": "2026-05-10",
+      "plate": "42165",
+      "customer": "David Leon Myers",
+      "vehicle": "Porsche 911 Turbo",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-05-08"
     }
   }
 }
