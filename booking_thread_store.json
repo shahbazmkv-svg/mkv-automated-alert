@@ -1966,7 +1966,7 @@
       "vehicle": "Morgan Morgan Supersport",
       "delivery_alerted": false,
       "pickup_alerted": true,
-      "closed": false,
+      "closed": true,
       "start_date": "2026-05-07"
     },
     "009961-JOHN-Porsche": {
@@ -1977,7 +1977,7 @@
       "vehicle": "Porsche 911 Turbo",
       "delivery_alerted": false,
       "pickup_alerted": true,
-      "closed": false,
+      "closed": true,
       "start_date": "2026-05-07"
     },
     "009962-ZENI-Audi": {
