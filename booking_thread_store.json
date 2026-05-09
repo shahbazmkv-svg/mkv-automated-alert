@@ -2111,6 +2111,17 @@
       "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-05-09"
+    },
+    "009974-DAVI-Land Rover": {
+      "thread_ts": "1778332525.769799",
+      "end_date": "2026-05-10",
+      "plate": "94545",
+      "customer": "David Leon Myers",
+      "vehicle": "Land Rover Sport",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-05-09"
     }
   }
 }
