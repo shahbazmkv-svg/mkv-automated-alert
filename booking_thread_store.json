@@ -2130,7 +2130,7 @@
       "customer": "Reham Moustafa",
       "vehicle": "Mclaren Spider Artura",
       "delivery_alerted": false,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-05-09"
     },
@@ -2141,9 +2141,20 @@
       "customer": "Reham Moustafa",
       "vehicle": "Audi A3",
       "delivery_alerted": false,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-05-09"
+    },
+    "009978-WALY-McLaren": {
+      "thread_ts": "1778346026.671169",
+      "end_date": "2026-05-18",
+      "plate": "47041",
+      "customer": "Walyd Belkass",
+      "vehicle": "Mclaren Spider Artura",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-05-14"
     }
   }
 }
