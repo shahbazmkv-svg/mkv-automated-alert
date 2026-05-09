@@ -1784,13 +1784,13 @@
     },
     "009942-OLIV-Suzuki": {
       "thread_ts": "1777976725.906379",
-      "end_date": "2026-05-06",
+      "end_date": "2026-05-09",
       "plate": "26603",
       "customer": "Oliver  Dela Luna Maghirang",
       "vehicle": "Suzuki Swift",
       "delivery_alerted": true,
-      "pickup_alerted": true,
-      "closed": false,
+      "pickup_alerted": false,
+      "closed": true,
       "start_date": "2026-05-05"
     },
     "009943-SAGI-McLaren": {
@@ -2163,7 +2163,7 @@
       "customer": "Reham Moustafa Elsayed Albably",
       "vehicle": "Suzuki Swift",
       "delivery_alerted": false,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-05-09"
     }
