@@ -1883,13 +1883,13 @@
     },
     "009953-HAYK-BMW": {
       "thread_ts": "1778071528.930829",
-      "end_date": "2026-05-08",
+      "end_date": "2026-05-09",
       "plate": "78051",
       "customer": "Hayk Mkhitaryan",
       "vehicle": "Bmw 735I",
       "delivery_alerted": false,
-      "pickup_alerted": true,
-      "closed": false,
+      "pickup_alerted": false,
+      "closed": true,
       "start_date": "2026-05-06"
     },
     "009954-MAJI-Bentley": {
@@ -2096,6 +2096,17 @@
       "plate": "69367",
       "customer": "Muneer Nazarudeen Nazarudeen",
       "vehicle": "Gmc Yukon",
+      "delivery_alerted": false,
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-09"
+    },
+    "009973-MUNE-BMW": {
+      "thread_ts": "1778329822.349349",
+      "end_date": "2026-05-10",
+      "plate": "78051",
+      "customer": "Muneer Nazarudeen Nazarudeen",
+      "vehicle": "Bmw 735I",
       "delivery_alerted": false,
       "pickup_alerted": false,
       "closed": false,
