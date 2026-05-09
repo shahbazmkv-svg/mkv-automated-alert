@@ -2185,7 +2185,7 @@
       "customer": "Dennis Huskic",
       "vehicle": "Lotus Lotus Emira",
       "delivery_alerted": false,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-05-10"
     }
