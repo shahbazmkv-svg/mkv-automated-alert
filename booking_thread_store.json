@@ -2122,6 +2122,28 @@
       "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-05-09"
+    },
+    "009977-REHA-McLaren": {
+      "thread_ts": "1778345126.769489",
+      "end_date": "2026-05-10",
+      "plate": "47041",
+      "customer": "Reham Moustafa",
+      "vehicle": "Mclaren Spider Artura",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-05-09"
+    },
+    "009976-REHA-Audi": {
+      "thread_ts": "1778345126.946739",
+      "end_date": "2026-05-10",
+      "plate": "90158",
+      "customer": "Reham Moustafa",
+      "vehicle": "Audi A3",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-05-09"
     }
   }
 }
