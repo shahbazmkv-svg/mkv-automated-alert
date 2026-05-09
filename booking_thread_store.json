@@ -2042,7 +2042,7 @@
       "customer": "Bimal Kumar Kunwar Pal Sharma",
       "vehicle": "Mclaren Spider Artura",
       "delivery_alerted": false,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-05-09"
     },
