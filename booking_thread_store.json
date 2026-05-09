@@ -2155,6 +2155,17 @@
       "pickup_alerted": false,
       "closed": false,
       "start_date": "2026-05-14"
+    },
+    "009979-REHA-Suzuki": {
+      "thread_ts": "1778351422.429739",
+      "end_date": "2026-05-10",
+      "plate": "26603",
+      "customer": "Reham Moustafa Elsayed Albably",
+      "vehicle": "Suzuki Swift",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-05-09"
     }
   }
 }
