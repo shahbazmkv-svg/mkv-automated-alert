@@ -6,8 +6,8 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 
 # ── Credentials ───────────────────────────────────────────────────────────────
 ACCOUNT_ID           = "66e3f05033e71154d5fdd76c"
-API_KEY              = "69e7694e2da59f609317986b"
-API_SECRET           = "984394d316324482a8615eba6742b3ab"
+API_KEY              = "6a003a350f276b979610e0b2"
+API_SECRET           = "9b2016e4c5f4450998b2d0052febfccb"
 WEBHOOK_LEAD_REPORT  = "https://hooks.slack.com/services/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"
 WEBHOOK_CUST_SERVICE = "https://hooks.slack.com/services/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"
 MTD_STORE            = os.path.join(os.path.dirname(os.path.abspath(__file__)), "mtd_store.json")
