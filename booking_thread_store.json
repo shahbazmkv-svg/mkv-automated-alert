@@ -2010,7 +2010,7 @@
       "vehicle": "Lotus Lotus Emira",
       "delivery_alerted": false,
       "pickup_alerted": true,
-      "closed": false,
+      "closed": true,
       "start_date": "2026-05-08"
     },
     "009965-ASMA-Mercedes-Benz": {
@@ -2240,7 +2240,7 @@
       "customer": "Amna Hamad Almheiri",
       "vehicle": "Audi A6",
       "delivery_alerted": false,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-05-10"
     }
