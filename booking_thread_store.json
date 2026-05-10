@@ -1773,13 +1773,13 @@
     },
     "009941-HAYK-Audi": {
       "thread_ts": "1777969820.838529",
-      "end_date": "2026-05-08",
+      "end_date": "2026-05-10",
       "plate": "89438",
       "customer": "Hayk Mkhitaryan",
       "vehicle": "Audi A6",
       "delivery_alerted": true,
-      "pickup_alerted": true,
-      "closed": false,
+      "pickup_alerted": false,
+      "closed": true,
       "start_date": "2026-05-05"
     },
     "009942-OLIV-Suzuki": {
@@ -2241,6 +2241,17 @@
       "vehicle": "Audi A6",
       "delivery_alerted": false,
       "pickup_alerted": true,
+      "closed": false,
+      "start_date": "2026-05-10"
+    },
+    "009987-FIVE-Ford": {
+      "thread_ts": "1778426118.550669",
+      "end_date": "2026-05-12",
+      "plate": "15789",
+      "customer": "Five Bros Rent A Car Llc",
+      "vehicle": "Ford Mustang Coupe",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
       "closed": false,
       "start_date": "2026-05-10"
     }
