@@ -2210,6 +2210,17 @@
       "pickup_alerted": false,
       "closed": false,
       "start_date": "2026-05-10"
+    },
+    "009984-KANE-Porsche": {
+      "thread_ts": "1778404520.197129",
+      "end_date": "2026-05-11",
+      "plate": "41854",
+      "customer": "Kane Elliot Tambala",
+      "vehicle": "Porsche Porsche 911 Carrera",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-05-10"
     }
   }
 }
