@@ -2232,6 +2232,17 @@
       "pickup_alerted": false,
       "closed": false,
       "start_date": "2026-05-01"
+    },
+    "009986-AMNA-Audi": {
+      "thread_ts": "1778407229.661169",
+      "end_date": "2026-05-11",
+      "plate": "89438",
+      "customer": "Amna Hamad Almheiri",
+      "vehicle": "Audi A6",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-05-10"
     }
   }
 }
