@@ -2032,7 +2032,7 @@
       "vehicle": "Ferrari Purosangue",
       "delivery_alerted": false,
       "pickup_alerted": true,
-      "closed": false,
+      "closed": true,
       "start_date": "2026-05-08"
     },
     "009967-BIMA-McLaren": {
