@@ -2221,6 +2221,17 @@
       "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-05-10"
+    },
+    "009985-PRAT-Mercedes-Benz": {
+      "thread_ts": "1778406321.794479",
+      "end_date": "2026-05-31",
+      "plate": "38848",
+      "customer": "Prateek Chitkara",
+      "vehicle": "Mercedes-Benz Mercedes  G63",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-05-01"
     }
   }
 }
