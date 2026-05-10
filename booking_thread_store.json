@@ -2196,7 +2196,7 @@
       "customer": "Adio Cavell Poleon",
       "vehicle": "Porsche 911 Turbo",
       "delivery_alerted": false,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-05-10"
     }
