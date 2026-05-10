@@ -2199,6 +2199,17 @@
       "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-05-10"
+    },
+    "009983-ADIO-Porsche": {
+      "thread_ts": "1778403633.864459",
+      "end_date": "2026-05-11",
+      "plate": "41854",
+      "customer": "Adio Cavell Poleon",
+      "vehicle": "Porsche Porsche 911 Carrera",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-05-10"
     }
   }
 }
