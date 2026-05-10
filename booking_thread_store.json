@@ -2218,7 +2218,7 @@
       "customer": "Kane Elliot Tambala",
       "vehicle": "Porsche Porsche 911 Carrera",
       "delivery_alerted": false,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-05-10"
     }
