@@ -2276,6 +2276,17 @@
       "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-05-11"
+    },
+    "009990-MUNE-Porsche": {
+      "thread_ts": "1778502625.275699",
+      "end_date": "2026-05-12",
+      "plate": "42165",
+      "customer": "Muneer Nazarudeen Nazarudeen",
+      "vehicle": "Porsche 911 Turbo",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-05-11"
     }
   }
 }
