@@ -2075,7 +2075,7 @@
       "customer": "Angel Uriel Vizcaino Magana",
       "vehicle": "Cadillac Escalade",
       "delivery_alerted": false,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-05-09"
     },
