@@ -2262,7 +2262,7 @@
       "customer": "Yanni Allan Jadot",
       "vehicle": "Ferrari Purosangue",
       "delivery_alerted": false,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-05-11"
     },
@@ -2273,7 +2273,7 @@
       "customer": "John Alex Githua Mwangi",
       "vehicle": "Chevrolet Corvette",
       "delivery_alerted": false,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-05-11"
     }
