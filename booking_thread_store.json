@@ -178,7 +178,7 @@
     },
     "009896-MARC-BMW": {
       "thread_ts": null,
-      "end_date": "2026-05-09",
+      "end_date": "2026-05-12",
       "plate": "70688",
       "customer": "Marc Misdorp",
       "vehicle": "Bmw 420I Convertible",
@@ -728,7 +728,7 @@
     },
     "009837-ANDR-Land Rover": {
       "thread_ts": null,
-      "end_date": "2026-04-30",
+      "end_date": "2026-05-18",
       "plate": "83209",
       "customer": "Andrew Paul Spencer",
       "vehicle": "Land Rover Range Rover Sport",
@@ -1652,7 +1652,7 @@
     },
     "009930-WAQA-Mercedes-Benz": {
       "thread_ts": "1777728020.978699",
-      "end_date": "2026-05-06",
+      "end_date": "2026-05-12",
       "plate": "55789",
       "customer": "Waqar Ahmad Mukhtiar Ahmad",
       "vehicle": "Mercedes-Benz S500",
