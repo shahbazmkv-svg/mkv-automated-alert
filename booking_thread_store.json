@@ -2043,7 +2043,7 @@
       "vehicle": "Mclaren Spider Artura",
       "delivery_alerted": false,
       "pickup_alerted": true,
-      "closed": false,
+      "closed": true,
       "start_date": "2026-05-09"
     },
     "009968-SAHI-Mercedes-Benz": {
