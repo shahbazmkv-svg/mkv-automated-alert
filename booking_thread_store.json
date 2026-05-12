@@ -640,7 +640,7 @@
     },
     "009846-ABDE-Land Rover": {
       "thread_ts": null,
-      "end_date": "2026-04-22",
+      "end_date": "2026-04-23",
       "plate": "55789",
       "customer": "Abdelhamid Messaoudi",
       "vehicle": "Land Rover Sport",
@@ -1658,7 +1658,7 @@
       "vehicle": "Mercedes-Benz S500",
       "delivery_alerted": true,
       "pickup_alerted": true,
-      "closed": false,
+      "closed": true,
       "start_date": "2026-05-02"
     },
     "009931-D S -Ferrari": {
