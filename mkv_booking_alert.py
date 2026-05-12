@@ -25,6 +25,10 @@ SLACK_HEADERS      = {
     "Content-Type": "application/json"
 }
 
+# ─────────────────────────────────────────────
+#  HELPERS
+# ─────────────────────────────────────────────
+
 def dubai_now():
     return datetime.now(DUBAI_TZ)
 
@@ -33,20 +37,6 @@ def fmt_date(d):
         return datetime.strptime(d, "%Y-%m-%d").strftime("%d %b %Y")
     except:
         return d or "N/A"
-
-def fmt_amount(v):
-    try:
-        f = float(v)
-        return f"AED {f:,.0f}" if f > 0 else "—"
-    except:
-        return "—"
-
-def fmt_amount_zero(v):
-    try:
-        f = float(v or 0)
-        return f"AED {f:,.0f}" if f > 0 else "—"
-    except:
-        return "—"
 
 def booking_key(b):
     cid = (b.get("contractID") or "").strip()
@@ -70,6 +60,10 @@ def save_store(store):
     with open(STORE_FILE, "w") as f:
         json.dump(store, f, indent=2)
 
+# ─────────────────────────────────────────────
+#  SLACK API
+# ─────────────────────────────────────────────
+
 def post_message(channel, blocks, text, thread_ts=None):
     payload = {"channel": channel, "text": text, "blocks": blocks}
     if thread_ts:
@@ -85,11 +79,71 @@ def post_message(channel, blocks, text, thread_ts=None):
         if data.get("ok"):
             return data.get("ts")
         else:
-            print(f"  Slack error: {data.get('error')}")
+            print(f"  Slack post error: {data.get('error')}")
             return None
     except Exception as e:
         print(f"  Slack request failed: {e}")
         return None
+
+def delete_message(channel, ts):
+    """Delete a single bot-posted message by channel + ts."""
+    try:
+        r = requests.post(
+            "https://slack.com/api/chat.delete",
+            headers=SLACK_HEADERS,
+            json={"channel": channel, "ts": ts},
+            timeout=10
+        )
+        data = r.json()
+        if data.get("ok"):
+            print(f"  Deleted message ts={ts}")
+            return True
+        else:
+            print(f"  Delete error ts={ts}: {data.get('error')}")
+            return False
+    except Exception as e:
+        print(f"  Delete request failed: {e}")
+        return False
+
+def delete_booking_thread(channel, stored):
+    """
+    Delete all bot-posted messages for a booking.
+    Replies are deleted first, parent card last.
+
+    Store keys used:
+      thread_ts          — parent booking card
+      delivery_ts        — delivery checklist reply
+      pickup_ts          — pickup checklist reply
+      closed_ts          — contract closed reply
+      extension_ts_list  — list of extension note ts values
+    """
+    deleted = []
+
+    # Delete replies first (newest to oldest)
+    for ts_key in ["closed_ts", "pickup_ts", "delivery_ts"]:
+        ts = stored.get(ts_key)
+        if ts:
+            if delete_message(channel, ts):
+                deleted.append(ts_key)
+
+    # Extension notes — may have multiple
+    for ext_ts in stored.get("extension_ts_list", []):
+        if ext_ts:
+            if delete_message(channel, ext_ts):
+                deleted.append(f"extension:{ext_ts}")
+
+    # Delete parent card last
+    parent_ts = stored.get("thread_ts")
+    if parent_ts:
+        if delete_message(channel, parent_ts):
+            deleted.append("thread_ts")
+
+    print(f"  Thread cleanup complete — deleted: {deleted}")
+    return deleted
+
+# ─────────────────────────────────────────────
+#  APPIC
+# ─────────────────────────────────────────────
 
 def fetch_bookings():
     now        = dubai_now()
@@ -114,18 +168,24 @@ def fetch_bookings():
         print(f"  API error: {e}")
         return []
 
+# ─────────────────────────────────────────────
+#  EXTRACT
+# ─────────────────────────────────────────────
+
 def extract(b):
     start  = (b.get("startDate") or "").strip()
     end    = (b.get("endDate")   or "").strip()
     s_time = (b.get("startTime") or "")[:5]
     e_time = (b.get("endTime")   or "")[:5]
+
     try:
         dur     = (datetime.strptime(end, "%Y-%m-%d") - datetime.strptime(start, "%Y-%m-%d")).days
         dur_str = f"{dur} day{'s' if dur != 1 else ''}"
     except:
         dur_str = "N/A"
+
     try:
-        # ── Raw values from Appic (all VAT-inclusive) ──────────────────────
+        # ── All values from Appic are VAT-inclusive ────────────────────────
         rental_incl   = float(b.get("amount", 0)          or 0)
         zero_dep_incl = float(b.get("zeroDepositFee", 0)  or 0)
         delivery_incl = float(b.get("deliveryCharges", 0) or 0)
@@ -134,28 +194,11 @@ def extract(b):
         grand_total   = float(b.get("grandTotal", 0)      or 0)
         advance       = float(b.get("advanceReceived", 0) or 0)
 
-        # ── Helper: split a VAT-inclusive amount into (ex_vat, vat) ────────
-        def split_vat(incl):
-            ex  = round(incl / 1.05, 2)
-            vat = round(incl - ex, 2)
-            return ex, vat
-
-        r_ex,  r_vat  = split_vat(rental_incl)
-        zd_ex, zd_vat = split_vat(zero_dep_incl)
-        dl_ex, dl_vat = split_vat(delivery_incl)
-        pu_ex, pu_vat = split_vat(pickup_incl)
-        bs_ex, bs_vat = split_vat(baby_incl)
-
-        # ── Total excl. VAT = grandTotal / 1.05 ────────────────────────────
-        total_excl_vat = round(grand_total / 1.05, 2) if grand_total > 0 else (
-            r_ex + zd_ex + dl_ex + pu_ex + bs_ex
-        )
-
-        # ── Display helpers ─────────────────────────────────────────────────
         def fmt(v):
             return f"AED {v:,.0f}" if v > 0 else "—"
 
-        # Summary totals only — per-line just shows the incl. amount
+        # ── VAT summary at bottom only (per-line shows incl. amount) ───────
+        total_excl_vat = round(grand_total / 1.05, 2) if grand_total > 0 else 0
         total_vat      = round(grand_total - total_excl_vat, 2)
 
         rental_amt     = fmt(rental_incl)
@@ -174,7 +217,6 @@ def extract(b):
 
     pickup_loc  = (b.get("pickupLocation")  or "").strip()
     dropoff_loc = (b.get("dropoffLocation") or "").strip()
-    # Try to extract location from remarks if API fields empty
     remarks_raw = (b.get("remarks") or "").strip()
     loc_from_remarks = "—"
     if not pickup_loc and not dropoff_loc and remarks_raw:
@@ -186,7 +228,7 @@ def extract(b):
         if loc_match:
             loc_from_remarks = loc_match.group(1).strip()
     location = pickup_loc or dropoff_loc or loc_from_remarks
-    status      = (b.get("status") or "confirmed").lower()
+    status   = (b.get("status") or "confirmed").lower()
 
     return {
         "agr_no":       (b.get("contractID")     or "—").strip(),
@@ -203,7 +245,7 @@ def extract(b):
         "e_time":       e_time,
         "dur_str":      dur_str,
         "location":     location,
-        # cost fields
+        # cost (VAT-inclusive per line, summary split at bottom)
         "rental_amt":   rental_amt,
         "zero_dep":     zero_dep_amt,
         "delivery":     delivery_amt,
@@ -247,12 +289,12 @@ def build_booking_card(f, now_str):
         f"{'Duration':<14}: {f['dur_str']}\n"
         f"{'Delivery To':<14}: {f['location']}\n"
         f"{'─' * 36}\n"
-        + (f"{'Rental':<14}: {f['rental_amt']}\n"   if f['rental_amt']  != '—' else "") +
-        (f"{'Zero Deposit':<14}: {f['zero_dep']}\n"  if f['zero_dep']    != '—' else "") +
-        (f"{'Delivery':<14}: {f['delivery']}\n"      if f['delivery']    != '—' else "") +
-        (f"{'Pickup Fee':<14}: {f['pickup_fee']}\n"  if f['pickup_fee']  != '—' else "") +
-        (f"{'Baby Seat':<14}: {f['baby_seat']}\n"    if f['baby_seat']   != '—' else "") +
-        f"{'─' * 36}\n"
+        + (f"{'Rental':<14}: {f['rental_amt']}\n"   if f['rental_amt']  != '—' else "")
+        + (f"{'Zero Deposit':<14}: {f['zero_dep']}\n"  if f['zero_dep']    != '—' else "")
+        + (f"{'Delivery':<14}: {f['delivery']}\n"      if f['delivery']    != '—' else "")
+        + (f"{'Pickup Fee':<14}: {f['pickup_fee']}\n"  if f['pickup_fee']  != '—' else "")
+        + (f"{'Baby Seat':<14}: {f['baby_seat']}\n"    if f['baby_seat']   != '—' else "")
+        + f"{'─' * 36}\n"
         f"{'Total Rental':<14}: {f['total_excl']}\n"
         f"{'VAT (5%)':<14}: {f['total_vat']}\n"
         f"{'Grand Total':<14}: {f['total_amt']}\n"
@@ -268,7 +310,6 @@ def build_booking_card(f, now_str):
         f"```"
     )
 
-    # Booking data for interactive buttons
     booking_data = json.dumps({
         "id":       f["agr_no"],
         "car":      f"{f['vehicle']} [{f['plate']}]",
@@ -395,7 +436,6 @@ def build_pickup_checklist(f, now_str, channel=None, thread_ts=None):
         "out_km":   "",
     })
 
-    # Build direct link to booking thread in Slack
     thread_link = ""
     if channel and thread_ts:
         thread_link = f" | <https://slack.com/app_redirect?channel={channel}&message_ts={thread_ts}|View Booking Thread>"
@@ -445,7 +485,7 @@ def build_contract_closed(f, now_str):
         f"{'End':<14}: {fmt_date(f['end'])}  {f['e_time']}\n"
         f"{'Duration':<14}: {f['dur_str']}\n"
         f"{'Delivery To':<14}: {f['location']}\n"
-        f"{'Total':<14}: {f['total_amt']}\n"
+        f"{'Grand Total':<14}: {f['total_amt']}\n"
         f"{'─' * 36}\n"
         f"CONTRACT CLOSED — NO FURTHER ACTION REQUIRED\n"
         f"```"
@@ -471,12 +511,13 @@ def build_contract_closed(f, now_str):
 # ─────────────────────────────────────────────
 #  MAIN
 # ─────────────────────────────────────────────
+
 def main():
     now      = dubai_now()
     now_str  = now.strftime("%d %b %Y | %I:%M %p Dubai Time")
     tomorrow = (now + timedelta(days=1)).strftime("%Y-%m-%d")
 
-    SEED_MODE = True
+    SEED_MODE = False
 
     print("=" * 56)
     print("  MKV BOOKING BOT")
@@ -503,46 +544,60 @@ def main():
         start    = f["start"]
         status   = f["status"]
 
+        # ── SEED MODE: register silently, no posts ────────────────────────
         if SEED_MODE:
             if key not in bookings:
                 bookings[key] = {
-                    "thread_ts":        None,
-                    "end_date":         end,
-                    "plate":            plate,
-                    "customer":         customer,
-                    "vehicle":          f["vehicle"],
-                    "delivery_alerted": True,
-                    "pickup_alerted":   False,
-                    "closed":           False,
-                    "start_date":       start,
+                    "thread_ts":         None,
+                    "delivery_ts":       None,
+                    "pickup_ts":         None,
+                    "closed_ts":         None,
+                    "extension_ts_list": [],
+                    "end_date":          end,
+                    "plate":             plate,
+                    "customer":          customer,
+                    "vehicle":           f["vehicle"],
+                    "delivery_alerted":  True,
+                    "pickup_alerted":    False,
+                    "closed":            False,
+                    "start_date":        start,
                 }
             continue
 
+        # ── NEW BOOKING ───────────────────────────────────────────────────
         if key not in bookings:
             print(f"  NEW: {customer} | {plate} | {start} | {f['status_label']}")
             blocks, text = build_booking_card(f, now_str)
             ts = post_message(TARGET_CHANNEL, blocks, text)
-            # Also post to #mkv-schedule-for-delivery
             post_message(TARGET_DELIVERY, blocks, text)
+
             if ts:
                 bookings[key] = {
-                    "thread_ts":        ts,
-                    "end_date":         end,
-                    "plate":            plate,
-                    "customer":         customer,
-                    "vehicle":          f["vehicle"],
-                    "delivery_alerted": False,
-                    "pickup_alerted":   False,
-                    "closed":           False,
-                    "start_date":       start,
+                    "thread_ts":         ts,     # parent booking card
+                    "delivery_ts":       None,   # filled below
+                    "pickup_ts":         None,   # filled when pickup checklist posted
+                    "closed_ts":         None,   # filled when contract closed
+                    "extension_ts_list": [],     # appended on each extension
+                    "end_date":          end,
+                    "plate":             plate,
+                    "customer":          customer,
+                    "vehicle":           f["vehicle"],
+                    "delivery_alerted":  False,
+                    "pickup_alerted":    False,
+                    "closed":            False,
+                    "start_date":        start,
                 }
-                print(f"  Booking card posted — thread: {ts}")
+                print(f"  Booking card posted — thread_ts: {ts}")
+
+                # Delivery checklist reply — save ts
                 d_blocks, d_text = build_delivery_checklist(f, now_str)
                 d_ts = post_message(TARGET_CHANNEL, d_blocks, d_text, thread_ts=ts)
                 if d_ts:
+                    bookings[key]["delivery_ts"]     = d_ts
                     bookings[key]["delivery_alerted"] = True
-                    print(f"  Delivery checklist posted in thread")
+                    print(f"  Delivery checklist posted — delivery_ts: {d_ts}")
 
+        # ── EXISTING BOOKING ──────────────────────────────────────────────
         else:
             stored    = bookings.get(key, {})
             if not isinstance(stored, dict):
@@ -554,44 +609,51 @@ def main():
             if closed:
                 continue
 
+            # Contract extension
             if end and old_end and end != old_end and end > old_end:
                 print(f"  EXTENSION: {customer} | {plate} | {old_end} -> {end}")
-                # Update end date in store — no extension card posted
                 bookings[key]["end_date"]       = end
                 bookings[key]["pickup_alerted"] = False
                 if thread_ts:
-                    # Post a simple extension note in the booking thread
                     try:
                         import datetime as _dt
                         days = (_dt.datetime.strptime(end, "%Y-%m-%d") - _dt.datetime.strptime(old_end, "%Y-%m-%d")).days
                         day_label = "days" if days != 1 else "day"
                         ext_text = (
                             "📋 *CONTRACT EXTENDED*\n"
-                            + f"Previous End: {fmt_date(old_end)} - New End: {fmt_date(end)} (+{days} {day_label})\n"
+                            + f"Previous End: {fmt_date(old_end)} — New End: {fmt_date(end)} (+{days} {day_label})\n"
                             + f"Detected: {now_str}"
                         )
-                        post_message(TARGET_CHANNEL, [
+                        ext_ts = post_message(TARGET_CHANNEL, [
                             {"type": "section", "text": {"type": "mrkdwn", "text": ext_text}}
                         ], ext_text, thread_ts=thread_ts)
-                        print(f"  Extension note posted in thread")
+                        if ext_ts:
+                            if "extension_ts_list" not in bookings[key]:
+                                bookings[key]["extension_ts_list"] = []
+                            bookings[key]["extension_ts_list"].append(ext_ts)
+                            print(f"  Extension note posted — ext_ts: {ext_ts}")
                     except Exception as ex:
                         print(f"  Extension note error: {ex}")
 
+            # Pickup checklist — due tomorrow
             if end == tomorrow and not stored.get("pickup_alerted") and thread_ts:
                 print(f"  PICKUP CHECKLIST: {customer} | {plate} | due {end}")
                 p_blocks, p_text = build_pickup_checklist(f, now_str, TARGET_CHANNEL, thread_ts)
                 p_ts = post_message(TARGET_CHANNEL, p_blocks, p_text, thread_ts=thread_ts)
                 if p_ts:
+                    bookings[key]["pickup_ts"]      = p_ts
                     bookings[key]["pickup_alerted"] = True
-                    print(f"  Pickup checklist posted in thread")
+                    print(f"  Pickup checklist posted — pickup_ts: {p_ts}")
 
+            # Contract closed
             if status == "closed" and not closed and thread_ts:
                 print(f"  CONTRACT CLOSED: {customer} | {plate}")
                 c_blocks, c_text = build_contract_closed(f, now_str)
                 c_ts = post_message(TARGET_CHANNEL, c_blocks, c_text, thread_ts=thread_ts)
                 if c_ts:
-                    bookings[key]["closed"] = True
-                    print(f"  Contract closed posted in thread")
+                    bookings[key]["closed_ts"] = c_ts
+                    bookings[key]["closed"]    = True
+                    print(f"  Contract closed posted — closed_ts: {c_ts}")
 
     store["bookings"] = bookings
     save_store(store)
@@ -602,6 +664,7 @@ def main():
     print("=" * 56)
     print("  Done")
     print("=" * 56)
+
 
 if __name__ == "__main__":
     main()
