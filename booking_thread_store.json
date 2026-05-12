@@ -2320,6 +2320,28 @@
       "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-05-12"
+    },
+    "009995-AMED-Lotus": {
+      "thread_ts": "1778586320.967119",
+      "end_date": "2026-05-13",
+      "plate": "23652",
+      "customer": "Amedeo Capretta",
+      "vehicle": "Lotus Lotus Emira",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-05-12"
+    },
+    "009994-JOHN-Suzuki": {
+      "thread_ts": "1778586322.234559",
+      "end_date": "2026-05-17",
+      "plate": "26603",
+      "customer": "John Alex Githua Mwangi",
+      "vehicle": "Suzuki Swift",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-05-12"
     }
   }
 }
