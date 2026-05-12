@@ -69,11 +69,11 @@ jobs:
             -d "key=$APPIC_KEY" \
             https://www.appicfleet.com/appiccar-apis-mkv/get-mkv-vehicles.php | python3 -m json.tool
 
-  debug-full:
+debug-full:
     if: github.event.inputs.job == 'debug-full'
     runs-on: ubuntu-latest
     steps:
-      - name: Debug both APIs
+      - name: Debug APIs
         env:
           APPIC_KEY: ${{ secrets.APPIC_KEY }}
         run: |
@@ -84,39 +84,22 @@ jobs:
           KEY      = os.environ["APPIC_KEY"]
           today    = datetime.now().strftime("%Y-%m-%d")
           tomorrow = (datetime.now() + timedelta(days=1)).strftime("%Y-%m-%d")
+          start    = (datetime.now() - timedelta(days=30)).strftime("%Y-%m-%d")
 
           print("=" * 60)
-          print("1. GET-MKV-VEHICLES — first 3 STR vehicles")
+          print("BOOKINGS API — first 3 active bookings — ALL FIELDS")
           print("=" * 60)
           r = requests.post(
-              "https://www.appicfleet.com/appiccar-apis-mkv/get-mkv-vehicles.php",
-              data={"key": KEY}, timeout=20
+              "https://www.appicfleet.com/appiccar-apis-mkv/get-mkv-bookings.php",
+              data={"key": KEY, "startDate": start, "endDate": tomorrow},
+              timeout=20
           )
-          resp = r.json()
-          vehicles = resp if isinstance(resp, list) else resp.get("data", resp.get("vehicles", []))
-          active = [v for v in vehicles if float(v.get("dailyrent", 0) or 0) > 0]
-          print(f"Total: {len(vehicles)} | STR (dailyrent>0): {len(active)}")
-          print(f"Keys: {list(active[0].keys()) if active else 'NONE'}")
-          for v in active[:3]:
-              print(json.dumps(v, indent=2))
+          bookings = r.json().get("bookings", [])
+          print(f"Total bookings: {len(bookings)}")
+          for b in bookings[:3]:
+              print(json.dumps(b, indent=2))
 
-          print()
-          print("=" * 60)
-          print("2. GET-MKV-AVAILABLE-VEHICLE — first 3 STR vehicles")
-          print("=" * 60)
-          for v in active[:3]:
-              vid   = str(v.get("vehicleID") or v.get("id") or "")
-              plate = v.get("plate", "")
-              r2 = requests.post(
-                  "https://www.appicfleet.com/appiccar-apis-mkv/get-mkv-available-vehicle.php",
-                  data={"key": KEY, "startDate": today, "endDate": tomorrow, "vehicleID": vid},
-                  timeout=15
-              )
-              print(f"vehicleID={vid} | plate={plate}")
-              print(json.dumps(r2.json(), indent=2))
-              print()
           EOF
-
   daily-leads:
     if: >
       (github.event_name == 'schedule' && github.event.schedule == '0 7 * * *') ||
