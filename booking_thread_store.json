@@ -2859,6 +2859,17 @@
       "pickup_alerted": false,
       "closed": false,
       "start_date": "2026-05-01"
+    },
+    "009997-MUNE-Land Rover": {
+      "thread_ts": "1778597128.125609",
+      "end_date": "2026-05-13",
+      "plate": "94545",
+      "customer": "Muneer Nazarudeen Nazarudeen",
+      "vehicle": "Land Rover Sport",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-05-12"
     }
   }
 }
