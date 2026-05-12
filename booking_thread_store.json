@@ -2164,7 +2164,7 @@
       "vehicle": "Suzuki Swift",
       "delivery_alerted": false,
       "pickup_alerted": true,
-      "closed": false,
+      "closed": true,
       "start_date": "2026-05-09"
     },
     "009980-AMIN-Mercedes-Benz": {
@@ -2219,7 +2219,7 @@
       "vehicle": "Porsche Porsche 911 Carrera",
       "delivery_alerted": false,
       "pickup_alerted": true,
-      "closed": false,
+      "closed": true,
       "start_date": "2026-05-10"
     },
     "009985-PRAT-Mercedes-Benz": {
