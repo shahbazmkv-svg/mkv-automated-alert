@@ -75,35 +75,52 @@ jobs:
     steps:
       - name: Install requests
         run: pip install requests --break-system-packages
-      - name: Debug bookings API fields
+      - name: Debug vehicle fields and availability API
         env:
           APPIC_KEY: ${{ secrets.APPIC_KEY }}
         run: |
-          cat > /tmp/debug.py << 'PYEOF'
+          python3 - << 'EOF'
           import requests, json, os
           from datetime import datetime, timedelta
 
           KEY      = os.environ["APPIC_KEY"]
           today    = datetime.now().strftime("%Y-%m-%d")
-          start    = (datetime.now() - timedelta(days=30)).strftime("%Y-%m-%d")
+          tomorrow = (datetime.now() + timedelta(days=1)).strftime("%Y-%m-%d")
 
-          print("=" * 60)
-          print("BOOKINGS API — first 5 active bookings — ALL FIELDS")
-          print("=" * 60)
+          # Step 1 — get vehicles
           r = requests.post(
-              "https://www.appicfleet.com/appiccar-apis-mkv/get-mkv-bookings.php",
-              data={"key": KEY, "startDate": start, "endDate": today},
-              timeout=20
+              "https://www.appicfleet.com/appiccar-apis-mkv/get-mkv-vehicles.php",
+              data={"key": KEY}, timeout=20
           )
-          bookings = r.json().get("bookings", [])
-          print(f"Total bookings returned: {len(bookings)}")
-          print(f"Keys in booking: {list(bookings[0].keys()) if bookings else 'NONE'}")
+          resp  = r.json()
+          all_v = resp if isinstance(resp, list) else resp.get("data", resp.get("vehicles", []))
+          active = [v for v in all_v if
+              float(v.get("dailyrent",0) or 0)>0 or
+              float(v.get("weeklyrent",0) or 0)>0 or
+              float(v.get("monthlyrent",0) or 0)>0]
+
+          print(f"Total={len(all_v)} | Active={len(active)}")
+          print(f"Vehicle keys: {list(active[0].keys()) if active else []}")
           print()
-          for b in bookings[:5]:
-              print(json.dumps(b, indent=2))
+          print("=== FULL RESPONSE: first 3 vehicles ===")
+          for v in active[:3]:
+              print(json.dumps(v, indent=2))
+          print()
+
+          # Step 2 — availability API for first 5 vehicles
+          print("=== AVAILABILITY API: first 5 vehicles ===")
+          for v in active[:5]:
+              vid   = str(v.get("vehicleID") or "")
+              plate = v.get("plate","")
+              r2 = requests.post(
+                  "https://www.appicfleet.com/appiccar-apis-mkv/get-mkv-available-vehicle.php",
+                  data={"key": KEY, "startDate": today, "endDate": tomorrow, "vehicleID": vid},
+                  timeout=15
+              )
+              print(f"vehicleID={vid} plate={plate}")
+              print(json.dumps(r2.json(), indent=2))
               print()
-          PYEOF
-          python3 /tmp/debug.py
+          EOF
 
   daily-leads:
     if: >
