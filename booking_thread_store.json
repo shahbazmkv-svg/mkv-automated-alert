@@ -3059,6 +3059,36 @@
       "pickup_alerted": false,
       "closed": false,
       "start_date": "2026-05-01"
+    },
+    "009998-ANGE-Lamborghini": {
+      "thread_ts": "1778606135.330309",
+      "delivery_ts": "1778606135.846699",
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": [],
+      "end_date": "2026-05-13",
+      "plate": "V/ 69222",
+      "customer": "Angel Uriel Vizcaino Magana",
+      "vehicle": "Lamborghini Evo Spider",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-05-12"
+    },
+    "009249-MKV -Lamborghini": {
+      "thread_ts": "1778606136.089599",
+      "delivery_ts": "1778606136.570719",
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": [],
+      "end_date": "2026-05-31",
+      "plate": "V/ 69222",
+      "customer": "Mkv Luxury Car Rental",
+      "vehicle": "Lamborghini Evo Spider",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-05-11"
     }
   }
 }
