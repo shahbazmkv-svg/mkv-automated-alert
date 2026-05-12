@@ -3063,10 +3063,12 @@
     "009998-ANGE-Lamborghini": {
       "thread_ts": "1778606135.330309",
       "delivery_ts": "1778606135.846699",
-      "pickup_ts": "1778607025.131979",
+      "pickup_ts": "1778622329.323989",
       "closed_ts": null,
-      "extension_ts_list": [],
-      "end_date": "2026-05-13",
+      "extension_ts_list": [
+        "1778622329.086419"
+      ],
+      "end_date": "2026-05-14",
       "plate": "V/ 69222",
       "customer": "Angel Uriel Vizcaino Magana",
       "vehicle": "Lamborghini Evo Spider",
