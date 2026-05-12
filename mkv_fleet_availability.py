@@ -1,27 +1,30 @@
 """
 MKV Luxury – Fleet Availability
 =================================
-API 1: get-mkv-vehicles.php          → full STR fleet list (dailyrent > 0)
-API 2: get-mkv-available-vehicle.php → check availability per vehicle for today
-API 3: get-mkv-bookings.php          → classify contracts: STR / Lease / Longterm
+API 1: get-mkv-vehicles.php          → STR fleet list (dailyrent > 0)
+API 2: get-mkv-available-vehicle.php → availability status per vehicle (Available / Gone for service / Accident/Damage / Rented)
+API 3: get-mkv-bookings.php          → classify active STR contracts only (plates must exist in STR fleet)
 
-Contract type by duration:
+Key fix: bookings API returns ALL contracts across all fleets.
+We only classify a booking if its plate exists in the STR vehicle list.
+
+Contract type by duration (STR fleet only):
   STR      : 1–30  days
-  Lease    : 31–730 days
+  Lease    : 31–730 days  ← only if plate is in STR fleet AND has a long contract
   Longterm : 731+  days
 
-Appic vehicle status values:
+Appic availability API status values:
   "Available"        → available
   "Gone for service" → service
   "Accident/Damage"  → NRV
-  Rented             → determined by active contracts
+  Rented             → determined by active bookings
 """
 import os, json, re, requests
 from datetime import datetime, timezone, timedelta
 
 SLACK_TOKEN   = os.environ["SLACK_BOT_TOKEN"]
 APPIC_KEY     = os.environ.get("APPIC_KEY", "")
-SLACK_CHANNEL = "C0B0TGBDCDU"   # #mkvtest — switch to live channel when ready
+SLACK_CHANNEL = "C0B0TGBDCDU"   # #mkvtest
 DUBAI_TZ      = timezone(timedelta(hours=4))
 BLOCK_LIMIT   = 2900
 
@@ -50,47 +53,132 @@ def parse_date(s):
             continue
     return None
 
-def get_status(v: dict) -> str:
-    """Return the normalised Appic status string for a vehicle."""
-    raw = (
-        v.get("status") or
-        v.get("availability") or
-        v.get("vehicleStatus") or
-        ""
-    )
-    return str(raw).lower().strip()
+def normalize_plate(plate: str) -> str:
+    digits = re.sub(r"[^0-9]", "", str(plate))
+    return digits.lstrip("0") if digits else str(plate)
+
+def get_plate(v: dict) -> str:
+    for key in ["plate", "vehiclePlate", "plateNo", "plate_no", "number_plate", "licensePlate"]:
+        val = str(v.get(key, "") or "").strip()
+        if val and val != "0":
+            return val
+    return ""
+
+def get_vehicle_id(v: dict) -> str:
+    for k in ["vehicleID", "id", "vehicleId", "vehicle_id", "ID"]:
+        val = str(v.get(k, "") or "").strip()
+        if val and val not in ("0", ""):
+            return val
+    return ""
 
 # ─────────────────────────────────────────────────────────
-# 1. Fetch full fleet list
+# 1. Fetch STR fleet
 # ─────────────────────────────────────────────────────────
 def fetch_vehicles() -> list:
-    """POST get-mkv-vehicles.php → returns all STR fleet (dailyrent > 0)."""
+    """POST get-mkv-vehicles.php → STR fleet (dailyrent > 0)."""
     try:
         r = requests.post(MKV_VEHICLES_URL, data={"key": APPIC_KEY}, timeout=20)
         r.raise_for_status()
-        resp = r.json()
-
+        resp  = r.json()
         all_v = resp if isinstance(resp, list) else resp.get("data", resp.get("vehicles", []))
 
         if all_v:
             s = all_v[0]
-            print(f"  Vehicle keys   : {list(s.keys())}")
-            print(f"  Sample         : id={s.get('id')} | plate={s.get('plate')} | "
-                  f"status={s.get('status')} | availability={s.get('availability')} | "
-                  f"dailyrent={s.get('dailyrent')}")
+            print(f"  Vehicle keys : {list(s.keys())}")
+            print(f"  Sample       : vehicleID={s.get('vehicleID')} | plate={s.get('plate')} | dailyrent={s.get('dailyrent')}")
 
         active = [v for v in all_v if float(v.get("dailyrent", 0) or 0) > 0]
-        print(f"  Vehicles total : {len(all_v)} | STR fleet (dailyrent>0): {len(active)}")
+        print(f"  Total: {len(all_v)} | STR fleet (dailyrent>0): {len(active)}")
         return active
     except Exception as ex:
         print(f"  ❌ Vehicles API error: {ex}")
         return []
 
 # ─────────────────────────────────────────────────────────
-# 2. Fetch active contracts → classify STR / Lease / Longterm
+# 2. Availability status per vehicle from dedicated API
+#    Returns: { vehicleID -> "available" | "service" | "nrv" | "rented" }
 # ─────────────────────────────────────────────────────────
-def fetch_contract_type_map() -> dict:
-    """Returns { normalized_plate -> 'str' | 'lease' | 'longterm' }"""
+def fetch_vehicle_statuses(vehicles: list) -> dict:
+    """
+    Calls get-mkv-available-vehicle.php per vehicle for today.
+    Uses the status string from Appic to determine:
+      Available        → available
+      Gone for service → service
+      Accident/Damage  → nrv
+      Rented/booked    → rented (fallback — bookings API takes priority)
+    """
+    today_str    = now_dubai().strftime("%Y-%m-%d")
+    tomorrow_str = (now_dubai() + timedelta(days=1)).strftime("%Y-%m-%d")
+    statuses     = {}
+
+    for v in vehicles:
+        vid = get_vehicle_id(v)
+        if not vid:
+            continue
+        try:
+            r = requests.post(MKV_AVAIL_URL, data={
+                "key":       APPIC_KEY,
+                "startDate": today_str,
+                "endDate":   tomorrow_str,
+                "vehicleID": vid
+            }, timeout=15)
+            r.raise_for_status()
+            resp = r.json()
+
+            # Print raw response for first vehicle to understand structure
+            if len(statuses) == 0:
+                print(f"  Avail API sample (vehicleID={vid}): {json.dumps(resp)[:300]}")
+
+            # Extract status string — try all known keys
+            raw = ""
+            if isinstance(resp, dict):
+                raw = str(
+                    resp.get("status") or
+                    resp.get("availability") or
+                    resp.get("vehicleStatus") or
+                    resp.get("message") or
+                    ""
+                ).lower().strip()
+
+                # Also check nested data
+                data = resp.get("data") or resp.get("vehicle") or {}
+                if not raw and isinstance(data, dict):
+                    raw = str(
+                        data.get("status") or
+                        data.get("availability") or ""
+                    ).lower().strip()
+
+            # Classify
+            if "accident" in raw or "damage" in raw:
+                statuses[vid] = "nrv"
+            elif "service" in raw:
+                statuses[vid] = "service"
+            elif "available" in raw:
+                statuses[vid] = "available"
+            elif "rent" in raw or "booked" in raw or "unavailable" in raw:
+                statuses[vid] = "rented"
+            else:
+                statuses[vid] = "unknown"
+
+        except Exception as ex:
+            print(f"  ⚠️  Avail API error for vehicleID={vid}: {ex}")
+            statuses[vid] = "unknown"
+
+    # Summary
+    from collections import Counter
+    counts = Counter(statuses.values())
+    print(f"  Avail API results: {dict(counts)}")
+    return statuses
+
+# ─────────────────────────────────────────────────────────
+# 3. Classify active contracts — STR fleet plates ONLY
+# ─────────────────────────────────────────────────────────
+def fetch_contract_type_map(str_plates_norm: set) -> dict:
+    """
+    Returns { normalized_plate -> 'str' | 'lease' | 'longterm' }
+    ONLY for plates that exist in the STR fleet.
+    This prevents long-term/lease fleet contracts from polluting STR fleet status.
+    """
     PRIORITY = {"longterm": 3, "lease": 2, "str": 1}
     try:
         today     = now_dubai().date()
@@ -105,7 +193,7 @@ def fetch_contract_type_map() -> dict:
         print(f"  Bookings total : {len(bookings)}")
 
         plate_type  = {}
-        plate_debug = {}
+        skipped     = 0
 
         for b in bookings:
             status = str(b.get("status") or b.get("bookingStatus") or "").lower().strip()
@@ -114,6 +202,13 @@ def fetch_contract_type_map() -> dict:
 
             plate = str(b.get("vehiclePlate", "") or "").strip()
             if not plate:
+                continue
+
+            norm = normalize_plate(plate)
+
+            # ── KEY FIX: skip if plate not in STR fleet ──
+            if norm not in str_plates_norm:
+                skipped += 1
                 continue
 
             sd = parse_date(b.get("startDate"))
@@ -125,41 +220,18 @@ def fetch_contract_type_map() -> dict:
 
             duration = (ed - sd).days
             ctype    = "longterm" if duration >= 731 else "lease" if duration >= 31 else "str"
-            norm     = normalize_plate(plate)
             agr      = b.get("agreementNo") or b.get("agr_no") or "N/A"
 
-            if norm not in plate_debug:
-                plate_debug[norm] = []
-            plate_debug[norm].append({
-                "agr": agr, "plate": plate,
-                "sd": str(sd), "ed": str(ed),
-                "days": duration, "type": ctype, "status": status or "confirmed"
-            })
+            print(f"  CONTRACT: AGR={agr} | plate={plate} | {sd}→{ed} ({duration}d) [{ctype.upper()}]")
 
             if norm not in plate_type or PRIORITY[ctype] > PRIORITY[plate_type[norm]]:
                 plate_type[norm] = ctype
 
-        # ── DEBUG: flag any LEASE / LONGTERM contracts ──
-        print()
-        print("  ┌─── ACTIVE CONTRACTS DEBUG ─────────────────────────────────────────┐")
-        found_suspicious = False
-        for norm, contracts in sorted(plate_debug.items()):
-            for c in contracts:
-                flag = ""
-                if c["type"] in ("lease", "longterm"):
-                    flag = "  ⚠️  LEASE/LONGTERM"
-                    found_suspicious = True
-                print(f"  │  AGR={c['agr']:<20} plate={c['plate']:<10} "
-                      f"{c['sd']}→{c['ed']} ({c['days']}d) [{c['type'].upper()}]{flag}")
-        if not found_suspicious:
-            print("  │  ✅ No suspicious contracts — all active bookings are STR")
-        print("  └────────────────────────────────────────────────────────────────────┘")
-        print()
-
+        print(f"  Skipped {skipped} bookings for non-STR plates")
         str_c = sum(1 for t in plate_type.values() if t == "str")
         lea_c = sum(1 for t in plate_type.values() if t == "lease")
         lt_c  = sum(1 for t in plate_type.values() if t == "longterm")
-        print(f"  Contracts today: STR={str_c} | Lease={lea_c} | Longterm={lt_c}")
+        print(f"  STR fleet contracts: STR={str_c} | Lease={lea_c} | Longterm={lt_c}")
         return plate_type
 
     except Exception as ex:
@@ -167,73 +239,8 @@ def fetch_contract_type_map() -> dict:
         return {}
 
 # ─────────────────────────────────────────────────────────
-# 3. Check availability per vehicle via dedicated API
-# ─────────────────────────────────────────────────────────
-def get_vehicle_id(v: dict) -> str:
-    for k in ["id", "vehicleID", "vehicleId", "vehicle_id", "ID"]:
-        val = str(v.get(k, "") or "").strip()
-        if val and val not in ("0", ""):
-            return val
-    return ""
-
-def fetch_available_ids(vehicle_ids: list, today_str: str) -> set:
-    """
-    Calls get-mkv-available-vehicle.php for each vehicle.
-    Returns set of vehicleIDs confirmed available today.
-    """
-    available_ids = set()
-    tomorrow_str  = (now_dubai() + timedelta(days=1)).strftime("%Y-%m-%d")
-
-    for vid in vehicle_ids:
-        try:
-            r = requests.post(MKV_AVAIL_URL, data={
-                "key":       APPIC_KEY,
-                "startDate": today_str,
-                "endDate":   tomorrow_str,
-                "vehicleID": vid
-            }, timeout=15)
-            r.raise_for_status()
-            resp = r.json()
-
-            if not isinstance(resp, dict):
-                continue
-
-            avail_flag = resp.get("available", resp.get("isAvailable"))
-            status_val = str(resp.get("status", "")).lower()
-            data_val   = resp.get("data", resp.get("vehicles", []))
-
-            if avail_flag in (True, "true", "1", 1):
-                available_ids.add(str(vid))
-            elif avail_flag in (False, "false", "0", 0):
-                pass
-            elif status_val == "available":
-                available_ids.add(str(vid))
-            elif status_val in ("rented", "booked", "unavailable"):
-                pass
-            elif isinstance(data_val, list) and len(data_val) > 0:
-                available_ids.add(str(vid))
-
-        except Exception as ex:
-            print(f"  ⚠️  Avail check error for id={vid}: {ex}")
-            continue
-
-    print(f"  Available (API) : {len(available_ids)} / {len(vehicle_ids)}")
-    return available_ids
-
-# ─────────────────────────────────────────────────────────
 # Helpers
 # ─────────────────────────────────────────────────────────
-def get_plate(v: dict) -> str:
-    for key in ["plate", "vehiclePlate", "plateNo", "plate_no", "number_plate", "licensePlate"]:
-        val = str(v.get(key, "") or "").strip()
-        if val and val != "0":
-            return val
-    return ""
-
-def normalize_plate(plate: str) -> str:
-    digits = re.sub(r"[^0-9]", "", str(plate))
-    return digits.lstrip("0") if digits else str(plate)
-
 def fmt_name(v: dict) -> str:
     make  = v.get("make",  "").strip().upper()
     model = v.get("model", "").strip().upper()
@@ -268,24 +275,25 @@ def text_to_blocks(text):
 # ─────────────────────────────────────────────────────────
 # 4. Build Slack message
 # ─────────────────────────────────────────────────────────
-def build_message(vehicles, contract_map, available_ids):
+def build_message(vehicles, contract_map, vehicle_statuses):
     now      = now_dubai()
     date_str = now.strftime("%B %d, %Y").upper()
     day_str  = now.strftime("%A").upper()
 
-    str_v      = []
-    lease_v    = []
-    longterm_v = []
+    str_v       = []
+    lease_v     = []
+    longterm_v  = []
     available_v = []
-    service_v  = []
-    nrv_v      = []   # Accident/Damage
+    service_v   = []
+    nrv_v       = []
 
     for v in vehicles:
-        plate_norm  = normalize_plate(get_plate(v))
-        status      = get_status(v)
-        contract    = contract_map.get(plate_norm)
+        plate_norm = normalize_plate(get_plate(v))
+        vid        = get_vehicle_id(v)
+        contract   = contract_map.get(plate_norm)
+        api_status = vehicle_statuses.get(vid, "unknown")
 
-        # 1. Contract-based classification (highest priority)
+        # Priority 1: active booking contract
         if contract == "str":
             str_v.append(v)
         elif contract == "lease":
@@ -293,14 +301,16 @@ def build_message(vehicles, contract_map, available_ids):
         elif contract == "longterm":
             longterm_v.append(v)
 
-        # 2. Appic status-based classification
-        elif "accident" in status or "damage" in status:
+        # Priority 2: Appic availability API status
+        elif api_status == "nrv":
             nrv_v.append(v)
-        elif "service" in status:
+        elif api_status == "service":
             service_v.append(v)
-
-        # 3. No contract, no special status = available
+        elif api_status == "rented":
+            # API says rented but no contract found — treat as STR
+            str_v.append(v)
         else:
+            # available or unknown — treat as available
             available_v.append(v)
 
     total    = len(vehicles)
@@ -393,22 +403,24 @@ if __name__ == "__main__":
     print(f"  {now_dubai().strftime('%d %b %Y | %I:%M %p Dubai Time')}")
     print("=" * 55)
 
-    print("\n[1] Fetching vehicles from get-mkv-vehicles.php ...")
+    print("\n[1] Fetching STR fleet from get-mkv-vehicles.php ...")
     vehicles = fetch_vehicles()
     if not vehicles:
         print("  No vehicles returned — exiting")
         raise SystemExit(1)
 
-    print("\n[2] Classifying contracts (STR / Lease / Longterm) ...")
-    contract_map = fetch_contract_type_map()
+    # Build normalised plate set for STR fleet
+    str_plates_norm = set(normalize_plate(get_plate(v)) for v in vehicles)
+    print(f"  STR plate set  : {len(str_plates_norm)} plates")
 
-    print("\n[3] Checking availability via get-mkv-available-vehicle.php ...")
-    today_str     = now_dubai().strftime("%Y-%m-%d")
-    vehicle_ids   = [get_vehicle_id(v) for v in vehicles if get_vehicle_id(v)]
-    available_ids = fetch_available_ids(vehicle_ids, today_str)
+    print("\n[2] Fetching availability status per vehicle ...")
+    vehicle_statuses = fetch_vehicle_statuses(vehicles)
+
+    print("\n[3] Classifying STR fleet contracts (bookings API — STR plates only) ...")
+    contract_map = fetch_contract_type_map(str_plates_norm)
 
     print("\n[4] Building Slack message ...")
-    msg = build_message(vehicles, contract_map, available_ids)
+    msg = build_message(vehicles, contract_map, vehicle_statuses)
 
     print("\n[5] Posting to Slack ...")
     post_slack(msg)
