@@ -9,6 +9,12 @@ Contract type by duration:
   STR      : 1–30  days
   Lease    : 31–730 days
   Longterm : 731+  days
+
+Appic vehicle status values:
+  "Available"        → available
+  "Gone for service" → service
+  "Accident/Damage"  → NRV
+  Rented             → determined by active contracts
 """
 import os, json, re, requests
 from datetime import datetime, timezone, timedelta
@@ -44,6 +50,16 @@ def parse_date(s):
             continue
     return None
 
+def get_status(v: dict) -> str:
+    """Return the normalised Appic status string for a vehicle."""
+    raw = (
+        v.get("status") or
+        v.get("availability") or
+        v.get("vehicleStatus") or
+        ""
+    )
+    return str(raw).lower().strip()
+
 # ─────────────────────────────────────────────────────────
 # 1. Fetch full fleet list
 # ─────────────────────────────────────────────────────────
@@ -60,7 +76,8 @@ def fetch_vehicles() -> list:
             s = all_v[0]
             print(f"  Vehicle keys   : {list(s.keys())}")
             print(f"  Sample         : id={s.get('id')} | plate={s.get('plate')} | "
-                  f"vehiclePlate={s.get('vehiclePlate')} | dailyrent={s.get('dailyrent')}")
+                  f"status={s.get('status')} | availability={s.get('availability')} | "
+                  f"dailyrent={s.get('dailyrent')}")
 
         active = [v for v in all_v if float(v.get("dailyrent", 0) or 0) > 0]
         print(f"  Vehicles total : {len(all_v)} | STR fleet (dailyrent>0): {len(active)}")
@@ -87,7 +104,9 @@ def fetch_contract_type_map() -> dict:
         bookings = r.json().get("bookings", [])
         print(f"  Bookings total : {len(bookings)}")
 
-        plate_type = {}
+        plate_type  = {}
+        plate_debug = {}
+
         for b in bookings:
             status = str(b.get("status") or b.get("bookingStatus") or "").lower().strip()
             if status in ("cancelled", "canceled", "voided", "void", "deleted"):
@@ -107,9 +126,35 @@ def fetch_contract_type_map() -> dict:
             duration = (ed - sd).days
             ctype    = "longterm" if duration >= 731 else "lease" if duration >= 31 else "str"
             norm     = normalize_plate(plate)
+            agr      = b.get("agreementNo") or b.get("agr_no") or "N/A"
+
+            if norm not in plate_debug:
+                plate_debug[norm] = []
+            plate_debug[norm].append({
+                "agr": agr, "plate": plate,
+                "sd": str(sd), "ed": str(ed),
+                "days": duration, "type": ctype, "status": status or "confirmed"
+            })
 
             if norm not in plate_type or PRIORITY[ctype] > PRIORITY[plate_type[norm]]:
                 plate_type[norm] = ctype
+
+        # ── DEBUG: flag any LEASE / LONGTERM contracts ──
+        print()
+        print("  ┌─── ACTIVE CONTRACTS DEBUG ─────────────────────────────────────────┐")
+        found_suspicious = False
+        for norm, contracts in sorted(plate_debug.items()):
+            for c in contracts:
+                flag = ""
+                if c["type"] in ("lease", "longterm"):
+                    flag = "  ⚠️  LEASE/LONGTERM"
+                    found_suspicious = True
+                print(f"  │  AGR={c['agr']:<20} plate={c['plate']:<10} "
+                      f"{c['sd']}→{c['ed']} ({c['days']}d) [{c['type'].upper()}]{flag}")
+        if not found_suspicious:
+            print("  │  ✅ No suspicious contracts — all active bookings are STR")
+        print("  └────────────────────────────────────────────────────────────────────┘")
+        print()
 
         str_c = sum(1 for t in plate_type.values() if t == "str")
         lea_c = sum(1 for t in plate_type.values() if t == "lease")
@@ -135,7 +180,6 @@ def fetch_available_ids(vehicle_ids: list, today_str: str) -> set:
     """
     Calls get-mkv-available-vehicle.php for each vehicle.
     Returns set of vehicleIDs confirmed available today.
-    Handles multiple response shapes from Appic API.
     """
     available_ids = set()
     tomorrow_str  = (now_dubai() + timedelta(days=1)).strftime("%Y-%m-%d")
@@ -154,17 +198,14 @@ def fetch_available_ids(vehicle_ids: list, today_str: str) -> set:
             if not isinstance(resp, dict):
                 continue
 
-            # Pattern A: {"available": true/false/1/0}
             avail_flag = resp.get("available", resp.get("isAvailable"))
-            # Pattern B: {"status": "available"/"rented"/"booked"}
             status_val = str(resp.get("status", "")).lower()
-            # Pattern C: {"data": [...]} — non-empty = available
             data_val   = resp.get("data", resp.get("vehicles", []))
 
             if avail_flag in (True, "true", "1", 1):
                 available_ids.add(str(vid))
             elif avail_flag in (False, "false", "0", 0):
-                pass  # confirmed not available
+                pass
             elif status_val == "available":
                 available_ids.add(str(vid))
             elif status_val in ("rented", "booked", "unavailable"):
@@ -235,37 +276,40 @@ def build_message(vehicles, contract_map, available_ids):
     str_v      = []
     lease_v    = []
     longterm_v = []
-    available_v= []
-    garage_v   = []
+    available_v = []
     service_v  = []
+    nrv_v      = []   # Accident/Damage
 
     for v in vehicles:
-        plate_norm = normalize_plate(get_plate(v))
-        vid        = str(get_vehicle_id(v))
-        avail_flag = (v.get("availability") or "").lower().strip()
-        status_raw = (v.get("status") or "").lower().strip()
-        contract   = contract_map.get(plate_norm)
+        plate_norm  = normalize_plate(get_plate(v))
+        status      = get_status(v)
+        contract    = contract_map.get(plate_norm)
 
+        # 1. Contract-based classification (highest priority)
         if contract == "str":
             str_v.append(v)
         elif contract == "lease":
             lease_v.append(v)
         elif contract == "longterm":
             longterm_v.append(v)
-        elif avail_flag == "garage" or status_raw == "garage":
-            garage_v.append(v)
-        elif avail_flag in ("service", "maintenance") or status_raw in ("service", "maintenance"):
+
+        # 2. Appic status-based classification
+        elif "accident" in status or "damage" in status:
+            nrv_v.append(v)
+        elif "service" in status:
             service_v.append(v)
+
+        # 3. No contract, no special status = available
         else:
-            available_v.append(v)  # no active contract = available
+            available_v.append(v)
 
     total    = len(vehicles)
     rented   = len(str_v)
     lease    = len(lease_v)
     longterm = len(longterm_v)
     avail    = len(available_v)
-    garage   = len(garage_v)
     service  = len(service_v)
+    nrv      = len(nrv_v)
 
     print(f"\n  ┌─────────────────────────────────┐")
     print(f"  │ FLEET SUMMARY                   │")
@@ -274,20 +318,19 @@ def build_message(vehicles, contract_map, available_ids):
     print(f"  │ Lease    : {lease:<22} │")
     print(f"  │ Longterm : {longterm:<22} │")
     print(f"  │ Available: {avail:<22} │")
-    print(f"  │ Garage   : {garage:<22} │")
     print(f"  │ Service  : {service:<22} │")
+    print(f"  │ NRV      : {nrv:<22} │")
     print(f"  └─────────────────────────────────┘")
 
     summary = "\n".join([
         f"❝{date_str} {day_str}❞", "",
         f"✦ Total        : {total}", "",
         f"✦ Rented STR   : {rented}", "",
-        f"✦ Garage       : {garage}", "",
         f"✦ Service      : {service}", "",
         f"✦ Available    : {avail}", "",
         f"✦ Lease        : {lease}", "",
         f"✦ Longterm     : {longterm}", "",
-        f"✦ NRV          : 0",
+        f"✦ NRV          : {nrv}",
     ])
 
     lines = []
@@ -302,8 +345,8 @@ def build_message(vehicles, contract_map, available_ids):
         lines.append("")
 
     section("AVAILABLE",  available_v)
-    section("GARAGE",     garage_v)
     section("SERVICE",    service_v)
+    section("NRV",        nrv_v)
     section("LEASE",      lease_v)
     section("LONGTERM",   longterm_v)
 
@@ -360,9 +403,9 @@ if __name__ == "__main__":
     contract_map = fetch_contract_type_map()
 
     print("\n[3] Checking availability via get-mkv-available-vehicle.php ...")
-    today_str    = now_dubai().strftime("%Y-%m-%d")
-    vehicle_ids  = [get_vehicle_id(v) for v in vehicles if get_vehicle_id(v)]
-    available_ids= fetch_available_ids(vehicle_ids, today_str)
+    today_str     = now_dubai().strftime("%Y-%m-%d")
+    vehicle_ids   = [get_vehicle_id(v) for v in vehicles if get_vehicle_id(v)]
+    available_ids = fetch_available_ids(vehicle_ids, today_str)
 
     print("\n[4] Building Slack message ...")
     msg = build_message(vehicles, contract_map, available_ids)
