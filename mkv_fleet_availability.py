@@ -1,24 +1,29 @@
 """
 MKV Luxury – Fleet Availability
 =================================
-API 1: get-mkv-vehicles.php          → vehicle list (names, plates, IDs)
-API 2: get-mkv-available-vehicle.php → per-vehicle status (available/booked/service/nrv)
+STEP 1: get-mkv-vehicles.php
+        → All MKV vehicles (dailyrent > 0, not borrowed)
 
-PLATE_CATEGORY uses full plate key (letters + digits, no spaces) for uniqueness.
-All 62 MKV fleet vehicles are mapped. Update when fleet changes.
+STEP 2: get-mkv-available-vehicle.php (per vehicle, today)
+        → "available"        → Available
+        → "gone for service" → Service
+        → "accident/damage"  → NRV (Accident/Damage)
+        → "booked"           → has active contract → go to STEP 3
 
-Status logic (priority order):
-  1. SERVICE  → availability API returns "service" / "gone for service" / "garage"
-  2. NRV      → plate in NRV category (Accident/Damage vehicles)
-  3. BOOKED   → split by PLATE_CATEGORY → STR / Lease / LTR
-  4. AVAILABLE → not booked, not service, not NRV
+STEP 3: get-mkv-bookings.php
+        → Find active contract for booked vehicle today
+        → Classify by duration:
+            1–30 days   → STR
+            31–365 days → Lease
+            366+ days   → LTR
 
-Slack output:
-  Summary → Total / STR / Lease / LTR / Available / Service / NRV
-  List    → AVAILABLE vehicles only
+OUTPUT (Slack):
+  Summary  → Total / STR / Lease / LTR / Available / Service / NRV
+  List     → AVAILABLE vehicles (name + plate)
 """
 import os, json, re, requests
 from datetime import datetime, timezone, timedelta
+from collections import defaultdict
 
 SLACK_TOKEN   = os.environ["SLACK_BOT_TOKEN"]
 APPIC_KEY     = os.environ.get("APPIC_KEY", "")
@@ -29,6 +34,7 @@ BLOCK_LIMIT   = 2900
 BASE_URL         = "https://www.appicfleet.com/appiccar-apis-mkv"
 MKV_VEHICLES_URL = f"{BASE_URL}/get-mkv-vehicles.php"
 MKV_AVAIL_URL    = f"{BASE_URL}/get-mkv-available-vehicle.php"
+BOOKINGS_URL     = f"{BASE_URL}/get-mkv-bookings.php"
 
 CONTACT_FOOTER = (
     "📱 +971 56 279 4545\n☎️  +971 4 238 8987\n"
@@ -36,87 +42,24 @@ CONTACT_FOOTER = (
     "✉️  contact@mkvluxury.com\n📍 Al Jreena Street 41, Al Qouz Industrial Third, Dubai, UAE"
 )
 
-# ─────────────────────────────────────────────────────────
-# MASTER FLEET CATEGORY MAP
-# Key   = plate letters+digits uppercased, spaces removed
-# Value = "str" | "lease" | "ltr" | "nrv"
-# ─────────────────────────────────────────────────────────
-PLATE_CATEGORY = {
-    # ── STR ──────────────────────────────────────────────
-    "Y97019":   "str",   # FERRARI PUROSANGUE
-    "I47203":   "str",   # MORGAN SUPERSPORT
-    "U24545":   "str",   # MERCEDES G63 BLACK 2025
-    "O66789":   "str",   # MERCEDES G63 BRABUS
-    "X55789":   "str",   # MERCEDES S500
-    "L94545":   "str",   # RANGE ROVER SPORT GRAY
-    "T55789":   "str",   # RANGE ROVER SPORT BLACK
-    "J77540":   "str",   # RANGE ROVER SVR BLACK
-    "AA68620":  "str",   # RANGE ROVER VELAR
-    "CC83762":  "str",   # LAND ROVER DEFENDER V8
-    "AA78043":  "str",   # LAND ROVER DEFENDER 130 V6
-    "AA77491":  "str",   # FORD MUSTANG CONVERTIBLE RED
-    "AA77490":  "str",   # FORD MUSTANG COUPE WHITE
-    "Y72712":   "str",   # CHEVROLET CORVETTE
-    "E23652":   "str",   # LOTUS EMIRA
-    "AA78051":  "str",   # BMW 735i
-    "K70691":   "str",   # BMW 520i
-    "D70688":   "str",   # BMW 420i
-    "K19443":   "str",   # MERCEDES GLB 250
-    "AA78042":  "str",   # CHEVROLET TAHOE
-    "CC69367":  "str",   # GMC YUKON
-    "W46015":   "str",   # AUDI RS Q3
-    "Z89438":   "str",   # AUDI A6
-    "Z92156":   "str",   # AUDI A6
-    "Z90158":   "str",   # AUDI A3
-    "B15789":   "str",   # FORD MUSTANG BLACK/YELLOW
-    "BB60137":  "str",   # MERCEDES G63 2026 RETRO
-    "O94545":   "str",   # LAMBORGHINI URUS MY20 YELLOW
-    "X44789":   "str",   # CADILLAC ESCALADE
-    "X33789":   "str",   # BENTLEY BENTAYGA MANSORY
-    "J47041":   "str",   # MCLAREN ARTURA          (SERVICE)
-    "EE42165":  "str",   # PORSCHE 911             (SERVICE)
-    "T64545":   "str",   # PORSCHE GT4 RS          (SERVICE)
-    "H75037":   "str",   # RANGE ROVER SVR GRAY/BLUE (SERVICE)
-    "W97521":   "str",   # LAMBORGHINI HURACAN EVO SPYDER (SERVICE)
-    "N56026":   "str",   # LAMBORGHINI URUS (N 56026)
-    # ── LEASE ────────────────────────────────────────────
-    "U74545":   "lease", # FERRARI 296 GTB
-    "S66789":   "lease", # MERCEDES G63 WHITE 2025
-    "T3660":    "lease", # MERCEDES G63 BLUE
-    "AA78067":  "lease", # MERCEDES C200
-    "CC94084":  "lease", # RANGE ROVER SPORT WHITE
-    "X33567":   "lease", # FORD BRONCO
-    "N27852":   "lease", # AUDI Q3
-    "Z90154":   "lease", # AUDI A3
-    "F98103":   "lease", # KIA SPORTAGE WHITE
-    "F98438":   "lease", # KIA SORENTO
-    "W81946":   "lease", # JETOUR T2 BLUE
-    "D68539":   "lease", # DONGFENG FORTHING S7
-    "BB53403":  "lease", # GAC M8 2026
-    "C69703":   "lease", # NISSAN PATROL WHITE     (SERVICE)
-    "T78242":   "lease", # JETOUR T2 BROWN         (SERVICE)
-    # ── LTR ──────────────────────────────────────────────
-    "S39810":   "ltr",   # NISSAN PATROL
-    "F83209":   "ltr",   # RANGE ROVER SPORT BLACK
-    "V1243":    "ltr",   # ROLLS ROYCE GRAY
-    "H23155":   "ltr",   # NISSAN PATROL
-    "F97580":   "ltr",   # CADILLAC ESCALADE SPORT
-    "K19503":   "ltr",   # MERCEDES GLB 250
-    # ── NRV ──────────────────────────────────────────────
-    "P38848":   "nrv",   # MERCEDES G63 BLACK 2024
-    "Z66246":   "nrv",   # GMC YUKON
-    "H31727":   "nrv",   # TOYOTA LAND CRUISER
-    "Y97020":   "nrv",   # KIA K5
-    "Y97018":   "nrv",   # KIA CERATO
-    "R26603":   "nrv",   # SUZUKI SWIFT
-}
-
 def now_dubai():
     return datetime.now(DUBAI_TZ)
 
-def plate_key(plate: str) -> str:
-    """Normalize plate to letters+digits, uppercase, no spaces. E.g. 'AA 68620' → 'AA68620'"""
-    return re.sub(r"[^A-Z0-9]", "", str(plate).upper())
+def parse_date(s):
+    if not s:
+        return None
+    s = str(s).strip()
+    for fmt in ("%Y-%m-%d", "%Y-%m-%d %H:%M:%S", "%d/%m/%Y", "%m/%d/%Y", "%d-%m-%Y"):
+        try:
+            return datetime.strptime(s, fmt).date()
+        except ValueError:
+            continue
+    return None
+
+def normalize_plate(plate: str) -> str:
+    """Digits only, no leading zeros — for bookings API plate matching."""
+    digits = re.sub(r"[^0-9]", "", str(plate))
+    return digits.lstrip("0") if digits else str(plate)
 
 def get_plate(v: dict) -> str:
     for key in ["plate", "vehiclePlate", "plateNo", "plate_no"]:
@@ -133,7 +76,7 @@ def get_vehicle_id(v: dict) -> str:
     return ""
 
 # ─────────────────────────────────────────────────────────
-# 1. Fetch MKV fleet vehicle list
+# STEP 1: Fetch MKV fleet (dailyrent > 0, not borrowed)
 # ─────────────────────────────────────────────────────────
 def fetch_vehicles() -> list:
     try:
@@ -141,37 +84,27 @@ def fetch_vehicles() -> list:
         r.raise_for_status()
         resp  = r.json()
         all_v = resp if isinstance(resp, list) else resp.get("data", resp.get("vehicles", []))
+
         active = [
             v for v in all_v
-            if float(v.get("dailyrent",   0) or 0) > 0
-            or float(v.get("weeklyrent",  0) or 0) > 0
-            or float(v.get("monthlyrent", 0) or 0) > 0
+            if (
+                float(v.get("dailyrent",   0) or 0) > 0 or
+                float(v.get("weeklyrent",  0) or 0) > 0 or
+                float(v.get("monthlyrent", 0) or 0) > 0
+            )
+            and str(v.get("isBorrowed", v.get("borrowed", "0"))).strip() in ("0", "", "false", "False", "no")
         ]
-        print(f"  Vehicles total : {len(all_v)} | MKV fleet: {len(active)}")
 
-        # Warn: master list plates missing from Appic
-        appic_keys = set(plate_key(get_plate(v)) for v in active)
-        missing = [p for p in PLATE_CATEGORY if p not in appic_keys]
-        if missing:
-            print(f"  ⚠️  In master list but NOT in Appic (set rate>0 to fix):")
-            for p in missing:
-                print(f"      {p}")
-
-        # Warn: Appic vehicles not in master list
-        extra = [v for v in active if plate_key(get_plate(v)) not in PLATE_CATEGORY]
-        if extra:
-            print(f"  ⚠️  In Appic but NOT in master list (add to PLATE_CATEGORY):")
-            for v in extra:
-                print(f"      vehicleID={get_vehicle_id(v)} plate={get_plate(v)} "
-                      f"name={v.get('vehicle_name', '')}")
-
+        print(f"  Total in Appic : {len(all_v)}")
+        print(f"  MKV fleet      : {len(active)} (rate>0, not borrowed)")
         return active
     except Exception as ex:
         print(f"  ❌ Vehicles API error: {ex}")
         return []
 
 # ─────────────────────────────────────────────────────────
-# 2. Get per-vehicle status from availability API
+# STEP 2: Get status per vehicle from availability API
+# Returns: { vehicleID -> "available" | "booked" | "service" | "nrv" }
 # ─────────────────────────────────────────────────────────
 def fetch_vehicle_statuses(vehicles: list) -> dict:
     today_str    = now_dubai().strftime("%Y-%m-%d")
@@ -179,19 +112,11 @@ def fetch_vehicle_statuses(vehicles: list) -> dict:
     statuses     = {}
 
     for v in vehicles:
-        vid      = get_vehicle_id(v)
-        plate    = get_plate(v)
-        pkey     = plate_key(plate)
-        category = PLATE_CATEGORY.get(pkey, "str")
-
-        # NRV — no API call needed
-        if category == "nrv":
-            statuses[vid] = "nrv"
-            print(f"  NRV           : vehicleID={vid:<6} plate={plate}")
-            continue
+        vid   = get_vehicle_id(v)
+        plate = get_plate(v)
 
         if not vid:
-            statuses[vid] = "available"
+            statuses[""] = "available"
             continue
 
         try:
@@ -206,27 +131,88 @@ def fetch_vehicle_statuses(vehicles: list) -> dict:
             raw       = str(resp.get("status", "") or "").lower().strip()
             is_booked = resp.get("isBooked", False)
 
+            # Classify by status string (Appic dropdown values)
             if "accident" in raw or "damage" in raw:
                 statuses[vid] = "nrv"
             elif "service" in raw or "garage" in raw or "gone for" in raw:
                 statuses[vid] = "service"
-                print(f"  SERVICE       : vehicleID={vid:<6} plate={plate} status='{raw}'")
             elif is_booked or "booked" in raw or "rented" in raw:
                 statuses[vid] = "booked"
             elif "available" in raw:
                 statuses[vid] = "available"
             else:
+                # Unknown — treat as available, log it
+                print(f"  ⚠️  Unknown status: vehicleID={vid} plate={plate} raw='{raw}' resp={resp}")
                 statuses[vid] = "available"
-                print(f"  ⚠️  Unknown   : vehicleID={vid:<6} plate={plate} raw='{raw}'")
 
         except Exception as ex:
-            print(f"  ⚠️  Error      : vehicleID={vid} plate={plate}: {ex}")
+            print(f"  ⚠️  Avail error: vehicleID={vid} plate={plate}: {ex}")
             statuses[vid] = "available"
 
     from collections import Counter
-    counts = Counter(statuses.values())
-    print(f"  Status summary : {dict(counts)}")
+    print(f"  Avail API      : {dict(Counter(statuses.values()))}")
     return statuses
+
+# ─────────────────────────────────────────────────────────
+# STEP 3: For booked vehicles → get contract type from bookings API
+# Returns: { normalized_plate -> "str" | "lease" | "ltr" }
+# Duration rules:
+#   STR   : 1–30   days
+#   Lease : 31–365 days
+#   LTR   : 366+   days
+# ─────────────────────────────────────────────────────────
+def fetch_contract_types(booked_plates_norm: set) -> dict:
+    if not booked_plates_norm:
+        return {}
+    try:
+        today     = now_dubai().date()
+        start_str = (now_dubai() - timedelta(days=730)).strftime("%Y-%m-%d")
+        end_str   = (now_dubai() + timedelta(days=730)).strftime("%Y-%m-%d")
+
+        r = requests.post(BOOKINGS_URL, data={
+            "key": APPIC_KEY, "startDate": start_str, "endDate": end_str
+        }, timeout=20)
+        r.raise_for_status()
+        bookings = r.json().get("bookings", [])
+        print(f"  Bookings total : {len(bookings)}")
+
+        PRIORITY   = {"ltr": 3, "lease": 2, "str": 1}
+        plate_type = {}
+
+        for b in bookings:
+            status = str(b.get("status") or b.get("bookingStatus") or "").lower().strip()
+            if status in ("cancelled", "canceled", "voided", "void", "deleted"):
+                continue
+
+            plate = str(b.get("vehiclePlate", "") or "").strip()
+            if not plate:
+                continue
+
+            norm = normalize_plate(plate)
+            if norm not in booked_plates_norm:
+                continue  # not a booked MKV vehicle today
+
+            sd = parse_date(b.get("startDate"))
+            ed = parse_date(b.get("endDate"))
+            if sd is None or ed is None:
+                continue
+            if not (sd <= today <= ed):
+                continue
+
+            duration = (ed - sd).days
+            ctype    = "ltr" if duration >= 366 else "lease" if duration >= 31 else "str"
+
+            if norm not in plate_type or PRIORITY[ctype] > PRIORITY[plate_type[norm]]:
+                plate_type[norm] = ctype
+                print(f"  CONTRACT: plate={plate:<14} {sd}→{ed} ({duration}d) → {ctype.upper()}")
+
+        from collections import Counter
+        print(f"  Contract types : {dict(Counter(plate_type.values()))}")
+        return plate_type
+
+    except Exception as ex:
+        print(f"  ❌ Bookings API error: {ex}")
+        return {}
 
 # ─────────────────────────────────────────────────────────
 # Helpers
@@ -266,9 +252,9 @@ def text_to_blocks(text):
     return blocks
 
 # ─────────────────────────────────────────────────────────
-# 3. Build Slack message
+# Build Slack message
 # ─────────────────────────────────────────────────────────
-def build_message(vehicles, vehicle_statuses):
+def build_message(vehicles, vehicle_statuses, contract_types):
     now      = now_dubai()
     date_str = now.strftime("%B %d, %Y").upper()
     day_str  = now.strftime("%A").upper()
@@ -281,19 +267,19 @@ def build_message(vehicles, vehicle_statuses):
     nrv_v       = []
 
     for v in vehicles:
-        vid      = get_vehicle_id(v)
-        pkey     = plate_key(get_plate(v))
-        status   = vehicle_statuses.get(vid, "available")
-        category = PLATE_CATEGORY.get(pkey, "str")
+        vid        = get_vehicle_id(v)
+        plate_norm = normalize_plate(get_plate(v))
+        status     = vehicle_statuses.get(vid, "available")
+        ctype      = contract_types.get(plate_norm, "str")
 
         if status == "service":
             service_v.append(v)
         elif status == "nrv":
             nrv_v.append(v)
         elif status == "booked":
-            if category == "ltr":
+            if ctype == "ltr":
                 ltr_v.append(v)
-            elif category == "lease":
+            elif ctype == "lease":
                 lease_v.append(v)
             else:
                 str_v.append(v)
@@ -350,7 +336,7 @@ def build_message(vehicles, vehicle_statuses):
     return {"blocks": blocks, "text": f"MKV Fleet Availability — {date_str} {day_str}"}
 
 # ─────────────────────────────────────────────────────────
-# 4. Post to Slack
+# Post to Slack
 # ─────────────────────────────────────────────────────────
 def post_slack(message):
     r = requests.post(
@@ -381,17 +367,30 @@ if __name__ == "__main__":
     print(f"  {now_dubai().strftime('%d %b %Y | %I:%M %p Dubai Time')}")
     print("=" * 55)
 
-    print("\n[1] Fetching MKV fleet from Appic ...")
+    # STEP 1 — Fleet list
+    print("\n[1] Fetching MKV fleet ...")
     vehicles = fetch_vehicles()
     if not vehicles:
         print("  No vehicles returned — exiting")
         raise SystemExit(1)
 
-    print("\n[2] Fetching per-vehicle availability status ...")
+    # STEP 2 — Status per vehicle
+    print("\n[2] Fetching availability status per vehicle ...")
     vehicle_statuses = fetch_vehicle_statuses(vehicles)
 
-    print("\n[3] Building Slack message ...")
-    msg = build_message(vehicles, vehicle_statuses)
+    # STEP 3 — Contract type for booked vehicles only
+    booked_vids        = {vid for vid, s in vehicle_statuses.items() if s == "booked"}
+    booked_plates_norm = set(
+        normalize_plate(get_plate(v))
+        for v in vehicles
+        if get_vehicle_id(v) in booked_vids
+    )
+    print(f"\n[3] Fetching contract types for {len(booked_plates_norm)} booked vehicles ...")
+    contract_types = fetch_contract_types(booked_plates_norm)
 
-    print("\n[4] Posting to Slack ...")
+    # BUILD & POST
+    print("\n[4] Building Slack message ...")
+    msg = build_message(vehicles, vehicle_statuses, contract_types)
+
+    print("\n[5] Posting to Slack ...")
     post_slack(msg)
