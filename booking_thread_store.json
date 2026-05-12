@@ -3063,7 +3063,7 @@
     "009998-ANGE-Lamborghini": {
       "thread_ts": "1778606135.330309",
       "delivery_ts": "1778606135.846699",
-      "pickup_ts": null,
+      "pickup_ts": "1778607025.131979",
       "closed_ts": null,
       "extension_ts_list": [],
       "end_date": "2026-05-13",
@@ -3071,7 +3071,7 @@
       "customer": "Angel Uriel Vizcaino Magana",
       "vehicle": "Lamborghini Evo Spider",
       "delivery_alerted": true,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-05-12"
     },
@@ -3089,6 +3089,21 @@
       "pickup_alerted": false,
       "closed": false,
       "start_date": "2026-05-11"
+    },
+    "009999-ANGE-Mercedes-Benz": {
+      "thread_ts": "1778607024.153069",
+      "delivery_ts": "1778607024.766459",
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": [],
+      "end_date": "2026-05-13",
+      "plate": "24545",
+      "customer": "Angel Uriel Vizcaino Magana",
+      "vehicle": "Mercedes-Benz G63 2025",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-05-12"
     }
   }
 }
