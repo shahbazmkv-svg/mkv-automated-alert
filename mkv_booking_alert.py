@@ -160,6 +160,12 @@ def fetch_bookings():
         if data.get("issuccess"):
             bookings = data.get("bookings", [])
             print(f"  Appic returned {len(bookings)} bookings")
+            # ── DEBUG: print all fields from first booking ──
+            if bookings:
+                print("  DEBUG — First booking fields:")
+                for k, v in bookings[0].items():
+                    print(f"    {k:<35}: {v}")
+            # ── END DEBUG ──
             return bookings
         else:
             print(f"  Appic error: {data.get('message')}")
@@ -186,33 +192,38 @@ def extract(b):
 
     try:
         # ── All values from Appic are VAT-inclusive ────────────────────────
-        rental_incl   = float(b.get("amount", 0)          or 0)
-        zero_dep_incl = float(b.get("zeroDepositFee", 0)  or 0)
-        delivery_incl = float(b.get("deliveryCharges", 0) or 0)
-        pickup_incl   = float(b.get("pickupCharges", 0)   or 0)
-        baby_incl     = float(b.get("babySeatCharges", 0) or 0)
-        grand_total   = float(b.get("grandTotal", 0)      or 0)
-        advance       = float(b.get("advanceReceived", 0) or 0)
+        rental_incl     = float(b.get("amount", 0)                 or 0)
+        zero_dep_incl   = float(b.get("zeroDepositFee", 0)        or 0)
+        insurance_incl  = float(b.get("insuranceCharges", 0)      or 0)
+        delivery_incl   = float(b.get("deliveryCharges", 0)       or 0)
+        pickup_incl     = float(b.get("pickupCharges", 0)         or 0)
+        baby_incl       = float(b.get("babySeatCharges", 0)       or 0)
+        adddriver_incl  = float(b.get("additionalDriverCharge", 0) or 0)
+        grand_total     = float(b.get("grandTotal", 0)            or 0)
+        advance         = float(b.get("advanceReceived", 0)       or 0)
 
         def fmt(v):
             return f"AED {v:,.0f}" if v > 0 else "—"
 
-        # ── VAT summary at bottom only (per-line shows incl. amount) ───────
+        # ── VAT summary at bottom only (per-line shows VAT-incl. amount) ──
         total_excl_vat = round(grand_total / 1.05, 2) if grand_total > 0 else 0
         total_vat      = round(grand_total - total_excl_vat, 2)
 
         rental_amt     = fmt(rental_incl)
         zero_dep_amt   = fmt(zero_dep_incl)
+        insurance_amt  = fmt(insurance_incl)
         delivery_amt   = fmt(delivery_incl)
         pickup_fee_amt = fmt(pickup_incl)
         baby_seat_amt  = fmt(baby_incl)
+        adddriver_amt  = fmt(adddriver_incl)
         total_amt      = fmt(grand_total)
         total_excl_str = fmt(total_excl_vat)
         total_vat_str  = fmt(total_vat)
         advance_amt    = fmt(advance)
 
     except:
-        rental_amt = zero_dep_amt = delivery_amt = pickup_fee_amt = baby_seat_amt = "—"
+        rental_amt = zero_dep_amt = insurance_amt = delivery_amt = "—"
+        pickup_fee_amt = baby_seat_amt = adddriver_amt = "—"
         total_amt = total_excl_str = total_vat_str = advance_amt = "—"
 
     pickup_loc  = (b.get("pickupLocation")  or "").strip()
@@ -245,12 +256,14 @@ def extract(b):
         "e_time":       e_time,
         "dur_str":      dur_str,
         "location":     location,
-        # cost (VAT-inclusive per line, summary split at bottom)
+        # cost (VAT-inclusive per line, VAT summary at bottom)
         "rental_amt":   rental_amt,
         "zero_dep":     zero_dep_amt,
+        "insurance":    insurance_amt,
         "delivery":     delivery_amt,
         "pickup_fee":   pickup_fee_amt,
         "baby_seat":    baby_seat_amt,
+        "add_driver":   adddriver_amt,
         "total_excl":   total_excl_str,
         "total_vat":    total_vat_str,
         "total_amt":    total_amt,
@@ -289,14 +302,16 @@ def build_booking_card(f, now_str):
         f"{'Duration':<14}: {f['dur_str']}\n"
         f"{'Delivery To':<14}: {f['location']}\n"
         f"{'─' * 36}\n"
-        + (f"{'Rental':<14}: {f['rental_amt']}\n"   if f['rental_amt']  != '—' else "")
-        + (f"{'Zero Deposit':<14}: {f['zero_dep']}\n"  if f['zero_dep']    != '—' else "")
-        + (f"{'Delivery':<14}: {f['delivery']}\n"      if f['delivery']    != '—' else "")
-        + (f"{'Pickup Fee':<14}: {f['pickup_fee']}\n"  if f['pickup_fee']  != '—' else "")
-        + (f"{'Baby Seat':<14}: {f['baby_seat']}\n"    if f['baby_seat']   != '—' else "")
+        + (f"{'Base Rental':<14}: {f['rental_amt']}\n"  if f['rental_amt']  != '—' else "")
+        + (f"{'Zero Deposit':<14}: {f['zero_dep']}\n"   if f['zero_dep']    != '—' else "")
+        + (f"{'Insurance':<14}: {f['insurance']}\n"     if f['insurance']   != '—' else "")
+        + (f"{'Delivery':<14}: {f['delivery']}\n"       if f['delivery']    != '—' else "")
+        + (f"{'Pickup':<14}: {f['pickup_fee']}\n"       if f['pickup_fee']  != '—' else "")
+        + (f"{'Baby Seat':<14}: {f['baby_seat']}\n"     if f['baby_seat']   != '—' else "")
+        + (f"{'Add. Driver':<14}: {f['add_driver']}\n"  if f['add_driver']  != '—' else "")
         + f"{'─' * 36}\n"
-        f"{'Total Rental':<14}: {f['total_excl']}\n"
-        f"{'VAT (5%)':<14}: {f['total_vat']}\n"
+        f"{'Total w/o VAT':<14}: {f['total_excl']}\n"
+        f"{'VAT 5%':<14}: {f['total_vat']}\n"
         f"{'Grand Total':<14}: {f['total_amt']}\n"
         f"{'─' * 36}\n"
         f"{'Advance':<14}: {f['advance']}\n"
@@ -517,7 +532,7 @@ def main():
     now_str  = now.strftime("%d %b %Y | %I:%M %p Dubai Time")
     tomorrow = (now + timedelta(days=1)).strftime("%Y-%m-%d")
 
-    SEED_MODE = False
+    SEED_MODE = True
 
     print("=" * 56)
     print("  MKV BOOKING BOT")
