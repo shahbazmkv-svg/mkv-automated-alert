@@ -160,19 +160,6 @@ def fetch_bookings():
         if data.get("issuccess"):
             bookings = data.get("bookings", [])
             print(f"  Appic returned {len(bookings)} bookings")
-            # ── DEBUG: print first booking + any booking with addOnCharges ──
-            printed = 0
-            for b in bookings:
-                has_addon = b.get("addOnCharges") not in (None, "null", "", "0", 0)
-                has_zero_dep = float(b.get("zeroDepositFee", 0) or 0) > 0
-                if printed == 0 or has_addon or has_zero_dep:
-                    print(f"\n  DEBUG — Booking {b.get('contractID')} fields:")
-                    for k, v in b.items():
-                        print(f"    {k:<35}: {v}")
-                    printed += 1
-                if printed >= 3:
-                    break
-            # ── END DEBUG ──
             return bookings
         else:
             print(f"  Appic error: {data.get('message')}")
@@ -198,40 +185,32 @@ def extract(b):
         dur_str = "N/A"
 
     try:
-        # ── All values from Appic are VAT-inclusive ────────────────────────
-        rental_incl     = float(b.get("amount", 0)                 or 0)
-        zero_dep_incl   = float(b.get("zeroDepositFee", 0)        or 0)
-        insurance_incl  = float(b.get("insuranceCharges", 0)      or 0)
-        delivery_incl   = float(b.get("deliveryCharges", 0)       or 0)
-        pickup_incl     = float(b.get("pickupCharges", 0)         or 0)
-        baby_incl       = float(b.get("babySeatCharges", 0)       or 0)
-        adddriver_incl  = float(b.get("additionalDriverCharge", 0) or 0)
-        grand_total     = float(b.get("grandTotal", 0)            or 0)
-        advance         = float(b.get("advanceReceived", 0)       or 0)
+        # ── Appic confirmed fields only ────────────────────────────────────
+        grand_total    = float(b.get("grandTotal", 0)       or 0)
+        excl_vat       = float(b.get("amountWithoutVat", 0) or 0)
+        vat_amt        = float(b.get("vatAmount", 0)        or 0)
+        zero_dep       = float(b.get("zeroDepositFee", 0)   or 0)
+        addon          = float(b.get("addOnCharges", 0)     or 0)
+        advance        = float(b.get("advanceReceived", 0)  or 0)
+
+        # Base rental = grand total excl VAT minus zero deposit excl VAT
+        zero_dep_excl  = round(zero_dep / 1.05, 2) if zero_dep > 0 else 0
+        base_rental    = round(excl_vat - zero_dep_excl, 2) if excl_vat > 0 else 0
 
         def fmt(v):
             return f"AED {v:,.0f}" if v > 0 else "—"
 
-        # ── VAT summary at bottom only (per-line shows VAT-incl. amount) ──
-        total_excl_vat = round(grand_total / 1.05, 2) if grand_total > 0 else 0
-        total_vat      = round(grand_total - total_excl_vat, 2)
-
-        rental_amt     = fmt(rental_incl)
-        zero_dep_amt   = fmt(zero_dep_incl)
-        insurance_amt  = fmt(insurance_incl)
-        delivery_amt   = fmt(delivery_incl)
-        pickup_fee_amt = fmt(pickup_incl)
-        baby_seat_amt  = fmt(baby_incl)
-        adddriver_amt  = fmt(adddriver_incl)
-        total_amt      = fmt(grand_total)
-        total_excl_str = fmt(total_excl_vat)
-        total_vat_str  = fmt(total_vat)
-        advance_amt    = fmt(advance)
+        base_rental_str = fmt(base_rental)
+        zero_dep_str    = fmt(zero_dep)
+        addon_str       = fmt(addon)
+        total_excl_str  = fmt(excl_vat)   if excl_vat > 0 else fmt(round(grand_total / 1.05, 2))
+        total_vat_str   = fmt(vat_amt)    if vat_amt  > 0 else fmt(round(grand_total - grand_total / 1.05, 2))
+        total_amt       = fmt(grand_total)
+        advance_amt     = fmt(advance)
 
     except:
-        rental_amt = zero_dep_amt = insurance_amt = delivery_amt = "—"
-        pickup_fee_amt = baby_seat_amt = adddriver_amt = "—"
-        total_amt = total_excl_str = total_vat_str = advance_amt = "—"
+        base_rental_str = zero_dep_str = addon_str = "—"
+        total_excl_str = total_vat_str = total_amt = advance_amt = "—"
 
     pickup_loc  = (b.get("pickupLocation")  or "").strip()
     dropoff_loc = (b.get("dropoffLocation") or "").strip()
@@ -263,14 +242,10 @@ def extract(b):
         "e_time":       e_time,
         "dur_str":      dur_str,
         "location":     location,
-        # cost (VAT-inclusive per line, VAT summary at bottom)
-        "rental_amt":   rental_amt,
-        "zero_dep":     zero_dep_amt,
-        "insurance":    insurance_amt,
-        "delivery":     delivery_amt,
-        "pickup_fee":   pickup_fee_amt,
-        "baby_seat":    baby_seat_amt,
-        "add_driver":   adddriver_amt,
+        # cost — confirmed Appic fields only
+        "base_rental":  base_rental_str,
+        "zero_dep":     zero_dep_str,
+        "addon":        addon_str,
         "total_excl":   total_excl_str,
         "total_vat":    total_vat_str,
         "total_amt":    total_amt,
@@ -309,13 +284,9 @@ def build_booking_card(f, now_str):
         f"{'Duration':<14}: {f['dur_str']}\n"
         f"{'Delivery To':<14}: {f['location']}\n"
         f"{'─' * 36}\n"
-        + (f"{'Base Rental':<14}: {f['rental_amt']}\n"  if f['rental_amt']  != '—' else "")
+        + (f"{'Base Rental':<14}: {f['base_rental']}\n" if f['base_rental'] != '—' else "")
         + (f"{'Zero Deposit':<14}: {f['zero_dep']}\n"   if f['zero_dep']    != '—' else "")
-        + (f"{'Insurance':<14}: {f['insurance']}\n"     if f['insurance']   != '—' else "")
-        + (f"{'Delivery':<14}: {f['delivery']}\n"       if f['delivery']    != '—' else "")
-        + (f"{'Pickup':<14}: {f['pickup_fee']}\n"       if f['pickup_fee']  != '—' else "")
-        + (f"{'Baby Seat':<14}: {f['baby_seat']}\n"     if f['baby_seat']   != '—' else "")
-        + (f"{'Add. Driver':<14}: {f['add_driver']}\n"  if f['add_driver']  != '—' else "")
+        + (f"{'Add-ons':<14}: {f['addon']}\n"           if f['addon']       != '—' else "")
         + f"{'─' * 36}\n"
         f"{'Total w/o VAT':<14}: {f['total_excl']}\n"
         f"{'VAT 5%':<14}: {f['total_vat']}\n"
@@ -539,7 +510,7 @@ def main():
     now_str  = now.strftime("%d %b %Y | %I:%M %p Dubai Time")
     tomorrow = (now + timedelta(days=1)).strftime("%Y-%m-%d")
 
-    SEED_MODE = True
+    SEED_MODE = False
 
     print("=" * 56)
     print("  MKV BOOKING BOT")
