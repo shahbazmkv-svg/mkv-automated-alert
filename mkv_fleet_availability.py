@@ -148,7 +148,7 @@ def build_message(counts: dict, available_vehicles: list):
     lease_c = counts.get("lease", 0)
     ltr_c   = counts.get("longTermRental", 0)
     svc_c   = counts.get("service", 0)
-    nrv_c   = counts.get("unavailable", 0)
+
     avail_c = len(available_vehicles)
 
     print(f"\n  ┌─────────────────────────────────┐")
@@ -159,7 +159,6 @@ def build_message(counts: dict, available_vehicles: list):
     print(f"  │ LTR      : {ltr_c:<22} │")
     print(f"  │ Available: {avail_c:<22} │")
     print(f"  │ Service  : {svc_c:<22} │")
-    print(f"  │ NRV      : {nrv_c:<22} │")
     print(f"  └─────────────────────────────────┘")
 
     summary = "\n".join([
@@ -170,7 +169,6 @@ def build_message(counts: dict, available_vehicles: list):
         f"✦ Available    : {avail_c}", "",
         f"✦ Lease        : {lease_c}", "",
         f"✦ Longterm     : {ltr_c}", "",
-        f"✦ NRV          : {nrv_c}",
     ])
 
     lines = []
