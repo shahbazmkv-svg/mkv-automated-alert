@@ -2531,8 +2531,8 @@
       "customer": "Amna Hamad Almheiri",
       "vehicle": "Audi A6",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
+      "pickup_alerted": true,
+      "closed": true,
       "start_date": "2026-05-10"
     },
     "009984-KANE-Porsche": {
@@ -2546,8 +2546,8 @@
       "customer": "Kane Elliot Tambala",
       "vehicle": "Porsche Porsche 911 Carrera",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
+      "pickup_alerted": true,
+      "closed": true,
       "start_date": "2026-05-10"
     },
     "009981-DENN-Lotus": {
@@ -2561,8 +2561,8 @@
       "customer": "Dennis Huskic",
       "vehicle": "Lotus Lotus Emira",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
+      "pickup_alerted": true,
+      "closed": true,
       "start_date": "2026-05-10"
     },
     "009979-REHA-Suzuki": {
@@ -2576,8 +2576,8 @@
       "customer": "Reham Moustafa Elsayed Albably",
       "vehicle": "Suzuki Swift",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
+      "pickup_alerted": true,
+      "closed": true,
       "start_date": "2026-05-09"
     },
     "009977-REHA-McLaren": {
@@ -2591,8 +2591,8 @@
       "customer": "Reham Moustafa",
       "vehicle": "Mclaren Spider Artura",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
+      "pickup_alerted": true,
+      "closed": true,
       "start_date": "2026-05-09"
     },
     "009976-REHA-Audi": {
@@ -2606,8 +2606,8 @@
       "customer": "Reham Moustafa",
       "vehicle": "Audi A3",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
+      "pickup_alerted": true,
+      "closed": true,
       "start_date": "2026-05-09"
     },
     "009974-DAVI-Land Rover": {
@@ -2621,8 +2621,8 @@
       "customer": "David Leon Myers",
       "vehicle": "Land Rover Sport",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
+      "pickup_alerted": true,
+      "closed": true,
       "start_date": "2026-05-09"
     },
     "009973-MUNE-BMW": {
@@ -2651,8 +2651,8 @@
       "customer": "Muneer Nazarudeen Nazarudeen",
       "vehicle": "Gmc Yukon",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
+      "pickup_alerted": true,
+      "closed": true,
       "start_date": "2026-05-09"
     },
     "009967-BIMA-McLaren": {
@@ -2666,8 +2666,8 @@
       "customer": "Bimal Kumar Kunwar Pal Sharma",
       "vehicle": "Mclaren Spider Artura",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
+      "pickup_alerted": true,
+      "closed": true,
       "start_date": "2026-05-09"
     },
     "009970-ANGE-Cadillac": {
@@ -2696,8 +2696,8 @@
       "customer": "David Leon Myers",
       "vehicle": "Porsche 911 Turbo",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
+      "pickup_alerted": true,
+      "closed": true,
       "start_date": "2026-05-08"
     },
     "009968-SAHI-Mercedes-Benz": {
@@ -2741,8 +2741,8 @@
       "customer": "Dreamrides Car Rental L.L.C",
       "vehicle": "Ferrari Purosangue",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
+      "pickup_alerted": true,
+      "closed": true,
       "start_date": "2026-05-08"
     },
     "009964-LAWR-Lotus": {
@@ -2756,8 +2756,8 @@
       "customer": "Lawrence Nkeyewo Titaanji",
       "vehicle": "Lotus Lotus Emira",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
+      "pickup_alerted": true,
+      "closed": true,
       "start_date": "2026-05-08"
     },
     "009946-TOM -Land Rover": {
@@ -2771,8 +2771,8 @@
       "customer": "Tom Hardstaff",
       "vehicle": "Land Rover Defender",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
+      "pickup_alerted": true,
+      "closed": true,
       "start_date": "2026-05-07"
     },
     "009963-SAHI-Nissan": {
@@ -2816,8 +2816,8 @@
       "customer": "John Alex Githua Mwangi",
       "vehicle": "Porsche 911 Turbo",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
+      "pickup_alerted": true,
+      "closed": true,
       "start_date": "2026-05-07"
     },
     "009960-MUNE-Morgan": {
@@ -2831,8 +2831,8 @@
       "customer": "Muneer Nazarudeen Nazarudeen",
       "vehicle": "Morgan Morgan Supersport",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
+      "pickup_alerted": true,
+      "closed": true,
       "start_date": "2026-05-07"
     },
     "009943-SAGI-McLaren": {
@@ -2846,8 +2846,8 @@
       "customer": "Sagi Shaken",
       "vehicle": "Mclaren Spider Artura",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
+      "pickup_alerted": true,
+      "closed": true,
       "start_date": "2026-05-07"
     },
     "009958-MUNE-McLaren": {
@@ -2861,8 +2861,8 @@
       "customer": "Muneer Nazarudeen Nazarudeen",
       "vehicle": "Mclaren Spider Artura",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
+      "pickup_alerted": true,
+      "closed": true,
       "start_date": "2026-05-07"
     },
     "009957-MAJI-Bentley": {
@@ -2891,8 +2891,8 @@
       "customer": "Abdul Ghaffar Imdad Ali Kanwar",
       "vehicle": "Land Rover Sport",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
+      "pickup_alerted": true,
+      "closed": true,
       "start_date": "2026-05-06"
     },
     "009953-HAYK-BMW": {
@@ -2906,8 +2906,8 @@
       "customer": "Hayk Mkhitaryan",
       "vehicle": "Bmw 735I",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
+      "pickup_alerted": true,
+      "closed": true,
       "start_date": "2026-05-06"
     },
     "009951-FAST-Land Rover": {
@@ -2936,8 +2936,8 @@
       "customer": "Mansour Malick Jeng",
       "vehicle": "Ferrari Purosangue",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
+      "pickup_alerted": true,
+      "closed": true,
       "start_date": "2026-05-06"
     },
     "009945-GUNA-Mercedes-Benz": {
@@ -2951,8 +2951,8 @@
       "customer": "Gunarajan S/O Shanmugham",
       "vehicle": "Mercedes-Benz Mercedes  G63",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
+      "pickup_alerted": true,
+      "closed": true,
       "start_date": "2026-05-06"
     },
     "009944-GUNA-Mercedes-Benz": {
@@ -2966,8 +2966,8 @@
       "customer": "Gunarajan S/O Shanmugham",
       "vehicle": "Mercedes-Benz Mercedes G3 (Brabus)",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
+      "pickup_alerted": true,
+      "closed": true,
       "start_date": "2026-05-06"
     },
     "009941-HAYK-Audi": {
@@ -2981,8 +2981,8 @@
       "customer": "Hayk Mkhitaryan",
       "vehicle": "Audi A6",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
+      "pickup_alerted": true,
+      "closed": true,
       "start_date": "2026-05-05"
     },
     "009942-OLIV-Suzuki": {
@@ -2996,8 +2996,8 @@
       "customer": "Oliver  Dela Luna Maghirang",
       "vehicle": "Suzuki Swift",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
+      "pickup_alerted": true,
+      "closed": true,
       "start_date": "2026-05-05"
     },
     "009934-NIKI-McLaren": {
@@ -3011,8 +3011,8 @@
       "customer": "Nikita Fedotov",
       "vehicle": "Mclaren Spider Artura",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
+      "pickup_alerted": true,
+      "closed": true,
       "start_date": "2026-05-05"
     },
     "009935-MUNE-Land Rover": {
@@ -3026,8 +3026,8 @@
       "customer": "Muneer Nazarudeen Nazarudeen",
       "vehicle": "Land Rover Svr",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
+      "pickup_alerted": true,
+      "closed": true,
       "start_date": "2026-05-04"
     },
     "008925-NIAY-Mercedes-Benz": {
