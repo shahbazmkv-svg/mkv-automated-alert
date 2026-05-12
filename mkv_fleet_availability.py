@@ -25,7 +25,7 @@ MKV_AVAIL_URL    = f"{BASE_URL}/get-mkv-available-vehicle.php"
 BOOKINGS_URL     = f"{BASE_URL}/get-mkv-bookings.php"
 
 CONTACT_FOOTER = (
-    "📱 +971 52 940 9280\n📱 +971 56 279 4545\n☎️  +971 4 238 8987\n"
+    "📱 +971 56 279 4545\n☎️  +971 4 238 8987\n"
     "🌐 https://www.mkvluxury.com/\n📸 https://www.instagram.com/mkvluxurydubai/\n"
     "✉️  contact@mkvluxury.com\n📍 Al Jreena Street 41, Al Qouz Industrial Third, Dubai, UAE"
 )
