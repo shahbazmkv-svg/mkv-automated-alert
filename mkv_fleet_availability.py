@@ -1,24 +1,29 @@
 """
 MKV Luxury – Fleet Availability
 =================================
-Master fleet defined by plate list below.
-To add a new vehicle: add its plate to MASTER_PLATES.
+Master fleet defined by MASTER_PLATES list.
+To add a new vehicle: add its plate exactly as stored in Appic.
 
 FLOW:
-  1. get-mkv-vehicles.php       → match plates to get vehicleID + name
-  2. get-mkv-available-vehicle.php → fetch status per vehicleID
-       "available"        → Available
-       "gone for service" → Service
-       "accident/damage"  → NRV
-       "booked"           → go to step 3
-  3. get-mkv-bookings.php       → find active contract → STR / Lease / LTR
-       1–30 days   → STR
-       31–365 days → Lease
-       366+ days   → LTR
+  1. get-mkv-vehicles.php          → match plates → get vehicleID + name + STATUS
+       status field from vehicles API:
+         "Available"        → available
+         "Gone for service" → service
+         "Accident/Damage"  → nrv
+         null / empty       → check availability API
+
+  2. get-mkv-available-vehicle.php → for vehicles with no status in step 1
+         isBooked=true  → booked → step 3
+         isBooked=false → available
+
+  3. get-mkv-bookings.php → contract duration for booked vehicles
+         1–30 days   → STR
+         31–365 days → Lease
+         366+ days   → LTR
 
 OUTPUT:
-  Summary  → Total / STR / Lease / LTR / Available / Service / NRV
-  List     → AVAILABLE vehicles only (name + plate)
+  Summary → Total / STR / Lease / LTR / Available / Service / NRV
+  List    → AVAILABLE vehicles only (name + plate)
 """
 import os, json, re, requests
 from datetime import datetime, timezone, timedelta
@@ -42,7 +47,7 @@ CONTACT_FOOTER = (
 
 # ─────────────────────────────────────────────────────────
 # MASTER PLATE LIST — add new vehicles here
-# Format: "FULL PLATE AS IN APPIC"
+# Plates exactly as stored in Appic (spaces included)
 # ─────────────────────────────────────────────────────────
 MASTER_PLATES = [
     "Y 97019",   # 1  FERRARI PUROSANGUE
@@ -65,7 +70,7 @@ MASTER_PLATES = [
     "D70688",    # 18 BMW 420i
     "K19443",    # 19 MERCEDES GLB 250
     "AA78042",   # 20 CHEVROLET TAHOE
-    "CC69367",   # 21 GMC YUKON
+    "CC 69367",  # 21 GMC YUKON
     "W46015",    # 22 AUDI RS Q3
     "Z89438",    # 23 AUDI A6
     "Z92156",    # 24 AUDI A6
@@ -101,7 +106,7 @@ MASTER_PLATES = [
     "Y97018",    # 54 KIA CERATO
     "R26603",    # 55 SUZUKI SWIFT
     "J47041",    # 56 MCLAREN ARTURA
-    "EE42165",   # 57 PORSCHE 911
+    "EE 42165",  # 57 PORSCHE 911
     "C69703",    # 58 NISSAN PATROL WHITE
     "T64545",    # 59 PORSCHE GT4 RS
     "H75037",    # 60 RANGE ROVER SVR GRAY/BLUE
@@ -124,22 +129,40 @@ def parse_date(s):
     return None
 
 def plate_key(plate: str) -> str:
-    """Uppercase, remove spaces — for matching. 'EE 42165' → 'EE42165'"""
     return re.sub(r"\s+", "", str(plate).upper())
 
-def normalize_digits(plate: str) -> str:
-    """Digits only, no leading zeros — for bookings API matching."""
-    digits = re.sub(r"[^0-9]", "", str(plate))
-    return digits.lstrip("0") if digits else str(plate)
+def digits_only(plate: str) -> str:
+    d = re.sub(r"[^0-9]", "", str(plate))
+    return d.lstrip("0") if d else str(plate)
+
+def parse_vehicle_status(v: dict) -> str:
+    """
+    Read status directly from vehicle record.
+    Tries all known field names Appic may use.
+    Returns: "service" | "nrv" | "available" | None (unknown/empty)
+    """
+    raw = str(
+        v.get("status") or
+        v.get("vehicleStatus") or
+        v.get("availability") or
+        v.get("vehicle_status") or
+        ""
+    ).lower().strip()
+
+    if not raw:
+        return None  # not set — check availability API
+    if "gone for service" in raw or raw == "service" or "garage" in raw:
+        return "service"
+    if "accident" in raw or "damage" in raw:
+        return "nrv"
+    if "available" in raw:
+        return "available"
+    return None  # unknown value — fall through to availability API
 
 # ─────────────────────────────────────────────────────────
 # STEP 1: Match master plates to Appic vehicle records
 # ─────────────────────────────────────────────────────────
 def fetch_fleet() -> list:
-    """
-    Returns list of dicts: { plate, vehicle_id, name, appic_data }
-    Only for plates in MASTER_PLATES.
-    """
     try:
         r     = requests.post(MKV_VEHICLES_URL, data={"key": APPIC_KEY}, timeout=20)
         r.raise_for_status()
@@ -147,14 +170,18 @@ def fetch_fleet() -> list:
         all_v = resp if isinstance(resp, list) else resp.get("data", resp.get("vehicles", []))
         print(f"  Appic total    : {len(all_v)} vehicles")
 
+        # Print all field keys from first vehicle for debugging
+        if all_v:
+            print(f"  Vehicle fields : {list(all_v[0].keys())}")
+
         # Build lookup: plate_key → vehicle record
         appic_lookup = {}
         for v in all_v:
-            raw_plate = str(v.get("plate", "") or "").strip()
-            if raw_plate:
-                appic_lookup[plate_key(raw_plate)] = v
+            raw = str(v.get("plate", "") or "").strip()
+            if raw:
+                appic_lookup[plate_key(raw)] = v
 
-        fleet = []
+        fleet     = []
         not_found = []
 
         for plate in MASTER_PLATES:
@@ -162,24 +189,34 @@ def fetch_fleet() -> list:
             v  = appic_lookup.get(pk)
             if v:
                 vid  = str(v.get("vehicleID", "") or "").strip()
-                name = str(v.get("vehicle_name", "") or
-                           f"{v.get('make','')} {v.get('model','')}").strip().upper()
+                name = str(
+                    v.get("vehicle_name") or
+                    f"{v.get('make', '')} {v.get('model', '')}".strip()
+                ).strip().upper()
                 fleet.append({
-                    "plate":      plate,
-                    "plate_key":  pk,
-                    "vehicle_id": vid,
-                    "name":       name,
-                    "raw":        v
+                    "plate":         plate,
+                    "plate_key":     pk,
+                    "vehicle_id":    vid,
+                    "name":          name,
+                    "vehicle_status": parse_vehicle_status(v),
+                    "raw":           v,
                 })
+                # Debug: show status field value for each vehicle
+                raw_status = str(v.get("status") or v.get("vehicleStatus") or v.get("availability") or "").strip()
+                if raw_status:
+                    print(f"  STATUS FIELD: plate={plate:<14} → '{raw_status}'")
             else:
                 not_found.append(plate)
 
         print(f"  Master plates  : {len(MASTER_PLATES)}")
         print(f"  Matched        : {len(fleet)}")
         if not_found:
-            print(f"  ⚠️  NOT FOUND in Appic (plate mismatch — fix in Appic):")
+            print(f"  ⚠️  NOT FOUND in Appic:")
             for p in not_found:
-                print(f"      '{p}' (key='{plate_key(p)}')")
+                print(f"      '{p}' key='{plate_key(p)}'")
+            # Show sample Appic keys to help diagnose
+            sample = sorted(appic_lookup.keys())[:15]
+            print(f"  Sample Appic plate keys: {sample}")
 
         return fleet
 
@@ -188,8 +225,8 @@ def fetch_fleet() -> list:
         return []
 
 # ─────────────────────────────────────────────────────────
-# STEP 2: Get availability status per vehicle
-# Returns: { vehicle_id -> "available" | "booked" | "service" | "nrv" }
+# STEP 2: Availability API for vehicles with no status from step 1
+# Returns: { plate -> "available" | "booked" | "service" | "nrv" }
 # ─────────────────────────────────────────────────────────
 def fetch_statuses(fleet: list) -> dict:
     today_str    = now_dubai().strftime("%Y-%m-%d")
@@ -197,11 +234,18 @@ def fetch_statuses(fleet: list) -> dict:
     statuses     = {}
 
     for f in fleet:
-        vid   = f["vehicle_id"]
-        plate = f["plate"]
+        plate          = f["plate"]
+        vid            = f["vehicle_id"]
+        vehicle_status = f["vehicle_status"]
 
+        # Use vehicle status from vehicles API if available
+        if vehicle_status in ("service", "nrv", "available"):
+            statuses[plate] = vehicle_status
+            print(f"  FROM VEHICLE API: plate={plate:<14} → {vehicle_status.upper()}")
+            continue
+
+        # Otherwise call availability API
         if not vid:
-            print(f"  ⚠️  No vehicleID for plate={plate}")
             statuses[plate] = "available"
             continue
 
@@ -217,20 +261,23 @@ def fetch_statuses(fleet: list) -> dict:
             raw       = str(resp.get("status", "") or "").lower().strip()
             is_booked = resp.get("isBooked", False)
 
+            # Print full response for any special status
+            if raw not in ("booked", "available", ""):
+                print(f"  🔍 AVAIL SPECIAL: plate={plate} vid={vid} → {resp}")
+
             if "accident" in raw or "damage" in raw:
                 result = "nrv"
-            elif "service" in raw or "garage" in raw or "gone for" in raw:
+            elif "gone for service" in raw or raw == "service" or "garage" in raw:
                 result = "service"
             elif is_booked or "booked" in raw or "rented" in raw:
                 result = "booked"
             elif "available" in raw:
                 result = "available"
             else:
+                print(f"  ⚠️  UNKNOWN AVAIL: plate={plate} vid={vid} raw='{raw}' full={resp}")
                 result = "available"
-                print(f"  ⚠️  Unknown: plate={plate} vid={vid} raw='{raw}' full={resp}")
 
             statuses[plate] = result
-            print(f"  {result.upper():<12} plate={plate:<14} vid={vid} status='{raw}'")
 
         except Exception as ex:
             print(f"  ⚠️  Error: plate={plate} vid={vid}: {ex}")
@@ -242,13 +289,13 @@ def fetch_statuses(fleet: list) -> dict:
 
 # ─────────────────────────────────────────────────────────
 # STEP 3: Contract type for booked vehicles
-# Returns: { normalized_digits_plate -> "str" | "lease" | "ltr" }
+# Returns: { digits_plate -> "str" | "lease" | "ltr" }
 # ─────────────────────────────────────────────────────────
 def fetch_contract_types(booked_plates: list) -> dict:
     if not booked_plates:
         return {}
 
-    booked_norms = {normalize_digits(p) for p in booked_plates}
+    booked_norms = {digits_only(p) for p in booked_plates}
 
     try:
         today     = now_dubai().date()
@@ -271,7 +318,7 @@ def fetch_contract_types(booked_plates: list) -> dict:
                 continue
 
             bp    = str(b.get("vehiclePlate", "") or "").strip()
-            bnorm = normalize_digits(bp)
+            bnorm = digits_only(bp)
             if bnorm not in booked_norms:
                 continue
 
@@ -331,7 +378,7 @@ def build_message(fleet, statuses, contract_types):
 
     for f in fleet:
         plate  = f["plate"]
-        norm   = normalize_digits(plate)
+        norm   = digits_only(plate)
         status = statuses.get(plate, "available")
         ctype  = contract_types.get(norm, "str")
 
@@ -430,13 +477,13 @@ if __name__ == "__main__":
     print(f"  {now_dubai().strftime('%d %b %Y | %I:%M %p Dubai Time')}")
     print("=" * 55)
 
-    print(f"\n[1] Matching {len(MASTER_PLATES)} master plates to Appic ...")
+    print(f"\n[1] Matching {len(MASTER_PLATES)} plates to Appic ...")
     fleet = fetch_fleet()
     if not fleet:
         print("  No vehicles matched — exiting")
         raise SystemExit(1)
 
-    print(f"\n[2] Fetching availability status for {len(fleet)} vehicles ...")
+    print(f"\n[2] Fetching status for {len(fleet)} vehicles ...")
     statuses = fetch_statuses(fleet)
 
     booked_plates = [f["plate"] for f in fleet if statuses.get(f["plate"]) == "booked"]
