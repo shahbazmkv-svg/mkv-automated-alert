@@ -13,7 +13,7 @@ CHANNEL_BOOKINGS   = "C0ABPC606F7"   # #mkv-bookings (live)
 CHANNEL_DELIVERY   = "C0ACB9C8J01"   # #mkv-schedule-for-delivery (live)
 CHANNEL_TEST       = "C0B0TGBDCDU"   # #mkvtest
 
-TEST_MODE          = True
+TEST_MODE          = False
 TARGET_CHANNEL     = CHANNEL_TEST if TEST_MODE else CHANNEL_BOOKINGS
 TARGET_DELIVERY    = CHANNEL_TEST if TEST_MODE else CHANNEL_DELIVERY
 
@@ -160,11 +160,18 @@ def fetch_bookings():
         if data.get("issuccess"):
             bookings = data.get("bookings", [])
             print(f"  Appic returned {len(bookings)} bookings")
-            # ── DEBUG: print all fields from first booking ──
-            if bookings:
-                print("  DEBUG — First booking fields:")
-                for k, v in bookings[0].items():
-                    print(f"    {k:<35}: {v}")
+            # ── DEBUG: print first booking + any booking with addOnCharges ──
+            printed = 0
+            for b in bookings:
+                has_addon = b.get("addOnCharges") not in (None, "null", "", "0", 0)
+                has_zero_dep = float(b.get("zeroDepositFee", 0) or 0) > 0
+                if printed == 0 or has_addon or has_zero_dep:
+                    print(f"\n  DEBUG — Booking {b.get('contractID')} fields:")
+                    for k, v in b.items():
+                        print(f"    {k:<35}: {v}")
+                    printed += 1
+                if printed >= 3:
+                    break
             # ── END DEBUG ──
             return bookings
         else:
