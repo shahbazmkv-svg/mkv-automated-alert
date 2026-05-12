@@ -21,6 +21,9 @@ jobs:
 
   fleet-availability:
     if: github.event.inputs.job == 'fleet-availability' || github.event.inputs.job == 'all'
+    concurrency:         
+      group: git-push
+      cancel-in-progress: false
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -45,6 +48,9 @@ jobs:
 
   debug-vehicles-api:
     if: github.event.inputs.job == 'debug-vehicles-api'
+    concurrency:         
+      group: git-push
+      cancel-in-progress: false
     runs-on: ubuntu-latest
     steps:
       - name: Test get-mkv-vehicles API
@@ -58,6 +64,9 @@ jobs:
 
   daily-leads:
     if: github.event.inputs.job == 'daily-leads' || github.event.inputs.job == 'all'
+    concurrency:         
+      group: git-push
+      cancel-in-progress: false
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -86,6 +95,9 @@ jobs:
 
   website-snapshot:
     if: github.event.inputs.job == 'website-snapshot' || github.event.inputs.job == 'all'
+    concurrency:         
+      group: git-push
+      cancel-in-progress: false
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -109,7 +121,9 @@ jobs:
 
   pickup-alert:
     if: github.event.inputs.job == 'pickup-alert' || github.event.inputs.job == 'all'
-    runs-on: ubuntu-latest
+    concurrency:         
+      group: git-push
+      cancel-in-progress: falseruns-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
@@ -133,7 +147,9 @@ jobs:
 
   booking-bot:
     if: github.event.inputs.job == 'booking-bot' || github.event.inputs.job == 'all'
-    runs-on: ubuntu-latest
+    concurrency:         
+      group: git-push
+      cancel-in-progress: falseruns-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
