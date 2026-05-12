@@ -1,6 +1,12 @@
 name: Keep Alive
 
 on:
+  schedule:
+    - cron: '0 6 * * *'      # fleet-availability   — 10:00 AM Dubai (UTC+4)
+    - cron: '0 7 * * *'      # daily-leads          — 11:00 AM Dubai
+    - cron: '30 7 * * *'     # website-snapshot     — 11:30 AM Dubai
+    - cron: '0 15 * * *'     # pickup-alert         — 7:00 PM Dubai
+    - cron: '*/5 * * * *'    # booking-bot          — every 5 minutes
   workflow_dispatch:
     inputs:
       job:
@@ -20,11 +26,14 @@ on:
 jobs:
 
   fleet-availability:
-    if: github.event.inputs.job == 'fleet-availability' || github.event.inputs.job == 'all'
-    concurrency:         
+    if: >
+      (github.event_name == 'schedule' && github.event.schedule == '0 6 * * *') ||
+      github.event.inputs.job == 'fleet-availability' ||
+      github.event.inputs.job == 'all'
+    runs-on: ubuntu-latest
+    concurrency:
       group: git-push
       cancel-in-progress: false
-    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
@@ -44,13 +53,10 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git pull --rebase origin main || true
           git commit --allow-empty -m "chore: fleet availability ran $(date +'%Y-%m-%d')"
-          git push
+          git push || (git pull --rebase origin main && git push)
 
   debug-vehicles-api:
     if: github.event.inputs.job == 'debug-vehicles-api'
-    concurrency:         
-      group: git-push
-      cancel-in-progress: false
     runs-on: ubuntu-latest
     steps:
       - name: Test get-mkv-vehicles API
@@ -63,11 +69,14 @@ jobs:
             https://www.appicfleet.com/appiccar-apis-mkv/get-mkv-vehicles.php | python3 -m json.tool
 
   daily-leads:
-    if: github.event.inputs.job == 'daily-leads' || github.event.inputs.job == 'all'
-    concurrency:         
+    if: >
+      (github.event_name == 'schedule' && github.event.schedule == '0 7 * * *') ||
+      github.event.inputs.job == 'daily-leads' ||
+      github.event.inputs.job == 'all'
+    runs-on: ubuntu-latest
+    concurrency:
       group: git-push
       cancel-in-progress: false
-    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
@@ -91,14 +100,17 @@ jobs:
           git pull --rebase origin main || true
           git add mtd_store.json
           git diff --staged --quiet || git commit -m "chore: leads + MTD store updated $(date +'%Y-%m-%d')"
-          git push || true
+          git push || (git pull --rebase origin main && git push) || true
 
   website-snapshot:
-    if: github.event.inputs.job == 'website-snapshot' || github.event.inputs.job == 'all'
-    concurrency:         
+    if: >
+      (github.event_name == 'schedule' && github.event.schedule == '30 7 * * *') ||
+      github.event.inputs.job == 'website-snapshot' ||
+      github.event.inputs.job == 'all'
+    runs-on: ubuntu-latest
+    concurrency:
       group: git-push
       cancel-in-progress: false
-    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
@@ -117,13 +129,17 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git pull --rebase origin main || true
           git commit --allow-empty -m "chore: website snapshot ran $(date +'%Y-%m-%d')"
-          git push
+          git push || (git pull --rebase origin main && git push)
 
   pickup-alert:
-    if: github.event.inputs.job == 'pickup-alert' || github.event.inputs.job == 'all'
-    concurrency:         
+    if: >
+      (github.event_name == 'schedule' && github.event.schedule == '0 15 * * *') ||
+      github.event.inputs.job == 'pickup-alert' ||
+      github.event.inputs.job == 'all'
+    runs-on: ubuntu-latest
+    concurrency:
       group: git-push
-      cancel-in-progress: falseruns-on: ubuntu-latest
+      cancel-in-progress: false
     steps:
       - uses: actions/checkout@v4
         with:
@@ -143,13 +159,17 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git pull --rebase origin main || true
           git commit --allow-empty -m "chore: pickup alert ran $(date +'%Y-%m-%d')"
-          git push
+          git push || (git pull --rebase origin main && git push)
 
   booking-bot:
-    if: github.event.inputs.job == 'booking-bot' || github.event.inputs.job == 'all'
-    concurrency:         
+    if: >
+      (github.event_name == 'schedule' && github.event.schedule == '*/5 * * * *') ||
+      github.event.inputs.job == 'booking-bot' ||
+      github.event.inputs.job == 'all'
+    runs-on: ubuntu-latest
+    concurrency:
       group: git-push
-      cancel-in-progress: falseruns-on: ubuntu-latest
+      cancel-in-progress: false
     steps:
       - uses: actions/checkout@v4
         with:
@@ -170,4 +190,4 @@ jobs:
           git add booking_thread_store.json || true
           git pull --rebase origin main || true
           git commit -m "chore: booking bot store $(date +'%Y-%m-%d %H:%M')" || true
-          git push || true
+          git push || (git pull --rebase origin main && git push) || true
