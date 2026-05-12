@@ -69,37 +69,42 @@ jobs:
             -d "key=$APPIC_KEY" \
             https://www.appicfleet.com/appiccar-apis-mkv/get-mkv-vehicles.php | python3 -m json.tool
 
-debug-full:
+  debug-full:
     if: github.event.inputs.job == 'debug-full'
     runs-on: ubuntu-latest
     steps:
-      - name: Debug APIs
+      - name: Install requests
+        run: pip install requests --break-system-packages
+      - name: Debug bookings API fields
         env:
           APPIC_KEY: ${{ secrets.APPIC_KEY }}
         run: |
-          python3 - << 'EOF'
+          cat > /tmp/debug.py << 'PYEOF'
           import requests, json, os
           from datetime import datetime, timedelta
 
           KEY      = os.environ["APPIC_KEY"]
           today    = datetime.now().strftime("%Y-%m-%d")
-          tomorrow = (datetime.now() + timedelta(days=1)).strftime("%Y-%m-%d")
           start    = (datetime.now() - timedelta(days=30)).strftime("%Y-%m-%d")
 
           print("=" * 60)
-          print("BOOKINGS API — first 3 active bookings — ALL FIELDS")
+          print("BOOKINGS API — first 5 active bookings — ALL FIELDS")
           print("=" * 60)
           r = requests.post(
               "https://www.appicfleet.com/appiccar-apis-mkv/get-mkv-bookings.php",
-              data={"key": KEY, "startDate": start, "endDate": tomorrow},
+              data={"key": KEY, "startDate": start, "endDate": today},
               timeout=20
           )
           bookings = r.json().get("bookings", [])
-          print(f"Total bookings: {len(bookings)}")
-          for b in bookings[:3]:
+          print(f"Total bookings returned: {len(bookings)}")
+          print(f"Keys in booking: {list(bookings[0].keys()) if bookings else 'NONE'}")
+          print()
+          for b in bookings[:5]:
               print(json.dumps(b, indent=2))
+              print()
+          PYEOF
+          python3 /tmp/debug.py
 
-          EOF
   daily-leads:
     if: >
       (github.event_name == 'schedule' && github.event.schedule == '0 7 * * *') ||
