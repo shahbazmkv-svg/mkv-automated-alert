@@ -103,17 +103,12 @@ def fetch_bookings():
         )
         r.raise_for_status()
         data = r.json()
-        print(f"  Appic raw keys: {list(data.keys())[:8]}")
-        success  = (data.get("issuccess") or data.get("isSuccess") or
-                    data.get("success") or data.get("status") == "success")
-        bookings = data.get("bookings") or data.get("data") or []
-        if not success and isinstance(bookings, list) and len(bookings) > 0:
-            success = True
-        if success and isinstance(bookings, list):
+        if data.get("issuccess"):
+            bookings = data.get("bookings", [])
             print(f"  Appic returned {len(bookings)} bookings")
             return bookings
         else:
-            print(f"  Appic error or empty: {data.get('message') or data}")
+            print(f"  Appic error: {data.get('message')}")
             return []
     except Exception as e:
         print(f"  API error: {e}")
@@ -130,34 +125,52 @@ def extract(b):
     except:
         dur_str = "N/A"
     try:
-        amt_val    = float(b.get("amount", 0) or 0)
-        zero_dep_v = float(b.get("zeroDepositFee", 0) or 0)
-        addon_val  = float(b.get("addOnCharges", 0) or 0)
-        # VAT = 5% of (Rental + Zero Deposit + Add-ons)
-        vat_base   = amt_val + zero_dep_v + addon_val
-        api_vat    = float(b.get("vatAmount", 0) or 0)
-        vat_val    = api_vat if api_vat > 0 else round(vat_base * 0.05, 2)
-        # Use Appic grandTotal directly
-        grand_total = float(b.get("grandTotal", 0) or 0)
-        advance     = float(b.get("advanceReceived", 0) or 0)
-        # Recalculate components for display
-        vat_base    = amt_val + zero_dep_v + addon_val
-        api_vat     = float(b.get("vatAmount", 0) or 0)
-        vat_val     = api_vat if api_vat > 0 else round(vat_base * 0.05, 2)
-        # Use grandTotal if available, else calculate
-        total       = grand_total if grand_total > 0 else (amt_val + zero_dep_v + addon_val + vat_val)
-        balance     = total - advance
+        # ── Raw values from Appic (all VAT-inclusive) ──────────────────────
+        rental_incl   = float(b.get("amount", 0)          or 0)
+        zero_dep_incl = float(b.get("zeroDepositFee", 0)  or 0)
+        delivery_incl = float(b.get("deliveryCharges", 0) or 0)
+        pickup_incl   = float(b.get("pickupCharges", 0)   or 0)
+        baby_incl     = float(b.get("babySeatCharges", 0) or 0)
+        grand_total   = float(b.get("grandTotal", 0)      or 0)
+        advance       = float(b.get("advanceReceived", 0) or 0)
 
-        rental_amt  = f"AED {amt_val:,.0f}"    if amt_val   > 0 else "TBC"
-        zero_dep_amt= f"AED {zero_dep_v:,.0f}" if zero_dep_v> 0 else "—"
-        addon_amt   = f"AED {addon_val:,.0f}"  if addon_val > 0 else "—"
-        vat_amt     = f"AED {vat_val:,.0f}"    if vat_val   > 0 else "—"
-        advance_amt = f"AED {advance:,.0f}"    if advance   > 0 else "—"
-        balance_amt = f"AED {balance:,.0f}"    if balance   > 0 else "—"
-        total_amt   = f"AED {total:,.0f}"      if total     > 0 else "TBC"
+        # ── Helper: split a VAT-inclusive amount into (ex_vat, vat) ────────
+        def split_vat(incl):
+            ex  = round(incl / 1.05, 2)
+            vat = round(incl - ex, 2)
+            return ex, vat
+
+        r_ex,  r_vat  = split_vat(rental_incl)
+        zd_ex, zd_vat = split_vat(zero_dep_incl)
+        dl_ex, dl_vat = split_vat(delivery_incl)
+        pu_ex, pu_vat = split_vat(pickup_incl)
+        bs_ex, bs_vat = split_vat(baby_incl)
+
+        # ── Total excl. VAT = grandTotal / 1.05 ────────────────────────────
+        total_excl_vat = round(grand_total / 1.05, 2) if grand_total > 0 else (
+            r_ex + zd_ex + dl_ex + pu_ex + bs_ex
+        )
+
+        # ── Display helpers ─────────────────────────────────────────────────
+        def fmt(v):
+            return f"AED {v:,.0f}" if v > 0 else "—"
+
+        # Summary totals only — per-line just shows the incl. amount
+        total_vat      = round(grand_total - total_excl_vat, 2)
+
+        rental_amt     = fmt(rental_incl)
+        zero_dep_amt   = fmt(zero_dep_incl)
+        delivery_amt   = fmt(delivery_incl)
+        pickup_fee_amt = fmt(pickup_incl)
+        baby_seat_amt  = fmt(baby_incl)
+        total_amt      = fmt(grand_total)
+        total_excl_str = fmt(total_excl_vat)
+        total_vat_str  = fmt(total_vat)
+        advance_amt    = fmt(advance)
+
     except:
-        rental_amt = zero_dep_amt = addon_amt = vat_amt = advance_amt = balance_amt = "—"
-        total_amt  = "TBC"
+        rental_amt = zero_dep_amt = delivery_amt = pickup_fee_amt = baby_seat_amt = "—"
+        total_amt = total_excl_str = total_vat_str = advance_amt = "—"
 
     pickup_loc  = (b.get("pickupLocation")  or "").strip()
     dropoff_loc = (b.get("dropoffLocation") or "").strip()
@@ -190,13 +203,16 @@ def extract(b):
         "e_time":       e_time,
         "dur_str":      dur_str,
         "location":     location,
+        # cost fields
         "rental_amt":   rental_amt,
         "zero_dep":     zero_dep_amt,
-        "addon":        addon_amt,
-        "vat":          vat_amt,
+        "delivery":     delivery_amt,
+        "pickup_fee":   pickup_fee_amt,
+        "baby_seat":    baby_seat_amt,
+        "total_excl":   total_excl_str,
+        "total_vat":    total_vat_str,
         "total_amt":    total_amt,
         "advance":      advance_amt,
-        "balance":      balance_amt,
         "pay_mode":     (b.get("paymentMode")    or "—").strip(),
         "km_allowed":   (lambda r: next(
                             (w.rstrip("S") + " KM" for w in r.upper().replace("KMS","KM").replace("KM"," KM ").split()
@@ -231,13 +247,17 @@ def build_booking_card(f, now_str):
         f"{'Duration':<14}: {f['dur_str']}\n"
         f"{'Delivery To':<14}: {f['location']}\n"
         f"{'─' * 36}\n"
-        f"{'Rental':<14}: {f['rental_amt']}\n"
-        f"{'Zero Deposit':<14}: {f['zero_dep']}\n"
-        f"{'Add-on':<14}: {f['addon']}\n"
-        f"{'VAT (5%)':<14}: {f['vat']}\n"
-        f"{'Total':<14}: {f['total_amt']}\n"
+        + (f"{'Rental':<14}: {f['rental_amt']}\n"   if f['rental_amt']  != '—' else "") +
+        (f"{'Zero Deposit':<14}: {f['zero_dep']}\n"  if f['zero_dep']    != '—' else "") +
+        (f"{'Delivery':<14}: {f['delivery']}\n"      if f['delivery']    != '—' else "") +
+        (f"{'Pickup Fee':<14}: {f['pickup_fee']}\n"  if f['pickup_fee']  != '—' else "") +
+        (f"{'Baby Seat':<14}: {f['baby_seat']}\n"    if f['baby_seat']   != '—' else "") +
+        f"{'─' * 36}\n"
+        f"{'Total Rental':<14}: {f['total_excl']}\n"
+        f"{'VAT (5%)':<14}: {f['total_vat']}\n"
+        f"{'Grand Total':<14}: {f['total_amt']}\n"
+        f"{'─' * 36}\n"
         f"{'Advance':<14}: {f['advance']}\n"
-        f"{'Balance':<14}: {f['balance']}\n"
         f"{'Payment Mode':<14}: {f['pay_mode']}\n"
         f"{'KM Allowed':<14}: {f['km_allowed']}\n"
         f"{'─' * 36}\n"
@@ -284,6 +304,12 @@ def build_booking_card(f, now_str):
                     "text": {"type": "plain_text", "text": "🚗  Delivery"},
                     "style": "primary",
                     "action_id": "open_delivery",
+                    "value": booking_data
+                },
+                {
+                    "type": "button",
+                    "text": {"type": "plain_text", "text": "🔑  Pickup"},
+                    "action_id": "open_pickup",
                     "value": booking_data
                 },
             ]
@@ -442,60 +468,6 @@ def build_contract_closed(f, now_str):
     return blocks, f"Closed: {f['customer']} | {f['vehicle']} ({f['plate']})"
 
 
-def build_documents_thread(b, agr_no, customer):
-    """
-    Build a thread message with document images/links from Appic.
-    Images displayed inline, PDFs as clickable links.
-    Only includes fields that are populated.
-    """
-    fields = [
-        ("passportImg",      "🪪 Passport"),
-        ("passportExpImg",   "🪪 Passport Expiry"),
-        ("licenseImg",       "🚗 License"),
-        ("licenseExpiryImg", "🚗 License Expiry"),
-        ("tradeLicenseImg",  "📄 Trade License"),
-    ]
-
-    blocks = [
-        {"type": "header",
-         "text": {"type": "plain_text", "text": "📎 DOCUMENTS"}},
-        {"type": "context",
-         "elements": [{"type": "mrkdwn",
-             "text": f"AGR#: {agr_no}  |  {customer}"}]},
-        {"type": "divider"},
-    ]
-
-    has_docs = False
-    for field, label in fields:
-        url = (b.get(field) or "").strip()
-        if not url:
-            continue
-        has_docs = True
-        is_pdf = url.lower().endswith(".pdf") or "pdf" in url.lower()
-        if is_pdf:
-            blocks.append({
-                "type": "section",
-                "text": {"type": "mrkdwn",
-                    "text": f"{label}  →  <{url}|View PDF>"}
-            })
-        else:
-            blocks.append({
-                "type": "image",
-                "title": {"type": "plain_text", "text": label},
-                "image_url": url,
-                "alt_text": label
-            })
-
-    if not has_docs:
-        return None, None
-
-    blocks.append({"type": "context",
-        "elements": [{"type": "mrkdwn",
-            "text": "Documents uploaded in Appic — auto-fetched on booking creation"}]})
-
-    return blocks, f"Documents: {agr_no} | {customer}"
-
-
 # ─────────────────────────────────────────────
 #  MAIN
 # ─────────────────────────────────────────────
@@ -504,7 +476,7 @@ def main():
     now_str  = now.strftime("%d %b %Y | %I:%M %p Dubai Time")
     tomorrow = (now + timedelta(days=1)).strftime("%Y-%m-%d")
 
-    SEED_MODE = False
+    SEED_MODE = True
 
     print("=" * 56)
     print("  MKV BOOKING BOT")
@@ -550,6 +522,8 @@ def main():
             print(f"  NEW: {customer} | {plate} | {start} | {f['status_label']}")
             blocks, text = build_booking_card(f, now_str)
             ts = post_message(TARGET_CHANNEL, blocks, text)
+            # Also post to #mkv-schedule-for-delivery
+            post_message(TARGET_DELIVERY, blocks, text)
             if ts:
                 bookings[key] = {
                     "thread_ts":        ts,
@@ -563,14 +537,11 @@ def main():
                     "start_date":       start,
                 }
                 print(f"  Booking card posted — thread: {ts}")
-                # Post documents as follow-on thread message
-                doc_blocks, doc_text = build_documents_thread(b, f["agr_no"], f["customer"])
-                if doc_blocks:
-                    d_ts = post_message(TARGET_CHANNEL, doc_blocks, doc_text, thread_ts=ts)
-                    if d_ts:
-                        print(f"  Documents posted in thread")
-                    else:
-                        print(f"  No documents available for this booking")
+                d_blocks, d_text = build_delivery_checklist(f, now_str)
+                d_ts = post_message(TARGET_CHANNEL, d_blocks, d_text, thread_ts=ts)
+                if d_ts:
+                    bookings[key]["delivery_alerted"] = True
+                    print(f"  Delivery checklist posted in thread")
 
         else:
             stored    = bookings.get(key, {})
