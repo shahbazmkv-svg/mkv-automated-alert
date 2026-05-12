@@ -4,18 +4,18 @@ MKV Luxury – Fleet Availability
 API 1: get-mkv-vehicles.php          → vehicle list (names, plates, IDs)
 API 2: get-mkv-available-vehicle.php → per-vehicle status (available/booked/service/nrv)
 
-Category map is hardcoded from master fleet list since Appic bookings API
-has no rentalType field. Update PLATE_CATEGORY when fleet changes.
+PLATE_CATEGORY uses full plate key (letters + digits, no spaces) for uniqueness.
+All 62 MKV fleet vehicles are mapped. Update when fleet changes.
 
 Status logic (priority order):
-  1. SERVICE  → availability API returns "gone for service" / "service" / "garage"
-  2. NRV      → plate in NRV_PLATES set (Accident/Damage vehicles)
+  1. SERVICE  → availability API returns "service" / "gone for service" / "garage"
+  2. NRV      → plate in NRV category (Accident/Damage vehicles)
   3. BOOKED   → split by PLATE_CATEGORY → STR / Lease / LTR
   4. AVAILABLE → not booked, not service, not NRV
 
 Slack output:
-  Summary → Total / STR / Lease / LTR / Available / Service / NRV (counts)
-  List    → AVAILABLE vehicles only with name + plate
+  Summary → Total / STR / Lease / LTR / Available / Service / NRV
+  List    → AVAILABLE vehicles only
 """
 import os, json, re, requests
 from datetime import datetime, timezone, timedelta
@@ -38,83 +38,85 @@ CONTACT_FOOTER = (
 
 # ─────────────────────────────────────────────────────────
 # MASTER FLEET CATEGORY MAP
-# Key   = normalized plate (digits only, no leading zeros)
+# Key   = plate letters+digits uppercased, spaces removed
 # Value = "str" | "lease" | "ltr" | "nrv"
-# Update this when fleet changes
 # ─────────────────────────────────────────────────────────
 PLATE_CATEGORY = {
-    # STR
-    "97019":  "str",   # FERRARI PUROSANGUE
-    "47203":  "str",   # MORGAN SUPERSPORT
-    "24545":  "str",   # MERCEDES G63 BLACK 2025
-    "66789":  "str",   # MERCEDES G63 BRABUS  (O66789)
-    "55789":  "str",   # MERCEDES S500 (X55789) / RANGE ROVER SPORT BLACK (T55789)
-    "94545":  "str",   # RANGE ROVER SPORT GRAY (L94545) / LAMBORGHINI URUS (O94545)
-    "77540":  "str",   # RANGE ROVER SVR BLACK
-    "68620":  "str",   # RANGE ROVER VELAR
-    "83762":  "str",   # LAND ROVER DEFENDER V8
-    "78043":  "str",   # LAND ROVER DEFENDER 130 V6
-    "77491":  "str",   # FORD MUSTANG CONVERTIBLE RED
-    "77490":  "str",   # FORD MUSTANG COUPE WHITE
-    "72712":  "str",   # CHEVROLET CORVETTE
-    "23652":  "str",   # LOTUS EMIRA
-    "78051":  "str",   # BMW 735i
-    "70691":  "str",   # BMW 520i
-    "70688":  "str",   # BMW 420i
-    "19443":  "str",   # MERCEDES GLB 250
-    "78042":  "str",   # CHEVROLET TAHOE
-    "69367":  "str",   # GMC YUKON
-    "46015":  "str",   # AUDI RS Q3
-    "89438":  "str",   # AUDI A6
-    "92156":  "str",   # AUDI A6
-    "90158":  "str",   # AUDI A3
-    "15789":  "str",   # FORD MUSTANG BLACK/YELLOW
-    "60137":  "str",   # MERCEDES G63 2026 RETRO
-    "44789":  "str",   # CADILLAC ESCALADE
-    "33789":  "str",   # BENTLEY BENTAYGA MANSORY
-    "47041":  "str",   # MCLAREN ARTURA (SERVICE)
-    "42165":  "str",   # PORSCHE 911 (SERVICE)
-    "64545":  "str",   # PORSCHE GT4 RS (SERVICE)
-    "75037":  "str",   # RANGE ROVER SVR GRAY/BLUE (SERVICE)
-    "97521":  "str",   # LAMBORGHINI HURACAN EVO SPYDER (SERVICE)
-    "56026":  "str",   # LAMBORGHINI URUS (N 56026)
-    # LEASE
-    "74545":  "lease", # FERRARI 296 GTB
-    "3660":   "lease", # MERCEDES G63 BLUE
-    "78067":  "lease", # MERCEDES C200
-    "94084":  "lease", # RANGE ROVER SPORT WHITE
-    "33567":  "lease", # FORD BRONCO
-    "27852":  "lease", # AUDI Q3
-    "90154":  "lease", # AUDI A3
-    "98103":  "lease", # KIA SPORTAGE WHITE
-    "98438":  "lease", # KIA SORENTO
-    "81946":  "lease", # JETOUR T2 BLUE
-    "68539":  "lease", # DONGFENG FORTHING S7
-    "53403":  "lease", # GAC M8 2026
-    "69703":  "lease", # NISSAN PATROL WHITE (SERVICE)
-    "78242":  "lease", # JETOUR T2 BROWN (SERVICE)
-    # LTR
-    "39810":  "ltr",   # NISSAN PATROL
-    "83209":  "ltr",   # RANGE ROVER SPORT BLACK
-    "1243":   "ltr",   # ROLLS ROYCE GRAY
-    "23155":  "ltr",   # NISSAN PATROL
-    "97580":  "ltr",   # CADILLAC ESCALADE SPORT
-    "19503":  "ltr",   # MERCEDES GLB 250
-    # NRV
-    "38848":  "nrv",   # MERCEDES G63 BLACK 2024
-    "66246":  "nrv",   # GMC YUKON
-    "31727":  "nrv",   # TOYOTA LAND CRUISER
-    "97020":  "nrv",   # KIA K5
-    "97018":  "nrv",   # KIA CERATO
-    "26603":  "nrv",   # SUZUKI SWIFT
+    # ── STR ──────────────────────────────────────────────
+    "Y97019":   "str",   # FERRARI PUROSANGUE
+    "I47203":   "str",   # MORGAN SUPERSPORT
+    "U24545":   "str",   # MERCEDES G63 BLACK 2025
+    "O66789":   "str",   # MERCEDES G63 BRABUS
+    "X55789":   "str",   # MERCEDES S500
+    "L94545":   "str",   # RANGE ROVER SPORT GRAY
+    "T55789":   "str",   # RANGE ROVER SPORT BLACK
+    "J77540":   "str",   # RANGE ROVER SVR BLACK
+    "AA68620":  "str",   # RANGE ROVER VELAR
+    "CC83762":  "str",   # LAND ROVER DEFENDER V8
+    "AA78043":  "str",   # LAND ROVER DEFENDER 130 V6
+    "AA77491":  "str",   # FORD MUSTANG CONVERTIBLE RED
+    "AA77490":  "str",   # FORD MUSTANG COUPE WHITE
+    "Y72712":   "str",   # CHEVROLET CORVETTE
+    "E23652":   "str",   # LOTUS EMIRA
+    "AA78051":  "str",   # BMW 735i
+    "K70691":   "str",   # BMW 520i
+    "D70688":   "str",   # BMW 420i
+    "K19443":   "str",   # MERCEDES GLB 250
+    "AA78042":  "str",   # CHEVROLET TAHOE
+    "CC69367":  "str",   # GMC YUKON
+    "W46015":   "str",   # AUDI RS Q3
+    "Z89438":   "str",   # AUDI A6
+    "Z92156":   "str",   # AUDI A6
+    "Z90158":   "str",   # AUDI A3
+    "B15789":   "str",   # FORD MUSTANG BLACK/YELLOW
+    "BB60137":  "str",   # MERCEDES G63 2026 RETRO
+    "O94545":   "str",   # LAMBORGHINI URUS MY20 YELLOW
+    "X44789":   "str",   # CADILLAC ESCALADE
+    "X33789":   "str",   # BENTLEY BENTAYGA MANSORY
+    "J47041":   "str",   # MCLAREN ARTURA          (SERVICE)
+    "EE42165":  "str",   # PORSCHE 911             (SERVICE)
+    "T64545":   "str",   # PORSCHE GT4 RS          (SERVICE)
+    "H75037":   "str",   # RANGE ROVER SVR GRAY/BLUE (SERVICE)
+    "W97521":   "str",   # LAMBORGHINI HURACAN EVO SPYDER (SERVICE)
+    "N56026":   "str",   # LAMBORGHINI URUS (N 56026)
+    # ── LEASE ────────────────────────────────────────────
+    "U74545":   "lease", # FERRARI 296 GTB
+    "S66789":   "lease", # MERCEDES G63 WHITE 2025
+    "T3660":    "lease", # MERCEDES G63 BLUE
+    "AA78067":  "lease", # MERCEDES C200
+    "CC94084":  "lease", # RANGE ROVER SPORT WHITE
+    "X33567":   "lease", # FORD BRONCO
+    "N27852":   "lease", # AUDI Q3
+    "Z90154":   "lease", # AUDI A3
+    "F98103":   "lease", # KIA SPORTAGE WHITE
+    "F98438":   "lease", # KIA SORENTO
+    "W81946":   "lease", # JETOUR T2 BLUE
+    "D68539":   "lease", # DONGFENG FORTHING S7
+    "BB53403":  "lease", # GAC M8 2026
+    "C69703":   "lease", # NISSAN PATROL WHITE     (SERVICE)
+    "T78242":   "lease", # JETOUR T2 BROWN         (SERVICE)
+    # ── LTR ──────────────────────────────────────────────
+    "S39810":   "ltr",   # NISSAN PATROL
+    "F83209":   "ltr",   # RANGE ROVER SPORT BLACK
+    "V1243":    "ltr",   # ROLLS ROYCE GRAY
+    "H23155":   "ltr",   # NISSAN PATROL
+    "F97580":   "ltr",   # CADILLAC ESCALADE SPORT
+    "K19503":   "ltr",   # MERCEDES GLB 250
+    # ── NRV ──────────────────────────────────────────────
+    "P38848":   "nrv",   # MERCEDES G63 BLACK 2024
+    "Z66246":   "nrv",   # GMC YUKON
+    "H31727":   "nrv",   # TOYOTA LAND CRUISER
+    "Y97020":   "nrv",   # KIA K5
+    "Y97018":   "nrv",   # KIA CERATO
+    "R26603":   "nrv",   # SUZUKI SWIFT
 }
 
 def now_dubai():
     return datetime.now(DUBAI_TZ)
 
-def normalize_plate(plate: str) -> str:
-    digits = re.sub(r"[^0-9]", "", str(plate))
-    return digits.lstrip("0") if digits else str(plate)
+def plate_key(plate: str) -> str:
+    """Normalize plate to letters+digits, uppercase, no spaces. E.g. 'AA 68620' → 'AA68620'"""
+    return re.sub(r"[^A-Z0-9]", "", str(plate).upper())
 
 def get_plate(v: dict) -> str:
     for key in ["plate", "vehiclePlate", "plateNo", "plate_no"]:
@@ -147,21 +149,21 @@ def fetch_vehicles() -> list:
         ]
         print(f"  Vehicles total : {len(all_v)} | MKV fleet: {len(active)}")
 
-        # Warn about any master list plates missing from Appic
-        appic_norms = set(normalize_plate(get_plate(v)) for v in active)
-        missing = [p for p in PLATE_CATEGORY if p not in appic_norms]
+        # Warn: master list plates missing from Appic
+        appic_keys = set(plate_key(get_plate(v)) for v in active)
+        missing = [p for p in PLATE_CATEGORY if p not in appic_keys]
         if missing:
-            print(f"  ⚠️  Plates in master list but NOT in Appic (dailyrent=0 or missing):")
+            print(f"  ⚠️  In master list but NOT in Appic (set rate>0 to fix):")
             for p in missing:
-                print(f"      plate={p}")
+                print(f"      {p}")
 
-        # Warn about Appic vehicles not in master list
-        extra = [v for v in active if normalize_plate(get_plate(v)) not in PLATE_CATEGORY]
+        # Warn: Appic vehicles not in master list
+        extra = [v for v in active if plate_key(get_plate(v)) not in PLATE_CATEGORY]
         if extra:
-            print(f"  ⚠️  Appic vehicles NOT in master list (fix in Appic or add to map):")
+            print(f"  ⚠️  In Appic but NOT in master list (add to PLATE_CATEGORY):")
             for v in extra:
                 print(f"      vehicleID={get_vehicle_id(v)} plate={get_plate(v)} "
-                      f"name={v.get('vehicle_name','')}")
+                      f"name={v.get('vehicle_name', '')}")
 
         return active
     except Exception as ex:
@@ -170,7 +172,6 @@ def fetch_vehicles() -> list:
 
 # ─────────────────────────────────────────────────────────
 # 2. Get per-vehicle status from availability API
-#    Returns: { vehicleID -> "available" | "booked" | "service" | "nrv" }
 # ─────────────────────────────────────────────────────────
 def fetch_vehicle_statuses(vehicles: list) -> dict:
     today_str    = now_dubai().strftime("%Y-%m-%d")
@@ -178,15 +179,15 @@ def fetch_vehicle_statuses(vehicles: list) -> dict:
     statuses     = {}
 
     for v in vehicles:
-        vid        = get_vehicle_id(v)
-        plate      = get_plate(v)
-        plate_norm = normalize_plate(plate)
-        category   = PLATE_CATEGORY.get(plate_norm, "str")
+        vid      = get_vehicle_id(v)
+        plate    = get_plate(v)
+        pkey     = plate_key(plate)
+        category = PLATE_CATEGORY.get(pkey, "str")
 
-        # NRV vehicles — mark directly, no need to call API
+        # NRV — no API call needed
         if category == "nrv":
             statuses[vid] = "nrv"
-            print(f"  NRV (master list): vehicleID={vid:<6} plate={plate}")
+            print(f"  NRV           : vehicleID={vid:<6} plate={plate}")
             continue
 
         if not vid:
@@ -209,16 +210,17 @@ def fetch_vehicle_statuses(vehicles: list) -> dict:
                 statuses[vid] = "nrv"
             elif "service" in raw or "garage" in raw or "gone for" in raw:
                 statuses[vid] = "service"
+                print(f"  SERVICE       : vehicleID={vid:<6} plate={plate} status='{raw}'")
             elif is_booked or "booked" in raw or "rented" in raw:
                 statuses[vid] = "booked"
             elif "available" in raw:
                 statuses[vid] = "available"
             else:
                 statuses[vid] = "available"
-                print(f"  ⚠️  Unknown: vehicleID={vid} plate={plate} raw='{raw}' full={resp}")
+                print(f"  ⚠️  Unknown   : vehicleID={vid:<6} plate={plate} raw='{raw}'")
 
         except Exception as ex:
-            print(f"  ⚠️  Error vehicleID={vid} plate={plate}: {ex}")
+            print(f"  ⚠️  Error      : vehicleID={vid} plate={plate}: {ex}")
             statuses[vid] = "available"
 
     from collections import Counter
@@ -231,14 +233,13 @@ def fetch_vehicle_statuses(vehicles: list) -> dict:
 # ─────────────────────────────────────────────────────────
 def fmt_name(v: dict) -> str:
     name  = str(v.get("vehicle_name") or "").strip().upper()
+    plate = get_plate(v)
     if name:
-        plate = get_plate(v)
         return f"{name} [{plate}]" if plate else name
     make  = v.get("make",  "").strip().upper()
     model = v.get("model", "").strip().upper()
     year  = str(v.get("year", "")).strip()
     color = v.get("color", "").strip().upper()
-    plate = get_plate(v)
     if model.startswith(make):
         model = model[len(make):].strip()
     parts = [p for p in [make, model] if p]
@@ -280,10 +281,10 @@ def build_message(vehicles, vehicle_statuses):
     nrv_v       = []
 
     for v in vehicles:
-        vid        = get_vehicle_id(v)
-        plate_norm = normalize_plate(get_plate(v))
-        status     = vehicle_statuses.get(vid, "available")
-        category   = PLATE_CATEGORY.get(plate_norm, "str")
+        vid      = get_vehicle_id(v)
+        pkey     = plate_key(get_plate(v))
+        status   = vehicle_statuses.get(vid, "available")
+        category = PLATE_CATEGORY.get(pkey, "str")
 
         if status == "service":
             service_v.append(v)
