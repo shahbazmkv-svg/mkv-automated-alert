@@ -1,43 +1,32 @@
 """
 MKV Luxury – Fleet Availability
 =================================
-Master fleet defined by MASTER_PLATES list.
-To add a new vehicle: add its plate exactly as stored in Appic.
+MASTER_FLEET = hardcoded plate + category + name
+Status fetched daily from get-mkv-available-vehicle.php
 
-FLOW:
-  1. get-mkv-vehicles.php          → match plates → get vehicleID + name + STATUS
-       status field from vehicles API:
-         "Available"        → available
-         "Gone for service" → service
-         "Accident/Damage"  → nrv
-         null / empty       → check availability API
+To add a new vehicle: add one line to MASTER_FLEET
+To change category: update "cat" field
 
-  2. get-mkv-available-vehicle.php → for vehicles with no status in step 1
-         isBooked=true  → booked → step 3
-         isBooked=false → available
+Categories: str | lease | ltr | nrv
 
-  3. get-mkv-bookings.php → contract duration for booked vehicles
-         1–30 days   → STR
-         31–365 days → Lease
-         366+ days   → LTR
-
-OUTPUT:
-  Summary → Total / STR / Lease / LTR / Available / Service / NRV
-  List    → AVAILABLE vehicles only (name + plate)
+Availability API status:
+  isBooked=False + "available" → Available
+  isBooked=True                → Rented (use cat for STR/Lease/LTR)
+  "gone for service"           → Service
+  "accident" / "damage"        → NRV
 """
 import os, json, re, requests
 from datetime import datetime, timezone, timedelta
 
 SLACK_TOKEN   = os.environ["SLACK_BOT_TOKEN"]
 APPIC_KEY     = os.environ.get("APPIC_KEY", "")
-SLACK_CHANNEL = "C0B0TGBDCDU"   # #mkvtest — switch to live channel when ready
+SLACK_CHANNEL = "C0B0TGBDCDU"   # #mkvtest
 DUBAI_TZ      = timezone(timedelta(hours=4))
 BLOCK_LIMIT   = 2900
 
 BASE_URL         = "https://www.appicfleet.com/appiccar-apis-mkv"
 MKV_VEHICLES_URL = f"{BASE_URL}/get-mkv-vehicles.php"
 MKV_AVAIL_URL    = f"{BASE_URL}/get-mkv-available-vehicle.php"
-BOOKINGS_URL     = f"{BASE_URL}/get-mkv-bookings.php"
 
 CONTACT_FOOTER = (
     "📱 +971 56 279 4545\n☎️  +971 4 238 8987\n"
@@ -46,207 +35,153 @@ CONTACT_FOOTER = (
 )
 
 # ─────────────────────────────────────────────────────────
-# MASTER PLATE LIST — add new vehicles here
-# Plates exactly as stored in Appic (spaces included)
+# MASTER FLEET
+# plate  = exactly as stored in Appic
+# cat    = str | lease | ltr | nrv
+# name   = display name for available list
+#
+# To add: {"plate": "XX12345", "cat": "str", "name": "VEHICLE NAME"}
 # ─────────────────────────────────────────────────────────
-MASTER_PLATES = [
-    "Y 97019",   # 1  FERRARI PUROSANGUE
-    "I 47203",   # 2  MORGAN SUPERSPORT
-    "U 24545",   # 3  MERCEDES G63 BLACK 2025
-    "O66789",    # 4  MERCEDES G63 BRABUS
-    "X55789",    # 5  MERCEDES S500
-    "L94545",    # 6  RANGE ROVER SPORT GRAY
-    "T55789",    # 7  RANGE ROVER SPORT BLACK
-    "J77540",    # 8  RANGE ROVER SVR BLACK
-    "AA68620",   # 9  RANGE ROVER VELAR
-    "CC83762",   # 10 LAND ROVER DEFENDER V8
-    "AA78043",   # 11 LAND ROVER DEFENDER 130 V6
-    "AA77491",   # 12 FORD MUSTANG CONVERTIBLE RED
-    "AA77490",   # 13 FORD MUSTANG COUPE WHITE
-    "Y72712",    # 14 CHEVROLET CORVETTE
-    "E23652",    # 15 LOTUS EMIRA
-    "AA78051",   # 16 BMW 735i
-    "K70691",    # 17 BMW 520i
-    "D70688",    # 18 BMW 420i
-    "K19443",    # 19 MERCEDES GLB 250
-    "AA78042",   # 20 CHEVROLET TAHOE
-    "CC 69367",  # 21 GMC YUKON
-    "W46015",    # 22 AUDI RS Q3
-    "Z89438",    # 23 AUDI A6
-    "Z92156",    # 24 AUDI A6
-    "Z90158",    # 25 AUDI A3
-    "B15789",    # 26 FORD MUSTANG BLACK/YELLOW
-    "BB60137",   # 27 MERCEDES G63 2026 RETRO
-    "O94545",    # 28 LAMBORGHINI URUS MY20 YELLOW
-    "X44789",    # 29 CADILLAC ESCALADE
-    "X33789",    # 30 BENTLEY BENTAYGA MANSORY
-    "U74545",    # 31 FERRARI 296 GTB
-    "S 66789",   # 32 MERCEDES G63 WHITE 2025
-    "T3660",     # 33 MERCEDES G63 BLUE
-    "AA78067",   # 34 MERCEDES C200
-    "CC94084",   # 35 RANGE ROVER SPORT WHITE
-    "X33567",    # 36 FORD BRONCO
-    "N27852",    # 37 AUDI Q3
-    "Z90154",    # 38 AUDI A3
-    "F98103",    # 39 KIA SPORTAGE WHITE
-    "F98438",    # 40 KIA SORENTO
-    "W81946",    # 41 JETOUR T2 BLUE
-    "D68539",    # 42 DONGFENG FORTHING S7
-    "BB53403",   # 43 GAC M8 2026
-    "S39810",    # 44 NISSAN PATROL
-    "F83209",    # 45 RANGE ROVER SPORT BLACK
-    "V1243",     # 46 ROLLS ROYCE GRAY
-    "H23155",    # 47 NISSAN PATROL
-    "F 97580",   # 48 CADILLAC ESCALADE SPORT
-    "K19503",    # 49 MERCEDES GLB 250
-    "P38848",    # 50 MERCEDES G63 BLACK 2024
-    "Z66246",    # 51 GMC YUKON
-    "H31727",    # 52 TOYOTA LAND CRUISER
-    "Y97020",    # 53 KIA K5
-    "Y97018",    # 54 KIA CERATO
-    "R26603",    # 55 SUZUKI SWIFT
-    "J47041",    # 56 MCLAREN ARTURA
-    "EE 42165",  # 57 PORSCHE 911
-    "C69703",    # 58 NISSAN PATROL WHITE
-    "T64545",    # 59 PORSCHE GT4 RS
-    "H75037",    # 60 RANGE ROVER SVR GRAY/BLUE
-    "W97521",    # 61 LAMBORGHINI HURACAN EVO SPYDER
-    "T78242",    # 62 JETOUR T2 BROWN
+MASTER_FLEET = [
+    # ── STR ──────────────────────────────────────────────────────────
+    {"plate": "Y 97019",  "cat": "str",   "name": "FERRARI PUROSANGUE"},
+    {"plate": "I 47203",  "cat": "str",   "name": "MORGAN SUPERSPORT"},
+    {"plate": "U 24545",  "cat": "str",   "name": "MERCEDES G63 BLACK 2025"},
+    {"plate": "O66789",   "cat": "str",   "name": "MERCEDES G63 BRABUS"},
+    {"plate": "X55789",   "cat": "str",   "name": "MERCEDES S500"},
+    {"plate": "L94545",   "cat": "str",   "name": "RANGE ROVER SPORT GRAY"},
+    {"plate": "T55789",   "cat": "str",   "name": "RANGE ROVER SPORT BLACK"},
+    {"plate": "J77540",   "cat": "str",   "name": "RANGE ROVER SVR BLACK"},
+    {"plate": "AA68620",  "cat": "str",   "name": "RANGE ROVER VELAR"},
+    {"plate": "CC83762",  "cat": "str",   "name": "LAND ROVER DEFENDER V8"},
+    {"plate": "AA78043",  "cat": "str",   "name": "LAND ROVER DEFENDER 130 V6"},
+    {"plate": "AA77491",  "cat": "str",   "name": "FORD MUSTANG GT V8 CONVERTIBLE RED"},
+    {"plate": "AA77490",  "cat": "str",   "name": "FORD MUSTANG GT COUPE WHITE"},
+    {"plate": "Y72712",   "cat": "str",   "name": "CHEVROLET CORVETTE"},
+    {"plate": "E23652",   "cat": "str",   "name": "LOTUS EMIRA"},
+    {"plate": "AA78051",  "cat": "str",   "name": "BMW 735i"},
+    {"plate": "K70691",   "cat": "str",   "name": "BMW 520i"},
+    {"plate": "D70688",   "cat": "str",   "name": "BMW 420i"},
+    {"plate": "K19443",   "cat": "str",   "name": "MERCEDES GLB 250"},
+    {"plate": "AA78042",  "cat": "str",   "name": "CHEVROLET TAHOE"},
+    {"plate": "CC 69367", "cat": "str",   "name": "GMC YUKON"},
+    {"plate": "W46015",   "cat": "str",   "name": "AUDI RS Q3"},
+    {"plate": "Z89438",   "cat": "str",   "name": "AUDI A6"},
+    {"plate": "Z92156",   "cat": "str",   "name": "AUDI A6"},
+    {"plate": "Z90158",   "cat": "str",   "name": "AUDI A3"},
+    {"plate": "B15789",   "cat": "str",   "name": "FORD MUSTANG BLACK/YELLOW"},
+    {"plate": "BB60137",  "cat": "str",   "name": "MERCEDES G63 2026 RETRO"},
+    {"plate": "O94545",   "cat": "str",   "name": "LAMBORGHINI URUS MY20 YELLOW"},
+    {"plate": "X44789",   "cat": "str",   "name": "CADILLAC ESCALADE"},
+    {"plate": "X33789",   "cat": "str",   "name": "BENTLEY BENTAYGA MANSORY"},
+    {"plate": "J47041",   "cat": "str",   "name": "MCLAREN ARTURA"},
+    {"plate": "EE 42165", "cat": "str",   "name": "PORSCHE 911"},
+    {"plate": "T64545",   "cat": "str",   "name": "PORSCHE GT4 RS"},
+    {"plate": "H75037",   "cat": "str",   "name": "RANGE ROVER SVR GRAY/BLUE"},
+    {"plate": "W97521",   "cat": "str",   "name": "LAMBORGHINI HURACAN EVO SPYDER"},
+    # ── LEASE ─────────────────────────────────────────────────────────
+    {"plate": "U74545",   "cat": "lease", "name": "FERRARI 296 GTB"},
+    {"plate": "S 66789",  "cat": "lease", "name": "MERCEDES G63 WHITE 2025"},
+    {"plate": "T3660",    "cat": "lease", "name": "MERCEDES G63 BLUE"},
+    {"plate": "AA78067",  "cat": "lease", "name": "MERCEDES C200"},
+    {"plate": "CC94084",  "cat": "lease", "name": "RANGE ROVER SPORT WHITE"},
+    {"plate": "X33567",   "cat": "lease", "name": "FORD BRONCO"},
+    {"plate": "N27852",   "cat": "lease", "name": "AUDI Q3"},
+    {"plate": "Z90154",   "cat": "lease", "name": "AUDI A3"},
+    {"plate": "F98103",   "cat": "lease", "name": "KIA SPORTAGE WHITE"},
+    {"plate": "F98438",   "cat": "lease", "name": "KIA SORENTO"},
+    {"plate": "W81946",   "cat": "lease", "name": "JETOUR T2 BLUE"},
+    {"plate": "D68539",   "cat": "lease", "name": "DONGFENG FORTHING S7"},
+    {"plate": "BB53403",  "cat": "lease", "name": "GAC M8 2026"},
+    {"plate": "C69703",   "cat": "lease", "name": "NISSAN PATROL WHITE"},
+    {"plate": "T78242",   "cat": "lease", "name": "JETOUR T2 BROWN"},
+    # ── LTR ───────────────────────────────────────────────────────────
+    {"plate": "S39810",   "cat": "ltr",   "name": "NISSAN PATROL"},
+    {"plate": "F83209",   "cat": "ltr",   "name": "RANGE ROVER SPORT BLACK"},
+    {"plate": "1243",     "cat": "ltr",   "name": "ROLLS ROYCE GRAY"},
+    {"plate": "H23155",   "cat": "ltr",   "name": "NISSAN PATROL"},
+    {"plate": "F 97580",  "cat": "ltr",   "name": "CADILLAC ESCALADE SPORT"},
+    {"plate": "K19503",   "cat": "ltr",   "name": "MERCEDES GLB 250"},
+    # ── NRV ───────────────────────────────────────────────────────────
+    {"plate": "P38848",   "cat": "nrv",   "name": "MERCEDES G63 BLACK 2024"},
+    {"plate": "Z66246",   "cat": "nrv",   "name": "GMC YUKON"},
+    {"plate": "H31727",   "cat": "nrv",   "name": "TOYOTA LAND CRUISER"},
+    {"plate": "Y97020",   "cat": "nrv",   "name": "KIA K5"},
+    {"plate": "Y97018",   "cat": "nrv",   "name": "KIA CERATO"},
+    {"plate": "R26603",   "cat": "nrv",   "name": "SUZUKI SWIFT"},
 ]
 
 def now_dubai():
     return datetime.now(DUBAI_TZ)
 
-def parse_date(s):
-    if not s:
-        return None
-    s = str(s).strip()
-    for fmt in ("%Y-%m-%d", "%Y-%m-%d %H:%M:%S", "%d/%m/%Y", "%m/%d/%Y", "%d-%m-%Y"):
-        try:
-            return datetime.strptime(s, fmt).date()
-        except ValueError:
-            continue
-    return None
-
 def plate_key(plate: str) -> str:
     return re.sub(r"\s+", "", str(plate).upper())
 
-def digits_only(plate: str) -> str:
-    d = re.sub(r"[^0-9]", "", str(plate))
-    return d.lstrip("0") if d else str(plate)
-
-def parse_vehicle_status(v: dict) -> str:
-    """
-    Read status directly from vehicle record.
-    Tries all known field names Appic may use.
-    Returns: "service" | "nrv" | "available" | None (unknown/empty)
-    """
-    raw = str(
-        v.get("status") or
-        v.get("vehicleStatus") or
-        v.get("availability") or
-        v.get("vehicle_status") or
-        ""
-    ).lower().strip()
-
-    if not raw:
-        return None  # not set — check availability API
-    if "gone for service" in raw or raw == "service" or "garage" in raw:
-        return "service"
-    if "accident" in raw or "damage" in raw:
-        return "nrv"
-    if "available" in raw:
-        return "available"
-    return None  # unknown value — fall through to availability API
+def now_dubai():
+    return datetime.now(DUBAI_TZ)
 
 # ─────────────────────────────────────────────────────────
-# STEP 1: Match master plates to Appic vehicle records
+# STEP 1: Match master fleet plates to Appic vehicleIDs
 # ─────────────────────────────────────────────────────────
-def fetch_fleet() -> list:
+def fetch_vehicle_ids() -> dict:
+    """Returns { plate_key -> vehicleID }"""
     try:
         r     = requests.post(MKV_VEHICLES_URL, data={"key": APPIC_KEY}, timeout=20)
         r.raise_for_status()
         resp  = r.json()
         all_v = resp if isinstance(resp, list) else resp.get("data", resp.get("vehicles", []))
-        print(f"  Appic total    : {len(all_v)} vehicles")
 
-        # Print all field keys from first vehicle for debugging
-        if all_v:
-            print(f"  Vehicle fields : {list(all_v[0].keys())}")
-
-        # Build lookup: plate_key → vehicle record
-        appic_lookup = {}
+        lookup = {}
         for v in all_v:
             raw = str(v.get("plate", "") or "").strip()
-            if raw:
-                appic_lookup[plate_key(raw)] = v
+            vid = str(v.get("vehicleID", "") or "").strip()
+            if raw and vid:
+                lookup[plate_key(raw)] = vid
 
-        fleet     = []
-        not_found = []
-
-        for plate in MASTER_PLATES:
-            pk = plate_key(plate)
-            v  = appic_lookup.get(pk)
-            if v:
-                vid  = str(v.get("vehicleID", "") or "").strip()
-                name = str(
-                    v.get("vehicle_name") or
-                    f"{v.get('make', '')} {v.get('model', '')}".strip()
-                ).strip().upper()
-                fleet.append({
-                    "plate":         plate,
-                    "plate_key":     pk,
-                    "vehicle_id":    vid,
-                    "name":          name,
-                    "vehicle_status": parse_vehicle_status(v),
-                    "raw":           v,
-                })
-                # Debug: show status field value for each vehicle
-                raw_status = str(v.get("status") or v.get("vehicleStatus") or v.get("availability") or "").strip()
-                if raw_status:
-                    print(f"  STATUS FIELD: plate={plate:<14} → '{raw_status}'")
+        matched, missing = [], []
+        result = {}
+        for f in MASTER_FLEET:
+            pk  = plate_key(f["plate"])
+            vid = lookup.get(pk)
+            if vid:
+                result[f["plate"]] = vid
+                matched.append(f["plate"])
             else:
-                not_found.append(plate)
+                missing.append(f["plate"])
 
-        print(f"  Master plates  : {len(MASTER_PLATES)}")
-        print(f"  Matched        : {len(fleet)}")
-        if not_found:
-            print(f"  ⚠️  NOT FOUND in Appic:")
-            for p in not_found:
-                print(f"      '{p}' key='{plate_key(p)}'")
-            # Show sample Appic keys to help diagnose
-            sample = sorted(appic_lookup.keys())[:15]
-            print(f"  Sample Appic plate keys: {sample}")
-
-        return fleet
+        print(f"  Appic total : {len(all_v)} | Matched: {len(matched)} / {len(MASTER_FLEET)}")
+        if missing:
+            print(f"  ⚠️  NOT FOUND in Appic (check plate):")
+            for p in missing:
+                print(f"      '{p}'")
+        return result
 
     except Exception as ex:
         print(f"  ❌ Vehicles API error: {ex}")
-        return []
+        return {}
 
 # ─────────────────────────────────────────────────────────
-# STEP 2: Availability API for vehicles with no status from step 1
+# STEP 2: Fetch availability status per vehicle
 # Returns: { plate -> "available" | "booked" | "service" | "nrv" }
 # ─────────────────────────────────────────────────────────
-def fetch_statuses(fleet: list) -> dict:
+def fetch_statuses(plate_to_vid: dict) -> dict:
     today_str    = now_dubai().strftime("%Y-%m-%d")
     tomorrow_str = (now_dubai() + timedelta(days=1)).strftime("%Y-%m-%d")
     statuses     = {}
 
-    for f in fleet:
-        plate          = f["plate"]
-        vid            = f["vehicle_id"]
-        vehicle_status = f["vehicle_status"]
+    for f in MASTER_FLEET:
+        plate = f["plate"]
+        cat   = f["cat"]
+        vid   = plate_to_vid.get(plate)
 
-        # Use vehicle status from vehicles API if available
-        if vehicle_status in ("service", "nrv", "available"):
-            statuses[plate] = vehicle_status
-            print(f"  FROM VEHICLE API: plate={plate:<14} → {vehicle_status.upper()}")
+        # NRV vehicles — no API call needed, always NRV
+        if cat == "nrv":
+            statuses[plate] = "nrv"
             continue
 
-        # Otherwise call availability API
         if not vid:
-            statuses[plate] = "available"
+            # Not found in Appic — mark unknown, skip API call
+            statuses[plate] = "unknown"
             continue
 
         try:
@@ -261,20 +196,17 @@ def fetch_statuses(fleet: list) -> dict:
             raw       = str(resp.get("status", "") or "").lower().strip()
             is_booked = resp.get("isBooked", False)
 
-            # Print full response for any special status
+            # Print full response for any non-standard status
             if raw not in ("booked", "available", ""):
-                print(f"  🔍 AVAIL SPECIAL: plate={plate} vid={vid} → {resp}")
+                print(f"  🔍 SPECIAL: plate={plate} vid={vid} raw='{raw}' full={resp}")
 
             if "accident" in raw or "damage" in raw:
                 result = "nrv"
-            elif "gone for service" in raw or raw == "service" or "garage" in raw:
+            elif "service" in raw or "garage" in raw or "gone for" in raw:
                 result = "service"
             elif is_booked or "booked" in raw or "rented" in raw:
                 result = "booked"
-            elif "available" in raw:
-                result = "available"
             else:
-                print(f"  ⚠️  UNKNOWN AVAIL: plate={plate} vid={vid} raw='{raw}' full={resp}")
                 result = "available"
 
             statuses[plate] = result
@@ -284,65 +216,8 @@ def fetch_statuses(fleet: list) -> dict:
             statuses[plate] = "available"
 
     from collections import Counter
-    print(f"  Status summary : {dict(Counter(statuses.values()))}")
+    print(f"  Status summary: {dict(Counter(statuses.values()))}")
     return statuses
-
-# ─────────────────────────────────────────────────────────
-# STEP 3: Contract type for booked vehicles
-# Returns: { digits_plate -> "str" | "lease" | "ltr" }
-# ─────────────────────────────────────────────────────────
-def fetch_contract_types(booked_plates: list) -> dict:
-    if not booked_plates:
-        return {}
-
-    booked_norms = {digits_only(p) for p in booked_plates}
-
-    try:
-        today     = now_dubai().date()
-        start_str = (now_dubai() - timedelta(days=730)).strftime("%Y-%m-%d")
-        end_str   = (now_dubai() + timedelta(days=730)).strftime("%Y-%m-%d")
-
-        r = requests.post(BOOKINGS_URL, data={
-            "key": APPIC_KEY, "startDate": start_str, "endDate": end_str
-        }, timeout=20)
-        r.raise_for_status()
-        bookings = r.json().get("bookings", [])
-        print(f"  Bookings total : {len(bookings)}")
-
-        PRIORITY   = {"ltr": 3, "lease": 2, "str": 1}
-        plate_type = {}
-
-        for b in bookings:
-            status = str(b.get("status") or b.get("bookingStatus") or "").lower().strip()
-            if status in ("cancelled", "canceled", "voided", "void", "deleted"):
-                continue
-
-            bp    = str(b.get("vehiclePlate", "") or "").strip()
-            bnorm = digits_only(bp)
-            if bnorm not in booked_norms:
-                continue
-
-            sd = parse_date(b.get("startDate"))
-            ed = parse_date(b.get("endDate"))
-            if sd is None or ed is None:
-                continue
-            if not (sd <= today <= ed):
-                continue
-
-            duration = (ed - sd).days
-            ctype    = "ltr" if duration >= 366 else "lease" if duration >= 31 else "str"
-
-            if bnorm not in plate_type or PRIORITY[ctype] > PRIORITY[plate_type[bnorm]]:
-                plate_type[bnorm] = ctype
-                print(f"  CONTRACT: plate={bp:<14} {sd}→{ed} ({duration}d) → {ctype.upper()}")
-
-        from collections import Counter
-        print(f"  Contract types : {dict(Counter(plate_type.values()))}")
-        return plate_type
-
-    except Exception as ex:
-        print(f"  ❌ Bookings API error: {ex}")
-        return {}
 
 # ─────────────────────────────────────────────────────────
 # Helpers
@@ -364,7 +239,7 @@ def text_to_blocks(text):
 # ─────────────────────────────────────────────────────────
 # BUILD SLACK MESSAGE
 # ─────────────────────────────────────────────────────────
-def build_message(fleet, statuses, contract_types):
+def build_message(statuses: dict):
     now      = now_dubai()
     date_str = now.strftime("%B %d, %Y").upper()
     day_str  = now.strftime("%A").upper()
@@ -376,27 +251,27 @@ def build_message(fleet, statuses, contract_types):
     service_v   = []
     nrv_v       = []
 
-    for f in fleet:
+    for f in MASTER_FLEET:
         plate  = f["plate"]
-        norm   = digits_only(plate)
+        cat    = f["cat"]
         status = statuses.get(plate, "available")
-        ctype  = contract_types.get(norm, "str")
 
         if status == "service":
             service_v.append(f)
-        elif status == "nrv":
+        elif status == "nrv" or cat == "nrv":
             nrv_v.append(f)
         elif status == "booked":
-            if ctype == "ltr":
+            if cat == "ltr":
                 ltr_v.append(f)
-            elif ctype == "lease":
+            elif cat == "lease":
                 lease_v.append(f)
             else:
                 str_v.append(f)
         else:
+            # available or unknown
             available_v.append(f)
 
-    total   = len(fleet)
+    total   = len(MASTER_FLEET)
     str_c   = len(str_v)
     lease_c = len(lease_v)
     ltr_c   = len(ltr_v)
@@ -476,22 +351,16 @@ if __name__ == "__main__":
     print("  MKV FLEET AVAILABILITY")
     print(f"  {now_dubai().strftime('%d %b %Y | %I:%M %p Dubai Time')}")
     print("=" * 55)
+    print(f"  Master fleet   : {len(MASTER_FLEET)} vehicles")
 
-    print(f"\n[1] Matching {len(MASTER_PLATES)} plates to Appic ...")
-    fleet = fetch_fleet()
-    if not fleet:
-        print("  No vehicles matched — exiting")
-        raise SystemExit(1)
+    print("\n[1] Fetching vehicleIDs from Appic ...")
+    plate_to_vid = fetch_vehicle_ids()
 
-    print(f"\n[2] Fetching status for {len(fleet)} vehicles ...")
-    statuses = fetch_statuses(fleet)
+    print(f"\n[2] Fetching availability status ...")
+    statuses = fetch_statuses(plate_to_vid)
 
-    booked_plates = [f["plate"] for f in fleet if statuses.get(f["plate"]) == "booked"]
-    print(f"\n[3] Fetching contract types for {len(booked_plates)} booked vehicles ...")
-    contract_types = fetch_contract_types(booked_plates)
+    print("\n[3] Building Slack message ...")
+    msg = build_message(statuses)
 
-    print("\n[4] Building Slack message ...")
-    msg = build_message(fleet, statuses, contract_types)
-
-    print("\n[5] Posting to Slack ...")
+    print("\n[4] Posting to Slack ...")
     post_slack(msg)
