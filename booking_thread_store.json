@@ -1845,7 +1845,7 @@
       "vehicle": "Ferrari Purosangue",
       "delivery_alerted": false,
       "pickup_alerted": true,
-      "closed": false,
+      "closed": true,
       "start_date": "2026-05-06"
     },
     "009948-FAST-Land Rover": {
@@ -2048,13 +2048,13 @@
     },
     "009968-SAHI-Mercedes-Benz": {
       "thread_ts": "1778246132.245679",
-      "end_date": "2026-05-09",
+      "end_date": "2026-05-12",
       "plate": "66789",
       "customer": "Sahil Narang Triloki Nath Narang",
       "vehicle": "Mercedes-Benz Mercedes G3 (Brabus)",
       "delivery_alerted": false,
-      "pickup_alerted": true,
-      "closed": false,
+      "pickup_alerted": false,
+      "closed": true,
       "start_date": "2026-05-08"
     },
     "009969-DAVI-Porsche": {
