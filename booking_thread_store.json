@@ -106,9 +106,10 @@
       "customer": "Muneer Nazarudeen Nazarudeen",
       "vehicle": "Land Rover Sport",
       "delivery_alerted": true,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
-      "start_date": "2026-05-12"
+      "start_date": "2026-05-12",
+      "pickup_ts": "1778598924.028629"
     },
     "009995-AMED-Lotus": {
       "thread_ts": "1778598433.110579",
@@ -117,9 +118,10 @@
       "customer": "Amedeo Capretta",
       "vehicle": "Lotus Lotus Emira",
       "delivery_alerted": true,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
-      "start_date": "2026-05-12"
+      "start_date": "2026-05-12",
+      "pickup_ts": "1778598924.260089"
     },
     "009994-JOHN-Suzuki": {
       "thread_ts": "1778598434.512779",
@@ -139,9 +141,10 @@
       "customer": "Muneer Nazarudeen Nazarudeen",
       "vehicle": "Mclaren Spider Artura",
       "delivery_alerted": true,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
-      "start_date": "2026-05-12"
+      "start_date": "2026-05-12",
+      "pickup_ts": "1778598924.494559"
     },
     "009991-SAHI-Mercedes-Benz": {
       "thread_ts": "1778598437.880449",
@@ -150,9 +153,10 @@
       "customer": "Sahil Narang Triloki Nath Narang",
       "vehicle": "Mercedes-Benz Mercedes  G63",
       "delivery_alerted": true,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
-      "start_date": "2026-05-12"
+      "start_date": "2026-05-12",
+      "pickup_ts": "1778598924.700679"
     },
     "009990-MUNE-Porsche": {
       "thread_ts": "1778598439.214339",
@@ -184,8 +188,9 @@
       "vehicle": "Chevrolet Corvette",
       "delivery_alerted": true,
       "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-11"
+      "closed": true,
+      "start_date": "2026-05-11",
+      "closed_ts": "1778598924.909679"
     },
     "009987-FIVE-Ford": {
       "thread_ts": "1778598444.460089",
@@ -206,8 +211,9 @@
       "vehicle": "Audi A6",
       "delivery_alerted": true,
       "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-10"
+      "closed": true,
+      "start_date": "2026-05-10",
+      "closed_ts": "1778598925.105549"
     },
     "009984-KANE-Porsche": {
       "thread_ts": "1778598447.141209",
@@ -217,8 +223,9 @@
       "vehicle": "Porsche Porsche 911 Carrera",
       "delivery_alerted": true,
       "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-10"
+      "closed": true,
+      "start_date": "2026-05-10",
+      "closed_ts": "1778598925.316829"
     },
     "009981-DENN-Lotus": {
       "thread_ts": "1778598449.175999",
@@ -228,8 +235,9 @@
       "vehicle": "Lotus Lotus Emira",
       "delivery_alerted": true,
       "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-10"
+      "closed": true,
+      "start_date": "2026-05-10",
+      "closed_ts": "1778598925.531159"
     },
     "009979-REHA-Suzuki": {
       "thread_ts": "1778598450.535109",
@@ -239,8 +247,9 @@
       "vehicle": "Suzuki Swift",
       "delivery_alerted": true,
       "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-09"
+      "closed": true,
+      "start_date": "2026-05-09",
+      "closed_ts": "1778598925.767209"
     },
     "009977-REHA-McLaren": {
       "thread_ts": "1778598452.631029",
@@ -272,8 +281,9 @@
       "vehicle": "Land Rover Sport",
       "delivery_alerted": true,
       "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-09"
+      "closed": true,
+      "start_date": "2026-05-09",
+      "closed_ts": "1778598926.097519"
     },
     "009973-MUNE-BMW": {
       "thread_ts": "1778598457.304719",
@@ -283,8 +293,9 @@
       "vehicle": "Bmw 735I",
       "delivery_alerted": true,
       "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-09"
+      "closed": true,
+      "start_date": "2026-05-09",
+      "closed_ts": "1778598926.388829"
     },
     "009972-MUNE-GMC": {
       "thread_ts": "1778598458.624119",
@@ -294,8 +305,9 @@
       "vehicle": "Gmc Yukon",
       "delivery_alerted": true,
       "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-09"
+      "closed": true,
+      "start_date": "2026-05-09",
+      "closed_ts": "1778598926.602369"
     },
     "009967-BIMA-McLaren": {
       "thread_ts": "1778598460.498139",
@@ -305,8 +317,9 @@
       "vehicle": "Mclaren Spider Artura",
       "delivery_alerted": true,
       "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-09"
+      "closed": true,
+      "start_date": "2026-05-09",
+      "closed_ts": "1778598926.855229"
     },
     "009970-ANGE-Cadillac": {
       "thread_ts": "1778598461.905969",
@@ -315,9 +328,10 @@
       "customer": "Angel Uriel Vizcaino Magana",
       "vehicle": "Cadillac Escalade",
       "delivery_alerted": true,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
-      "start_date": "2026-05-09"
+      "start_date": "2026-05-09",
+      "pickup_ts": "1778598927.067889"
     },
     "009969-DAVI-Porsche": {
       "thread_ts": "1778598463.457849",
@@ -327,8 +341,9 @@
       "vehicle": "Porsche 911 Turbo",
       "delivery_alerted": true,
       "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-08"
+      "closed": true,
+      "start_date": "2026-05-08",
+      "closed_ts": "1778598927.392479"
     },
     "009968-SAHI-Mercedes-Benz": {
       "thread_ts": "1778598465.412339",
@@ -338,8 +353,9 @@
       "vehicle": "Mercedes-Benz Mercedes G3 (Brabus)",
       "delivery_alerted": true,
       "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-08"
+      "closed": true,
+      "start_date": "2026-05-08",
+      "closed_ts": "1778598927.614299"
     },
     "009965-ASMA-Mercedes-Benz": {
       "thread_ts": "1778598466.957909",
@@ -349,8 +365,9 @@
       "vehicle": "Mercedes-Benz Mercedes  G63",
       "delivery_alerted": true,
       "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-08"
+      "closed": true,
+      "start_date": "2026-05-08",
+      "closed_ts": "1778598927.815769"
     },
     "009966-DREA-Ferrari": {
       "thread_ts": "1778598470.983209",
@@ -360,8 +377,9 @@
       "vehicle": "Ferrari Purosangue",
       "delivery_alerted": true,
       "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-08"
+      "closed": true,
+      "start_date": "2026-05-08",
+      "closed_ts": "1778598928.063189"
     },
     "009964-LAWR-Lotus": {
       "thread_ts": "1778598472.379409",
@@ -371,8 +389,9 @@
       "vehicle": "Lotus Lotus Emira",
       "delivery_alerted": true,
       "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-08"
+      "closed": true,
+      "start_date": "2026-05-08",
+      "closed_ts": "1778598928.278599"
     },
     "009946-TOM -Land Rover": {
       "thread_ts": "1778598474.640169",
@@ -382,8 +401,9 @@
       "vehicle": "Land Rover Defender",
       "delivery_alerted": true,
       "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-07"
+      "closed": true,
+      "start_date": "2026-05-07",
+      "closed_ts": "1778598928.529009"
     },
     "009963-SAHI-Nissan": {
       "thread_ts": "1778598476.038649",
@@ -415,8 +435,9 @@
       "vehicle": "Porsche 911 Turbo",
       "delivery_alerted": true,
       "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-07"
+      "closed": true,
+      "start_date": "2026-05-07",
+      "closed_ts": "1778598928.753319"
     },
     "009960-MUNE-Morgan": {
       "thread_ts": "1778598481.220119",
@@ -426,8 +447,9 @@
       "vehicle": "Morgan Morgan Supersport",
       "delivery_alerted": true,
       "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-07"
+      "closed": true,
+      "start_date": "2026-05-07",
+      "closed_ts": "1778598928.981729"
     },
     "009943-SAGI-McLaren": {
       "thread_ts": "1778598483.206039",
@@ -437,8 +459,9 @@
       "vehicle": "Mclaren Spider Artura",
       "delivery_alerted": true,
       "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-07"
+      "closed": true,
+      "start_date": "2026-05-07",
+      "closed_ts": "1778598929.270539"
     },
     "009958-MUNE-McLaren": {
       "thread_ts": "1778598484.567079",
@@ -448,8 +471,9 @@
       "vehicle": "Mclaren Spider Artura",
       "delivery_alerted": true,
       "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-07"
+      "closed": true,
+      "start_date": "2026-05-07",
+      "closed_ts": "1778598929.470929"
     },
     "009957-MAJI-Bentley": {
       "thread_ts": "1778598486.701459",
@@ -481,8 +505,9 @@
       "vehicle": "Bmw 735I",
       "delivery_alerted": true,
       "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-06"
+      "closed": true,
+      "start_date": "2026-05-06",
+      "closed_ts": "1778598929.702369"
     },
     "009951-FAST-Land Rover": {
       "thread_ts": "1778598491.699399",
@@ -503,8 +528,9 @@
       "vehicle": "Ferrari Purosangue",
       "delivery_alerted": true,
       "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-06"
+      "closed": true,
+      "start_date": "2026-05-06",
+      "closed_ts": "1778598929.917399"
     },
     "009945-GUNA-Mercedes-Benz": {
       "thread_ts": "1778598497.016999",
@@ -514,8 +540,9 @@
       "vehicle": "Mercedes-Benz Mercedes  G63",
       "delivery_alerted": true,
       "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-06"
+      "closed": true,
+      "start_date": "2026-05-06",
+      "closed_ts": "1778598930.200149"
     },
     "009944-GUNA-Mercedes-Benz": {
       "thread_ts": "1778598498.420159",
@@ -525,8 +552,9 @@
       "vehicle": "Mercedes-Benz Mercedes G3 (Brabus)",
       "delivery_alerted": true,
       "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-06"
+      "closed": true,
+      "start_date": "2026-05-06",
+      "closed_ts": "1778598930.407799"
     },
     "009941-HAYK-Audi": {
       "thread_ts": "1778598502.174399",
@@ -536,8 +564,9 @@
       "vehicle": "Audi A6",
       "delivery_alerted": true,
       "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-05"
+      "closed": true,
+      "start_date": "2026-05-05",
+      "closed_ts": "1778598930.643069"
     },
     "009942-OLIV-Suzuki": {
       "thread_ts": "1778598503.692419",
@@ -547,8 +576,9 @@
       "vehicle": "Suzuki Swift",
       "delivery_alerted": true,
       "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-05"
+      "closed": true,
+      "start_date": "2026-05-05",
+      "closed_ts": "1778598930.869549"
     },
     "009934-NIKI-McLaren": {
       "thread_ts": "1778598505.331439",
@@ -558,8 +588,9 @@
       "vehicle": "Mclaren Spider Artura",
       "delivery_alerted": true,
       "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-05"
+      "closed": true,
+      "start_date": "2026-05-05",
+      "closed_ts": "1778598931.150909"
     },
     "009935-MUNE-Land Rover": {
       "thread_ts": "1778598507.437069",
@@ -569,8 +600,9 @@
       "vehicle": "Land Rover Svr",
       "delivery_alerted": true,
       "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-04"
+      "closed": true,
+      "start_date": "2026-05-04",
+      "closed_ts": "1778598931.385749"
     },
     "009933-Reha-Suzuki": {
       "thread_ts": "1778598509.162779",
@@ -580,8 +612,9 @@
       "vehicle": "Suzuki Swift",
       "delivery_alerted": true,
       "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-02"
+      "closed": true,
+      "start_date": "2026-05-02",
+      "closed_ts": "1778598931.595269"
     },
     "009930-WAQA-Mercedes-Benz": {
       "thread_ts": "1778598512.735039",
@@ -591,8 +624,9 @@
       "vehicle": "Mercedes-Benz S500",
       "delivery_alerted": true,
       "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-02"
+      "closed": true,
+      "start_date": "2026-05-02",
+      "closed_ts": "1778598931.786449"
     },
     "009932-OMAR-Ford": {
       "thread_ts": "1778598514.718269",
@@ -602,8 +636,9 @@
       "vehicle": "Ford Mustang Coupe",
       "delivery_alerted": true,
       "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-02"
+      "closed": true,
+      "start_date": "2026-05-02",
+      "closed_ts": "1778598931.965929"
     },
     "009929-SYED-McLaren": {
       "thread_ts": "1778598516.247929",
@@ -613,8 +648,9 @@
       "vehicle": "Mclaren Spider Artura",
       "delivery_alerted": true,
       "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-02"
+      "closed": true,
+      "start_date": "2026-05-02",
+      "closed_ts": "1778598932.194689"
     },
     "009931-D S -Ferrari": {
       "thread_ts": "1778598518.245289",
@@ -624,8 +660,9 @@
       "vehicle": "Ferrari Purosangue",
       "delivery_alerted": true,
       "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-02"
+      "closed": true,
+      "start_date": "2026-05-02",
+      "closed_ts": "1778598932.402119"
     },
     "009928-ABDO-Audi": {
       "thread_ts": "1778598520.126049",
@@ -635,8 +672,9 @@
       "vehicle": "Audi A6",
       "delivery_alerted": true,
       "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-02"
+      "closed": true,
+      "start_date": "2026-05-02",
+      "closed_ts": "1778598932.608499"
     },
     "009927-MOHA-Chevrolet": {
       "thread_ts": "1778598521.579729",
@@ -646,8 +684,9 @@
       "vehicle": "Chevrolet Corvette",
       "delivery_alerted": true,
       "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-02"
+      "closed": true,
+      "start_date": "2026-05-02",
+      "closed_ts": "1778598932.897819"
     },
     "009926-DOMI-Land Rover": {
       "thread_ts": "1778598523.308129",
@@ -657,8 +696,9 @@
       "vehicle": "Land Rover Defender",
       "delivery_alerted": true,
       "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-02"
+      "closed": true,
+      "start_date": "2026-05-02",
+      "closed_ts": "1778598933.092829"
     },
     "009922-GUNA-Lamborghini": {
       "thread_ts": "1778598524.819749",
@@ -701,8 +741,9 @@
       "vehicle": "Mclaren Spider Artura",
       "delivery_alerted": true,
       "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-02"
+      "closed": true,
+      "start_date": "2026-05-02",
+      "closed_ts": "1778598933.332879"
     },
     "009916-SASA-Lotus": {
       "thread_ts": "1778598532.972549",
@@ -712,8 +753,9 @@
       "vehicle": "Lotus Lotus Emira",
       "delivery_alerted": true,
       "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-02"
+      "closed": true,
+      "start_date": "2026-05-02",
+      "closed_ts": "1778598933.566169"
     },
     "009921-MKV -Lamborghini": {
       "thread_ts": "1778598535.565899",
@@ -734,8 +776,9 @@
       "vehicle": "Porsche 911 Turbo",
       "delivery_alerted": true,
       "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-02"
+      "closed": true,
+      "start_date": "2026-05-02",
+      "closed_ts": "1778598934.304949"
     },
     "009920-GEOR-Porsche": {
       "thread_ts": "1778598539.535719",
@@ -767,8 +810,9 @@
       "vehicle": "Land Rover Sport",
       "delivery_alerted": true,
       "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-01"
+      "closed": true,
+      "start_date": "2026-05-01",
+      "closed_ts": "1778598934.491269"
     },
     "009915-MOHM-McLaren": {
       "thread_ts": "1778598544.936679",
@@ -778,8 +822,9 @@
       "vehicle": "Mclaren Spider Artura",
       "delivery_alerted": true,
       "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-01"
+      "closed": true,
+      "start_date": "2026-05-01",
+      "closed_ts": "1778598934.768529"
     },
     "008925-NIAY-Mercedes-Benz": {
       "thread_ts": "1778598547.169629",
@@ -800,8 +845,9 @@
       "vehicle": "Land Rover Svr",
       "delivery_alerted": true,
       "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-01"
+      "closed": true,
+      "start_date": "2026-05-01",
+      "closed_ts": "1778598935.000269"
     },
     "009985-PRAT-Mercedes-Benz": {
       "thread_ts": "1778598551.136109",
@@ -822,8 +868,9 @@
       "vehicle": "Porsche 911 Turbo",
       "delivery_alerted": true,
       "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-04-30"
+      "closed": true,
+      "start_date": "2026-04-30",
+      "closed_ts": "1778598935.194209"
     },
     "009912-ARTE-Ford": {
       "thread_ts": "1778598555.134269",
@@ -833,8 +880,9 @@
       "vehicle": "Ford Mustang Convertible",
       "delivery_alerted": true,
       "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-04-30"
+      "closed": true,
+      "start_date": "2026-04-30",
+      "closed_ts": "1778598935.403169"
     },
     "009909-HRUD-Chevrolet": {
       "thread_ts": "1778598556.782249",
@@ -844,8 +892,9 @@
       "vehicle": "Chevrolet Corvette",
       "delivery_alerted": true,
       "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-04-30"
+      "closed": true,
+      "start_date": "2026-04-30",
+      "closed_ts": "1778598935.591659"
     },
     "009908-BABU-Mercedes-Benz": {
       "thread_ts": "1778598559.499559",
@@ -855,8 +904,9 @@
       "vehicle": "Mercedes-Benz Glb 250",
       "delivery_alerted": true,
       "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-04-30"
+      "closed": true,
+      "start_date": "2026-04-30",
+      "closed_ts": "1778598935.881539"
     },
     "009906-MELH-Cadillac": {
       "thread_ts": "1778598561.297349",
@@ -866,8 +916,9 @@
       "vehicle": "Cadillac Escalade",
       "delivery_alerted": true,
       "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-04-30"
+      "closed": true,
+      "start_date": "2026-04-30",
+      "closed_ts": "1778598936.078289"
     },
     "009907-SAHI-Mercedes-Benz": {
       "thread_ts": "1778598565.148099",
@@ -877,8 +928,9 @@
       "vehicle": "Mercedes-Benz Mercedes  G63",
       "delivery_alerted": true,
       "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-04-29"
+      "closed": true,
+      "start_date": "2026-04-29",
+      "closed_ts": "1778598936.361089"
     },
     "009904-MUNE-Porsche": {
       "thread_ts": "1778598566.790189",
@@ -899,8 +951,9 @@
       "vehicle": "Chevrolet Tahoe",
       "delivery_alerted": true,
       "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-04-29"
+      "closed": true,
+      "start_date": "2026-04-29",
+      "closed_ts": "1778598936.549019"
     },
     "009903-GURK-BMW": {
       "thread_ts": "1778598570.601029",
@@ -910,8 +963,9 @@
       "vehicle": "Bmw 520I",
       "delivery_alerted": true,
       "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-04-29"
+      "closed": true,
+      "start_date": "2026-04-29",
+      "closed_ts": "1778598936.757759"
     },
     "009902-PRIM-Ferrari": {
       "thread_ts": "1778598572.812929",
@@ -921,8 +975,9 @@
       "vehicle": "Ferrari Purosangue",
       "delivery_alerted": true,
       "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-04-29"
+      "closed": true,
+      "start_date": "2026-04-29",
+      "closed_ts": "1778598936.974429"
     },
     "009900-ALI -BMW": {
       "thread_ts": "1778598574.536639",
@@ -932,8 +987,9 @@
       "vehicle": "Bmw 520I",
       "delivery_alerted": true,
       "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-04-29"
+      "closed": true,
+      "start_date": "2026-04-29",
+      "closed_ts": "1778598937.163389"
     },
     "009890-MOSE-GMC": {
       "thread_ts": "1778598576.196879",
@@ -943,8 +999,9 @@
       "vehicle": "Gmc Yukon",
       "delivery_alerted": true,
       "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-04-29"
+      "closed": true,
+      "start_date": "2026-04-29",
+      "closed_ts": "1778598937.462259"
     },
     "009899-YASI-Chevrolet": {
       "thread_ts": "1778598577.562889",
@@ -954,8 +1011,9 @@
       "vehicle": "Chevrolet Corvette",
       "delivery_alerted": true,
       "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-04-29"
+      "closed": true,
+      "start_date": "2026-04-29",
+      "closed_ts": "1778598937.678439"
     },
     "009898-MADA-Ford": {
       "thread_ts": "1778598579.781119",
@@ -976,8 +1034,9 @@
       "vehicle": "Gmc Yukon",
       "delivery_alerted": true,
       "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-04-28"
+      "closed": true,
+      "start_date": "2026-04-28",
+      "closed_ts": "1778598937.885079"
     },
     "009896-MARC-BMW": {
       "thread_ts": "1778598584.459609",
@@ -998,8 +1057,9 @@
       "vehicle": "Lotus Lotus Emira",
       "delivery_alerted": true,
       "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-04-28"
+      "closed": true,
+      "start_date": "2026-04-28",
+      "closed_ts": "1778598938.115749"
     },
     "009893-IBRA-Lotus": {
       "thread_ts": "1778598588.406369",
@@ -1009,8 +1069,9 @@
       "vehicle": "Lotus Lotus Emira",
       "delivery_alerted": true,
       "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-04-28"
+      "closed": true,
+      "start_date": "2026-04-28",
+      "closed_ts": "1778598938.355339"
     },
     "009894-MUNE-Morgan": {
       "thread_ts": "1778598590.868819",
@@ -1020,8 +1081,9 @@
       "vehicle": "Morgan Morgan Supersport",
       "delivery_alerted": true,
       "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-04-28"
+      "closed": true,
+      "start_date": "2026-04-28",
+      "closed_ts": "1778598938.568309"
     },
     "009892-MUNE-Land Rover": {
       "thread_ts": "1778598592.579969",
@@ -1031,8 +1093,9 @@
       "vehicle": "Land Rover Defender",
       "delivery_alerted": true,
       "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-04-27"
+      "closed": true,
+      "start_date": "2026-04-27",
+      "closed_ts": "1778598938.775059"
     },
     "009891-GURK-Mercedes-Benz": {
       "thread_ts": "1778598594.768219",
@@ -1042,8 +1105,9 @@
       "vehicle": "Mercedes-Benz Glb 250",
       "delivery_alerted": true,
       "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-04-27"
+      "closed": true,
+      "start_date": "2026-04-27",
+      "closed_ts": "1778598938.972709"
     },
     "009888-WOUT-Land Rover": {
       "thread_ts": "1778598596.408879",
@@ -1053,8 +1117,9 @@
       "vehicle": "Land Rover Range Rover Velar",
       "delivery_alerted": true,
       "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-04-27"
+      "closed": true,
+      "start_date": "2026-04-27",
+      "closed_ts": "1778598939.214109"
     },
     "009887-IBRA-Mercedes-Benz": {
       "thread_ts": "1778598598.679219",
@@ -1130,8 +1195,9 @@
       "vehicle": "Kia Sonet",
       "delivery_alerted": true,
       "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-04-25"
+      "closed": true,
+      "start_date": "2026-04-25",
+      "closed_ts": "1778598940.195269"
     },
     "009875-DAVI-Audi": {
       "thread_ts": "1778598613.101059",
@@ -1196,8 +1262,9 @@
       "vehicle": "Ford Mustang Convertible",
       "delivery_alerted": true,
       "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-04-24"
+      "closed": true,
+      "start_date": "2026-04-24",
+      "closed_ts": "1778598941.028839"
     },
     "009870-JUAN-Lotus": {
       "thread_ts": "1778598625.100589",
@@ -1251,8 +1318,9 @@
       "vehicle": "Land Rover Svr",
       "delivery_alerted": true,
       "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-04-24"
+      "closed": true,
+      "start_date": "2026-04-24",
+      "closed_ts": "1778598942.136179"
     },
     "009865-ARTE-Land Rover": {
       "thread_ts": "1778598635.436899",
@@ -1361,8 +1429,9 @@
       "vehicle": "Land Rover Defender",
       "delivery_alerted": true,
       "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-04-22"
+      "closed": true,
+      "start_date": "2026-04-22",
+      "closed_ts": "1778598943.140809"
     },
     "009853-MUNE-Suzuki": {
       "thread_ts": "1778598657.541299",
@@ -1482,8 +1551,9 @@
       "vehicle": "Mercedes-Benz S500",
       "delivery_alerted": true,
       "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-04-18"
+      "closed": true,
+      "start_date": "2026-04-18",
+      "closed_ts": "1778598944.160249"
     },
     "009837-ANDR-Land Rover": {
       "thread_ts": "1778598678.284349",
@@ -1592,8 +1662,9 @@
       "vehicle": "Ford Mustang Coupe",
       "delivery_alerted": true,
       "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-04-17"
+      "closed": true,
+      "start_date": "2026-04-17",
+      "closed_ts": "1778598945.041339"
     },
     "009823-LUJO-Bentley": {
       "thread_ts": "1778598695.808959",
@@ -1691,8 +1762,9 @@
       "vehicle": "Chevrolet Corvette",
       "delivery_alerted": true,
       "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-04-14"
+      "closed": true,
+      "start_date": "2026-04-14",
+      "closed_ts": "1778598946.216279"
     },
     "009812-ABX -Kia": {
       "thread_ts": "1778598712.065659",
@@ -1768,8 +1840,9 @@
       "vehicle": "Audi A6",
       "delivery_alerted": true,
       "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-04-12"
+      "closed": true,
+      "start_date": "2026-04-12",
+      "closed_ts": "1778598947.637029"
     }
   }
 }
