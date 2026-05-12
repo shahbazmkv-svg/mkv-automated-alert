@@ -3108,7 +3108,7 @@
     "0010000-LUJO-Ferrari": {
       "thread_ts": "1778618722.226479",
       "delivery_ts": "1778618722.458029",
-      "pickup_ts": null,
+      "pickup_ts": "1778619625.287129",
       "closed_ts": null,
       "extension_ts_list": [],
       "end_date": "2026-05-14",
@@ -3116,7 +3116,7 @@
       "customer": "Lujo Car Rental Llc",
       "vehicle": "Ferrari Purosangue",
       "delivery_alerted": true,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-05-13"
     }
