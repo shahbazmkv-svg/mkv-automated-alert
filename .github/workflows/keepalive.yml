@@ -15,13 +15,12 @@ on:
           - website-snapshot
           - pickup-alert
           - booking-bot
+          - debug-vehicles-api
 
 jobs:
 
   fleet-availability:
-    if: >
-      github.event.inputs.job == 'fleet-availability' ||
-      github.event.inputs.job == 'all'
+    if: github.event.inputs.job == 'fleet-availability' || github.event.inputs.job == 'all'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -44,10 +43,21 @@ jobs:
           git commit --allow-empty -m "chore: fleet availability ran $(date +'%Y-%m-%d')"
           git push
 
+  debug-vehicles-api:
+    if: github.event.inputs.job == 'debug-vehicles-api'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Test get-mkv-vehicles API
+        env:
+          APPIC_KEY: ${{ secrets.APPIC_KEY }}
+        run: |
+          echo "=== RAW RESPONSE ==="
+          curl -s -X POST \
+            -d "key=$APPIC_KEY" \
+            https://www.appicfleet.com/appiccar-apis-mkv/get-mkv-vehicles.php | python3 -m json.tool
+
   daily-leads:
-    if: >
-      github.event.inputs.job == 'daily-leads' ||
-      github.event.inputs.job == 'all'
+    if: github.event.inputs.job == 'daily-leads' || github.event.inputs.job == 'all'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -75,9 +85,7 @@ jobs:
           git push || true
 
   website-snapshot:
-    if: >
-      github.event.inputs.job == 'website-snapshot' ||
-      github.event.inputs.job == 'all'
+    if: github.event.inputs.job == 'website-snapshot' || github.event.inputs.job == 'all'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -100,9 +108,7 @@ jobs:
           git push
 
   pickup-alert:
-    if: >
-      github.event.inputs.job == 'pickup-alert' ||
-      github.event.inputs.job == 'all'
+    if: github.event.inputs.job == 'pickup-alert' || github.event.inputs.job == 'all'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -114,10 +120,8 @@ jobs:
       - run: pip install requests pytz --break-system-packages
       - name: Run Pickup & Delivery Alert
         env:
-          APPIC_KEY:        ${{ secrets.APPIC_KEY }}
-          SLACK_BOT_TOKEN:  ${{ secrets.SLACK_BOT_TOKEN }}
-          WEBHOOK_DELIVERY: ${{ secrets.WEBHOOK_DELIVERY }}
-          WEBHOOK_PICKUP:   ${{ secrets.WEBHOOK_PICKUP }}
+          APPIC_KEY:       ${{ secrets.APPIC_KEY }}
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
         run: python mkv_pickup_alert.py
       - name: Keep repo active
         run: |
@@ -128,9 +132,7 @@ jobs:
           git push
 
   booking-bot:
-    if: >
-      github.event.inputs.job == 'booking-bot' ||
-      github.event.inputs.job == 'all'
+    if: github.event.inputs.job == 'booking-bot' || github.event.inputs.job == 'all'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -144,7 +146,7 @@ jobs:
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
           APPIC_KEY:       ${{ secrets.APPIC_KEY }}
-        run: python mkv_booking_alert.py
+        run: python mkv_booking_bot.py
       - name: Commit store updates
         run: |
           git config user.name "github-actions[bot]"
