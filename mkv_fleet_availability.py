@@ -58,9 +58,72 @@ def get_vehicle_id(v: dict) -> str:
             return val
     return ""
 
-# ─────────────────────────────────────────────────────────
-# 1. Get counts from assignments API
-# ─────────────────────────────────────────────────────────
+APPIC_BOOKINGS_URL = "https://www.appicfleet.com/appiccar-apis-mkv/get-mkv-bookings.php"
+SKIP_STATUSES      = {"cancelled", "canceled", "voided", "void", "deleted"}
+
+def fetch_bookings_data() -> dict:
+    """Fetch next booking dates per plate + today's deliveries and returns."""
+    today     = now_dubai().strftime("%Y-%m-%d")
+    lookback  = (now_dubai() - timedelta(days=30)).strftime("%Y-%m-%d")
+    lookahead = (now_dubai() + timedelta(days=90)).strftime("%Y-%m-%d")
+    try:
+        r = requests.post(
+            APPIC_BOOKINGS_URL,
+            data={"key": APPIC_KEY, "startDate": lookback, "endDate": lookahead},
+            timeout=20
+        )
+        bookings = r.json().get("bookings", [])
+
+        next_booking   = {}   # plate → earliest future startDate str
+        to_deliver     = []   # startDate == today
+        to_return      = []   # endDate == today and startDate < today
+
+        for b in bookings:
+            status = (b.get("status") or "").lower().strip()
+            if status in SKIP_STATUSES:
+                continue
+
+            raw_plate = str(b.get("vehiclePlate") or "").strip()
+            pk        = plate_key(raw_plate)
+            start     = (b.get("startDate") or "").strip()
+            end       = (b.get("endDate")   or "").strip()
+            customer  = (b.get("customerName") or "N/A").strip().title()
+            vehicle   = (b.get("vehicleName")  or "N/A").strip().title()
+            s_time    = (b.get("startTime") or "")[:5]
+            e_time    = (b.get("endTime")   or "")[:5]
+
+            # Next booking date per plate
+            if start > today:
+                if pk not in next_booking or start < next_booking[pk]:
+                    next_booking[pk] = start
+
+            # Today's deliveries
+            if start == today:
+                to_deliver.append({
+                    "vehicle": vehicle, "plate": raw_plate,
+                    "customer": customer, "time": s_time,
+                })
+
+            # Today's returns
+            if end == today and start < today:
+                to_return.append({
+                    "vehicle": vehicle, "plate": raw_plate,
+                    "customer": customer, "time": e_time,
+                })
+
+        print(f"  Next booking dates: {len(next_booking)} plates mapped")
+        print(f"  To deliver today  : {len(to_deliver)}")
+        print(f"  To return today   : {len(to_return)}")
+        return {
+            "next_booking": next_booking,
+            "to_deliver":   to_deliver,
+            "to_return":    to_return,
+        }
+    except Exception as ex:
+        print(f"  ❌ Bookings API error: {ex}")
+        return {"next_booking": {}, "to_deliver": [], "to_return": []}
+
+
 def fetch_counts() -> dict:
     try:
         r = requests.post(MKV_ASSIGNMENTS_URL, data={"key": APPIC_KEY}, timeout=20)
@@ -71,6 +134,69 @@ def fetch_counts() -> dict:
     except Exception as ex:
         print(f"  ❌ Assignments API error: {ex}")
         return {}
+
+def check_fleet_mismatch(counts: dict) -> dict | None:
+    """
+    Compare TOTAL_FLEET (hardcoded master) against Appic assignments total.
+    Returns mismatch details if counts differ, None if all good.
+    """
+    str_c   = counts.get("shortTermRental", 0)
+    lease_c = counts.get("lease", 0)
+    ltr_c   = counts.get("longTermRental", 0)
+    svc_c   = counts.get("service", 0)
+    nrv_c   = counts.get("nrv", 0)
+
+    appic_total = str_c + lease_c + ltr_c + svc_c + nrv_c
+    diff        = appic_total - TOTAL_FLEET
+
+    if diff == 0:
+        print(f"  ✅ Fleet count matches: {TOTAL_FLEET}")
+        return None
+
+    direction = f"+{diff}" if diff > 0 else str(diff)
+    action    = "Add new plate(s) to MASTER_PLATES" if diff > 0 else "Remove plate(s) from MASTER_PLATES"
+    print(f"  ⚠️  Fleet mismatch: hardcoded={TOTAL_FLEET}, Appic={appic_total}, diff={direction}")
+    return {
+        "hardcoded": TOTAL_FLEET,
+        "appic":     appic_total,
+        "diff":      direction,
+        "action":    action,
+        "breakdown": f"STR: {str_c}  Lease: {lease_c}  LTR: {ltr_c}  Service: {svc_c}  NRV: {nrv_c}",
+    }
+
+def post_mismatch_alert(mismatch: dict):
+    """Post a fleet mismatch alert to Slack."""
+    date_str = now_dubai().strftime("%d %b %Y | %I:%M %p")
+    blocks = [
+        {"type": "header",
+         "text": {"type": "plain_text", "text": "⚠️ FLEET COUNT MISMATCH DETECTED", "emoji": True}},
+        {"type": "section", "text": {"type": "mrkdwn", "text": (
+            f"```\n"
+            f"{'Hardcoded total':<20}: {mismatch['hardcoded']}\n"
+            f"{'Appic total':<20}: {mismatch['appic']}\n"
+            f"{'Difference':<20}: {mismatch['diff']}\n"
+            f"{'─' * 36}\n"
+            f"{mismatch['breakdown']}\n"
+            f"```"
+        )}},
+        {"type": "section", "text": {"type": "mrkdwn",
+            "text": f"*Action needed:* {mismatch['action']} in `mkv_fleet_availability.py` and update `TOTAL_FLEET`"}},
+        {"type": "context", "elements": [{"type": "mrkdwn",
+            "text": f"Detected: {date_str} · Auto-check via Fleet Availability script"}]},
+    ]
+    r = requests.post(
+        "https://slack.com/api/chat.postMessage",
+        headers={"Authorization": f"Bearer {SLACK_TOKEN}", "Content-Type": "application/json"},
+        json={"channel": SLACK_CHANNEL, "username": "MKV Fleet Alert",
+              "icon_emoji": ":warning:", "blocks": blocks,
+              "text": f"⚠️ Fleet mismatch: hardcoded={mismatch['hardcoded']}, Appic={mismatch['appic']}"},
+        timeout=15,
+    )
+    res = r.json()
+    if res.get("ok"):
+        print("  ✅ Mismatch alert posted to Slack")
+    else:
+        print(f"  ❌ Alert post error: {res.get('error')}")
 
 # ─────────────────────────────────────────────────────────
 # 2. Get list of available vehicles
@@ -137,72 +263,114 @@ def fetch_available_vehicles() -> list:
     return available
 
 # ─────────────────────────────────────────────────────────
-# 3. Build Slack message
+# 3. Build Slack message — visual card layout
 # ─────────────────────────────────────────────────────────
-def build_message(counts: dict, available_vehicles: list):
+def build_message(counts: dict, available_vehicles: list, bookings_data: dict):
     now      = now_dubai()
-    date_str = now.strftime("%B %d, %Y").upper()
-    day_str  = now.strftime("%A").upper()
+    date_str = now.strftime("%d %b %Y")
+    today    = now.strftime("%Y-%m-%d")
 
-    str_c   = counts.get("shortTermRental", 0)
-    lease_c = counts.get("lease", 0)
-    ltr_c   = counts.get("longTermRental", 0)
-    svc_c   = counts.get("service", 0)
+    str_c    = counts.get("shortTermRental", 0)
+    lease_c  = counts.get("lease", 0)
+    ltr_c    = counts.get("longTermRental", 0)
+    svc_c    = counts.get("service", 0)
+    avail_c  = len(available_vehicles)
+    on_rent  = TOTAL_FLEET - avail_c
 
-    avail_c = len(available_vehicles)
+    next_booking = bookings_data.get("next_booking", {})
+    to_deliver   = bookings_data.get("to_deliver", [])
+    to_return    = bookings_data.get("to_return", [])
 
-    print(f"\n  ┌─────────────────────────────────┐")
-    print(f"  │ FLEET SUMMARY                   │")
-    print(f"  │ Total    : {TOTAL_FLEET:<22} │")
-    print(f"  │ STR      : {str_c:<22} │")
-    print(f"  │ Lease    : {lease_c:<22} │")
-    print(f"  │ LTR      : {ltr_c:<22} │")
-    print(f"  │ Available: {avail_c:<22} │")
-    print(f"  │ Service  : {svc_c:<22} │")
-    print(f"  └─────────────────────────────────┘")
+    blocks = []
 
-    summary = "\n".join([
-        f"❝{date_str} {day_str}❞", "",
-        f"✦ Total        : {TOTAL_FLEET}", "",
-        f"✦ Rented STR   : {str_c}", "",
-        f"✦ Service      : {svc_c}", "",
-        f"✦ Available    : {avail_c}", "",
-        f"✦ Lease        : {lease_c}", "",
-        f"✦ Longterm     : {ltr_c}", "",
-    ])
+    # ── HEADER ────────────────────────────────────────────
+    blocks.append({"type": "header",
+        "text": {"type": "plain_text",
+            "text": f"📋 MKV Fleet Availability — {date_str}", "emoji": True}})
 
-    lines = []
+    # ── FLEET STATUS — 5 metric fields ───────────────────
+    blocks.append({"type": "section", "fields": [
+        {"type": "mrkdwn", "text": f"*Total Fleet*\n{TOTAL_FLEET}"},
+        {"type": "mrkdwn", "text": f"*Lease*\n{lease_c}"},
+        {"type": "mrkdwn", "text": f"*Long-term*\n{ltr_c}"},
+        {"type": "mrkdwn", "text": f"*Short-term (STR)*\n{str_c}"},
+        {"type": "mrkdwn", "text": f"*Available*\n{avail_c}"},
+    ]})
+
+    blocks.append({"type": "divider"})
+
+    # ── AVAILABLE CARS ────────────────────────────────────
     if available_vehicles:
-        lines.append("AVAILABLE")
-        lines.append("-" * 30)
-        for i, f in enumerate(available_vehicles, 1):
-            lines.append(f"{i}. {f['name']} [{f['plate']}]")
-        lines.append("")
+        avail_lines = []
+        for v in available_vehicles:
+            pk = plate_key(v["plate"])
+            nb = next_booking.get(pk)
+            if nb:
+                try:
+                    nb_fmt = datetime.strptime(nb, "%Y-%m-%d").strftime("%d %b %Y")
+                    next_str = f"Next: {nb_fmt}"
+                except:
+                    next_str = f"Next: {nb}"
+            else:
+                next_str = "No upcoming booking"
+            avail_lines.append(
+                f"*{v['name']}*  `{v['plate']}`  ·  _{next_str}_"
+            )
 
-    lines += ["For inquiries please contact this number", "", CONTACT_FOOTER]
-
-    def text_to_blocks(text):
-        blocks, chunk = [], ""
-        for line in text.split("\n"):
-            cand = chunk + line + "\n"
-            if len(cand) > BLOCK_LIMIT:
-                if chunk:
-                    blocks.append({"type": "section", "text": {"type": "mrkdwn", "text": f"```{chunk.rstrip()}```"}})
+        # Split into chunks (Slack section limit ~3000 chars)
+        chunk, chunks = "", []
+        for line in avail_lines:
+            candidate = chunk + line + "\n"
+            if len(candidate) > 2800:
+                chunks.append(chunk.rstrip())
                 chunk = line + "\n"
             else:
-                chunk = cand
+                chunk = candidate
         if chunk.strip():
-            blocks.append({"type": "section", "text": {"type": "mrkdwn", "text": f"```{chunk.rstrip()}```"}})
-        return blocks
+            chunks.append(chunk.rstrip())
 
-    blocks = [
-        {"type": "section", "text": {"type": "mrkdwn", "text": f"```{summary}```"}},
-        {"type": "divider"},
-        *text_to_blocks("\n".join(lines)),
-        {"type": "context", "elements": [{"type": "mrkdwn",
-            "text": "MKV Active Fleet • Auto-posted daily 10:00 AM Dubai time"}]},
-    ]
-    return {"blocks": blocks, "text": f"MKV Fleet Availability — {date_str} {day_str}"}
+        for i, chunk in enumerate(chunks):
+            header_txt = f"✅ *AVAILABLE CARS ({avail_c})*\n" if i == 0 else ""
+            blocks.append({"type": "section", "text": {"type": "mrkdwn",
+                "text": header_txt + chunk}})
+    else:
+        blocks.append({"type": "section", "text": {"type": "mrkdwn",
+            "text": "✅ *AVAILABLE CARS*\nNo vehicles available today."}})
+
+    blocks.append({"type": "divider"})
+
+    # ── TO BE DELIVERED TODAY ─────────────────────────────
+    if to_deliver:
+        lines = "\n".join(
+            f"• *{e['vehicle']}*  `{e['plate']}`  ·  {e['customer']}  ·  {e['time']}"
+            for e in to_deliver
+        )
+        blocks.append({"type": "section", "text": {"type": "mrkdwn",
+            "text": f"🚗 *TO BE DELIVERED TODAY ({len(to_deliver)})*\n{lines}"}})
+    else:
+        blocks.append({"type": "section", "text": {"type": "mrkdwn",
+            "text": "🚗 *TO BE DELIVERED TODAY*\nNone scheduled."}})
+
+    blocks.append({"type": "divider"})
+
+    # ── TO BE RETURNED TODAY ──────────────────────────────
+    if to_return:
+        lines = "\n".join(
+            f"• *{e['vehicle']}*  `{e['plate']}`  ·  {e['customer']}  ·  Due {e['time']}"
+            for e in to_return
+        )
+        blocks.append({"type": "section", "text": {"type": "mrkdwn",
+            "text": f"🔑 *TO BE RETURNED TODAY ({len(to_return)})*\n{lines}"}})
+    else:
+        blocks.append({"type": "section", "text": {"type": "mrkdwn",
+            "text": "🔑 *TO BE RETURNED TODAY*\nNone due today."}})
+
+    # ── FOOTER ────────────────────────────────────────────
+    blocks.append({"type": "divider"})
+    blocks.append({"type": "context", "elements": [{"type": "mrkdwn",
+        "text": f"MKV Fleet Availability · {date_str} · Auto-posted 10:00 AM Dubai time · Available sorted by next booking date"}]})
+
+    return {"blocks": blocks, "text": f"MKV Fleet Availability — {date_str}"}
 
 # ─────────────────────────────────────────────────────────
 # 4. Post to Slack
@@ -239,11 +407,19 @@ if __name__ == "__main__":
     print("\n[1] Fetching fleet counts ...")
     counts = fetch_counts()
 
-    print("\n[2] Fetching available vehicles ...")
+    print("\n[2] Checking fleet mismatch ...")
+    mismatch = check_fleet_mismatch(counts)
+    if mismatch:
+        post_mismatch_alert(mismatch)
+
+    print("\n[3] Fetching available vehicles ...")
     available = fetch_available_vehicles()
 
-    print("\n[3] Building Slack message ...")
-    msg = build_message(counts, available)
+    print("\n[4] Fetching bookings data ...")
+    bookings_data = fetch_bookings_data()
 
-    print("\n[4] Posting to Slack ...")
+    print("\n[5] Building Slack message ...")
+    msg = build_message(counts, available, bookings_data)
+
+    print("\n[6] Posting to Slack ...")
     post_slack(msg)
