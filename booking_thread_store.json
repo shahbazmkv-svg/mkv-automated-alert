@@ -2471,8 +2471,8 @@
       "customer": "Muneer Nazarudeen Nazarudeen",
       "vehicle": "Porsche 911 Turbo",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
+      "pickup_alerted": true,
+      "closed": true,
       "start_date": "2026-05-11"
     },
     "009988-YANN-Ferrari": {
@@ -2486,8 +2486,8 @@
       "customer": "Yanni Allan Jadot",
       "vehicle": "Ferrari Purosangue",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
+      "pickup_alerted": true,
+      "closed": true,
       "start_date": "2026-05-11"
     },
     "009989-JOHN-Chevrolet": {
@@ -2501,8 +2501,8 @@
       "customer": "John Alex Githua Mwangi",
       "vehicle": "Chevrolet Corvette",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
+      "pickup_alerted": true,
+      "closed": true,
       "start_date": "2026-05-11"
     },
     "009987-FIVE-Ford": {
@@ -2636,8 +2636,8 @@
       "customer": "Muneer Nazarudeen Nazarudeen",
       "vehicle": "Bmw 735I",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
+      "pickup_alerted": true,
+      "closed": true,
       "start_date": "2026-05-09"
     },
     "009972-MUNE-GMC": {
@@ -2711,8 +2711,8 @@
       "customer": "Sahil Narang Triloki Nath Narang",
       "vehicle": "Mercedes-Benz Mercedes G3 (Brabus)",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
+      "pickup_alerted": true,
+      "closed": true,
       "start_date": "2026-05-08"
     },
     "009965-ASMA-Mercedes-Benz": {
@@ -2726,8 +2726,8 @@
       "customer": "Asmaa Hanine",
       "vehicle": "Mercedes-Benz Mercedes  G63",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
+      "pickup_alerted": true,
+      "closed": true,
       "start_date": "2026-05-08"
     },
     "009966-DREA-Ferrari": {
