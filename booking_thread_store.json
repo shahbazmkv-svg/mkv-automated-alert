@@ -3142,7 +3142,7 @@
     "0010002-ESTA-BMW": {
       "thread_ts": "1778656521.172319",
       "delivery_ts": "1778656521.598169",
-      "pickup_ts": null,
+      "pickup_ts": "1778657431.686789",
       "closed_ts": null,
       "extension_ts_list": [],
       "end_date": "2026-05-14",
@@ -3150,7 +3150,7 @@
       "customer": "Estafania Carbo Piedrahita",
       "vehicle": "Bmw 520I",
       "delivery_alerted": true,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-05-13"
     }
