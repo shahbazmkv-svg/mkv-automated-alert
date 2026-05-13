@@ -266,8 +266,129 @@ def fetch_available_vehicles() -> list:
     return available
 
 # ─────────────────────────────────────────────────────────
-# 3. Build Slack message — visual card layout
+# 3. Generate fleet header image
 # ─────────────────────────────────────────────────────────
+def generate_fleet_image(total, lease_c, ltr_c, str_c, avail_c, date_str) -> bytes | None:
+    try:
+        from PIL import Image, ImageDraw, ImageFont
+        import io
+
+        W, H       = 900, 160
+        DARK_BG    = (26, 26, 24)
+        BOX_BG     = (38, 38, 36)
+        BOX_BORDER = (60, 60, 58)
+        WHITE      = (255, 255, 255)
+        GRAY       = (140, 135, 128)
+        COLORS     = {
+            "total":     (55, 138, 221),
+            "lease":     (186, 117, 23),
+            "ltr":       (83, 74, 183),
+            "str":       (226, 75, 74),
+            "available": (99, 153, 34),
+        }
+
+        metrics = [
+            ("Total Fleet",      total,   "total"),
+            ("Lease",            lease_c, "lease"),
+            ("Long-term",        ltr_c,   "ltr"),
+            ("Short-term (STR)", str_c,   "str"),
+            ("Available",        avail_c, "available"),
+        ]
+
+        img  = Image.new("RGB", (W, H), DARK_BG)
+        draw = ImageDraw.Draw(img)
+
+        font_paths = [
+            "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+            "/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf",
+            "/usr/share/fonts/truetype/freefont/FreeSans.ttf",
+        ]
+        font_bold_paths = [
+            "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
+            "/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf",
+            "/usr/share/fonts/truetype/freefont/FreeSansBold.ttf",
+        ]
+
+        def load_font(paths, size):
+            for p in paths:
+                try: return ImageFont.truetype(p, size)
+                except: pass
+            return ImageFont.load_default()
+
+        font_label = load_font(font_paths, 14)
+        font_value = load_font(font_bold_paths, 36)
+        font_title = load_font(font_bold_paths, 15)
+
+        # Title
+        draw.text((20, 14), f"MKV Fleet Availability  —  {date_str}", font=font_title, fill=WHITE)
+
+        # 5 metric boxes
+        box_w = 160
+        gap   = 12
+        start_x = (W - (5 * box_w + 4 * gap)) // 2
+        box_y, box_h = 48, 92
+
+        for label, value, key in metrics:
+            x = start_x + metrics.index((label, value, key)) * (box_w + gap)
+            draw.rounded_rectangle([x, box_y, x+box_w, box_y+box_h], radius=10,
+                                   fill=BOX_BG, outline=BOX_BORDER, width=1)
+            lb = draw.textlength(label, font=font_label)
+            draw.text((x + (box_w - lb)//2, box_y + 10), label, font=font_label, fill=GRAY)
+            vb = draw.textlength(str(value), font=font_value)
+            draw.text((x + (box_w - vb)//2, box_y + 34), str(value), font=font_value, fill=COLORS[key])
+
+        buf = io.BytesIO()
+        img.save(buf, format="PNG")
+        print("  ✅ Fleet header image generated")
+        return buf.getvalue()
+
+    except Exception as e:
+        print(f"  ⚠️  Image generation failed: {e}")
+        return None
+
+
+def upload_image_to_slack(image_bytes: bytes, filename: str, channel: str) -> bool:
+    """Upload image to Slack using v2 upload API."""
+    try:
+        headers = {"Authorization": f"Bearer {SLACK_TOKEN}"}
+
+        # Step 1 — get upload URL
+        r1 = requests.post(
+            "https://slack.com/api/files.getUploadURLExternal",
+            headers=headers,
+            data={"filename": filename, "length": len(image_bytes)},
+            timeout=15
+        )
+        d1 = r1.json()
+        if not d1.get("ok"):
+            print(f"  getUploadURL error: {d1.get('error')}")
+            return False
+
+        # Step 2 — upload bytes
+        r2 = requests.post(d1["upload_url"], data=image_bytes, timeout=30)
+        if r2.status_code not in (200, 201):
+            print(f"  Upload PUT failed: {r2.status_code}")
+            return False
+
+        # Step 3 — complete and share to channel
+        r3 = requests.post(
+            "https://slack.com/api/files.completeUploadExternal",
+            headers={**headers, "Content-Type": "application/json"},
+            json={"files": [{"id": d1["file_id"]}], "channel_id": channel},
+            timeout=15
+        )
+        d3 = r3.json()
+        if not d3.get("ok"):
+            print(f"  completeUpload error: {d3.get('error')}")
+            return False
+
+        print("  ✅ Fleet header image uploaded to Slack")
+        return True
+    except Exception as e:
+        print(f"  Image upload error: {e}")
+        return False
+
+
 def build_message(counts: dict, available_vehicles: list, bookings_data: dict):
     now      = now_dubai()
     date_str = now.strftime("%d %b %Y")
@@ -291,14 +412,7 @@ def build_message(counts: dict, available_vehicles: list, bookings_data: dict):
         "text": {"type": "plain_text",
             "text": f"📋 MKV Fleet Availability — {date_str}", "emoji": True}})
 
-    # ── FLEET STATUS — 5 metric fields ───────────────────
-    blocks.append({"type": "section", "fields": [
-        {"type": "mrkdwn", "text": f"*Total Fleet*\n{TOTAL_FLEET}"},
-        {"type": "mrkdwn", "text": f"*Lease*\n{lease_c}"},
-        {"type": "mrkdwn", "text": f"*Long-term*\n{ltr_c}"},
-        {"type": "mrkdwn", "text": f"*Short-term (STR)*\n{str_c}"},
-        {"type": "mrkdwn", "text": f"*Available*\n{avail_c}"},
-    ]})
+    # (Fleet status metrics posted as image before this message)
 
     blocks.append({"type": "divider"})
 
@@ -421,8 +535,18 @@ if __name__ == "__main__":
     print("\n[4] Fetching bookings data ...")
     bookings_data = fetch_bookings_data()
 
-    print("\n[5] Building Slack message ...")
+    print("\n[5] Generating fleet header image ...")
+    date_str  = now_dubai().strftime("%d %b %Y")
+    str_c     = counts.get("shortTermRental", 0)
+    lease_c   = counts.get("lease", 0)
+    ltr_c     = counts.get("longTermRental", 0)
+    avail_c   = len(available)
+    img_bytes = generate_fleet_image(TOTAL_FLEET, lease_c, ltr_c, str_c, avail_c, date_str)
+    if img_bytes:
+        upload_image_to_slack(img_bytes, f"fleet_{date_str.replace(' ','_')}.png", SLACK_CHANNEL)
+
+    print("\n[6] Building Slack message ...")
     msg = build_message(counts, available, bookings_data)
 
-    print("\n[6] Posting to Slack ...")
+    print("\n[7] Posting to Slack ...")
     post_slack(msg)
