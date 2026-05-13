@@ -3198,6 +3198,36 @@
       "pickup_alerted": false,
       "closed": false,
       "start_date": "2026-05-13"
+    },
+    "0010008-MAJI-LAND ROVER RANGE ROVER": {
+      "thread_ts": null,
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": [],
+      "end_date": "2026-05-21",
+      "plate": "J / 28501",
+      "customer": "Majid Ahmed Abdalla",
+      "vehicle": "Land Rover Range Rover Vouge",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-05-14"
+    },
+    "0010007-FIVE-LAND ROVER RANGE ROVER": {
+      "thread_ts": null,
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": [],
+      "end_date": "2026-05-31",
+      "plate": "J / 28501",
+      "customer": "Five Star For Car Rental Co Llc",
+      "vehicle": "Land Rover Range Rover Vouge",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-05-12"
     }
   }
 }
