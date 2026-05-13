@@ -3123,6 +3123,21 @@
       "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-05-13"
+    },
+    "0010001-ESTA-BMW": {
+      "thread_ts": "1778655635.142709",
+      "delivery_ts": "1778655635.415389",
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": [],
+      "end_date": "2026-05-14",
+      "plate": "70691",
+      "customer": "Estafania Carbo Piedrahita",
+      "vehicle": "Bmw 520I",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-05-13"
     }
   }
 }
