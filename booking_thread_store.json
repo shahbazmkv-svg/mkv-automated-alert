@@ -3157,7 +3157,7 @@
     "0010004-CONT-GMC": {
       "thread_ts": "1778666433.649829",
       "delivery_ts": "1778666433.920429",
-      "pickup_ts": null,
+      "pickup_ts": "1778667320.526389",
       "closed_ts": null,
       "extension_ts_list": [],
       "end_date": "2026-05-14",
@@ -3165,7 +3165,7 @@
       "customer": "Continental Luxury Car Rental",
       "vehicle": "Gmc Yukon",
       "delivery_alerted": true,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-05-13"
     }
