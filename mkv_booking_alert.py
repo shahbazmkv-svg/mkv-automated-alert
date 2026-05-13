@@ -185,31 +185,44 @@ def extract(b):
         dur_str = "N/A"
 
     try:
-        # ── Appic confirmed fields only ────────────────────────────────────
-        grand_total    = float(b.get("grandTotal", 0)       or 0)
-        excl_vat       = float(b.get("amountWithoutVat", 0) or 0)
-        vat_amt        = float(b.get("vatAmount", 0)        or 0)
-        zero_dep       = float(b.get("zeroDepositFee", 0)   or 0)
-        addon          = float(b.get("addOnCharges", 0)     or 0)
-        advance        = float(b.get("advanceReceived", 0)  or 0)
-
-        # Base rental = grand total excl VAT minus zero deposit excl VAT
-        zero_dep_excl  = round(zero_dep / 1.05, 2) if zero_dep > 0 else 0
-        base_rental    = round(excl_vat - zero_dep_excl, 2) if excl_vat > 0 else 0
+        # ── Confirmed Appic fields ─────────────────────────────────────────
+        grand_total      = float(b.get("grandTotal", 0)        or 0)
+        excl_vat         = float(b.get("amountWithoutVat", 0)  or 0)
+        vat_amt          = float(b.get("vatAmount", 0)         or 0)
+        zero_dep         = float(b.get("zeroDepositFee", 0)    or 0)
+        addon            = float(b.get("addOnCharges", 0)      or 0)
+        delivery_chg     = float(b.get("dropoffCharge", 0)     or 0)
+        pickup_chg       = float(b.get("pickupCharge", 0)      or 0)
+        babyseat_chg     = float(b.get("babyseatCharge", 0)    or 0)
+        insurance_chg    = float(b.get("insurance", 0)         or 0)
+        chauffeur_chg    = float(b.get("chauffeurCharge", 0)   or 0)
+        advance          = float(b.get("advanceReceived", 0)   or 0)
 
         def fmt(v):
             return f"AED {v:,.0f}" if v > 0 else "—"
 
-        base_rental_str = fmt(base_rental)
-        zero_dep_str    = fmt(zero_dep)
-        addon_str       = fmt(addon)
-        total_excl_str  = fmt(excl_vat)   if excl_vat > 0 else fmt(round(grand_total / 1.05, 2))
-        total_vat_str   = fmt(vat_amt)    if vat_amt  > 0 else fmt(round(grand_total - grand_total / 1.05, 2))
-        total_amt       = fmt(grand_total)
-        advance_amt     = fmt(advance)
+        # Base rental = excl_vat minus all add-on charges (excl VAT)
+        addons_excl = round((zero_dep + delivery_chg + pickup_chg +
+                             babyseat_chg + insurance_chg + chauffeur_chg + addon) / 1.05, 2)
+        base_rental = round(excl_vat - addons_excl, 2) if excl_vat > 0 else round(grand_total / 1.05, 2)
+
+        total_excl_str   = fmt(excl_vat)  if excl_vat  > 0 else fmt(round(grand_total / 1.05, 2))
+        total_vat_str    = fmt(vat_amt)   if vat_amt   > 0 else fmt(round(grand_total - grand_total / 1.05, 2))
+
+        base_rental_str  = fmt(base_rental)
+        zero_dep_str     = fmt(zero_dep)
+        delivery_str     = fmt(delivery_chg)
+        pickup_str       = fmt(pickup_chg)
+        babyseat_str     = fmt(babyseat_chg)
+        insurance_str    = fmt(insurance_chg)
+        chauffeur_str    = fmt(chauffeur_chg)
+        addon_str        = fmt(addon)
+        total_amt        = fmt(grand_total)
+        advance_amt      = fmt(advance)
 
     except:
-        base_rental_str = zero_dep_str = addon_str = "—"
+        base_rental_str = zero_dep_str = delivery_str = pickup_str = "—"
+        babyseat_str = insurance_str = chauffeur_str = addon_str = "—"
         total_excl_str = total_vat_str = total_amt = advance_amt = "—"
 
     pickup_loc  = (b.get("pickupLocation")  or "").strip()
@@ -242,9 +255,14 @@ def extract(b):
         "e_time":       e_time,
         "dur_str":      dur_str,
         "location":     location,
-        # cost — confirmed Appic fields only
+        # cost — all confirmed Appic fields
         "base_rental":  base_rental_str,
         "zero_dep":     zero_dep_str,
+        "insurance":    insurance_str,
+        "delivery":     delivery_str,
+        "pickup":       pickup_str,
+        "babyseat":     babyseat_str,
+        "chauffeur":    chauffeur_str,
         "addon":        addon_str,
         "total_excl":   total_excl_str,
         "total_vat":    total_vat_str,
@@ -286,6 +304,11 @@ def build_booking_card(f, now_str):
         f"{'─' * 36}\n"
         + (f"{'Base Rental':<14}: {f['base_rental']}\n" if f['base_rental'] != '—' else "")
         + (f"{'Zero Deposit':<14}: {f['zero_dep']}\n"   if f['zero_dep']    != '—' else "")
+        + (f"{'Insurance':<14}: {f['insurance']}\n"     if f['insurance']   != '—' else "")
+        + (f"{'Delivery':<14}: {f['delivery']}\n"       if f['delivery']    != '—' else "")
+        + (f"{'Pickup':<14}: {f['pickup']}\n"           if f['pickup']      != '—' else "")
+        + (f"{'Baby Seat':<14}: {f['babyseat']}\n"      if f['babyseat']    != '—' else "")
+        + (f"{'Chauffeur':<14}: {f['chauffeur']}\n"     if f['chauffeur']   != '—' else "")
         + (f"{'Add-ons':<14}: {f['addon']}\n"           if f['addon']       != '—' else "")
         + f"{'─' * 36}\n"
         f"{'Total w/o VAT':<14}: {f['total_excl']}\n"
@@ -510,7 +533,7 @@ def main():
     now_str  = now.strftime("%d %b %Y | %I:%M %p Dubai Time")
     tomorrow = (now + timedelta(days=1)).strftime("%Y-%m-%d")
 
-    SEED_MODE = False
+    SEED_MODE = True
 
     print("=" * 56)
     print("  MKV BOOKING BOT")
