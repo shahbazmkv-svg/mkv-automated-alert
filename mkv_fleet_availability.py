@@ -26,7 +26,7 @@ CONTACT_FOOTER = (
     "✉️  contact@mkvluxury.com\n📍 Al Jreena Street 41, Al Qouz Industrial Third, Dubai, UAE"
 )
 
-TOTAL_FLEET = 62  # update when fleet changes
+TOTAL_FLEET = 62  # must always match len(MASTER_PLATES) — update both together
 
 # Master plate list — only used to identify available vehicles for the list
 MASTER_PLATES = [
@@ -137,31 +137,33 @@ def fetch_counts() -> dict:
 
 def check_fleet_mismatch(counts: dict) -> dict | None:
     """
-    Compare TOTAL_FLEET (hardcoded master) against Appic assignments total.
-    Returns mismatch details if counts differ, None if all good.
+    Compare TOTAL_FLEET (hardcoded) against len(MASTER_PLATES) — the real source of truth.
+    Appic assignments total is shown for info only, not used for comparison.
     """
     str_c   = counts.get("shortTermRental", 0)
     lease_c = counts.get("lease", 0)
     ltr_c   = counts.get("longTermRental", 0)
     svc_c   = counts.get("service", 0)
     nrv_c   = counts.get("nrv", 0)
-
     appic_total = str_c + lease_c + ltr_c + svc_c + nrv_c
-    diff        = appic_total - TOTAL_FLEET
+
+    master_count = len(MASTER_PLATES)
+    diff         = TOTAL_FLEET - master_count
 
     if diff == 0:
-        print(f"  ✅ Fleet count matches: {TOTAL_FLEET}")
+        print(f"  ✅ Fleet count matches: TOTAL_FLEET={TOTAL_FLEET} = MASTER_PLATES={master_count}")
         return None
 
     direction = f"+{diff}" if diff > 0 else str(diff)
     action    = "Add new plate(s) to MASTER_PLATES" if diff > 0 else "Remove plate(s) from MASTER_PLATES"
-    print(f"  ⚠️  Fleet mismatch: hardcoded={TOTAL_FLEET}, Appic={appic_total}, diff={direction}")
+    print(f"  ⚠️  Fleet mismatch: TOTAL_FLEET={TOTAL_FLEET}, MASTER_PLATES={master_count}, diff={direction}")
     return {
-        "hardcoded": TOTAL_FLEET,
-        "appic":     appic_total,
-        "diff":      direction,
-        "action":    action,
-        "breakdown": f"STR: {str_c}  Lease: {lease_c}  LTR: {ltr_c}  Service: {svc_c}  NRV: {nrv_c}",
+        "hardcoded":   TOTAL_FLEET,
+        "master":      master_count,
+        "appic":       appic_total,
+        "diff":        direction,
+        "action":      action,
+        "breakdown":   f"STR: {str_c}  Lease: {lease_c}  LTR: {ltr_c}  Service: {svc_c}  NRV: {nrv_c}  (Appic info only)",
     }
 
 def post_mismatch_alert(mismatch: dict):
@@ -172,10 +174,11 @@ def post_mismatch_alert(mismatch: dict):
          "text": {"type": "plain_text", "text": "⚠️ FLEET COUNT MISMATCH DETECTED", "emoji": True}},
         {"type": "section", "text": {"type": "mrkdwn", "text": (
             f"```\n"
-            f"{'Hardcoded total':<20}: {mismatch['hardcoded']}\n"
-            f"{'Appic total':<20}: {mismatch['appic']}\n"
-            f"{'Difference':<20}: {mismatch['diff']}\n"
-            f"{'─' * 36}\n"
+            f"{'TOTAL_FLEET (hardcoded)':<26}: {mismatch['hardcoded']}\n"
+            f"{'MASTER_PLATES (actual)':<26}: {mismatch['master']}\n"
+            f"{'Difference':<26}: {mismatch['diff']}\n"
+            f"{'─' * 40}\n"
+            f"Appic assignments (info only):\n"
             f"{mismatch['breakdown']}\n"
             f"```"
         )}},
