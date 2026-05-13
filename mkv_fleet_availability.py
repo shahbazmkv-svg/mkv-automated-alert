@@ -11,7 +11,7 @@ from datetime import datetime, timezone, timedelta
 
 SLACK_TOKEN   = os.environ["SLACK_BOT_TOKEN"]
 APPIC_KEY     = os.environ.get("APPIC_KEY", "")
-SLACK_CHANNEL = "C0B0TGBDCDU"
+SLACK_CHANNEL = "C0ABW8AGMRU"   # #mkv-fleet-availability
 DUBAI_TZ      = timezone(timedelta(hours=4))
 BLOCK_LIMIT   = 2900
 
