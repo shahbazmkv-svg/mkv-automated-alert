@@ -269,11 +269,16 @@ def extract(b):
         "total_amt":    total_amt,
         "advance":      advance_amt,
         "pay_mode":     (b.get("paymentMode")    or "—").strip(),
-        "km_allowed":   (lambda r: next(
-                            (w.rstrip("S") + " KM" for w in r.upper().replace("KMS","KM").replace("KM"," KM ").split()
-                             if w.rstrip("S").isdigit() and 50 < int(w.rstrip("S")) <= 1000),
-                            "—"
-                        ))(b.get("remarks", "") or ""),
+        "km_allowed":   (lambda: (
+                            f"{int(float(b.get('dailyKmsLimit', 0) or 0))} KM/day"
+                            if float(b.get("dailyKmsLimit", 0) or 0) > 0
+                            else (lambda m: f"{m.group(1)} KM" if m else "—")(
+                                __import__("re").search(
+                                    r'\b(\d{2,4})\s*KM[S]?\b',
+                                    (b.get("remarks", "") or "").upper()
+                                )
+                            )
+                        ))(),
         "remarks":      (b.get("remarks")        or "—").strip() or "—",
         "status":       status,
         "status_label": "DRAFT" if status == "draft" else "CONFIRMED",
@@ -525,7 +530,98 @@ def build_contract_closed(f, now_str):
 
 
 # ─────────────────────────────────────────────
-#  MAIN
+#  DOCUMENT UPLOAD
+# ─────────────────────────────────────────────
+
+def upload_file_to_slack(channel, thread_ts, filename, file_bytes):
+    """Upload a file to Slack v2 API into a thread."""
+    try:
+        r1 = requests.post(
+            "https://slack.com/api/files.getUploadURLExternal",
+            headers={"Authorization": f"Bearer {SLACK_BOT_TOKEN}"},
+            data={"filename": filename, "length": len(file_bytes)},
+            timeout=15
+        )
+        d1 = r1.json()
+        if not d1.get("ok"):
+            print(f"  getUploadURL error: {d1.get('error')}")
+            return False
+        upload_url = d1["upload_url"]
+        file_id    = d1["file_id"]
+
+        r2 = requests.post(upload_url, data=file_bytes, timeout=30)
+        if r2.status_code not in (200, 201):
+            print(f"  Upload failed: {r2.status_code}")
+            return False
+
+        r3 = requests.post(
+            "https://slack.com/api/files.completeUploadExternal",
+            headers={"Authorization": f"Bearer {SLACK_BOT_TOKEN}",
+                     "Content-Type": "application/json"},
+            json={
+                "files":      [{"id": file_id, "title": filename}],
+                "channel_id": channel,
+                "thread_ts":  thread_ts,
+            },
+            timeout=15
+        )
+        d3 = r3.json()
+        if not d3.get("ok"):
+            print(f"  completeUpload error: {d3.get('error')}")
+            return False
+        return True
+    except Exception as e:
+        print(f"  upload_file_to_slack error: {e}")
+        return False
+
+
+def post_documents(channel, thread_ts, agr_no, customer, b):
+    """
+    Post customer documents as thread replies using URLs from the booking API.
+    Fields: passportImg, passportExpImg, licenseImg, licenseExpiryImg, tradeLicenseImg
+    """
+    DOC_FIELDS = [
+        ("passportImg",    "Passport"),
+        ("passportExpImg", "Passport Expiry"),
+        ("licenseImg",     "Driving Licence"),
+        ("licenseExpiryImg", "Licence Expiry"),
+        ("tradeLicenseImg",  "Trade Licence"),
+    ]
+
+    docs = []
+    for field, label in DOC_FIELDS:
+        url = str(b.get(field) or "").strip()
+        if url and url.startswith("http"):
+            docs.append((label, url))
+
+    if not docs:
+        print(f"  No documents found for {agr_no}")
+        return
+
+    # Header message
+    post_message(channel, [
+        {"type": "section", "text": {"type": "mrkdwn",
+            "text": f"*DOCUMENTS*\nAGR#: {agr_no} | {customer}"}},
+    ], f"Documents: {agr_no}", thread_ts=thread_ts)
+
+    # Upload each doc
+    for label, url in docs:
+        try:
+            print(f"  Downloading: {label}")
+            r = requests.get(url, timeout=20)
+            if r.status_code != 200:
+                print(f"  Download failed ({r.status_code}): {url}")
+                continue
+            ct  = r.headers.get("Content-Type", "")
+            ext = ".pdf" if "pdf" in ct else ".png" if "png" in ct else ".jpg"
+            filename = f"{agr_no}_{label.replace(' ', '_')}{ext}"
+            ok = upload_file_to_slack(channel, thread_ts, filename, r.content)
+            print(f"  Upload {'OK' if ok else 'FAILED'}: {filename}")
+        except Exception as e:
+            print(f"  Doc upload error {label}: {e}")
+
+
+# ─────────────────────────────────────────────
 # ─────────────────────────────────────────────
 
 def main():
@@ -533,7 +629,7 @@ def main():
     now_str  = now.strftime("%d %b %Y | %I:%M %p Dubai Time")
     tomorrow = (now + timedelta(days=1)).strftime("%Y-%m-%d")
 
-    SEED_MODE = False
+    SEED_MODE = True
 
     print("=" * 56)
     print("  MKV BOOKING BOT")
@@ -604,6 +700,9 @@ def main():
                     "start_date":        start,
                 }
                 print(f"  Booking card posted — thread_ts: {ts}")
+
+                # Post customer documents in thread
+                post_documents(TARGET_CHANNEL, ts, f["agr_no"], f["customer"], b)
 
                 # Delivery checklist reply — save ts
                 d_blocks, d_text = build_delivery_checklist(f, now_str)
