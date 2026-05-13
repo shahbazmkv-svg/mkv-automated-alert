@@ -12,7 +12,7 @@ SLACK_BOT_TOKEN    = os.environ["SLACK_BOT_TOKEN"]
 CHANNEL_BOOKINGS   = "C0ABPC606F7"   # #mkv-bookings (live)
 CHANNEL_TEST       = "C0AVCCCG0S0"   # #mkvtest
 
-TEST_MODE          = True
+TEST_MODE          = False
 TARGET_CHANNEL     = CHANNEL_TEST if TEST_MODE else CHANNEL_BOOKINGS
 
 APPIC_BOOKINGS_URL  = "https://www.appicfleet.com/appiccar-apis-mkv/get-mkv-bookings.php"
@@ -124,14 +124,52 @@ def extract(b):
     except:
         dur_str = "N/A"
     try:
-        amt_val   = float(b.get("amount", 0))
-        vat_val   = float(b.get("vatAmount", 0))
-        total     = amt_val + vat_val
-        rental_amt = f"AED {amt_val:,.0f}" if amt_val > 0 else "TBC"
-        total_amt  = f"AED {total:,.0f}"   if total  > 0 else "TBC"
+        grand_total  = float(b.get("grandTotal", 0) or b.get("amount", 0) or 0)
+        amt_wo_vat   = float(b.get("amountWithoutVat", 0) or 0)
+        vat_val      = float(b.get("vatAmount", 0) or 0)
+        zero_dep_val = float(b.get("zeroDepositFee", 0) or 0)
+        addon_val    = float(b.get("addOnCharges", 0) or 0)
+        advance_val  = float(b.get("advanceReceived", 0) or 0)
+        balance_val  = grand_total - advance_val
+
+        # Fallback: reverse-calculate if Appic doesn't return amountWithoutVat
+        if amt_wo_vat == 0 and grand_total > 0:
+            amt_wo_vat = round(grand_total / 1.05, 0)
+            vat_val    = grand_total - amt_wo_vat
+
+        rental_amt   = f"AED {grand_total:,.0f}"   if grand_total > 0 else "TBC"
+        zero_dep_str = f"AED {zero_dep_val:,.0f}"  if zero_dep_val > 0 else "—"
+        addon_str    = f"AED {addon_val:,.0f}"      if addon_val > 0 else "—"
+        total_wo_vat = f"AED {amt_wo_vat:,.0f}"    if amt_wo_vat > 0 else "TBC"
+        vat_str      = f"AED {vat_val:,.0f}"        if vat_val > 0 else "—"
+        grand_str    = f"AED {grand_total:,.0f}"    if grand_total > 0 else "TBC"
+        advance_str  = f"AED {advance_val:,.0f}"
+        balance_str  = f"AED {balance_val:,.0f}"
+        total_amt    = grand_str
     except:
-        rental_amt = "TBC"
-        total_amt  = "TBC"
+        rental_amt   = "TBC"
+        zero_dep_str = "—"
+        addon_str    = "—"
+        total_wo_vat = "TBC"
+        vat_str      = "—"
+        grand_str    = "TBC"
+        advance_str  = "—"
+        balance_str  = "—"
+        total_amt    = "TBC"
+
+    # KM Allowed — parse from remarks (e.g. "125 KM PER DAY")
+    import re as _re
+    remarks_raw = (b.get("remarks") or "").upper()
+    km_match    = _re.search(r'(\d+)\s*KM\s*PER\s*DAY', remarks_raw)
+    if km_match:
+        try:
+            daily_km    = int(km_match.group(1))
+            km_allowed  = f"{daily_km * max(dur, 1)} KM  ({daily_km} KM/day)"
+        except:
+            km_allowed  = f"{km_match.group(1)} KM/day"
+    else:
+        api_km = str(b.get("kmAllowed") or b.get("allowedKm") or "").strip()
+        km_allowed = f"{api_km} KM" if api_km and api_km != "0" else "—"
 
     pickup_loc  = (b.get("pickupLocation")  or "").strip()
     dropoff_loc = (b.get("dropoffLocation") or "").strip()
@@ -154,12 +192,15 @@ def extract(b):
         "dur_str":      dur_str,
         "location":     location,
         "rental_amt":   rental_amt,
-        "zero_dep":     fmt_amount_zero(b.get("zeroDepositFee", 0)),
-        "addon":        fmt_amount(b.get("addOnCharges", 0)),
-        "vat":          fmt_amount(b.get("vatAmount", 0)),
-        "total_amt":    total_amt,
-        "advance":      fmt_amount_zero(b.get("advanceReceived", 0)),
+        "zero_dep":     zero_dep_str,
+        "addon":        addon_str,
+        "total_wo_vat": total_wo_vat,
+        "vat":          vat_str,
+        "total_amt":    grand_str,
+        "advance":      advance_str,
+        "balance":      balance_str,
         "pay_mode":     (b.get("paymentMode")    or "—").strip(),
+        "km_allowed":   km_allowed,
         "remarks":      (b.get("remarks")        or "—").strip() or "—",
         "status":       status,
         "status_label": "DRAFT" if status == "draft" else "CONFIRMED",
@@ -189,11 +230,16 @@ def build_booking_card(f, now_str):
         f"{'─' * 36}\n"
         f"{'Rental':<14}: {f['rental_amt']}\n"
         f"{'Zero Deposit':<14}: {f['zero_dep']}\n"
-        f"{'Add-on':<14}: {f['addon']}\n"
-        f"{'VAT':<14}: {f['vat']}\n"
-        f"{'Total':<14}: {f['total_amt']}\n"
+        f"{'Add-ons':<14}: {f['addon']}\n"
+        f"{'─' * 36}\n"
+        f"{'Total w/o VAT':<14}: {f['total_wo_vat']}\n"
+        f"{'VAT 5%':<14}: {f['vat']}\n"
+        f"{'Grand Total':<14}: {f['total_amt']}\n"
+        f"{'─' * 36}\n"
         f"{'Advance':<14}: {f['advance']}\n"
+        f"{'Balance':<14}: {f['balance']}\n"
         f"{'Payment Mode':<14}: {f['pay_mode']}\n"
+        f"{'KM Allowed':<14}: {f['km_allowed']}\n"
         f"{'─' * 36}\n"
         f"{'Remarks':<14}: {f['remarks']}\n"
         f"{'─' * 36}\n"
