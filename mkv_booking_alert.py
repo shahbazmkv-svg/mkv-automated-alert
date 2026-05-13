@@ -629,7 +629,7 @@ def main():
     now_str  = now.strftime("%d %b %Y | %I:%M %p Dubai Time")
     tomorrow = (now + timedelta(days=1)).strftime("%Y-%m-%d")
 
-    SEED_MODE = False
+    SEED_MODE = True
 
     print("=" * 56)
     print("  MKV BOOKING BOT")
@@ -681,7 +681,6 @@ def main():
             print(f"  NEW: {customer} | {plate} | {start} | {f['status_label']}")
             blocks, text = build_booking_card(f, now_str)
             ts = post_message(TARGET_CHANNEL, blocks, text)
-            post_message(TARGET_DELIVERY, blocks, text)
 
             if ts:
                 bookings[key] = {
