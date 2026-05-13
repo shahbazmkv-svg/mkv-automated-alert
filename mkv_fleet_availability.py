@@ -360,14 +360,16 @@ def upload_image_to_slack(image_bytes: bytes, filename: str, channel: str) -> bo
             timeout=15
         )
         d1 = r1.json()
+        print(f"  getUploadURL response: {d1}")
         if not d1.get("ok"):
-            print(f"  getUploadURL error: {d1.get('error')}")
+            print(f"  getUploadURL error: {d1.get('error')} — check files:write scope on Slack app")
             return False
 
         # Step 2 — upload bytes
         r2 = requests.post(d1["upload_url"], data=image_bytes, timeout=30)
+        print(f"  Upload PUT status: {r2.status_code}")
         if r2.status_code not in (200, 201):
-            print(f"  Upload PUT failed: {r2.status_code}")
+            print(f"  Upload PUT failed: {r2.status_code} — {r2.text[:200]}")
             return False
 
         # Step 3 — complete and share to channel
@@ -378,6 +380,7 @@ def upload_image_to_slack(image_bytes: bytes, filename: str, channel: str) -> bo
             timeout=15
         )
         d3 = r3.json()
+        print(f"  completeUpload response: {d3}")
         if not d3.get("ok"):
             print(f"  completeUpload error: {d3.get('error')}")
             return False
@@ -412,7 +415,19 @@ def build_message(counts: dict, available_vehicles: list, bookings_data: dict):
         "text": {"type": "plain_text",
             "text": f"📋 MKV Fleet Availability — {date_str}", "emoji": True}})
 
-    # (Fleet status metrics posted as image before this message)
+    # ── FLEET STATUS fallback text (image posted separately above) ────────────
+    blocks.append({"type": "section", "fields": [
+        {"type": "mrkdwn", "text": f"*Total Fleet*\n{TOTAL_FLEET}"},
+        {"type": "mrkdwn", "text": f"*Available*\n{avail_c}"},
+    ]})
+    blocks.append({"type": "section", "fields": [
+        {"type": "mrkdwn", "text": f"*Short-term (STR)*\n{str_c}"},
+        {"type": "mrkdwn", "text": f"*Lease*\n{lease_c}"},
+    ]})
+    blocks.append({"type": "section", "fields": [
+        {"type": "mrkdwn", "text": f"*Long-term*\n{ltr_c}"},
+        {"type": "mrkdwn", "text": f"*Service*\n{svc_c}"},
+    ]})
 
     blocks.append({"type": "divider"})
 
