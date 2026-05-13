@@ -3168,6 +3168,21 @@
       "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-05-13"
+    },
+    "0010005-JAIR-Kia": {
+      "thread_ts": "1778679032.023809",
+      "delivery_ts": "1778679032.277709",
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": [],
+      "end_date": "2026-06-02",
+      "plate": "97020",
+      "customer": "Jairam  Khemani",
+      "vehicle": "Kia K5",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-05-18"
     }
   }
 }
