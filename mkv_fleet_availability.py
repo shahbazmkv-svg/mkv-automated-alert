@@ -11,8 +11,7 @@ from datetime import datetime, timezone, timedelta
 
 SLACK_TOKEN   = os.environ["SLACK_BOT_TOKEN"]
 APPIC_KEY     = os.environ.get("APPIC_KEY", "")
-TEST_MODE     = True   # True = post to #mkv-test-automation | False = post to #mkv-fleet-availability
-SLACK_CHANNEL = "C0B0TGBDCDU" if TEST_MODE else "C0ABW8AGMRU"   # test → live
+SLACK_CHANNEL = "C0B0TGBDCDU"
 DUBAI_TZ      = timezone(timedelta(hours=4))
 BLOCK_LIMIT   = 2900
 
@@ -125,7 +124,73 @@ def fetch_bookings_data() -> dict:
         return {"next_booking": {}, "to_deliver": [], "to_return": []}
 
 
-def fetch_counts() -> dict:
+DEBUG_MODE = True   # ← set True to dump API fields, False for normal run
+
+def debug_dump():
+    """Dump all API field names to Action logs. Run once then set DEBUG_MODE=False."""
+    today    = now_dubai().strftime("%Y-%m-%d")
+    lookback = (now_dubai() - timedelta(days=1)).strftime("%Y-%m-%d")
+
+    print("\n" + "=" * 55)
+    print("  DEBUG MODE — API FIELD DUMP")
+    print("=" * 55)
+
+    # 1. Vehicles API
+    r = requests.post(MKV_VEHICLES_URL, data={"key": APPIC_KEY}, timeout=20)
+    data = r.json()
+    vehicles = data if isinstance(data, list) else data.get("data", data.get("vehicles", []))
+    print(f"\n[VEHICLES API] Total returned: {len(vehicles)}")
+    str_fleet = [v for v in vehicles if float(v.get("dailyrent", 0) or 0) > 0]
+    print(f"  dailyrent > 0 (STR fleet): {len(str_fleet)}")
+    if vehicles:
+        print("  First vehicle — all fields:")
+        for k, v in vehicles[0].items():
+            print(f"    {k:<30}: {v}")
+    cats = {}
+    for v in vehicles:
+        for field in ["category","vehicleType","type","contractType","assignedAs","vehicleCategory"]:
+            val = str(v.get(field, "") or "").strip()
+            if val:
+                key = f"{field}={val}"
+                cats[key] = cats.get(key, 0) + 1
+    print(f"\n  Category fields found: {cats}")
+
+    # 2. Availability API — test first STR vehicle
+    if str_fleet:
+        v = str_fleet[0]
+        vid = str(v.get("vehicleID", v.get("id", "")) or "")
+        if vid:
+            r2 = requests.post(MKV_AVAIL_URL, data={
+                "key": APPIC_KEY, "startDate": today,
+                "endDate": today, "vehicleID": vid
+            }, timeout=15)
+            print(f"\n[AVAILABILITY API] vehicleID={vid}")
+            for k, val in r2.json().items():
+                print(f"    {k:<30}: {val}")
+
+    # 3. Bookings API
+    r3 = requests.post(APPIC_BOOKINGS_URL, data={
+        "key": APPIC_KEY, "startDate": lookback, "endDate": today
+    }, timeout=20)
+    bookings = r3.json().get("bookings", [])
+    active = [b for b in bookings if (b.get("status") or "").lower() not in
+              {"cancelled","canceled","voided","void","deleted","closed"}]
+    deliver = [b for b in active if b.get("startDate") == today]
+    returns = [b for b in active if b.get("endDate") == today]
+    print(f"\n[BOOKINGS API] Today ({today})")
+    print(f"  Active in window : {len(active)}")
+    print(f"  Deliveries today : {len(deliver)}")
+    print(f"  Returns today    : {len(returns)}")
+    if bookings:
+        print("  First booking — all fields:")
+        for k, v in bookings[0].items():
+            print(f"    {k:<30}: {v}")
+
+    print("\n" + "=" * 55)
+    print("  END DEBUG DUMP — set DEBUG_MODE=False to run normally")
+    print("=" * 55 + "\n")
+
+
     try:
         r = requests.post(MKV_ASSIGNMENTS_URL, data={"key": APPIC_KEY}, timeout=20)
         r.raise_for_status()
@@ -536,6 +601,10 @@ if __name__ == "__main__":
     print("  MKV FLEET AVAILABILITY")
     print(f"  {now_dubai().strftime('%d %b %Y | %I:%M %p Dubai Time')}")
     print("=" * 55)
+
+    if DEBUG_MODE:
+        debug_dump()
+        raise SystemExit(0)
 
     print("\n[1] Fetching fleet counts ...")
     counts = fetch_counts()
