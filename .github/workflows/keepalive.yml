@@ -17,6 +17,7 @@ on:
           - booking-bot
 
 jobs:
+  
 
   fleet-availability:
     if: github.event.inputs.job == 'fleet-availability' || github.event.inputs.job == 'all'
@@ -29,6 +30,11 @@ jobs:
         with:
           python-version: '3.11'
       - run: pip install requests pytz --break-system-packages
+      - name: Debug fleet APIs
+        env:
+          APPIC_KEY:       ${{ secrets.APPIC_KEY }}
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+        run: python mkv_fleet_debug.py
       - name: Run Fleet Availability
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
