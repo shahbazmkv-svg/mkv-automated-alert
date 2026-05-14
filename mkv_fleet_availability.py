@@ -124,6 +124,7 @@ def fetch_fleet_data() -> dict:
     nrv_plates   = {k for k, v in master_fleet.items() if v[1] == "NRV"}
 
     print(f"  STR:{len(str_plates)} LEASE:{len(lease_plates)} LTR:{len(ltr_plates)} NRV:{len(nrv_plates)}")
+    print(f"  STR plate keys: {sorted(str_plates)[:5]}...")  # show first 5
 
     try:
         r = requests.post(APPIC_BOOKINGS_URL, data={
@@ -157,9 +158,17 @@ def fetch_fleet_data() -> dict:
 
         # Active today
         if start <= today <= end:
-            if   pk in str_plates:   rented_str.add(pk)
-            elif pk in lease_plates: rented_lease.add(pk)
-            elif pk in ltr_plates:   rented_ltr.add(pk)
+            if   pk in str_plates:
+                rented_str.add(pk)
+                print(f"  RENTED STR: {pk} ({veh})")
+            elif pk in lease_plates:
+                rented_lease.add(pk)
+                print(f"  RENTED LEASE: {pk} ({veh})")
+            elif pk in ltr_plates:
+                rented_ltr.add(pk)
+                print(f"  RENTED LTR: {pk} ({veh})")
+            else:
+                print(f"  NOT IN MASTER: {pk} ({raw}) ({veh})")
 
         # Next booking per plate
         if start > today:
