@@ -15,7 +15,7 @@ DUBAI_TZ      = timezone(timedelta(hours=4))
 CHANNEL_FLEET = "C0ABW8AGMRU"   # #team-mkv-car-availability (live)
 CHANNEL_TEST  = "C0B0TGBDCDU"   # #mkvtest
 
-TEST_MODE     = True
+TEST_MODE     = False
 SLACK_CHANNEL = CHANNEL_TEST if TEST_MODE else CHANNEL_FLEET
 
 APPIC_BOOKINGS_URL = "https://www.appicfleet.com/appiccar-apis-mkv/get-mkv-bookings.php"
