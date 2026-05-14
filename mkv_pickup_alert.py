@@ -51,7 +51,7 @@ def post_message(channel, blocks, text):
         r = requests.post(
             "https://slack.com/api/chat.postMessage",
             headers=SLACK_HEADERS,
-            json={"channel": channel, "text": text, "blocks": blocks},
+            json={"channel": channel, "text": text, "blocks": blocks, "unfurl_links": False, "unfurl_media": False},
             timeout=10
         )
         data = r.json()
