@@ -3307,7 +3307,7 @@
     "0010014-ARTE-Lotus": {
       "thread_ts": "1778751022.853829",
       "delivery_ts": "1778751030.432339",
-      "pickup_ts": null,
+      "pickup_ts": "1778751927.607539",
       "closed_ts": null,
       "extension_ts_list": [],
       "end_date": "2026-05-15",
@@ -3315,7 +3315,7 @@
       "customer": "Artem Gorbatov",
       "vehicle": "Lotus Lotus Emira",
       "delivery_alerted": true,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-05-14"
     }
