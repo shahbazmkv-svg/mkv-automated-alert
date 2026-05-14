@@ -1372,8 +1372,8 @@
       "customer": "Fatima Ateeq Salim Alabd Alkaabi",
       "vehicle": "Audi A6",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
+      "pickup_alerted": true,
+      "closed": true,
       "start_date": "2026-04-12",
       "delivery_ts": null,
       "pickup_ts": null,
@@ -2411,8 +2411,8 @@
       "customer": "Amedeo Capretta",
       "vehicle": "Lotus Lotus Emira",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
+      "pickup_alerted": true,
+      "closed": true,
       "start_date": "2026-05-12"
     },
     "009994-JOHN-Suzuki": {
@@ -2441,8 +2441,8 @@
       "customer": "Muneer Nazarudeen Nazarudeen",
       "vehicle": "Mclaren Spider Artura",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
+      "pickup_alerted": true,
+      "closed": true,
       "start_date": "2026-05-12"
     },
     "009991-SAHI-Mercedes-Benz": {
@@ -2456,8 +2456,8 @@
       "customer": "Sahil Narang Triloki Nath Narang",
       "vehicle": "Mercedes-Benz Mercedes  G63",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
+      "pickup_alerted": true,
+      "closed": true,
       "start_date": "2026-05-12"
     },
     "009990-MUNE-Porsche": {
@@ -2516,8 +2516,8 @@
       "customer": "Five Bros Rent A Car Llc",
       "vehicle": "Ford Mustang Coupe",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
+      "pickup_alerted": true,
+      "closed": true,
       "start_date": "2026-05-10"
     },
     "009986-AMNA-Audi": {
@@ -2681,8 +2681,8 @@
       "customer": "Angel Uriel Vizcaino Magana",
       "vehicle": "Cadillac Escalade",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
+      "pickup_alerted": true,
+      "closed": true,
       "start_date": "2026-05-09"
     },
     "009969-DAVI-Porsche": {
