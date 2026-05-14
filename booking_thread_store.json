@@ -3423,6 +3423,21 @@
       "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-05-14"
+    },
+    "0010022-NAKU-Ford": {
+      "thread_ts": "1778776223.559359",
+      "delivery_ts": "1778776234.527429",
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": [],
+      "end_date": "2026-05-21",
+      "plate": "15789",
+      "customer": "Nakulan Siji Siji Mohanan",
+      "vehicle": "Ford Mustang Coupe",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-05-14"
     }
   }
 }
