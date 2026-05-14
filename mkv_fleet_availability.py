@@ -37,31 +37,28 @@ SHEET_CSV_URL = (
 def fetch_master_fleet() -> dict:
     """
     Fetch fleet master from Google Sheet.
-    Returns dict: plate_key → (vehicle_name, category)
-    Falls back to empty dict on error.
+    Returns dict: plate_key → (vehicle_name, category, status)
+    Columns: A=Plate, B=Vehicle Name, C=Category, D=Status
     """
     try:
         r = requests.get(SHEET_CSV_URL, timeout=15)
         r.raise_for_status()
         lines  = r.text.strip().splitlines()
         fleet  = {}
-        errors = []
-        for i, line in enumerate(lines[1:], 2):   # skip header row
+        for i, line in enumerate(lines[1:], 2):
             parts = line.split(",")
             if len(parts) < 3:
                 continue
             raw_plate = parts[0].strip().strip('"')
             name      = parts[1].strip().strip('"')
             category  = parts[2].strip().strip('"').upper()
+            status    = parts[3].strip().strip('"').upper() if len(parts) > 3 else ""
             if not raw_plate or not category:
                 continue
             if category not in ("STR", "LEASE", "LTR", "NRV"):
-                errors.append(f"  Row {i}: unknown category '{category}' for plate {raw_plate}")
                 continue
             pk = plate_key(raw_plate)
-            fleet[pk] = (name, category)
-        if errors:
-            for e in errors: print(e)
+            fleet[pk] = (name, category, status)
         print(f"  Fleet master loaded: {len(fleet)} vehicles from Google Sheet")
         return fleet
     except Exception as ex:
@@ -139,7 +136,15 @@ def fetch_fleet_data() -> dict:
     ltr_plates   = {k for k, v in master_fleet.items() if v[1] == "LTR"}
     nrv_plates   = {k for k, v in master_fleet.items() if v[1] == "NRV"}
 
-    print(f"  STR:{len(str_plates)} LEASE:{len(lease_plates)} LTR:{len(ltr_plates)} NRV:{len(nrv_plates)}")
+    # Vehicles unavailable from sheet status
+    unavailable  = {k for k, v in master_fleet.items()
+                    if v[2] in ("SERVICE/GARAGE", "GARAGE", "SERVICE",
+                                "WORKSHOP", "MAINTENANCE")}
+
+    garage_service_count = len({k for k, v in master_fleet.items()
+                                 if v[2] in ("SERVICE/GARAGE", "GARAGE", "SERVICE",
+                                             "WORKSHOP", "MAINTENANCE")
+                                 and k in str_plates})
 
     try:
         r = requests.post(APPIC_BOOKINGS_URL, data={
@@ -196,23 +201,30 @@ def fetch_fleet_data() -> dict:
         if end == today and start < today:
             to_return.append({"vehicle": veh, "plate": raw, "customer": cust, "time": et})
 
-    # Available = STR plates not rented
+    # Available = STR plates not rented and not in garage/service
     available = []
-    for pk in str_plates - rented_str:
-        name, _ = master_fleet[pk]
+    for pk in str_plates - rented_str - unavailable:
+        name = master_fleet[pk][0]
         available.append({"name": name, "plate": pk, "next": next_booking.get(pk)})
     available.sort(key=lambda v: v["next"] or "9999-99-99")
 
+    # Service/Garage count — single combined status in sheet
+    svc_garage_plates = {k for k, v in master_fleet.items()
+                         if v[2] in ("SERVICE/GARAGE", "GARAGE", "SERVICE",
+                                     "WORKSHOP", "MAINTENANCE")
+                         and k in str_plates}
+
     counts = {
-        "total":        total_fleet,
-        "str_total":    len(str_plates),
-        "rented_str":   len(rented_str),
-        "lease_total":  len(lease_plates),
-        "rented_lease": len(rented_lease),
-        "ltr_total":    len(ltr_plates),
-        "rented_ltr":   len(rented_ltr),
-        "nrv":          len(nrv_plates),
-        "available":    len(available),
+        "total":           total_fleet,
+        "str_total":       len(str_plates),
+        "rented_str":      len(rented_str),
+        "svc_garage":      len(svc_garage_plates),
+        "lease_total":     len(lease_plates),
+        "rented_lease":    len(rented_lease),
+        "ltr_total":       len(ltr_plates),
+        "rented_ltr":      len(rented_ltr),
+        "nrv":             len(nrv_plates),
+        "available":       len(available),
     }
 
     print(f"  STR {counts['rented_str']}/{counts['str_total']}  "
@@ -342,6 +354,7 @@ def build_message(fleet_data: dict) -> dict:
     total        = counts["total"]
     str_total    = counts["str_total"]
     rented_str   = counts["rented_str"]
+    svc_garage   = counts["svc_garage"]
     lease_total  = counts["lease_total"]
     rented_lease = counts["rented_lease"]
     ltr_total    = counts["ltr_total"]
@@ -365,6 +378,9 @@ def build_message(fleet_data: dict) -> dict:
     blocks.append({"type": "section", "fields": [
         {"type": "mrkdwn", "text": f"*LTR*\n{rented_ltr} / {ltr_total}"},
         {"type": "mrkdwn", "text": f"*NRV*\n{nrv}"},
+    ]})
+    blocks.append({"type": "section", "fields": [
+        {"type": "mrkdwn", "text": f"*Service / Garage*\n{svc_garage}"},
     ]})
 
     blocks.append({"type": "divider"})
