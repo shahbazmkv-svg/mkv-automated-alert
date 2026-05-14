@@ -15,7 +15,7 @@ DUBAI_TZ      = timezone(timedelta(hours=4))
 CHANNEL_FLEET = "C0ABPC606F7"   # #mkv-fleet-status (live) — update to correct live channel
 CHANNEL_TEST  = "C0B0TGBDCDU"   # #mkvtest
 
-TEST_MODE     = True             # ← set False for live
+TEST_MODE     = False
 SLACK_CHANNEL = CHANNEL_TEST if TEST_MODE else CHANNEL_FLEET
 
 APPIC_BOOKINGS_URL = "https://www.appicfleet.com/appiccar-apis-mkv/get-mkv-bookings.php"
@@ -209,11 +209,6 @@ def fetch_fleet_data() -> dict:
     rented_lease = rented_lease - unavailable
     rented_ltr   = rented_ltr   - unavailable
 
-    # Debug — show rented plates
-    print(f"  Rented STR plates: {sorted(rented_str)}")
-    print(f"  Rented LEASE plates: {sorted(rented_lease)}")
-    print(f"  Rented LTR plates: {sorted(rented_ltr)}")
-
     available = []
     for pk in str_plates - rented_str - unavailable:
         name = master_fleet[pk][0]
@@ -356,7 +351,10 @@ def upload_image_to_slack(image_bytes, filename, channel):
 #  BUILD MESSAGE
 # ─────────────────────────────────────────────
 def build_message(fleet_data: dict) -> dict:
-    date_str     = now_dubai().strftime("%d %b %Y")
+    now      = now_dubai()
+    date_str = now.strftime("%d %b %Y").upper()
+    day_str  = now.strftime("%A").upper()
+
     counts       = fleet_data["counts"]
     available    = fleet_data["available"]
     to_deliver   = fleet_data["to_deliver"]
@@ -373,82 +371,108 @@ def build_message(fleet_data: dict) -> dict:
     nrv          = counts["nrv"]
     avail_c      = counts["available"]
 
+    # Split available into booked vs idle
+    booked = [v for v in available if v.get("next")]
+    idle   = [v for v in available if not v.get("next")]
+
     blocks = []
 
+    # ── HEADER ─────────────────────────────────────────────
     blocks.append({"type": "header",
-        "text": {"type": "plain_text", "text": f"MKV Fleet Status — {date_str}", "emoji": True}})
+        "text": {"type": "plain_text",
+            "text": f"🚗 MKV FLEET STATUS — {date_str} {day_str}", "emoji": True}})
 
+    # ── FLEET COUNTS ───────────────────────────────────────
     blocks.append({"type": "section", "fields": [
         {"type": "mrkdwn", "text": f"*Total Fleet*\n{total}"},
         {"type": "mrkdwn", "text": f"*Available STR*\n{avail_c}"},
+        {"type": "mrkdwn", "text": f"*Service / Garage*\n{svc_garage}"},
     ]})
     blocks.append({"type": "section", "fields": [
         {"type": "mrkdwn", "text": f"*Rented STR*\n{rented_str} / {str_total}"},
         {"type": "mrkdwn", "text": f"*Lease*\n{rented_lease} / {lease_total}"},
-    ]})
-    blocks.append({"type": "section", "fields": [
         {"type": "mrkdwn", "text": f"*LTR*\n{rented_ltr} / {ltr_total}"},
         {"type": "mrkdwn", "text": f"*NRV*\n{nrv}"},
     ]})
-    blocks.append({"type": "section", "fields": [
-        {"type": "mrkdwn", "text": f"*Service / Garage*\n{svc_garage}"},
-    ]})
 
     blocks.append({"type": "divider"})
 
-    if available:
-        lines, chunk, chunks = [], "", []
-        for v in available:
-            nb = v.get("next")
-            try: nb_str = f"Next: {datetime.strptime(nb, '%Y-%m-%d').strftime('%d %b')}" if nb else "No upcoming booking"
-            except: nb_str = f"Next: {nb}"
-            lines.append(f"*{v['name']}*  `{v['plate']}`  ·  _{nb_str}_")
+    # ── AVAILABLE STR ──────────────────────────────────────
+    blocks.append({"type": "section", "text": {"type": "mrkdwn",
+        "text": f"*✅ AVAILABLE STR ({avail_c})*"}})
 
-        for line in lines:
-            cand = chunk + line + "\n"
-            if len(cand) > 2800:
-                chunks.append(chunk.rstrip())
-                chunk = line + "\n"
-            else:
-                chunk = cand
-        if chunk.strip(): chunks.append(chunk.rstrip())
-
-        for i, ch in enumerate(chunks):
-            hdr = f"*AVAILABLE STR ({avail_c})*\n" if i == 0 else ""
-            blocks.append({"type": "section", "text": {"type": "mrkdwn", "text": hdr + ch}})
-    else:
+    # With upcoming booking
+    if booked:
+        booked_lines = "*📅 With upcoming booking:*\n"
+        for v in booked:
+            try:
+                nb = datetime.strptime(v["next"], "%Y-%m-%d").strftime("%d %b")
+            except:
+                nb = v["next"]
+            booked_lines += f"• *{v['name']}*  `{v['plate']}`  →  {nb}\n"
         blocks.append({"type": "section", "text": {"type": "mrkdwn",
-            "text": "*AVAILABLE STR*\nNo vehicles available."}})
+            "text": booked_lines.rstrip()}})
+
+    # No upcoming booking — split into chunks if needed
+    if idle:
+        idle_header = f"*💤 No upcoming booking ({len(idle)}):*\n"
+        idle_lines  = ""
+        chunks      = []
+        for v in idle:
+            idle_lines += f"• *{v['name']}*  `{v['plate']}`\n"
+        # Split if too long
+        full = idle_header + idle_lines.rstrip()
+        if len(full) <= 2800:
+            blocks.append({"type": "section", "text": {"type": "mrkdwn", "text": full}})
+        else:
+            # First chunk with header
+            chunk, first = "", True
+            for line in idle_lines.splitlines():
+                candidate = chunk + line + "\n"
+                if len(candidate) > 2700:
+                    hdr = idle_header if first else ""
+                    blocks.append({"type": "section", "text": {"type": "mrkdwn",
+                        "text": hdr + chunk.rstrip()}})
+                    chunk = line + "\n"
+                    first = False
+                else:
+                    chunk = candidate
+            if chunk.strip():
+                hdr = idle_header if first else ""
+                blocks.append({"type": "section", "text": {"type": "mrkdwn",
+                    "text": hdr + chunk.rstrip()}})
 
     blocks.append({"type": "divider"})
 
+    # ── DELIVERY TODAY ─────────────────────────────────────
     if to_deliver:
-        txt = "\n".join(
+        lines = "\n".join(
             f"• *{e['vehicle']}*  `{e['plate']}`  ·  {e['customer']}  ·  {e['time']}"
             for e in sorted(to_deliver, key=lambda x: x["time"]))
         blocks.append({"type": "section", "text": {"type": "mrkdwn",
-            "text": f"*DELIVERY TODAY ({len(to_deliver)})*\n{txt}"}})
+            "text": f"*🚗 DELIVERY TODAY ({len(to_deliver)})*\n{lines}"}})
     else:
         blocks.append({"type": "section", "text": {"type": "mrkdwn",
-            "text": "*DELIVERY TODAY*\nNone scheduled."}})
+            "text": "*🚗 DELIVERY TODAY*\nNone scheduled."}})
 
     blocks.append({"type": "divider"})
 
+    # ── RETURN TODAY ───────────────────────────────────────
     if to_return:
-        txt = "\n".join(
+        lines = "\n".join(
             f"• *{e['vehicle']}*  `{e['plate']}`  ·  {e['customer']}  ·  Due {e['time']}"
             for e in sorted(to_return, key=lambda x: x["time"]))
         blocks.append({"type": "section", "text": {"type": "mrkdwn",
-            "text": f"*RETURN TODAY ({len(to_return)})*\n{txt}"}})
+            "text": f"*🔑 RETURN TODAY ({len(to_return)})*\n{lines}"}})
     else:
         blocks.append({"type": "section", "text": {"type": "mrkdwn",
-            "text": "*RETURN TODAY*\nNone due today."}})
+            "text": "*🔑 RETURN TODAY*\nNone due today."}})
 
     blocks.append({"type": "divider"})
     blocks.append({"type": "context", "elements": [{"type": "mrkdwn",
-        "text": f"MKV Fleet · {date_str} · Auto-posted 10AM Dubai time"}]})
+        "text": f"MKV Car Rental  ·  Auto-posted 10AM Dubai time  ·  {date_str}"}]})
 
-    return {"blocks": blocks, "text": f"MKV Fleet Status — {date_str}"}
+    return {"blocks": blocks, "text": f"MKV Fleet Status — {date_str} {day_str}"}
 
 # ─────────────────────────────────────────────
 #  POST TO SLACK
