@@ -3382,7 +3382,7 @@
     "0010019-JOHN-Mercedes-Benz": {
       "thread_ts": "1778763627.513979",
       "delivery_ts": "1778763633.024179",
-      "pickup_ts": null,
+      "pickup_ts": "1778764523.740079",
       "closed_ts": null,
       "extension_ts_list": [],
       "end_date": "2026-05-15",
@@ -3390,7 +3390,7 @@
       "customer": "John Alex Githua Mwangi",
       "vehicle": "Mercedes-Benz G63 2025",
       "delivery_alerted": true,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-05-14"
     }
