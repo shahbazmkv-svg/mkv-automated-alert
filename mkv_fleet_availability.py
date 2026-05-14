@@ -124,7 +124,7 @@ def fetch_bookings_data() -> dict:
         return {"next_booking": {}, "to_deliver": [], "to_return": []}
 
 
-DEBUG_MODE = True   # ← set True to dump API fields, False for normal run
+DEBUG_MODE = False   # ← set True to dump API fields, False for normal run
 
 def debug_dump():
     """Dump all API field names to Action logs. Run once then set DEBUG_MODE=False."""
