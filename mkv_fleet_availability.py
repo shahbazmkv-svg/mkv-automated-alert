@@ -206,6 +206,11 @@ def fetch_fleet_data() -> dict:
     rented_lease = rented_lease - unavailable
     rented_ltr   = rented_ltr   - unavailable
 
+    # Debug — show rented plates
+    print(f"  Rented STR plates: {sorted(rented_str)}")
+    print(f"  Rented LEASE plates: {sorted(rented_lease)}")
+    print(f"  Rented LTR plates: {sorted(rented_ltr)}")
+
     available = []
     for pk in str_plates - rented_str - unavailable:
         name = master_fleet[pk][0]
