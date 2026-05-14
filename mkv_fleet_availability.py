@@ -24,83 +24,51 @@ SKIP_STATUSES      = {"cancelled", "canceled", "voided", "void", "deleted", "clo
 DEBUG_MODE = False  # set True to dump API fields to logs, then back to False
 
 # ─────────────────────────────────────────────
-#  MASTER FLEET — 62 vehicles
-#  STR=Short Term Rental, LEASE=Lease, LTR=Long Term Rental, NRV=Not Road Worthy
+#  GOOGLE SHEET — Fleet Master
+#  Columns: Plate | Vehicle Name | Category
+#  Category values: STR, LEASE, LTR, NRV
 # ─────────────────────────────────────────────
-MASTER_FLEET = {
-    # STR — 36 vehicles
-    "I47203":  ("MORGAN SUPERSPORT", "STR"),
-    "X55789":  ("MERCEDES S500", "STR"),
-    "L94545":  ("RANGE ROVER SPORT GRAY", "STR"),
-    "T55789":  ("RANGE ROVER SPORT BLACK", "STR"),
-    "J77540":  ("RANGE ROVER SVR BLACK", "STR"),
-    "AA68620": ("RANGE ROVER VELAR", "STR"),
-    "CC83762": ("LAND ROVER DEFENDER V8", "STR"),
-    "AA78043": ("LAND ROVER DEFENDER 130 V6", "STR"),
-    "AA77491": ("FORD MUSTANG CONVERTIBLE RED", "STR"),
-    "AA77490": ("FORD MUSTANG COUPE WHITE", "STR"),
-    "B15789":  ("FORD MUSTANG BLACK/YELLOW", "STR"),
-    "Y72712":  ("CHEVROLET CORVETTE", "STR"),
-    "E23652":  ("LOTUS EMIRA", "STR"),
-    "AA78051": ("BMW 735I", "STR"),
-    "K70691":  ("BMW 520I", "STR"),
-    "D70688":  ("BMW 420I", "STR"),
-    "K19443":  ("MERCEDES GLB 250", "STR"),
-    "X44789":  ("CADILLAC ESCALADE", "STR"),
-    "AA78042": ("CHEVROLET TAHOE", "STR"),
-    "W46015":  ("AUDI RS Q3", "STR"),
-    "Z89438":  ("AUDI A6", "STR"),
-    "Z92156":  ("AUDI A6", "STR"),
-    "Z90158":  ("AUDI A3", "STR"),
-    "X33789":  ("BENTLEY BENTAYGA MANSORY", "STR"),
-    "Y97019":  ("FERRARI PUROSANGUE", "STR"),
-    "U24545":  ("MERCEDES G63 BLACK 2025", "STR"),
-    "O66789":  ("MERCEDES G63 BRABUS", "STR"),
-    "Y97018":  ("KIA CERATO", "STR"),
-    "BB60137": ("MERCEDES G63 2026 RETRO", "STR"),
-    "O94545":  ("LAMBORGHINI URUS YELLOW", "STR"),
-    "CC69367": ("GMC YUKON", "STR"),
-    "J47041":  ("MCLAREN ARTURA", "STR"),
-    "EE42165": ("PORSCHE 911", "STR"),
-    "T64545":  ("PORSCHE GT4 RS", "STR"),
-    "H75037":  ("RANGE ROVER SVR GRAY/BLUE", "STR"),
-    "W97521":  ("LAMBORGHINI HURACAN EVO SPYDER", "STR"),
-    # LEASE — 15 vehicles
-    "U74545":  ("FERRARI 296 GTB", "LEASE"),
-    "S66789":  ("MERCEDES G63 WHITE 2025", "LEASE"),
-    "T3660":   ("MERCEDES G63 BLUE", "LEASE"),
-    "AA78067": ("MERCEDES C200", "LEASE"),
-    "CC94084": ("RANGE ROVER SPORT WHITE", "LEASE"),
-    "C69703":  ("NISSAN PATROL WHITE", "LEASE"),
-    "X33567":  ("FORD BRONCO", "LEASE"),
-    "N27852":  ("AUDI Q3", "LEASE"),
-    "Z90154":  ("AUDI A3", "LEASE"),
-    "F98103":  ("KIA SPORTAGE WHITE", "LEASE"),
-    "F98438":  ("KIA SORENTO", "LEASE"),
-    "W81946":  ("JETOUR T2 BLUE", "LEASE"),
-    "D68539":  ("DONGFENG FORTHING S7", "LEASE"),
-    "BB53403": ("GAC M8 2026", "LEASE"),
-    "T78242":  ("JETOUR T2 BROWN", "LEASE"),
-    # LTR — 6 vehicles
-    "V1243":   ("ROLLS ROYCE GRAY", "LTR"),
-    "S39810":  ("NISSAN PATROL", "LTR"),
-    "H23155":  ("NISSAN PATROL", "LTR"),
-    "F83209":  ("RANGE ROVER SPORT BLACK", "LTR"),
-    "F97580":  ("CADILLAC ESCALADE SPORT", "LTR"),
-    "K19503":  ("MERCEDES GLB 250", "LTR"),
-    # NRV — 5 vehicles
-    "Y97020":  ("KIA K5", "NRV"),
-    "R26603":  ("SUZUKI SWIFT", "NRV"),
-    "P38848":  ("MERCEDES G63 BLACK 2024", "NRV"),
-    "Z66246":  ("GMC YUKON", "NRV"),
-    "H31727":  ("TOYOTA LAND CRUISER", "NRV"),
-}
+SHEET_CSV_URL = (
+    "https://docs.google.com/spreadsheets/d/"
+    "1GfzIz2ASBurkPW63WwscnGUsTAnVGswdX46mf5aP1cI"
+    "/export?format=csv&gid=571607065"
+)
 
-TOTAL_FLEET  = len(MASTER_FLEET)
-STR_PLATES   = {k for k, v in MASTER_FLEET.items() if v[1] == "STR"}
-LEASE_PLATES = {k for k, v in MASTER_FLEET.items() if v[1] == "LEASE"}
-LTR_PLATES   = {k for k, v in MASTER_FLEET.items() if v[1] == "LTR"}
-NRV_PLATES   = {k for k, v in MASTER_FLEET.items() if v[1] == "NRV"}
+def fetch_master_fleet() -> dict:
+    """
+    Fetch fleet master from Google Sheet.
+    Returns dict: plate_key → (vehicle_name, category)
+    Falls back to empty dict on error.
+    """
+    try:
+        r = requests.get(SHEET_CSV_URL, timeout=15)
+        r.raise_for_status()
+        lines  = r.text.strip().splitlines()
+        fleet  = {}
+        errors = []
+        for i, line in enumerate(lines[1:], 2):   # skip header row
+            parts = line.split(",")
+            if len(parts) < 3:
+                continue
+            raw_plate = parts[0].strip().strip('"')
+            name      = parts[1].strip().strip('"')
+            category  = parts[2].strip().strip('"').upper()
+            if not raw_plate or not category:
+                continue
+            if category not in ("STR", "LEASE", "LTR", "NRV"):
+                errors.append(f"  Row {i}: unknown category '{category}' for plate {raw_plate}")
+                continue
+            pk = plate_key(raw_plate)
+            fleet[pk] = (name, category)
+        if errors:
+            for e in errors: print(e)
+        print(f"  Fleet master loaded: {len(fleet)} vehicles from Google Sheet")
+        return fleet
+    except Exception as ex:
+        print(f"  Google Sheet error: {ex} — fleet master empty")
+        return {}
+
+
 
 # ─────────────────────────────────────────────
 #  HELPERS
@@ -143,6 +111,20 @@ def fetch_fleet_data() -> dict:
     lookback  = (now_dubai() - timedelta(days=400)).strftime("%Y-%m-%d")
     lookahead = (now_dubai() + timedelta(days=400)).strftime("%Y-%m-%d")
 
+    # ── Load fleet master from Google Sheet ───────────────
+    master_fleet = fetch_master_fleet()
+    if not master_fleet:
+        print("  ERROR: Fleet master empty — aborting")
+        raise SystemExit(1)
+
+    total_fleet  = len(master_fleet)
+    str_plates   = {k for k, v in master_fleet.items() if v[1] == "STR"}
+    lease_plates = {k for k, v in master_fleet.items() if v[1] == "LEASE"}
+    ltr_plates   = {k for k, v in master_fleet.items() if v[1] == "LTR"}
+    nrv_plates   = {k for k, v in master_fleet.items() if v[1] == "NRV"}
+
+    print(f"  STR:{len(str_plates)} LEASE:{len(lease_plates)} LTR:{len(ltr_plates)} NRV:{len(nrv_plates)}")
+
     try:
         r = requests.post(APPIC_BOOKINGS_URL, data={
             "key": APPIC_KEY, "startDate": lookback, "endDate": lookahead
@@ -175,9 +157,9 @@ def fetch_fleet_data() -> dict:
 
         # Active today
         if start <= today <= end:
-            if   pk in STR_PLATES:   rented_str.add(pk)
-            elif pk in LEASE_PLATES: rented_lease.add(pk)
-            elif pk in LTR_PLATES:   rented_ltr.add(pk)
+            if   pk in str_plates:   rented_str.add(pk)
+            elif pk in lease_plates: rented_lease.add(pk)
+            elif pk in ltr_plates:   rented_ltr.add(pk)
 
         # Next booking per plate
         if start > today:
@@ -194,20 +176,20 @@ def fetch_fleet_data() -> dict:
 
     # Available = STR plates not rented
     available = []
-    for pk in STR_PLATES - rented_str:
-        name, _ = MASTER_FLEET[pk]
+    for pk in str_plates - rented_str:
+        name, _ = master_fleet[pk]
         available.append({"name": name, "plate": pk, "next": next_booking.get(pk)})
     available.sort(key=lambda v: v["next"] or "9999-99-99")
 
     counts = {
-        "total":        TOTAL_FLEET,
-        "str_total":    len(STR_PLATES),
+        "total":        total_fleet,
+        "str_total":    len(str_plates),
         "rented_str":   len(rented_str),
-        "lease_total":  len(LEASE_PLATES),
+        "lease_total":  len(lease_plates),
         "rented_lease": len(rented_lease),
-        "ltr_total":    len(LTR_PLATES),
+        "ltr_total":    len(ltr_plates),
         "rented_ltr":   len(rented_ltr),
-        "nrv":          len(NRV_PLATES),
+        "nrv":          len(nrv_plates),
         "available":    len(available),
     }
 
