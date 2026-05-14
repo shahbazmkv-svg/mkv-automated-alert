@@ -3288,6 +3288,21 @@
       "pickup_alerted": false,
       "closed": false,
       "start_date": "2026-05-13"
+    },
+    "0010013-ZAKA-Lamborghini": {
+      "thread_ts": "1778744730.825659",
+      "delivery_ts": "1778744739.044899",
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": [],
+      "end_date": "2026-05-17",
+      "plate": "51341",
+      "customer": "Zakary Anthonys Hafidi",
+      "vehicle": "Lamborghini Lamborghini Urus",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-05-14"
     }
   }
 }
