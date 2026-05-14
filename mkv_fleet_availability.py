@@ -202,6 +202,9 @@ def fetch_fleet_data() -> dict:
             to_return.append({"vehicle": veh, "plate": raw, "customer": cust, "time": et})
 
     # Available = STR plates not rented and not in garage/service
+    # Service/Garage takes priority over Appic contract status
+    rented_str = rented_str - unavailable  # remove any service/garage from rented count
+
     available = []
     for pk in str_plates - rented_str - unavailable:
         name = master_fleet[pk][0]
