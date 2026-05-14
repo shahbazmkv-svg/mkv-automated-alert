@@ -26,24 +26,84 @@ CONTACT_FOOTER = (
     "✉️  contact@mkvluxury.com\n📍 Al Jreena Street 41, Al Qouz Industrial Third, Dubai, UAE"
 )
 
-TOTAL_FLEET = 62  # must always match len(MASTER_PLATES) — update both together
+# ─────────────────────────────────────────────────────────
+# MASTER FLEET — 62 vehicles with categories
+# STR=Short Term Rental, LEASE=31-365 days, LTR=Long Term Rental >365, NRV=Not Road Worthy
+# ─────────────────────────────────────────────────────────
+MASTER_FLEET = {
+    # STR — 36 vehicles
+    "I47203":  ("MORGAN SUPERSPORT", "STR"),
+    "X55789":  ("MERCEDES S500", "STR"),
+    "L94545":  ("RANGE ROVER SPORT GRAY", "STR"),
+    "T55789":  ("RANGE ROVER SPORT BLACK", "STR"),
+    "J77540":  ("RANGE ROVER SVR BLACK", "STR"),
+    "AA68620": ("RANGE ROVER VELAR", "STR"),
+    "CC83762": ("LAND ROVER DEFENDER V8", "STR"),
+    "AA78043": ("LAND ROVER DEFENDER 130 V6", "STR"),
+    "AA77491": ("FORD MUSTANG CONVERTIBLE RED", "STR"),
+    "AA77490": ("FORD MUSTANG COUPE WHITE", "STR"),
+    "B15789":  ("FORD MUSTANG BLACK/YELLOW", "STR"),
+    "Y72712":  ("CHEVROLET CORVETTE", "STR"),
+    "E23652":  ("LOTUS EMIRA", "STR"),
+    "AA78051": ("BMW 735I", "STR"),
+    "K70691":  ("BMW 520I", "STR"),
+    "D70688":  ("BMW 420I", "STR"),
+    "K19443":  ("MERCEDES GLB 250", "STR"),
+    "X44789":  ("CADILLAC ESCALADE", "STR"),
+    "AA78042": ("CHEVROLET TAHOE", "STR"),
+    "W46015":  ("AUDI RS Q3", "STR"),
+    "Z89438":  ("AUDI A6", "STR"),
+    "Z92156":  ("AUDI A6", "STR"),
+    "Z90158":  ("AUDI A3", "STR"),
+    "X33789":  ("BENTLEY BENTAYGA MANSORY", "STR"),
+    "Y97019":  ("FERRARI PUROSANGUE", "STR"),
+    "U24545":  ("MERCEDES G63 BLACK 2025", "STR"),
+    "O66789":  ("MERCEDES G63 BRABUS", "STR"),
+    "Y97018":  ("KIA CERATO", "STR"),
+    "BB60137": ("MERCEDES G63 2026 RETRO", "STR"),
+    "O94545":  ("LAMBORGHINI URUS YELLOW", "STR"),
+    "CC69367": ("GMC YUKON", "STR"),
+    "J47041":  ("MCLAREN ARTURA", "STR"),
+    "EE42165": ("PORSCHE 911", "STR"),
+    "T64545":  ("PORSCHE GT4 RS", "STR"),
+    "H75037":  ("RANGE ROVER SVR GRAY/BLUE", "STR"),
+    "W97521":  ("LAMBORGHINI HURACAN EVO SPYDER", "STR"),
+    # LEASE — 15 vehicles
+    "U74545":  ("FERRARI 296 GTB", "LEASE"),
+    "S66789":  ("MERCEDES G63 WHITE 2025", "LEASE"),
+    "T3660":   ("MERCEDES G63 BLUE", "LEASE"),
+    "AA78067": ("MERCEDES C200", "LEASE"),
+    "CC94084": ("RANGE ROVER SPORT WHITE", "LEASE"),
+    "C69703":  ("NISSAN PATROL WHITE", "LEASE"),
+    "X33567":  ("FORD BRONCO", "LEASE"),
+    "N27852":  ("AUDI Q3", "LEASE"),
+    "Z90154":  ("AUDI A3", "LEASE"),
+    "F98103":  ("KIA SPORTAGE WHITE", "LEASE"),
+    "F98438":  ("KIA SORENTO", "LEASE"),
+    "W81946":  ("JETOUR T2 BLUE", "LEASE"),
+    "D68539":  ("DONGFENG FORTHING S7", "LEASE"),
+    "BB53403": ("GAC M8 2026", "LEASE"),
+    "T78242":  ("JETOUR T2 BROWN", "LEASE"),
+    # LTR — 6 vehicles
+    "V1243":   ("ROLLS ROYCE GRAY", "LTR"),
+    "S39810":  ("NISSAN PATROL", "LTR"),
+    "H23155":  ("NISSAN PATROL", "LTR"),
+    "F83209":  ("RANGE ROVER SPORT BLACK", "LTR"),
+    "F97580":  ("CADILLAC ESCALADE SPORT", "LTR"),
+    "K19503":  ("MERCEDES GLB 250", "LTR"),
+    # NRV — 5 vehicles
+    "Y97020":  ("KIA K5", "NRV"),
+    "R26603":  ("SUZUKI SWIFT", "NRV"),
+    "P38848":  ("MERCEDES G63 BLACK 2024", "NRV"),
+    "Z66246":  ("GMC YUKON", "NRV"),
+    "H31727":  ("TOYOTA LAND CRUISER", "NRV"),
+}
 
-# Master plate list — only used to identify available vehicles for the list
-MASTER_PLATES = [
-    "Y 97019", "I 47203", "U 24545", "O66789",  "X55789",
-    "L94545",  "T55789",  "J77540",  "AA68620", "CC83762",
-    "AA78043", "AA77491", "AA77490", "Y72712",  "E23652",
-    "AA78051", "K70691",  "D70688",  "K19443",  "AA78042",
-    "CC 69367","W46015",  "Z89438",  "Z92156",  "Z90158",
-    "B15789",  "BB60137", "O94545",  "X44789",  "X33789",
-    "U74545",  "S 66789", "T3660",   "AA78067", "CC94084",
-    "X33567",  "N27852",  "Z90154",  "F98103",  "F98438",
-    "W81946",  "D68539",  "BB53403", "S39810",  "F83209",
-    "1243",    "H23155",  "F 97580", "K19503",  "P38848",
-    "Z66246",  "H31727",  "Y97020",  "Y97018",  "R26603",
-    "J47041",  "EE 42165","C69703",  "T64545",  "H75037",
-    "W97521",  "T78242",
-]
+TOTAL_FLEET  = len(MASTER_FLEET)            # 62
+STR_PLATES   = {k for k, v in MASTER_FLEET.items() if v[1] == "STR"}   # 36
+LEASE_PLATES = {k for k, v in MASTER_FLEET.items() if v[1] == "LEASE"} # 15
+LTR_PLATES   = {k for k, v in MASTER_FLEET.items() if v[1] == "LTR"}   # 6
+NRV_PLATES   = {k for k, v in MASTER_FLEET.items() if v[1] == "NRV"}   # 5
 
 def now_dubai():
     return datetime.now(DUBAI_TZ)
@@ -58,10 +118,289 @@ def get_vehicle_id(v: dict) -> str:
             return val
     return ""
 
-APPIC_BOOKINGS_URL = "https://www.appicfleet.com/appiccar-apis-mkv/get-mkv-bookings.php"
-SKIP_STATUSES      = {"cancelled", "canceled", "voided", "void", "deleted"}
+DEBUG_MODE = False  # set True to dump raw API fields to logs
 
-def fetch_bookings_data() -> dict:
+APPIC_BOOKINGS_URL = "https://www.appicfleet.com/appiccar-apis-mkv/get-mkv-bookings.php"
+SKIP_STATUSES      = {"cancelled", "canceled", "voided", "void", "deleted", "closed"}
+
+def fetch_fleet_data() -> dict:
+    """
+    All counts derived from MASTER_FLEET + bookings API.
+
+    Logic:
+    - STR rented   = STR plate with active contract today (start <= today <= end)
+    - Lease rented = LEASE plate with active contract today
+    - LTR rented   = LTR plate with active contract today
+    - NRV          = fixed 5 vehicles (not available)
+    - Available    = STR plates minus rented STR plates
+    - Deliveries   = startDate == today
+    - Returns      = endDate == today (started before today)
+    """
+    today     = now_dubai().strftime("%Y-%m-%d")
+    lookback  = (now_dubai() - timedelta(days=400)).strftime("%Y-%m-%d")
+    lookahead = (now_dubai() + timedelta(days=400)).strftime("%Y-%m-%d")
+
+    # ── Fetch all bookings ─────────────────────────────────────────────────
+    try:
+        r = requests.post(
+            APPIC_BOOKINGS_URL,
+            data={"key": APPIC_KEY, "startDate": lookback, "endDate": lookahead},
+            timeout=20
+        )
+        bookings = r.json().get("bookings", [])
+        print(f"  Bookings API returned: {len(bookings)}")
+    except Exception as ex:
+        print(f"  Bookings API error: {ex}")
+        bookings = []
+
+    rented_str_plates   = set()
+    rented_lease_plates = set()
+    rented_ltr_plates   = set()
+    to_deliver          = []
+    to_return           = []
+    next_booking        = {}   # plate_key → earliest future startDate
+
+    for b in bookings:
+        status = (b.get("status") or "").lower().strip()
+        if status in SKIP_STATUSES:
+            continue
+
+        raw_plate = str(b.get("vehiclePlate") or "").strip()
+        pk        = plate_key(raw_plate)
+        start     = (b.get("startDate") or "").strip()
+        end       = (b.get("endDate")   or "").strip()
+        customer  = (b.get("customerName") or "N/A").strip().title()
+        vehicle   = (b.get("vehicleName")  or "N/A").strip().title()
+        s_time    = (b.get("startTime") or "")[:5]
+        e_time    = (b.get("endTime")   or "")[:5]
+
+        # Active today
+        is_active_today = start <= today <= end
+
+        if is_active_today:
+            if pk in STR_PLATES:
+                rented_str_plates.add(pk)
+            elif pk in LEASE_PLATES:
+                rented_lease_plates.add(pk)
+            elif pk in LTR_PLATES:
+                rented_ltr_plates.add(pk)
+
+        # Next booking date per plate
+        if start > today:
+            if pk not in next_booking or start < next_booking[pk]:
+                next_booking[pk] = start
+
+        # Today's deliveries
+        if start == today:
+            to_deliver.append({
+                "vehicle": vehicle, "plate": raw_plate,
+                "customer": customer, "time": s_time,
+            })
+
+        # Today's returns
+        if end == today and start < today:
+            to_return.append({
+                "vehicle": vehicle, "plate": raw_plate,
+                "customer": customer, "time": e_time,
+            })
+
+    # ── Available = STR fleet minus rented ────────────────────────────────
+    available_plates = STR_PLATES - rented_str_plates
+    available_vehicles = []
+    for pk in available_plates:
+        name, cat = MASTER_FLEET.get(pk, (pk, "STR"))
+        # Try to get actual plate string from master
+        raw = next((p for p in [pk] if pk == plate_key(p)), pk)
+        # Reconstruct original plate from master key
+        orig_plate = pk  # fallback
+        for mp, (mn, mc) in MASTER_FLEET.items():
+            if mp == pk:
+                orig_plate = pk
+        nb = next_booking.get(pk)
+        available_vehicles.append({
+            "name":  name,
+            "plate": pk,
+            "next":  nb,
+        })
+
+    # Sort by next booking (soonest first, none = last)
+    available_vehicles.sort(key=lambda v: v["next"] or "9999-99-99")
+
+    counts = {
+        "total":       TOTAL_FLEET,
+        "str_total":   len(STR_PLATES),
+        "rented_str":  len(rented_str_plates),
+        "lease_total": len(LEASE_PLATES),
+        "rented_lease":len(rented_lease_plates),
+        "ltr_total":   len(LTR_PLATES),
+        "rented_ltr":  len(rented_ltr_plates),
+        "nrv":         len(NRV_PLATES),
+        "available":   len(available_vehicles),
+    }
+
+    print(f"  STR total  : {counts['str_total']}  rented: {counts['rented_str']}")
+    print(f"  Lease total: {counts['lease_total']}  rented: {counts['rented_lease']}")
+    print(f"  LTR total  : {counts['ltr_total']}  rented: {counts['rented_ltr']}")
+    print(f"  NRV        : {counts['nrv']}")
+    print(f"  Available  : {counts['available']}")
+    print(f"  Deliver today: {len(to_deliver)}")
+    print(f"  Return today : {len(to_return)}")
+
+    return {
+        "counts":     counts,
+        "available":  available_vehicles,
+        "to_deliver": to_deliver,
+        "to_return":  to_return,
+    }
+
+
+    """
+    Single function — fetches all data needed for the report.
+    Counts are derived from the bookings API (not assignments API).
+
+    Logic:
+    - STR fleet   = vehicles where dailyrent > 0 (from vehicles API)
+    - Rented STR  = active contract today, duration <= 30 days, plate in STR fleet
+    - Lease       = active contract today, duration 31–365 days
+    - LTR         = active contract today, duration > 365 days
+    - Available   = STR fleet plates minus rented STR plates
+    - Deliveries  = startDate == today
+    - Returns     = endDate == today
+    """
+    today     = now_dubai().strftime("%Y-%m-%d")
+    lookback  = (now_dubai() - timedelta(days=400)).strftime("%Y-%m-%d")
+    lookahead = (now_dubai() + timedelta(days=400)).strftime("%Y-%m-%d")
+
+    # ── Step 1: Get STR fleet plates from vehicles API ─────────────────────
+    str_plates = set()
+    vehicle_names = {}   # plate_key → display name
+    try:
+        r = requests.post(MKV_VEHICLES_URL, data={"key": APPIC_KEY}, timeout=20)
+        data = r.json()
+        vehicles = data if isinstance(data, list) else data.get("data", data.get("vehicles", []))
+        for v in vehicles:
+            if float(v.get("dailyrent", 0) or 0) > 0:
+                raw = str(v.get("plate", "") or "").strip()
+                if raw:
+                    pk = plate_key(raw)
+                    str_plates.add(pk)
+                    name = str(v.get("vehicle_name") or
+                               f"{v.get('make','')} {v.get('model','')}").strip().title()
+                    vehicle_names[pk] = {"name": name, "plate": raw}
+        print(f"  STR fleet (dailyrent>0): {len(str_plates)} vehicles")
+    except Exception as ex:
+        print(f"  Vehicles API error: {ex}")
+
+    # ── Step 2: Get all active bookings ────────────────────────────────────
+    try:
+        r = requests.post(
+            APPIC_BOOKINGS_URL,
+            data={"key": APPIC_KEY, "startDate": lookback, "endDate": lookahead},
+            timeout=20
+        )
+        bookings = r.json().get("bookings", [])
+        print(f"  Bookings API returned: {len(bookings)}")
+    except Exception as ex:
+        print(f"  Bookings API error: {ex}")
+        bookings = []
+
+    rented_str_plates = set()
+    lease_count   = 0
+    ltr_count     = 0
+    to_deliver    = []
+    to_return     = []
+    next_booking  = {}   # plate_key → earliest future startDate
+
+    for b in bookings:
+        status = (b.get("status") or "").lower().strip()
+        if status in SKIP_STATUSES:
+            continue
+
+        raw_plate = str(b.get("vehiclePlate") or "").strip()
+        pk        = plate_key(raw_plate)
+        start     = (b.get("startDate") or "").strip()
+        end       = (b.get("endDate")   or "").strip()
+        customer  = (b.get("customerName") or "N/A").strip().title()
+        vehicle   = (b.get("vehicleName")  or "N/A").strip().title()
+        s_time    = (b.get("startTime") or "")[:5]
+        e_time    = (b.get("endTime")   or "")[:5]
+
+        # Calculate contract duration
+        try:
+            dur_days = (datetime.strptime(end, "%Y-%m-%d") -
+                        datetime.strptime(start, "%Y-%m-%d")).days
+        except:
+            dur_days = 0
+
+        # Active today = started on or before today AND ends after today
+        is_active_today = start <= today <= end
+
+        if is_active_today:
+            if pk in str_plates and dur_days <= 30:
+                rented_str_plates.add(pk)
+            elif dur_days > 365:
+                ltr_count += 1
+            elif dur_days > 30:
+                lease_count += 1
+
+        # Next booking date per plate (future bookings)
+        if start > today:
+            if pk not in next_booking or start < next_booking[pk]:
+                next_booking[pk] = start
+
+        # Today's deliveries
+        if start == today:
+            to_deliver.append({
+                "vehicle": vehicle, "plate": raw_plate,
+                "customer": customer, "time": s_time,
+            })
+
+        # Today's returns
+        if end == today and start < today:
+            to_return.append({
+                "vehicle": vehicle, "plate": raw_plate,
+                "customer": customer, "time": e_time,
+            })
+
+    # ── Step 3: Available = STR fleet minus rented ─────────────────────────
+    available_plates = str_plates - rented_str_plates
+    available_vehicles = []
+    for pk in available_plates:
+        info = vehicle_names.get(pk, {"name": pk, "plate": pk})
+        nb   = next_booking.get(pk)
+        available_vehicles.append({
+            "name":  info["name"],
+            "plate": info["plate"],
+            "next":  nb,
+        })
+
+    # Sort by next booking date (soonest first, no booking = last)
+    available_vehicles.sort(key=lambda v: v["next"] or "9999-99-99")
+
+    counts = {
+        "str_fleet":   len(str_plates),
+        "rented_str":  len(rented_str_plates),
+        "lease":       lease_count,
+        "ltr":         ltr_count,
+        "available":   len(available_vehicles),
+    }
+
+    print(f"  STR rented  : {counts['rented_str']}")
+    print(f"  Lease       : {counts['lease']}")
+    print(f"  LTR         : {counts['ltr']}")
+    print(f"  Available   : {counts['available']}")
+    print(f"  Deliver today: {len(to_deliver)}")
+    print(f"  Return today : {len(to_return)}")
+
+    return {
+        "counts":     counts,
+        "available":  available_vehicles,
+        "to_deliver": to_deliver,
+        "to_return":  to_return,
+        "next_booking": next_booking,
+    }
+
+
     """Fetch next booking dates per plate + today's deliveries and returns."""
     today     = now_dubai().strftime("%Y-%m-%d")
     lookback  = (now_dubai() - timedelta(days=30)).strftime("%Y-%m-%d")
@@ -124,73 +463,7 @@ def fetch_bookings_data() -> dict:
         return {"next_booking": {}, "to_deliver": [], "to_return": []}
 
 
-DEBUG_MODE = False   # ← set True to dump API fields, False for normal run
-
-def debug_dump():
-    """Dump all API field names to Action logs. Run once then set DEBUG_MODE=False."""
-    today    = now_dubai().strftime("%Y-%m-%d")
-    lookback = (now_dubai() - timedelta(days=1)).strftime("%Y-%m-%d")
-
-    print("\n" + "=" * 55)
-    print("  DEBUG MODE — API FIELD DUMP")
-    print("=" * 55)
-
-    # 1. Vehicles API
-    r = requests.post(MKV_VEHICLES_URL, data={"key": APPIC_KEY}, timeout=20)
-    data = r.json()
-    vehicles = data if isinstance(data, list) else data.get("data", data.get("vehicles", []))
-    print(f"\n[VEHICLES API] Total returned: {len(vehicles)}")
-    str_fleet = [v for v in vehicles if float(v.get("dailyrent", 0) or 0) > 0]
-    print(f"  dailyrent > 0 (STR fleet): {len(str_fleet)}")
-    if vehicles:
-        print("  First vehicle — all fields:")
-        for k, v in vehicles[0].items():
-            print(f"    {k:<30}: {v}")
-    cats = {}
-    for v in vehicles:
-        for field in ["category","vehicleType","type","contractType","assignedAs","vehicleCategory"]:
-            val = str(v.get(field, "") or "").strip()
-            if val:
-                key = f"{field}={val}"
-                cats[key] = cats.get(key, 0) + 1
-    print(f"\n  Category fields found: {cats}")
-
-    # 2. Availability API — test first STR vehicle
-    if str_fleet:
-        v = str_fleet[0]
-        vid = str(v.get("vehicleID", v.get("id", "")) or "")
-        if vid:
-            r2 = requests.post(MKV_AVAIL_URL, data={
-                "key": APPIC_KEY, "startDate": today,
-                "endDate": today, "vehicleID": vid
-            }, timeout=15)
-            print(f"\n[AVAILABILITY API] vehicleID={vid}")
-            for k, val in r2.json().items():
-                print(f"    {k:<30}: {val}")
-
-    # 3. Bookings API
-    r3 = requests.post(APPIC_BOOKINGS_URL, data={
-        "key": APPIC_KEY, "startDate": lookback, "endDate": today
-    }, timeout=20)
-    bookings = r3.json().get("bookings", [])
-    active = [b for b in bookings if (b.get("status") or "").lower() not in
-              {"cancelled","canceled","voided","void","deleted","closed"}]
-    deliver = [b for b in active if b.get("startDate") == today]
-    returns = [b for b in active if b.get("endDate") == today]
-    print(f"\n[BOOKINGS API] Today ({today})")
-    print(f"  Active in window : {len(active)}")
-    print(f"  Deliveries today : {len(deliver)}")
-    print(f"  Returns today    : {len(returns)}")
-    if bookings:
-        print("  First booking — all fields:")
-        for k, v in bookings[0].items():
-            print(f"    {k:<30}: {v}")
-
-    print("\n" + "=" * 55)
-    print("  END DEBUG DUMP — set DEBUG_MODE=False to run normally")
-    print("=" * 55 + "\n")
-
-
+def fetch_counts() -> dict:
     try:
         r = requests.post(MKV_ASSIGNMENTS_URL, data={"key": APPIC_KEY}, timeout=20)
         r.raise_for_status()
@@ -458,9 +731,268 @@ def upload_image_to_slack(image_bytes: bytes, filename: str, channel: str) -> bo
         return False
 
 
-def build_message(counts: dict, available_vehicles: list, bookings_data: dict):
+def build_message(fleet_data: dict):
     now      = now_dubai()
     date_str = now.strftime("%d %b %Y")
+
+    counts    = fleet_data["counts"]
+    available = fleet_data["available"]
+    to_deliver= fleet_data["to_deliver"]
+    to_return = fleet_data["to_return"]
+
+    total        = counts["total"]
+    str_total    = counts["str_total"]
+    rented_str   = counts["rented_str"]
+    lease_total  = counts["lease_total"]
+    rented_lease = counts["rented_lease"]
+    ltr_total    = counts["ltr_total"]
+    rented_ltr   = counts["rented_ltr"]
+    nrv          = counts["nrv"]
+    avail_c      = counts["available"]
+
+    blocks = []
+
+    # ── HEADER ─────────────────────────────────────────────
+    blocks.append({"type": "header",
+        "text": {"type": "plain_text",
+            "text": f"MKV Fleet Status — {date_str}", "emoji": True}})
+
+    # ── FLEET COUNTS ───────────────────────────────────────
+    blocks.append({"type": "section", "fields": [
+        {"type": "mrkdwn", "text": f"*Total Fleet*\n{total}"},
+        {"type": "mrkdwn", "text": f"*Available (STR)*\n{avail_c}"},
+    ]})
+    blocks.append({"type": "section", "fields": [
+        {"type": "mrkdwn", "text": f"*Rented STR*\n{rented_str} / {str_total}"},
+        {"type": "mrkdwn", "text": f"*Lease*\n{rented_lease} / {lease_total}"},
+    ]})
+    blocks.append({"type": "section", "fields": [
+        {"type": "mrkdwn", "text": f"*LTR*\n{rented_ltr} / {ltr_total}"},
+        {"type": "mrkdwn", "text": f"*NRV*\n{nrv}"},
+    ]})
+
+    blocks.append({"type": "divider"})
+
+    # ── AVAILABLE CARS ─────────────────────────────────────
+    if available:
+        avail_lines = []
+        for v in available:
+            nb = v.get("next")
+            if nb:
+                try:
+                    nb_fmt   = datetime.strptime(nb, "%Y-%m-%d").strftime("%d %b")
+                    next_str = f"Next: {nb_fmt}"
+                except:
+                    next_str = f"Next: {nb}"
+            else:
+                next_str = "No upcoming booking"
+            avail_lines.append(f"*{v['name']}*  `{v['plate']}`  ·  _{next_str}_")
+
+        chunk, chunks = "", []
+        for line in avail_lines:
+            candidate = chunk + line + "\n"
+            if len(candidate) > 2800:
+                chunks.append(chunk.rstrip())
+                chunk = line + "\n"
+            else:
+                chunk = candidate
+        if chunk.strip():
+            chunks.append(chunk.rstrip())
+
+        for i, chunk in enumerate(chunks):
+            header_txt = f"*AVAILABLE STR ({avail_c})*\n" if i == 0 else ""
+            blocks.append({"type": "section", "text": {"type": "mrkdwn",
+                "text": header_txt + chunk}})
+    else:
+        blocks.append({"type": "section", "text": {"type": "mrkdwn",
+            "text": "*AVAILABLE STR*\nNo vehicles available today."}})
+
+    blocks.append({"type": "divider"})
+
+    # ── DELIVERY TODAY ─────────────────────────────────────
+    if to_deliver:
+        lines = "\n".join(
+            f"• *{e['vehicle']}*  `{e['plate']}`  ·  {e['customer']}  ·  {e['time']}"
+            for e in sorted(to_deliver, key=lambda x: x["time"])
+        )
+        blocks.append({"type": "section", "text": {"type": "mrkdwn",
+            "text": f"*DELIVERY TODAY ({len(to_deliver)})*\n{lines}"}})
+    else:
+        blocks.append({"type": "section", "text": {"type": "mrkdwn",
+            "text": "*DELIVERY TODAY*\nNone scheduled."}})
+
+    blocks.append({"type": "divider"})
+
+    # ── RETURN TODAY ───────────────────────────────────────
+    if to_return:
+        lines = "\n".join(
+            f"• *{e['vehicle']}*  `{e['plate']}`  ·  {e['customer']}  ·  Due {e['time']}"
+            for e in sorted(to_return, key=lambda x: x["time"])
+        )
+        blocks.append({"type": "section", "text": {"type": "mrkdwn",
+            "text": f"*RETURN TODAY ({len(to_return)})*\n{lines}"}})
+    else:
+        blocks.append({"type": "section", "text": {"type": "mrkdwn",
+            "text": "*RETURN TODAY*\nNone due today."}})
+
+    blocks.append({"type": "divider"})
+    blocks.append({"type": "context", "elements": [{"type": "mrkdwn",
+        "text": f"MKV Fleet · {date_str} · Auto-posted 10AM Dubai time · Available sorted by next booking"}]})
+
+    return {"blocks": blocks, "text": f"MKV Fleet Status — {date_str}"}
+
+    blocks = []
+
+    # ── HEADER ─────────────────────────────────────────────
+    blocks.append({"type": "header",
+        "text": {"type": "plain_text",
+            "text": f"MKV Fleet Status — {date_str}", "emoji": True}})
+
+    # ── FLEET COUNTS ───────────────────────────────────────
+    blocks.append({"type": "section", "fields": [
+        {"type": "mrkdwn", "text": f"*STR Fleet*\n{str_fleet}"},
+        {"type": "mrkdwn", "text": f"*Rented STR*\n{rented_str}"},
+    ]})
+    blocks.append({"type": "section", "fields": [
+        {"type": "mrkdwn", "text": f"*Available*\n{avail_c}"},
+        {"type": "mrkdwn", "text": f"*Lease*\n{lease_c}"},
+    ]})
+    blocks.append({"type": "section", "fields": [
+        {"type": "mrkdwn", "text": f"*Long-term*\n{ltr_c}"},
+        {"type": "mrkdwn", "text": f"*Deliver Today*\n{len(to_deliver)}"},
+    ]})
+
+    blocks.append({"type": "divider"})
+
+    # ── AVAILABLE CARS ─────────────────────────────────────
+    if available:
+        avail_lines = []
+        for v in available:
+            nb = v.get("next")
+            if nb:
+                try:
+                    nb_fmt   = datetime.strptime(nb, "%Y-%m-%d").strftime("%d %b")
+                    next_str = f"Next: {nb_fmt}"
+                except:
+                    next_str = f"Next: {nb}"
+            else:
+                next_str = "No upcoming booking"
+            avail_lines.append(f"*{v['name']}*  `{v['plate']}`  ·  _{next_str}_")
+
+        chunk, chunks = "", []
+        for line in avail_lines:
+            candidate = chunk + line + "\n"
+            if len(candidate) > 2800:
+                chunks.append(chunk.rstrip())
+                chunk = line + "\n"
+            else:
+                chunk = candidate
+        if chunk.strip():
+            chunks.append(chunk.rstrip())
+
+        for i, chunk in enumerate(chunks):
+            header_txt = f"*AVAILABLE ({avail_c})*\n" if i == 0 else ""
+            blocks.append({"type": "section", "text": {"type": "mrkdwn",
+                "text": header_txt + chunk}})
+    else:
+        blocks.append({"type": "section", "text": {"type": "mrkdwn",
+            "text": "*AVAILABLE*\nNo vehicles available today."}})
+
+    blocks.append({"type": "divider"})
+
+    # ── TO BE DELIVERED TODAY ──────────────────────────────
+    if to_deliver:
+        lines = "\n".join(
+            f"• *{e['vehicle']}*  `{e['plate']}`  ·  {e['customer']}  ·  {e['time']}"
+            for e in sorted(to_deliver, key=lambda x: x["time"])
+        )
+        blocks.append({"type": "section", "text": {"type": "mrkdwn",
+            "text": f"*DELIVERY TODAY ({len(to_deliver)})*\n{lines}"}})
+    else:
+        blocks.append({"type": "section", "text": {"type": "mrkdwn",
+            "text": "*DELIVERY TODAY*\nNone scheduled."}})
+
+    blocks.append({"type": "divider"})
+
+    # ── TO BE RETURNED TODAY ───────────────────────────────
+    if to_return:
+        lines = "\n".join(
+            f"• *{e['vehicle']}*  `{e['plate']}`  ·  {e['customer']}  ·  Due {e['time']}"
+            for e in sorted(to_return, key=lambda x: x["time"])
+        )
+        blocks.append({"type": "section", "text": {"type": "mrkdwn",
+            "text": f"*RETURN TODAY ({len(to_return)})*\n{lines}"}})
+    else:
+        blocks.append({"type": "section", "text": {"type": "mrkdwn",
+            "text": "*RETURN TODAY*\nNone due today."}})
+
+    blocks.append({"type": "divider"})
+    blocks.append({"type": "context", "elements": [{"type": "mrkdwn",
+        "text": f"MKV Fleet · {date_str} · Auto-posted 10AM Dubai time"}]})
+
+    return {"blocks": blocks, "text": f"MKV Fleet Status — {date_str}"}
+
+# ─────────────────────────────────────────────────────────
+# Post to Slack
+# ─────────────────────────────────────────────────────────
+def post_slack(message):
+    r = requests.post(
+        "https://slack.com/api/chat.postMessage",
+        headers={"Authorization": f"Bearer {SLACK_TOKEN}", "Content-Type": "application/json"},
+        data=json.dumps({
+            "channel":      SLACK_CHANNEL,
+            "username":     "MKV Fleet Status",
+            "icon_emoji":   ":car:",
+            "unfurl_links": False,
+            "unfurl_media": False,
+            **message
+        }),
+        timeout=15,
+    )
+    res = r.json()
+    if not res.get("ok"):
+        print(f"  Slack error: {res.get('error')}")
+        raise SystemExit(1)
+    print("  Posted to Slack successfully")
+
+# ─────────────────────────────────────────────────────────
+# MAIN
+# ─────────────────────────────────────────────────────────
+if __name__ == "__main__":
+    print("=" * 55)
+    print("  MKV FLEET AVAILABILITY")
+    print(f"  {now_dubai().strftime('%d %b %Y | %I:%M %p Dubai Time')}")
+    print("=" * 55)
+
+    print("\n[1] Fetching all fleet data ...")
+    fleet_data = fetch_fleet_data()
+
+    counts  = fleet_data["counts"]
+    avail_c = counts["available"]
+    lease_c = counts["lease"]
+    ltr_c   = counts["ltr"]
+    str_c   = counts["rented_str"]
+    total   = counts["str_fleet"]
+
+    print("\n[2] Generating fleet header image ...")
+    date_str  = now_dubai().strftime("%d %b %Y")
+    img_bytes = generate_fleet_image(
+        counts["total"],
+        counts["rented_lease"],
+        counts["rented_ltr"],
+        counts["rented_str"],
+        counts["available"],
+        date_str
+    )
+    if img_bytes:
+        upload_image_to_slack(img_bytes, f"fleet_{date_str.replace(' ','_')}.png", SLACK_CHANNEL)
+
+    print("\n[3] Building Slack message ...")
+    msg = build_message(fleet_data)
+
+    print("\n[4] Posting to Slack ...")
+    post_slack(msg)
+
     today    = now.strftime("%Y-%m-%d")
 
     str_c    = counts.get("shortTermRental", 0)
@@ -601,10 +1133,6 @@ if __name__ == "__main__":
     print("  MKV FLEET AVAILABILITY")
     print(f"  {now_dubai().strftime('%d %b %Y | %I:%M %p Dubai Time')}")
     print("=" * 55)
-
-    if DEBUG_MODE:
-        debug_dump()
-        raise SystemExit(0)
 
     print("\n[1] Fetching fleet counts ...")
     counts = fetch_counts()
