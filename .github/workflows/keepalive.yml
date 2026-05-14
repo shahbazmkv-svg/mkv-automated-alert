@@ -29,6 +29,12 @@ jobs:
         with:
           python-version: '3.11'
       - run: pip install requests pytz --break-system-packages
+      - name: Debug fleet APIs
+        env:
+          APPIC_KEY:       ${{ secrets.APPIC_KEY }}
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+        run: |
+          python3 - << 'PYEOF'
           import os, json, requests
           from datetime import datetime, timezone, timedelta
           APPIC_KEY    = os.environ["APPIC_KEY"]
