@@ -3064,7 +3064,7 @@
       "thread_ts": "1778606135.330309",
       "delivery_ts": "1778606135.846699",
       "pickup_ts": "1778622329.323989",
-      "closed_ts": null,
+      "closed_ts": "1778788825.341309",
       "extension_ts_list": [
         "1778622329.086419"
       ],
@@ -3074,7 +3074,7 @@
       "vehicle": "Lamborghini Evo Spider",
       "delivery_alerted": true,
       "pickup_alerted": true,
-      "closed": false,
+      "closed": true,
       "start_date": "2026-05-12"
     },
     "009249-MKV -Lamborghini": {
@@ -3113,7 +3113,7 @@
       "thread_ts": "1778618722.226479",
       "delivery_ts": "1778618722.458029",
       "pickup_ts": "1778619625.287129",
-      "closed_ts": null,
+      "closed_ts": "1778788825.574769",
       "extension_ts_list": [],
       "end_date": "2026-05-14",
       "plate": "97019",
@@ -3121,7 +3121,7 @@
       "vehicle": "Ferrari Purosangue",
       "delivery_alerted": true,
       "pickup_alerted": true,
-      "closed": false,
+      "closed": true,
       "start_date": "2026-05-13"
     },
     "0010001-ESTA-BMW": {
@@ -3322,7 +3322,7 @@
     "0010015-ARTE-Chevrolet": {
       "thread_ts": "1778753723.895809",
       "delivery_ts": "1778753734.563179",
-      "pickup_ts": null,
+      "pickup_ts": "1778788825.030059",
       "closed_ts": null,
       "extension_ts_list": [],
       "end_date": "2026-05-16",
@@ -3330,7 +3330,7 @@
       "customer": "Artem Gorbatov",
       "vehicle": "Chevrolet Corvette",
       "delivery_alerted": true,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-05-15"
     },
@@ -3383,7 +3383,7 @@
       "thread_ts": "1778763627.513979",
       "delivery_ts": "1778763633.024179",
       "pickup_ts": "1778764523.740079",
-      "closed_ts": null,
+      "closed_ts": "1778788825.184509",
       "extension_ts_list": [],
       "end_date": "2026-05-15",
       "plate": "24545",
@@ -3391,7 +3391,7 @@
       "vehicle": "Mercedes-Benz G63 2025",
       "delivery_alerted": true,
       "pickup_alerted": true,
-      "closed": false,
+      "closed": true,
       "start_date": "2026-05-14"
     },
     "0010021-SOUR-Mercedes-Benz": {
