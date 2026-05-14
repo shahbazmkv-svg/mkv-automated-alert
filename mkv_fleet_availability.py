@@ -10,8 +10,13 @@ from datetime import datetime, timezone, timedelta
 # ─────────────────────────────────────────────
 SLACK_TOKEN   = os.environ["SLACK_BOT_TOKEN"]
 APPIC_KEY     = os.environ.get("APPIC_KEY", "")
-SLACK_CHANNEL = "C0ABPC606F7"   # #mkv-fleet (live) — update if needed
 DUBAI_TZ      = timezone(timedelta(hours=4))
+
+CHANNEL_FLEET = "C0ABPC606F7"   # #mkv-fleet-status (live) — update to correct live channel
+CHANNEL_TEST  = "C0B0TGBDCDU"   # #mkvtest
+
+TEST_MODE     = True             # ← set False for live
+SLACK_CHANNEL = CHANNEL_TEST if TEST_MODE else CHANNEL_FLEET
 
 APPIC_BOOKINGS_URL = "https://www.appicfleet.com/appiccar-apis-mkv/get-mkv-bookings.php"
 SKIP_STATUSES      = {"cancelled", "canceled", "voided", "void", "deleted", "closed"}
