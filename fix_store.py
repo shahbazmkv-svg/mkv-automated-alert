@@ -29,3 +29,10 @@ with open('booking_thread_store.json', 'w') as f:
     json.dump(s, f, indent=2)
 
 print(f'Store fix complete — {fixed} bookings marked closed')
+print(f'Total store entries: {len(s["bookings"])}')
+
+# Debug — show last 5 contract IDs in store
+sorted_keys = sorted(s['bookings'].keys(), reverse=True)[:5]
+print('Latest 5 in store:')
+for k in sorted_keys:
+    print(f'  {k}')
