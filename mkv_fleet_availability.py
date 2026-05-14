@@ -201,9 +201,10 @@ def fetch_fleet_data() -> dict:
         if end == today and start < today:
             to_return.append({"vehicle": veh, "plate": raw, "customer": cust, "time": et})
 
-    # Available = STR plates not rented and not in garage/service
-    # Service/Garage takes priority over Appic contract status
-    rented_str = rented_str - unavailable  # remove any service/garage from rented count
+    # Service/Garage takes priority — remove from all rented counts
+    rented_str   = rented_str   - unavailable
+    rented_lease = rented_lease - unavailable
+    rented_ltr   = rented_ltr   - unavailable
 
     available = []
     for pk in str_plates - rented_str - unavailable:
@@ -211,11 +212,10 @@ def fetch_fleet_data() -> dict:
         available.append({"name": name, "plate": pk, "next": next_booking.get(pk)})
     available.sort(key=lambda v: v["next"] or "9999-99-99")
 
-    # Service/Garage count — single combined status in sheet
+    # Service/Garage count — across all categories
     svc_garage_plates = {k for k, v in master_fleet.items()
                          if v[2] in ("SERVICE/GARAGE", "GARAGE", "SERVICE",
-                                     "WORKSHOP", "MAINTENANCE")
-                         and k in str_plates}
+                                     "WORKSHOP", "MAINTENANCE")}
 
     counts = {
         "total":           total_fleet,
