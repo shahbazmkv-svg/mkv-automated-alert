@@ -176,19 +176,22 @@ def fetch_fleet_data() -> dict:
         st    = (b.get("startTime") or "")[:5]
         et    = (b.get("endTime")   or "")[:5]
 
-        all_plates = str_plates | lease_plates | ltr_plates | nrv_plates
-        matched_pk = match_plate(pk, all_plates)
+        # Active today = started strictly before today OR started today but already delivered
+        # Use start < today for rented count to avoid counting future-today deliveries
+        is_active = start < today <= end or (start == today and end >= today)
 
-        # Active today
-        if start <= today <= end and matched_pk:
-            if   matched_pk in str_plates:
-                rented_str.add(matched_pk)
-            elif matched_pk in lease_plates:
-                rented_lease.add(matched_pk)
-            elif matched_pk in ltr_plates:
-                rented_ltr.add(matched_pk)
+        if is_active and start <= today:
+            all_plates = str_plates | lease_plates | ltr_plates | nrv_plates
+            matched_pk = match_plate(pk, all_plates)
+
+            if matched_pk and start < today:  # only count as rented if started before today
+                if   matched_pk in str_plates:   rented_str.add(matched_pk)
+                elif matched_pk in lease_plates: rented_lease.add(matched_pk)
+                elif matched_pk in ltr_plates:   rented_ltr.add(matched_pk)
 
         # Next booking per plate
+        all_plates = str_plates | lease_plates | ltr_plates | nrv_plates
+        matched_pk = match_plate(pk, all_plates)
         if start > today and matched_pk:
             if matched_pk not in next_booking or start < next_booking[matched_pk]:
                 next_booking[matched_pk] = start
