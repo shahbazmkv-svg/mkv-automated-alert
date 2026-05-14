@@ -3096,7 +3096,7 @@
       "thread_ts": "1778607024.153069",
       "delivery_ts": "1778607024.766459",
       "pickup_ts": "1778623233.278169",
-      "closed_ts": null,
+      "closed_ts": "1778743284.060929",
       "extension_ts_list": [
         "1778623233.107239"
       ],
@@ -3106,7 +3106,7 @@
       "vehicle": "Mercedes-Benz G63 2025",
       "delivery_alerted": true,
       "pickup_alerted": true,
-      "closed": false,
+      "closed": true,
       "start_date": "2026-05-12"
     },
     "0010000-LUJO-Ferrari": {
