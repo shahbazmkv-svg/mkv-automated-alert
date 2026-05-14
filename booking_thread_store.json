@@ -3353,7 +3353,7 @@
       "thread_ts": "1778756427.026809",
       "delivery_ts": "1778756437.694149",
       "pickup_ts": null,
-      "closed_ts": null,
+      "closed_ts": "1778762727.097069",
       "extension_ts_list": [],
       "end_date": "2026-05-16",
       "plate": "I 47203",
@@ -3361,7 +3361,7 @@
       "vehicle": "Morgan Morgan Supersport",
       "delivery_alerted": true,
       "pickup_alerted": false,
-      "closed": false,
+      "closed": true,
       "start_date": "2026-05-14"
     },
     "0010018-MOHA-Lotus": {
