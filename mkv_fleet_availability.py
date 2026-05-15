@@ -162,6 +162,7 @@ def fetch_fleet_data() -> dict:
     to_deliver   = []
     to_return    = []
     next_booking = {}
+    deliver_plates = set()   # plates being delivered today — exclude from available
 
     for b in bookings:
         if (b.get("status") or "").lower().strip() in SKIP_STATUSES:
@@ -196,9 +197,13 @@ def fetch_fleet_data() -> dict:
             if matched_pk not in next_booking or start < next_booking[matched_pk]:
                 next_booking[matched_pk] = start
 
-        # Today deliveries
-        if start == today:
-            to_deliver.append({"vehicle": veh, "plate": raw, "customer": cust, "time": st})
+    # Today deliveries
+    deliver_plates = set()
+    if start == today:
+        matched_pk2 = match_plate(pk, str_plates | lease_plates | ltr_plates | nrv_plates)
+        if matched_pk2:
+            deliver_plates.add(matched_pk2)
+        to_deliver.append({"vehicle": veh, "plate": raw, "customer": cust, "time": st})
 
         # Today returns
         if end == today and start < today:
@@ -210,7 +215,7 @@ def fetch_fleet_data() -> dict:
     rented_ltr   = rented_ltr   - unavailable
 
     available = []
-    for pk in str_plates - rented_str - unavailable:
+    for pk in str_plates - rented_str - unavailable - deliver_plates:
         name = master_fleet[pk][0]
         available.append({"name": name, "plate": pk, "next": next_booking.get(pk)})
     available.sort(key=lambda v: v["next"] or "9999-99-99")
