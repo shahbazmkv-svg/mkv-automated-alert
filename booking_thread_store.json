@@ -3504,7 +3504,7 @@
     "0010026-CASP-Bentley": {
       "thread_ts": "1778865332.593079",
       "delivery_ts": "1778865344.632389",
-      "pickup_ts": null,
+      "pickup_ts": "1778866223.388949",
       "closed_ts": null,
       "extension_ts_list": [],
       "end_date": "2026-05-16",
@@ -3512,7 +3512,7 @@
       "customer": "Casper Rebernak",
       "vehicle": "Bentley Bentayga",
       "delivery_alerted": true,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-05-15"
     }
