@@ -3440,6 +3440,21 @@
       "pickup_alerted": false,
       "closed": false,
       "start_date": "2026-05-14"
+    },
+    "0010023-ABDU-McLaren": {
+      "thread_ts": "1778841918.937629",
+      "delivery_ts": "1778841931.690139",
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": [],
+      "end_date": "2026-05-16",
+      "plate": "47041",
+      "customer": "Abdulla Rashed Mohammed Khalfan Alhameli",
+      "vehicle": "Mclaren Spider Artura",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-05-15"
     }
   }
 }
