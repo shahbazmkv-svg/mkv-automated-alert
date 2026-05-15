@@ -4,44 +4,43 @@ import os
 from datetime import datetime, timezone, timedelta
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
-# ══════════════════════════════════════════════════════════════════════════════
+# ==============================================================================
 # TEST MODE
-#   True  → posts to #mkvtest (C0AVCCCG0S0), does NOT write mtd_store.json
-#   False → live mode: posts to #mkv-daily-lead-report, saves MTD store
-# ══════════════════════════════════════════════════════════════════════════════
+#   True  -> bot token + chat.postMessage -> #mkv-test-automation (C0B0TGBDCDU)
+#            MTD store NOT written to disk
+#   False -> webhook -> #mkv-daily-lead-report (C0ABN1ZKSGN)
+#            MTD store saved normally
+# ==============================================================================
 TEST_MODE = True
 
-# ══════════════════════════════════════════════════════════════════════════════
+# ==============================================================================
 # SLACK CHANNEL IDs
-# ══════════════════════════════════════════════════════════════════════════════
-CHANNEL_LEAD_REPORT = "C0ABN1ZKSGN"   # #mkv-daily-lead-report   (live)
-CHANNEL_TEST        = "C0B0TGBDCDU"   # #mkv-test-automation     (test)
+# ==============================================================================
+CHANNEL_LEAD_REPORT = "C0ABN1ZKSGN"   # #mkv-daily-lead-report  (live)
+CHANNEL_TEST        = "C0B0TGBDCDU"   # #mkv-test-automation    (test)
 
-# Active channel — auto-selected by TEST_MODE
 ACTIVE_CHANNEL = CHANNEL_TEST if TEST_MODE else CHANNEL_LEAD_REPORT
 
-# ══════════════════════════════════════════════════════════════════════════════
-# CREDENTIALS — read from GitHub Secrets (env vars) with hardcoded fallbacks
-#               for local development only
-# ══════════════════════════════════════════════════════════════════════════════
+# ==============================================================================
+# CREDENTIALS - env vars (GitHub Secrets) with local fallbacks
+# ==============================================================================
 ACCOUNT_ID  = os.environ.get("GALLABOX_ACCOUNT_ID", "66e3f05033e71154d5fdd76c")
 API_KEY     = os.environ.get("GALLABOX_API_KEY",    "69e7694e2da59f609317986b")
 API_SECRET  = os.environ.get("GALLABOX_API_SECRET", "984394d316324482a8615eba6742b3ab")
 
-# Webhooks — TEST_MODE routes to #mkvtest webhook, live routes to lead report
-WEBHOOK_LEAD_REPORT  = os.environ.get("WEBHOOK_LEADS",       "https://hooks.slack.com/services/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")
+# Bot token: used in TEST_MODE via chat.postMessage to exact channel ID
+SLACK_BOT_TOKEN = os.environ.get("SLACK_BOT_TOKEN", "")
+
+# Webhooks: live mode only
+WEBHOOK_LEAD_REPORT  = os.environ.get("WEBHOOK_LEADS",        "https://hooks.slack.com/services/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")
 WEBHOOK_CUST_SERVICE = os.environ.get("WEBHOOK_CUST_SERVICE", "https://hooks.slack.com/services/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")
-WEBHOOK_TEST         = os.environ.get("WEBHOOK_TEST",         "https://hooks.slack.com/services/T0ABTFCEZSL/B0B0TGBDCDU/REPLACE_WITH_TEST_AUTOMATION_WEBHOOK")  # #mkv-test-automation
 
-# Active webhook — auto-selected by TEST_MODE
-ACTIVE_WEBHOOK = WEBHOOK_TEST if TEST_MODE else WEBHOOK_LEAD_REPORT
-
-# MTD store: GitHub Actions workspace (repo root) or local fallback
+# MTD store path
 MTD_STORE = os.environ.get("MTD_STORE_PATH", "mtd_store.json")
 
-# ══════════════════════════════════════════════════════════════════════════════
+# ==============================================================================
 # GALLABOX CONFIG
-# ══════════════════════════════════════════════════════════════════════════════
+# ==============================================================================
 GALLABOX_HEADERS = {"apiKey": API_KEY, "apiSecret": API_SECRET, "Content-Type": "application/json"}
 BASE_URL = "https://server.gallabox.com/devapi/accounts/" + ACCOUNT_ID
 GALLABOX_CHANNELS = [
@@ -50,9 +49,9 @@ GALLABOX_CHANNELS = [
     {"name": "Rent to Own",           "id": "699d8cca452cc56936e21e45"},
 ]
 
-# ══════════════════════════════════════════════════════════════════════════════
+# ==============================================================================
 # DATE / TIME SETUP
-# ══════════════════════════════════════════════════════════════════════════════
+# ==============================================================================
 dubai_tz            = timezone(timedelta(hours=4))
 utc_tz              = timezone.utc
 now_dubai           = datetime.now(dubai_tz)
@@ -64,9 +63,9 @@ cur_month           = now_dubai.strftime("%Y-%m")
 yesterday_utc_start = yesterday_dubai.replace(hour=0,  minute=0,  second=0,  microsecond=0).astimezone(utc_tz)
 yesterday_utc_end   = yesterday_dubai.replace(hour=23, minute=59, second=59, microsecond=0).astimezone(utc_tz)
 
-# ══════════════════════════════════════════════════════════════════════════════
+# ==============================================================================
 # MTD STORE
-# ══════════════════════════════════════════════════════════════════════════════
+# ==============================================================================
 def load_mtd_store():
     try:
         if os.path.exists(MTD_STORE):
@@ -96,9 +95,9 @@ def update_and_get_mtd(store, yesterday_snapshot):
             mtd[k] = mtd.get(k, 0) + v
     return mtd
 
-# ══════════════════════════════════════════════════════════════════════════════
+# ==============================================================================
 # GALLABOX API
-# ══════════════════════════════════════════════════════════════════════════════
+# ==============================================================================
 def parse_utc(ts):
     try:
         return datetime.fromisoformat(ts.replace("Z", "+00:00"))
@@ -143,9 +142,9 @@ def fetch_all_conversations():
                 print("  [ERROR] Gallabox: " + str(e)); break
     return all_convs
 
-# ══════════════════════════════════════════════════════════════════════════════
+# ==============================================================================
 # DATA PROCESSING
-# ══════════════════════════════════════════════════════════════════════════════
+# ==============================================================================
 def process_gallabox(store):
     print("  Fetching conversations (for yesterday: " + yesterday_key + ")...")
     all_convs = fetch_all_conversations()
@@ -216,19 +215,37 @@ def process_gallabox(store):
         "mtd_agents": mtd_agents, "mtd_sources": mtd_sources, "mtd_stages": mtd_stages,
     }
 
-# ══════════════════════════════════════════════════════════════════════════════
-# SLACK — message builder (unchanged) + sender (TEST_MODE aware)
-# ══════════════════════════════════════════════════════════════════════════════
-def send_to_slack(message, webhooks):
-    channel_name = "#mkv-test-automation (C0B0TGBDCDU)" if TEST_MODE else "#mkv-daily-lead-report"
-    for wh in webhooks:
-        try:
-            r = requests.post(wh, json={"text": message}, timeout=10)
-            if r.status_code == 200: print("  Slack OK → " + channel_name)
-            else: print("  Slack error: " + str(r.status_code))
-        except Exception as e:
-            print("  Slack failed: " + str(e))
+# ==============================================================================
+# SLACK SENDER
+#   TEST_MODE  -> bot token + chat.postMessage -> CHANNEL_TEST (C0B0TGBDCDU)
+#   Live mode  -> webhook  -> #mkv-daily-lead-report (C0ABN1ZKSGN)
+# ==============================================================================
+def send_to_slack(message):
+    if TEST_MODE:
+        if not SLACK_BOT_TOKEN:
+            print("  [ERROR] SLACK_BOT_TOKEN not set - cannot post in TEST_MODE")
+            return
+        r = requests.post(
+            "https://slack.com/api/chat.postMessage",
+            headers={"Authorization": "Bearer " + SLACK_BOT_TOKEN, "Content-Type": "application/json"},
+            json={"channel": ACTIVE_CHANNEL, "text": message},
+            timeout=10,
+        )
+        result = r.json()
+        if result.get("ok"):
+            print("  Slack OK -> #mkv-test-automation (C0B0TGBDCDU)")
+        else:
+            print("  Slack error: " + str(result.get("error")))
+    else:
+        r = requests.post(WEBHOOK_LEAD_REPORT, json={"text": message}, timeout=10)
+        if r.status_code == 200:
+            print("  Slack OK -> #mkv-daily-lead-report (C0ABN1ZKSGN)")
+        else:
+            print("  Slack error: " + str(r.status_code))
 
+# ==============================================================================
+# MESSAGE BUILDER (unchanged)
+# ==============================================================================
 def build_msg_gallabox(g):
     fa = g["ftd_agents"]; fs = g["ftd_sources"]; fg = g["ftd_stages"]
     ma = g["mtd_agents"]; ms = g["mtd_sources"]; mg = g["mtd_stages"]
@@ -264,7 +281,7 @@ def build_msg_gallabox(g):
     stg += "{:<24} {:>5}  {:>7}".format("TOTAL", sum(fg.values()), sum(mg.values()))
 
     return (
-        ":bar_chart: *MKV LUXURY — LEADS & AGENTS REPORT*\n"
+        ":bar_chart: *MKV LUXURY - LEADS & AGENTS REPORT*\n"
         + ":calendar: " + report_dt + "\n"
         + "_FTD = Yesterday (" + yesterday_str + ") | MTD = Month cumulative_\n\n"
         + "*:dart: AGENT PERFORMANCE*\n" + "```" + ag + "```\n"
@@ -272,16 +289,17 @@ def build_msg_gallabox(g):
         + "*:chart_with_upwards_trend: LEAD STAGE*\n" + "```" + stg + "```"
     )
 
-# ══════════════════════════════════════════════════════════════════════════════
+# ==============================================================================
 # MAIN
-# ══════════════════════════════════════════════════════════════════════════════
+# ==============================================================================
 def main():
     print("="*56)
     print("  MKV LUXURY - DAILY LEADS REPORT")
     print("  " + report_dt)
-    print("  Reporting for: " + yesterday_str)
-    print("  TEST_MODE : " + str(TEST_MODE))
-    print("  Channel   : " + ("#mkv-test-automation (C0B0TGBDCDU)" if TEST_MODE else "#mkv-daily-lead-report"))
+    print("  Reporting for : " + yesterday_str)
+    print("  TEST_MODE     : " + str(TEST_MODE))
+    print("  Channel       : " + ("#mkv-test-automation (C0B0TGBDCDU)" if TEST_MODE else "#mkv-daily-lead-report (C0ABN1ZKSGN)"))
+    print("  Post method   : " + ("bot token / chat.postMessage" if TEST_MODE else "webhook"))
     print("="*56)
 
     print("\n  Loading MTD store...")
@@ -296,7 +314,7 @@ def main():
 
     print("\n  Sending to Slack...")
     msg = build_msg_gallabox(gallabox)
-    send_to_slack(msg, [ACTIVE_WEBHOOK])
+    send_to_slack(msg)
 
     print("="*56)
     print("  End of dashboard")
