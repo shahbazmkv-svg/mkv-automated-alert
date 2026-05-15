@@ -3292,7 +3292,7 @@
     "0010013-ZAKA-Lamborghini": {
       "thread_ts": "1778744730.825659",
       "delivery_ts": "1778744739.044899",
-      "pickup_ts": null,
+      "pickup_ts": "1778875242.995059",
       "closed_ts": null,
       "extension_ts_list": [],
       "end_date": "2026-05-17",
@@ -3300,7 +3300,7 @@
       "customer": "Zakary Anthonys Hafidi",
       "vehicle": "Lamborghini Lamborghini Urus",
       "delivery_alerted": true,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-05-14"
     },
@@ -3369,7 +3369,7 @@
     "0010018-MOHA-Lotus": {
       "thread_ts": "1778759121.815589",
       "delivery_ts": "1778759132.272369",
-      "pickup_ts": null,
+      "pickup_ts": "1778875228.353439",
       "closed_ts": null,
       "extension_ts_list": [],
       "end_date": "2026-05-17",
@@ -3377,7 +3377,7 @@
       "customer": "Mohammed Ahmad Humood Nasser Rashid",
       "vehicle": "Lotus Lotus Emira",
       "delivery_alerted": true,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-05-16"
     },
@@ -3489,7 +3489,7 @@
     "0010027-CASP-McLaren": {
       "thread_ts": "1778865320.997259",
       "delivery_ts": "1778865332.364689",
-      "pickup_ts": null,
+      "pickup_ts": "1778875228.100829",
       "closed_ts": null,
       "extension_ts_list": [],
       "end_date": "2026-05-17",
@@ -3497,7 +3497,7 @@
       "customer": "Casper Rebernak",
       "vehicle": "Mclaren Spider Artura",
       "delivery_alerted": true,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-05-16"
     },
@@ -3515,6 +3515,21 @@
       "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-05-15"
+    },
+    "0010028-ABDU-Ford": {
+      "thread_ts": "1778875228.587269",
+      "delivery_ts": "1778875242.752699",
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": [],
+      "end_date": "2026-05-17",
+      "plate": "77490",
+      "customer": "Abdulla Rashed Mohammed Khalfan Alhameli",
+      "vehicle": "Ford Mustang Coupe",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-05-16"
     }
   }
 }
