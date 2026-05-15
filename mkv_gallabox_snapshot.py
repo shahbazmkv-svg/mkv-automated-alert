@@ -6,11 +6,19 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 
 # ══════════════════════════════════════════════════════════════════════════════
 # TEST MODE
-#   True  → prints full output to console, does NOT post to Slack, does NOT
-#            write mtd_store.json — safe for dry runs and CI debugging
-#   False → live mode: posts to Slack and saves MTD store (production)
+#   True  → posts to #mkvtest (C0AVCCCG0S0), does NOT write mtd_store.json
+#   False → live mode: posts to #mkv-daily-lead-report, saves MTD store
 # ══════════════════════════════════════════════════════════════════════════════
 TEST_MODE = False
+
+# ══════════════════════════════════════════════════════════════════════════════
+# SLACK CHANNEL IDs
+# ══════════════════════════════════════════════════════════════════════════════
+CHANNEL_LEAD_REPORT = "C0ABN1ZKSGN"   # #mkv-daily-lead-report   (live)
+CHANNEL_TEST        = "C0B0TGBDCDU"   # #mkv-test-automation     (test)
+
+# Active channel — auto-selected by TEST_MODE
+ACTIVE_CHANNEL = CHANNEL_TEST if TEST_MODE else CHANNEL_LEAD_REPORT
 
 # ══════════════════════════════════════════════════════════════════════════════
 # CREDENTIALS — read from GitHub Secrets (env vars) with hardcoded fallbacks
@@ -20,8 +28,13 @@ ACCOUNT_ID  = os.environ.get("GALLABOX_ACCOUNT_ID", "66e3f05033e71154d5fdd76c")
 API_KEY     = os.environ.get("GALLABOX_API_KEY",    "69e7694e2da59f609317986b")
 API_SECRET  = os.environ.get("GALLABOX_API_SECRET", "984394d316324482a8615eba6742b3ab")
 
+# Webhooks — TEST_MODE routes to #mkvtest webhook, live routes to lead report
 WEBHOOK_LEAD_REPORT  = os.environ.get("WEBHOOK_LEADS",       "https://hooks.slack.com/services/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")
 WEBHOOK_CUST_SERVICE = os.environ.get("WEBHOOK_CUST_SERVICE", "https://hooks.slack.com/services/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")
+WEBHOOK_TEST         = os.environ.get("WEBHOOK_TEST",         "https://hooks.slack.com/services/T0ABTFCEZSL/B0B0TGBDCDU/REPLACE_WITH_TEST_AUTOMATION_WEBHOOK")  # #mkv-test-automation
+
+# Active webhook — auto-selected by TEST_MODE
+ACTIVE_WEBHOOK = WEBHOOK_TEST if TEST_MODE else WEBHOOK_LEAD_REPORT
 
 # MTD store: GitHub Actions workspace (repo root) or local fallback
 MTD_STORE = os.environ.get("MTD_STORE_PATH", "mtd_store.json")
@@ -207,17 +220,11 @@ def process_gallabox(store):
 # SLACK — message builder (unchanged) + sender (TEST_MODE aware)
 # ══════════════════════════════════════════════════════════════════════════════
 def send_to_slack(message, webhooks):
-    if TEST_MODE:
-        print("\n" + "─"*56)
-        print("  [TEST MODE] Slack message preview (NOT sent):")
-        print("─"*56)
-        print(message)
-        print("─"*56)
-        return
+    channel_name = "#mkv-test-automation (C0B0TGBDCDU)" if TEST_MODE else "#mkv-daily-lead-report"
     for wh in webhooks:
         try:
             r = requests.post(wh, json={"text": message}, timeout=10)
-            if r.status_code == 200: print("  Slack OK")
+            if r.status_code == 200: print("  Slack OK → " + channel_name)
             else: print("  Slack error: " + str(r.status_code))
         except Exception as e:
             print("  Slack failed: " + str(e))
@@ -273,7 +280,8 @@ def main():
     print("  MKV LUXURY - DAILY LEADS REPORT")
     print("  " + report_dt)
     print("  Reporting for: " + yesterday_str)
-    print("  TEST_MODE: " + str(TEST_MODE))
+    print("  TEST_MODE : " + str(TEST_MODE))
+    print("  Channel   : " + ("#mkv-test-automation (C0B0TGBDCDU)" if TEST_MODE else "#mkv-daily-lead-report"))
     print("="*56)
 
     print("\n  Loading MTD store...")
@@ -288,10 +296,7 @@ def main():
 
     print("\n  Sending to Slack...")
     msg = build_msg_gallabox(gallabox)
-    send_to_slack(msg, [WEBHOOK_LEAD_REPORT])
-
-    if not TEST_MODE:
-        print("  Sent to #mkv-daily-lead-report")
+    send_to_slack(msg, [ACTIVE_WEBHOOK])
 
     print("="*56)
     print("  End of dashboard")
