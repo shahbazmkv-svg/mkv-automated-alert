@@ -11,7 +11,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 #   False -> webhook -> #mkv-daily-lead-report (C0ABN1ZKSGN)
 #            MTD store saved normally
 # ==============================================================================
-TEST_MODE = True
+TEST_MODE = False
 
 # ==============================================================================
 # SLACK CHANNEL IDs
