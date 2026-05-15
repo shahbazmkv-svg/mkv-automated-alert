@@ -9,7 +9,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 #   True  → posts to #mkvtest (C0AVCCCG0S0), does NOT write mtd_store.json
 #   False → live mode: posts to #mkv-daily-lead-report, saves MTD store
 # ══════════════════════════════════════════════════════════════════════════════
-TEST_MODE = False
+TEST_MODE = True
 
 # ══════════════════════════════════════════════════════════════════════════════
 # SLACK CHANNEL IDs
