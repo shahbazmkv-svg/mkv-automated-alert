@@ -2876,8 +2876,8 @@
       "customer": "Majid Ahmed Abdalla",
       "vehicle": "Bentley Bentayga",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
+      "pickup_alerted": true,
+      "closed": true,
       "start_date": "2026-05-07"
     },
     "009955-ABDU-Land Rover": {
@@ -3135,8 +3135,8 @@
       "customer": "Estafania Carbo Piedrahita",
       "vehicle": "Bmw 520I",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
+      "pickup_alerted": true,
+      "closed": true,
       "start_date": "2026-05-13"
     },
     "0010002-ESTA-BMW": {
@@ -3151,7 +3151,7 @@
       "vehicle": "Bmw 520I",
       "delivery_alerted": true,
       "pickup_alerted": true,
-      "closed": false,
+      "closed": true,
       "start_date": "2026-05-13"
     },
     "0010004-CONT-GMC": {
@@ -3166,7 +3166,7 @@
       "vehicle": "Gmc Yukon",
       "delivery_alerted": true,
       "pickup_alerted": true,
-      "closed": false,
+      "closed": true,
       "start_date": "2026-05-13"
     },
     "0010005-JAIR-Kia": {
@@ -3195,8 +3195,8 @@
       "customer": "Reham Moustafa Elsayed Albably",
       "vehicle": "Kia Sportage",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
+      "pickup_alerted": true,
+      "closed": true,
       "start_date": "2026-05-13"
     },
     "0010008-MAJI-LAND ROVER RANGE ROVER": {
@@ -3285,8 +3285,8 @@
       "customer": "Estafania Carbo Piedrahita",
       "vehicle": "Bmw 520I",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
+      "pickup_alerted": true,
+      "closed": true,
       "start_date": "2026-05-13"
     },
     "0010013-ZAKA-Lamborghini": {
