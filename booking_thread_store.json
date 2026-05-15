@@ -3415,7 +3415,7 @@
       "thread_ts": "1778767278.958669",
       "delivery_ts": "1778767312.549239",
       "pickup_ts": "1778768121.218389",
-      "closed_ts": null,
+      "closed_ts": "1778834727.082229",
       "extension_ts_list": [],
       "end_date": "2026-05-15",
       "plate": "71064",
@@ -3423,7 +3423,7 @@
       "vehicle": "Land Rover Range Rover Hse",
       "delivery_alerted": true,
       "pickup_alerted": true,
-      "closed": false,
+      "closed": true,
       "start_date": "2026-05-14"
     },
     "0010022-NAKU-Ford": {
