@@ -3474,7 +3474,7 @@
     "0010025-MUNE-Morgan": {
       "thread_ts": "1778861718.228339",
       "delivery_ts": "1778861729.571409",
-      "pickup_ts": null,
+      "pickup_ts": "1778862621.780389",
       "closed_ts": null,
       "extension_ts_list": [],
       "end_date": "2026-05-16",
@@ -3482,7 +3482,7 @@
       "customer": "Muneer Nazarudeen Nazarudeen",
       "vehicle": "Morgan Morgan Supersport",
       "delivery_alerted": true,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-05-15"
     }
