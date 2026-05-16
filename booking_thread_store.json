@@ -3537,7 +3537,7 @@
       "thread_ts": "1778876120.328709",
       "delivery_ts": "1778876134.816559",
       "pickup_ts": "1778877022.332159",
-      "closed_ts": null,
+      "closed_ts": "1778958034.611099",
       "extension_ts_list": [],
       "end_date": "2026-05-17",
       "plate": "77491",
@@ -3545,7 +3545,7 @@
       "vehicle": "Ford Mustang Convertible",
       "delivery_alerted": true,
       "pickup_alerted": true,
-      "closed": false,
+      "closed": true,
       "start_date": "2026-05-16"
     },
     "0010030-FAST-Land Rover": {
@@ -3592,6 +3592,21 @@
       "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-05-16"
+    },
+    "0010033-JESS-Chevrolet": {
+      "thread_ts": "1778958024.336939",
+      "delivery_ts": "1778958034.484349",
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": [],
+      "end_date": "2026-05-18",
+      "plate": "72712",
+      "customer": "Jess Bardin",
+      "vehicle": "Chevrolet Corvette",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-05-17"
     }
   }
 }
