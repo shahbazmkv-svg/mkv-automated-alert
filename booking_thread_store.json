@@ -3567,7 +3567,7 @@
       "thread_ts": "1778934620.332779",
       "delivery_ts": "1778934631.409959",
       "pickup_ts": "1778935525.699549",
-      "closed_ts": null,
+      "closed_ts": "1778943624.685679",
       "extension_ts_list": [],
       "end_date": "2026-05-17",
       "plate": "78043",
@@ -3575,7 +3575,7 @@
       "vehicle": "Land Rover Defender",
       "delivery_alerted": true,
       "pickup_alerted": true,
-      "closed": false,
+      "closed": true,
       "start_date": "2026-05-16"
     },
     "0010032-YANN-Ferrari": {
