@@ -3596,7 +3596,7 @@
     "0010033-JESS-Chevrolet": {
       "thread_ts": "1778958024.336939",
       "delivery_ts": "1778958034.484349",
-      "pickup_ts": null,
+      "pickup_ts": "1778961625.457569",
       "closed_ts": null,
       "extension_ts_list": [],
       "end_date": "2026-05-18",
@@ -3604,7 +3604,7 @@
       "customer": "Jess Bardin",
       "vehicle": "Chevrolet Corvette",
       "delivery_alerted": true,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-05-17"
     }
