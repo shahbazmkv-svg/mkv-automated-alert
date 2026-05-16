@@ -3340,7 +3340,7 @@
       "thread_ts": "1778755521.793009",
       "delivery_ts": "1778755532.836849",
       "pickup_ts": "1778756437.844669",
-      "closed_ts": null,
+      "closed_ts": "1778932824.296709",
       "extension_ts_list": [
         "1778833832.092389"
       ],
@@ -3350,7 +3350,7 @@
       "vehicle": "Bmw 735I",
       "delivery_alerted": true,
       "pickup_alerted": false,
-      "closed": false,
+      "closed": true,
       "start_date": "2026-05-14"
     },
     "0010017-MUNE-Morgan": {
@@ -3462,7 +3462,7 @@
       "thread_ts": "1778851824.781959",
       "delivery_ts": "1778851836.583199",
       "pickup_ts": "1778852720.166889",
-      "closed_ts": null,
+      "closed_ts": "1778932824.122059",
       "extension_ts_list": [],
       "end_date": "2026-05-16",
       "plate": "68620",
@@ -3470,7 +3470,7 @@
       "vehicle": "Land Rover Range Rover Velar",
       "delivery_alerted": true,
       "pickup_alerted": true,
-      "closed": false,
+      "closed": true,
       "start_date": "2026-05-15"
     },
     "0010025-MUNE-Morgan": {
@@ -3547,6 +3547,21 @@
       "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-05-16"
+    },
+    "0010030-FAST-Land Rover": {
+      "thread_ts": "1778932824.509389",
+      "delivery_ts": "1778932829.510099",
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": [],
+      "end_date": "2026-06-08",
+      "plate": "77540",
+      "customer": "Faster Rent A Car",
+      "vehicle": "Land Rover Svr",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-05-06"
     }
   }
 }
