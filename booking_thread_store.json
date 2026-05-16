@@ -3581,7 +3581,7 @@
     "0010032-YANN-Ferrari": {
       "thread_ts": "1778935518.804629",
       "delivery_ts": "1778935525.566029",
-      "pickup_ts": null,
+      "pickup_ts": "1778936423.493029",
       "closed_ts": null,
       "extension_ts_list": [],
       "end_date": "2026-05-17",
@@ -3589,7 +3589,7 @@
       "customer": "Yanni Allan Jadot",
       "vehicle": "Ferrari Purosangue",
       "delivery_alerted": true,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-05-16"
     }
