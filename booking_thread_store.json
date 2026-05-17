@@ -3582,7 +3582,7 @@
       "thread_ts": "1778935518.804629",
       "delivery_ts": "1778935525.566029",
       "pickup_ts": "1778936423.493029",
-      "closed_ts": null,
+      "closed_ts": "1779033623.760699",
       "extension_ts_list": [],
       "end_date": "2026-05-17",
       "plate": "97019",
@@ -3590,7 +3590,7 @@
       "vehicle": "Ferrari Purosangue",
       "delivery_alerted": true,
       "pickup_alerted": true,
-      "closed": false,
+      "closed": true,
       "start_date": "2026-05-16"
     },
     "0010033-JESS-Chevrolet": {
