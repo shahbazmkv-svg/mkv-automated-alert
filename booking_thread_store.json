@@ -3317,7 +3317,7 @@
       "customer": "Artem Gorbatov",
       "vehicle": "Lotus Lotus Emira",
       "delivery_alerted": true,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": true,
       "start_date": "2026-05-14"
     },
@@ -3333,7 +3333,7 @@
       "vehicle": "Chevrolet Corvette",
       "delivery_alerted": true,
       "pickup_alerted": true,
-      "closed": false,
+      "closed": true,
       "start_date": "2026-05-15"
     },
     "0010016-MUNE-BMW": {
@@ -3364,7 +3364,7 @@
       "customer": "Muneer Nazarudeen Nazarudeen",
       "vehicle": "Morgan Morgan Supersport",
       "delivery_alerted": true,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": true,
       "start_date": "2026-05-14"
     },
@@ -3485,7 +3485,7 @@
       "vehicle": "Morgan Morgan Supersport",
       "delivery_alerted": true,
       "pickup_alerted": true,
-      "closed": false,
+      "closed": true,
       "start_date": "2026-05-15"
     },
     "0010027-CASP-McLaren": {
@@ -3515,7 +3515,7 @@
       "vehicle": "Bentley Bentayga",
       "delivery_alerted": true,
       "pickup_alerted": true,
-      "closed": false,
+      "closed": true,
       "start_date": "2026-05-15"
     },
     "0010028-ABDU-Ford": {
