@@ -3611,7 +3611,7 @@
     "0010034-ZAKA-BMW": {
       "thread_ts": "1778999420.516199",
       "delivery_ts": "1778999428.974179",
-      "pickup_ts": null,
+      "pickup_ts": "1779000316.989239",
       "closed_ts": null,
       "extension_ts_list": [],
       "end_date": "2026-05-18",
@@ -3619,7 +3619,7 @@
       "customer": "Zakary Anthonys Hafidi",
       "vehicle": "Bmw 735I",
       "delivery_alerted": true,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-05-17"
     }
