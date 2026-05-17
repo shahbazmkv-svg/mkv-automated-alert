@@ -3656,7 +3656,7 @@
     "0010037-ALDR-Ferrari": {
       "thread_ts": "1779029118.781399",
       "delivery_ts": "1779029129.356979",
-      "pickup_ts": null,
+      "pickup_ts": "1779030023.018619",
       "closed_ts": null,
       "extension_ts_list": [],
       "end_date": "2026-05-18",
@@ -3664,7 +3664,7 @@
       "customer": "Aldrin Rigoberto Sharelton Martina",
       "vehicle": "Ferrari Purosangue",
       "delivery_alerted": true,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-05-17"
     }
