@@ -3372,7 +3372,7 @@
       "thread_ts": "1778759121.815589",
       "delivery_ts": "1778759132.272369",
       "pickup_ts": "1778875228.353439",
-      "closed_ts": null,
+      "closed_ts": "1779047118.545639",
       "extension_ts_list": [],
       "end_date": "2026-05-17",
       "plate": "23652",
@@ -3380,7 +3380,7 @@
       "vehicle": "Lotus Lotus Emira",
       "delivery_alerted": true,
       "pickup_alerted": true,
-      "closed": false,
+      "closed": true,
       "start_date": "2026-05-16"
     },
     "0010019-JOHN-Mercedes-Benz": {
@@ -3612,7 +3612,7 @@
       "thread_ts": "1778999420.516199",
       "delivery_ts": "1778999428.974179",
       "pickup_ts": "1779000316.989239",
-      "closed_ts": null,
+      "closed_ts": "1779047118.187389",
       "extension_ts_list": [],
       "end_date": "2026-05-18",
       "plate": "78051",
@@ -3620,7 +3620,7 @@
       "vehicle": "Bmw 735I",
       "delivery_alerted": true,
       "pickup_alerted": true,
-      "closed": false,
+      "closed": true,
       "start_date": "2026-05-17"
     },
     "0010035-MUNE-Ford": {
