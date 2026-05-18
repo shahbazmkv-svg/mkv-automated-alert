@@ -51,7 +51,7 @@ def post_message(channel, blocks, text):
         r = requests.post(
             "https://slack.com/api/chat.postMessage",
             headers=SLACK_HEADERS,
-            json={"channel": channel, "text": text, "blocks": blocks, "unfurl_links": False, "unfurl_media": False},
+            json={"channel": channel, "text": text, "blocks": blocks},
             timeout=10
         )
         data = r.json()
@@ -91,9 +91,14 @@ def get_thread_link(store, contract_id, plate, start_date):
 
 def fetch_bookings(date):
     try:
+        # Wide window ±30 days to catch all active contracts
+        from datetime import datetime, timedelta
+        dt          = datetime.strptime(date, "%Y-%m-%d")
+        start_window = (dt - timedelta(days=30)).strftime("%Y-%m-%d")
+        end_window   = (dt + timedelta(days=30)).strftime("%Y-%m-%d")
         r = requests.post(
             APPIC_BOOKINGS,
-            data={"key": APPIC_KEY, "startDate": date, "endDate": date},
+            data={"key": APPIC_KEY, "startDate": start_window, "endDate": end_window},
             timeout=15
         )
         r.raise_for_status()
