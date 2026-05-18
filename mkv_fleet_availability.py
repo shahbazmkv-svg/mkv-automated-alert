@@ -1,534 +1,341 @@
 """
-MKV Luxury — Fleet Availability
-Counts from MASTER_FLEET + bookings API. No assignments API.
+MKV Luxury – Fleet Availability
+=================================
+API 1: get-mkv-vehicle-assignments.php → counts (STR / Lease / LTR / Service)
+API 2: get-mkv-vehicles.php + get-mkv-available-vehicle.php → available vehicle list
+API 3: get-mkv-bookings.php (wide window) → today's deliveries + returns
+
+Posts to: team-mkv-car-availability (C0ABW8AGMRU)
 """
-import os, json, re, requests, io
+import os, json, re, requests
 from datetime import datetime, timezone, timedelta
 
-# ─────────────────────────────────────────────
-#  CONFIG
-# ─────────────────────────────────────────────
 SLACK_TOKEN   = os.environ["SLACK_BOT_TOKEN"]
 APPIC_KEY     = os.environ.get("APPIC_KEY", "")
+SLACK_CHANNEL = "C0ABW8AGMRU"   # #team-mkv-car-availability
 DUBAI_TZ      = timezone(timedelta(hours=4))
+BLOCK_LIMIT   = 2900
 
-CHANNEL_FLEET = "C0ABW8AGMRU"   # #team-mkv-car-availability (live)
-CHANNEL_TEST  = "C0B0TGBDCDU"   # #mkvtest
+BASE_URL             = "https://www.appicfleet.com/appiccar-apis-mkv"
+MKV_VEHICLES_URL     = f"{BASE_URL}/get-mkv-vehicles.php"
+MKV_ASSIGNMENTS_URL  = f"{BASE_URL}/get-mkv-vehicle-assignments.php"
+MKV_AVAIL_URL        = f"{BASE_URL}/get-mkv-available-vehicle.php"
+MKV_BOOKINGS_URL     = f"{BASE_URL}/get-mkv-bookings.php"
 
-TEST_MODE     = False
-SLACK_CHANNEL = CHANNEL_TEST if TEST_MODE else CHANNEL_FLEET
-
-APPIC_BOOKINGS_URL = "https://www.appicfleet.com/appiccar-apis-mkv/get-mkv-bookings.php"
-SKIP_STATUSES      = {"cancelled", "canceled", "voided", "void", "deleted", "closed"}
-
-DEBUG_MODE = False  # set True to dump API fields to logs, then back to False
-
-# ─────────────────────────────────────────────
-#  GOOGLE SHEET — Fleet Master
-#  Columns: Plate | Vehicle Name | Category
-#  Category values: STR, LEASE, LTR, NRV
-# ─────────────────────────────────────────────
-SHEET_CSV_URL = (
-    "https://docs.google.com/spreadsheets/d/"
-    "1GfzIz2ASBurkPW63WwscnGUsTAnVGswdX46mf5aP1cI"
-    "/export?format=csv&gid=571607065"
+CONTACT_FOOTER = (
+    "📱 +971 56 279 4545\n☎️  +971 4 238 8987\n"
+    "🌐 https://www.mkvluxury.com/\n📸 https://www.instagram.com/mkvluxurydubai/\n"
+    "✉️  contact@mkvluxury.com\n📍 Al Jreena Street 41, Al Qouz Industrial Third, Dubai, UAE"
 )
 
-def fetch_master_fleet() -> dict:
-    """
-    Fetch fleet master from Google Sheet.
-    Returns dict: plate_key → (vehicle_name, category, status)
-    Columns: A=Plate, B=Vehicle Name, C=Category, D=Status
-    """
-    try:
-        r = requests.get(SHEET_CSV_URL, timeout=15)
-        r.raise_for_status()
-        lines  = r.text.strip().splitlines()
-        fleet  = {}
-        for i, line in enumerate(lines[1:], 2):
-            parts = line.split(",")
-            if len(parts) < 3:
-                continue
-            raw_plate = parts[0].strip().strip('"')
-            name      = parts[1].strip().strip('"')
-            category  = parts[2].strip().strip('"').upper()
-            status    = parts[3].strip().strip('"').upper() if len(parts) > 3 else ""
-            if not raw_plate or not category:
-                continue
-            if category not in ("STR", "LEASE", "LTR", "NRV"):
-                continue
-            pk = plate_key(raw_plate)
-            fleet[pk] = (name, category, status)
-        print(f"  Fleet master loaded: {len(fleet)} vehicles from Google Sheet")
-        return fleet
-    except Exception as ex:
-        print(f"  Google Sheet error: {ex} — fleet master empty")
-        return {}
+TOTAL_FLEET  = 62   # update when fleet size changes
+SKIP_STATUSES = {"cancelled", "canceled", "voided", "void", "deleted"}
 
+MASTER_PLATES = [
+    "Y 97019", "I 47203", "U 24545", "O66789",  "X55789",
+    "L94545",  "T55789",  "J77540",  "AA68620", "CC83762",
+    "AA78043", "AA77491", "AA77490", "Y72712",  "E23652",
+    "AA78051", "K70691",  "D70688",  "K19443",  "AA78042",
+    "CC 69367","W46015",  "Z89438",  "Z92156",  "Z90158",
+    "B15789",  "BB60137", "O94545",  "X44789",  "X33789",
+    "U74545",  "S 66789", "T3660",   "AA78067", "CC94084",
+    "X33567",  "N27852",  "Z90154",  "F98103",  "F98438",
+    "W81946",  "D68539",  "BB53403", "S39810",  "F83209",
+    "1243",    "H23155",  "F 97580", "K19503",  "P38848",
+    "Z66246",  "H31727",  "Y97020",  "Y97018",  "R26603",
+    "J47041",  "EE 42165","C69703",  "T64545",  "H75037",
+    "W97521",  "T78242",
+]
 
-
-# ─────────────────────────────────────────────
-#  HELPERS
-# ─────────────────────────────────────────────
 def now_dubai():
     return datetime.now(DUBAI_TZ)
 
 def plate_key(plate: str) -> str:
     return re.sub(r"\s+", "", str(plate).upper())
 
-def match_plate(appic_pk: str, master_plates: set) -> str:
-    """
-    Match Appic plate key to master fleet plate key.
-    Appic often strips letter prefix (e.g. '24545' instead of 'U24545').
-    First tries exact match, then numeric suffix match.
-    """
-    if appic_pk in master_plates:
-        return appic_pk
-    # Try matching on numeric suffix only
-    appic_nums = re.sub(r"[^0-9]", "", appic_pk)
-    if appic_nums:
-        for mp in master_plates:
-            if re.sub(r"[^0-9]", "", mp) == appic_nums:
-                return mp
+def get_vehicle_id(v: dict) -> str:
+    for k in ["vehicleID", "id", "vehicleId"]:
+        val = str(v.get(k, "") or "").strip()
+        if val and val not in ("0", ""):
+            return val
     return ""
 
-# ─────────────────────────────────────────────
-#  DEBUG DUMP
-# ─────────────────────────────────────────────
-def debug_dump():
-    today    = now_dubai().strftime("%Y-%m-%d")
-    lookback = (now_dubai() - timedelta(days=1)).strftime("%Y-%m-%d")
-    print("\n" + "=" * 55)
-    print("  DEBUG MODE — API FIELD DUMP")
-    print("=" * 55)
-    r = requests.post(APPIC_BOOKINGS_URL, data={
-        "key": APPIC_KEY, "startDate": lookback, "endDate": today
-    }, timeout=20)
-    bookings = r.json().get("bookings", [])
-    active   = [b for b in bookings if (b.get("status") or "").lower() not in SKIP_STATUSES]
-    deliver  = [b for b in active if b.get("startDate") == today]
-    returns  = [b for b in active if b.get("endDate") == today]
-    print(f"  Bookings in window: {len(bookings)}")
-    print(f"  Active: {len(active)}  Deliveries: {len(deliver)}  Returns: {len(returns)}")
-    if bookings:
-        print("  First booking fields:")
-        for k, v in bookings[0].items():
-            print(f"    {k:<30}: {v}")
-    print("=" * 55)
+def fmt_date(d):
+    try:
+        return datetime.strptime(d, "%Y-%m-%d").strftime("%d %b %Y")
+    except:
+        return d or "N/A"
 
-# ─────────────────────────────────────────────
-#  FETCH FLEET DATA
-# ─────────────────────────────────────────────
-def fetch_fleet_data() -> dict:
-    today     = now_dubai().strftime("%Y-%m-%d")
-    lookback  = (now_dubai() - timedelta(days=400)).strftime("%Y-%m-%d")
-    lookahead = (now_dubai() + timedelta(days=400)).strftime("%Y-%m-%d")
+def fmt_time(t):
+    return str(t or "")[:5] or "—"
 
-    # ── Load fleet master from Google Sheet ───────────────
-    master_fleet = fetch_master_fleet()
-    if not master_fleet:
-        print("  ERROR: Fleet master empty — aborting")
-        raise SystemExit(1)
+# ─────────────────────────────────────────────────────────
+# 1. Fleet counts from assignments API
+# ─────────────────────────────────────────────────────────
+def fetch_counts() -> dict:
+    try:
+        r = requests.post(MKV_ASSIGNMENTS_URL, data={"key": APPIC_KEY}, timeout=20)
+        r.raise_for_status()
+        counts = r.json().get("counts", {})
+        print(f"  Assignments: {counts}")
+        return counts
+    except Exception as ex:
+        print(f"  ❌ Assignments API error: {ex}")
+        return {}
 
-    total_fleet  = len(master_fleet)
-    str_plates   = {k for k, v in master_fleet.items() if v[1] == "STR"}
-    lease_plates = {k for k, v in master_fleet.items() if v[1] == "LEASE"}
-    ltr_plates   = {k for k, v in master_fleet.items() if v[1] == "LTR"}
-    nrv_plates   = {k for k, v in master_fleet.items() if v[1] == "NRV"}
-
-    # Vehicles unavailable from sheet status
-    unavailable  = {k for k, v in master_fleet.items()
-                    if v[2] in ("SERVICE/GARAGE", "GARAGE", "SERVICE",
-                                "WORKSHOP", "MAINTENANCE")}
-
-    garage_service_count = len({k for k, v in master_fleet.items()
-                                 if v[2] in ("SERVICE/GARAGE", "GARAGE", "SERVICE",
-                                             "WORKSHOP", "MAINTENANCE")
-                                 and k in str_plates})
+# ─────────────────────────────────────────────────────────
+# 2. Available vehicle list
+# ─────────────────────────────────────────────────────────
+def fetch_available_vehicles() -> list:
+    today_str    = now_dubai().strftime("%Y-%m-%d")
+    tomorrow_str = (now_dubai() + timedelta(days=1)).strftime("%Y-%m-%d")
 
     try:
-        r = requests.post(APPIC_BOOKINGS_URL, data={
-            "key": APPIC_KEY, "startDate": lookback, "endDate": lookahead
-        }, timeout=20)
-        bookings = r.json().get("bookings", [])
-        print(f"  Bookings returned: {len(bookings)}")
+        r     = requests.post(MKV_VEHICLES_URL, data={"key": APPIC_KEY}, timeout=20)
+        r.raise_for_status()
+        resp  = r.json()
+        all_v = resp if isinstance(resp, list) else resp.get("data", resp.get("vehicles", []))
+
+        lookup = {}
+        for v in all_v:
+            raw = str(v.get("plate", "") or "").strip()
+            if raw:
+                lookup[plate_key(raw)] = v
+
+        fleet = []
+        for plate in MASTER_PLATES:
+            v = lookup.get(plate_key(plate))
+            if v:
+                vid  = get_vehicle_id(v)
+                name = str(v.get("vehicle_name") or
+                           f"{v.get('make','')} {v.get('model','')}").strip().upper()
+                fleet.append({"plate": plate, "vid": vid, "name": name})
+
+        print(f"  Fleet matched: {len(fleet)} / {len(MASTER_PLATES)}")
+
     except Exception as ex:
-        print(f"  Bookings API error: {ex}")
-        bookings = []
-
-    rented_str   = set()
-    rented_lease = set()
-    rented_ltr   = set()
-    to_deliver   = []
-    to_return    = []
-    next_booking = {}
-    deliver_plates = set()   # plates being delivered today — exclude from available
-
-    for b in bookings:
-        if (b.get("status") or "").lower().strip() in SKIP_STATUSES:
-            continue
-
-        raw   = str(b.get("vehiclePlate") or "").strip()
-        pk    = plate_key(raw)
-        start = (b.get("startDate") or "").strip()
-        end   = (b.get("endDate")   or "").strip()
-        cust  = (b.get("customerName") or "N/A").strip().title()
-        veh   = (b.get("vehicleName")  or "N/A").strip().title()
-        st    = (b.get("startTime") or "")[:5]
-        et    = (b.get("endTime")   or "")[:5]
-
-        # Active today = started strictly before today OR started today but already delivered
-        # Use start < today for rented count to avoid counting future-today deliveries
-        is_active = start < today <= end or (start == today and end >= today)
-
-        if is_active and start <= today:
-            all_plates = str_plates | lease_plates | ltr_plates | nrv_plates
-            matched_pk = match_plate(pk, all_plates)
-
-            if matched_pk and start < today:  # only count as rented if started before today
-                if   matched_pk in str_plates:   rented_str.add(matched_pk)
-                elif matched_pk in lease_plates: rented_lease.add(matched_pk)
-                elif matched_pk in ltr_plates:   rented_ltr.add(matched_pk)
-
-        # Next booking per plate
-        all_plates = str_plates | lease_plates | ltr_plates | nrv_plates
-        matched_pk = match_plate(pk, all_plates)
-        if start > today and matched_pk:
-            if matched_pk not in next_booking or start < next_booking[matched_pk]:
-                next_booking[matched_pk] = start
-
-    # Today deliveries
-    deliver_plates = set()
-    if start == today:
-        matched_pk2 = match_plate(pk, str_plates | lease_plates | ltr_plates | nrv_plates)
-        if matched_pk2:
-            deliver_plates.add(matched_pk2)
-        to_deliver.append({"vehicle": veh, "plate": raw, "customer": cust, "time": st})
-
-        # Today returns
-        if end == today and start < today:
-            to_return.append({"vehicle": veh, "plate": raw, "customer": cust, "time": et})
-
-    # Service/Garage takes priority — remove from all rented counts
-    rented_str   = rented_str   - unavailable
-    rented_lease = rented_lease - unavailable
-    rented_ltr   = rented_ltr   - unavailable
+        print(f"  ❌ Vehicles API error: {ex}")
+        return []
 
     available = []
-    for pk in str_plates - rented_str - unavailable - deliver_plates:
-        name = master_fleet[pk][0]
-        available.append({"name": name, "plate": pk, "next": next_booking.get(pk)})
-    available.sort(key=lambda v: v["next"] or "9999-99-99")
+    for f in fleet:
+        if not f["vid"]:
+            continue
+        try:
+            r = requests.post(MKV_AVAIL_URL, data={
+                "key":       APPIC_KEY,
+                "startDate": today_str,
+                "endDate":   tomorrow_str,
+                "vehicleID": f["vid"]
+            }, timeout=15)
+            r.raise_for_status()
+            resp      = r.json()
+            raw       = str(resp.get("status", "") or "").lower().strip()
+            is_booked = resp.get("isBooked", False)
+            if not is_booked and "available" in raw:
+                available.append(f)
+        except Exception as ex:
+            print(f"  ⚠️  Error: plate={f['plate']}: {ex}")
 
-    # Service/Garage count — across all categories
-    svc_garage_plates = {k for k, v in master_fleet.items()
-                         if v[2] in ("SERVICE/GARAGE", "GARAGE", "SERVICE",
-                                     "WORKSHOP", "MAINTENANCE")}
+    print(f"  Available    : {len(available)}")
+    return available
 
-    counts = {
-        "total":           total_fleet,
-        "str_total":       len(str_plates),
-        "rented_str":      len(rented_str),
-        "svc_garage":      len(svc_garage_plates),
-        "lease_total":     len(lease_plates),
-        "rented_lease":    len(rented_lease),
-        "ltr_total":       len(ltr_plates),
-        "rented_ltr":      len(rented_ltr),
-        "nrv":             len(nrv_plates),
-        "available":       len(available),
-    }
+# ─────────────────────────────────────────────────────────
+# 3. Today's deliveries and returns from bookings API
+#    Uses wide window and filters by today's startDate / endDate
+# ─────────────────────────────────────────────────────────
+def fetch_today_movements() -> tuple:
+    """
+    Returns (deliveries, returns) — both lists of booking dicts
+    where startDate == today (delivery) or endDate == today (return)
+    """
+    today = now_dubai().strftime("%Y-%m-%d")
+    # Wide window: 30 days back, 30 days forward to catch all active contracts
+    start_window = (now_dubai() - timedelta(days=30)).strftime("%Y-%m-%d")
+    end_window   = (now_dubai() + timedelta(days=30)).strftime("%Y-%m-%d")
 
-    print(f"  STR {counts['rented_str']}/{counts['str_total']}  "
-          f"Lease {counts['rented_lease']}/{counts['lease_total']}  "
-          f"LTR {counts['rented_ltr']}/{counts['ltr_total']}  "
-          f"NRV {counts['nrv']}  Available {counts['available']}")
-    print(f"  Deliver today: {len(to_deliver)}  Return today: {len(to_return)}")
-
-    return {
-        "counts":     counts,
-        "available":  available,
-        "to_deliver": to_deliver,
-        "to_return":  to_return,
-    }
-
-# ─────────────────────────────────────────────
-#  GENERATE IMAGE
-# ─────────────────────────────────────────────
-def generate_fleet_image(total, lease_c, ltr_c, str_c, avail_c, date_str):
     try:
-        from PIL import Image, ImageDraw, ImageFont
+        r = requests.post(MKV_BOOKINGS_URL, data={
+            "key":       APPIC_KEY,
+            "startDate": start_window,
+            "endDate":   end_window,
+        }, timeout=20)
+        r.raise_for_status()
+        bookings = r.json().get("bookings", [])
+        print(f"  Bookings (window): {len(bookings)}")
 
-        W, H       = 900, 160
-        DARK_BG    = (26, 26, 24)
-        BOX_BG     = (38, 38, 36)
-        BOX_BORDER = (60, 60, 58)
-        WHITE      = (255, 255, 255)
-        GRAY       = (140, 135, 128)
-        COLORS     = {
-            "total":     (55, 138, 221),
-            "lease":     (186, 117, 23),
-            "ltr":       (83, 74, 183),
-            "str":       (226, 75, 74),
-            "available": (99, 153, 34),
-        }
-
-        metrics = [
-            ("Total Fleet",      total,   "total"),
-            ("Lease",            lease_c, "lease"),
-            ("Long-term",        ltr_c,   "ltr"),
-            ("Rented STR",       str_c,   "str"),
-            ("Available",        avail_c, "available"),
+        active = [
+            b for b in bookings
+            if str(b.get("status") or "").lower() not in SKIP_STATUSES
         ]
 
-        img  = Image.new("RGB", (W, H), DARK_BG)
-        draw = ImageDraw.Draw(img)
+        deliveries = [b for b in active if str(b.get("startDate") or "").strip() == today]
+        returns    = [b for b in active if str(b.get("endDate")   or "").strip() == today]
 
-        font_paths      = ["/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
-                           "/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf"]
-        font_bold_paths = ["/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
-                           "/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf"]
+        print(f"  Deliveries today : {len(deliveries)}")
+        print(f"  Returns today    : {len(returns)}")
+        return deliveries, returns
 
-        def load_font(paths, size):
-            for p in paths:
-                try: return ImageFont.truetype(p, size)
-                except: pass
-            return ImageFont.load_default()
+    except Exception as ex:
+        print(f"  ❌ Bookings API error: {ex}")
+        return [], []
 
-        font_label = load_font(font_paths, 14)
-        font_value = load_font(font_bold_paths, 36)
-        font_title = load_font(font_bold_paths, 15)
+# ─────────────────────────────────────────────────────────
+# Helpers
+# ─────────────────────────────────────────────────────────
+def text_to_blocks(text):
+    blocks, chunk = [], ""
+    for line in text.split("\n"):
+        cand = chunk + line + "\n"
+        if len(cand) > BLOCK_LIMIT:
+            if chunk:
+                blocks.append({"type": "section", "text": {"type": "mrkdwn", "text": f"```{chunk.rstrip()}```"}})
+            chunk = line + "\n"
+        else:
+            chunk = cand
+    if chunk.strip():
+        blocks.append({"type": "section", "text": {"type": "mrkdwn", "text": f"```{chunk.rstrip()}```"}})
+    return blocks
 
-        draw.text((20, 14), f"MKV Fleet Status  —  {date_str}", font=font_title, fill=WHITE)
+def fmt_movement_lines(bookings, time_key):
+    if not bookings:
+        return "None scheduled."
+    lines = []
+    for i, b in enumerate(bookings, 1):
+        vehicle  = str(b.get("vehicleName")  or b.get("vehicle_name") or "N/A").strip().title()
+        plate    = str(b.get("vehiclePlate") or "N/A").strip()
+        customer = str(b.get("customerName") or b.get("customer_name") or "N/A").strip().title()
+        mobile   = str(b.get("mobile")       or "").strip()
+        time_val = fmt_time(b.get(time_key))
+        contract = str(b.get("contractID")   or b.get("contract_id") or "").strip()
+        lines.append(
+            f"*{i}. {vehicle}* [`{plate}`]\n"
+            f"   👤 {customer}  {mobile}\n"
+            f"   🕐 {time_val}  |  AGR: {contract}"
+        )
+    return "\n\n".join(lines)
 
-        box_w, gap = 160, 12
-        start_x    = (W - (5 * box_w + 4 * gap)) // 2
-        box_y, box_h = 48, 92
-
-        for i, (label, value, key) in enumerate(metrics):
-            x = start_x + i * (box_w + gap)
-            draw.rounded_rectangle([x, box_y, x+box_w, box_y+box_h],
-                                   radius=10, fill=BOX_BG, outline=BOX_BORDER, width=1)
-            lb = draw.textlength(label, font=font_label)
-            draw.text((x + (box_w - lb)//2, box_y + 10), label, font=font_label, fill=GRAY)
-            vb = draw.textlength(str(value), font=font_value)
-            draw.text((x + (box_w - vb)//2, box_y + 34), str(value), font=font_value, fill=COLORS[key])
-
-        buf = io.BytesIO()
-        img.save(buf, format="PNG")
-        print("  Fleet image generated")
-        return buf.getvalue()
-    except Exception as e:
-        print(f"  Image generation failed: {e}")
-        return None
-
-# ─────────────────────────────────────────────
-#  UPLOAD IMAGE
-# ─────────────────────────────────────────────
-def upload_image_to_slack(image_bytes, filename, channel):
-    try:
-        headers = {"Authorization": f"Bearer {SLACK_TOKEN}"}
-        r1 = requests.post("https://slack.com/api/files.getUploadURLExternal",
-            headers=headers,
-            data={"filename": filename, "length": len(image_bytes)}, timeout=15)
-        d1 = r1.json()
-        if not d1.get("ok"):
-            print(f"  getUploadURL error: {d1.get('error')}")
-            return False
-        r2 = requests.post(d1["upload_url"], data=image_bytes, timeout=30)
-        if r2.status_code not in (200, 201):
-            print(f"  Upload failed: {r2.status_code}")
-            return False
-        r3 = requests.post("https://slack.com/api/files.completeUploadExternal",
-            headers={**headers, "Content-Type": "application/json"},
-            json={"files": [{"id": d1["file_id"], "title": filename}],
-                  "channel_id": channel}, timeout=15)
-        d3 = r3.json()
-        if not d3.get("ok"):
-            print(f"  completeUpload error: {d3.get('error')}")
-            return False
-        print("  Image uploaded to Slack")
-        return True
-    except Exception as e:
-        print(f"  Image upload error: {e}")
-        return False
-
-# ─────────────────────────────────────────────
-#  BUILD MESSAGE
-# ─────────────────────────────────────────────
-def build_message(fleet_data: dict) -> dict:
+# ─────────────────────────────────────────────────────────
+# 4. Build Slack message
+# ─────────────────────────────────────────────────────────
+def build_message(counts, available_vehicles, deliveries, returns):
     now      = now_dubai()
-    date_str = now.strftime("%d %b %Y").upper()
+    date_str = now.strftime("%B %d, %Y").upper()
     day_str  = now.strftime("%A").upper()
 
-    counts       = fleet_data["counts"]
-    available    = fleet_data["available"]
-    to_deliver   = fleet_data["to_deliver"]
-    to_return    = fleet_data["to_return"]
+    str_c   = counts.get("shortTermRental", 0)
+    lease_c = counts.get("lease", 0)
+    ltr_c   = counts.get("longTermRental", 0)
+    svc_c   = counts.get("service", 0)
+    avail_c = len(available_vehicles)
 
-    total        = counts["total"]
-    str_total    = counts["str_total"]
-    rented_str   = counts["rented_str"]
-    svc_garage   = counts["svc_garage"]
-    lease_total  = counts["lease_total"]
-    rented_lease = counts["rented_lease"]
-    ltr_total    = counts["ltr_total"]
-    rented_ltr   = counts["rented_ltr"]
-    nrv          = counts["nrv"]
-    avail_c      = counts["available"]
+    print(f"\n  ┌─────────────────────────────────┐")
+    print(f"  │ FLEET SUMMARY                   │")
+    print(f"  │ Total    : {TOTAL_FLEET:<22} │")
+    print(f"  │ STR      : {str_c:<22} │")
+    print(f"  │ Lease    : {lease_c:<22} │")
+    print(f"  │ LTR      : {ltr_c:<22} │")
+    print(f"  │ Available: {avail_c:<22} │")
+    print(f"  │ Service  : {svc_c:<22} │")
+    print(f"  └─────────────────────────────────┘")
 
-    # Split available into booked vs idle
-    booked = [v for v in available if v.get("next")]
-    idle   = [v for v in available if not v.get("next")]
+    summary = "\n".join([
+        f"❝{date_str} {day_str}❞", "",
+        f"✦ Total        : {TOTAL_FLEET}", "",
+        f"✦ Rented STR   : {str_c}", "",
+        f"✦ Service      : {svc_c}", "",
+        f"✦ Available    : {avail_c}", "",
+        f"✦ Lease        : {lease_c}", "",
+        f"✦ Longterm     : {ltr_c}",
+    ])
 
-    blocks = []
+    # Available vehicle list
+    avail_lines = []
+    if available_vehicles:
+        avail_lines.append("AVAILABLE")
+        avail_lines.append("-" * 30)
+        for i, f in enumerate(available_vehicles, 1):
+            avail_lines.append(f"{i}. {f['name']} [{f['plate']}]")
 
-    # ── HEADER ─────────────────────────────────────────────
-    blocks.append({"type": "header",
-        "text": {"type": "plain_text",
-            "text": f"🚗 MKV FLEET STATUS — {date_str} {day_str}", "emoji": True}})
+    # Delivery & return sections
+    delivery_text = fmt_movement_lines(deliveries, "startTime")
+    return_text   = fmt_movement_lines(returns,    "endTime")
 
-    # ── FLEET COUNTS ───────────────────────────────────────
-    blocks.append({"type": "section", "fields": [
-        {"type": "mrkdwn", "text": f"*Total Fleet*\n{total}"},
-        {"type": "mrkdwn", "text": f"*Available STR*\n{avail_c}"},
-        {"type": "mrkdwn", "text": f"*Service / Garage*\n{svc_garage}"},
-    ]})
-    blocks.append({"type": "section", "fields": [
-        {"type": "mrkdwn", "text": f"*Rented STR*\n{rented_str} / {str_total}"},
-        {"type": "mrkdwn", "text": f"*Lease*\n{rented_lease} / {lease_total}"},
-        {"type": "mrkdwn", "text": f"*LTR*\n{rented_ltr} / {ltr_total}"},
-        {"type": "mrkdwn", "text": f"*NRV*\n{nrv}"},
-    ]})
+    blocks = [
+        # Summary
+        {"type": "section", "text": {"type": "mrkdwn", "text": f"```{summary}```"}},
+        {"type": "divider"},
+    ]
 
+    # Available list
+    if avail_lines:
+        blocks += text_to_blocks("\n".join(avail_lines))
+        blocks.append({"type": "divider"})
+
+    # Delivery today
+    blocks.append({
+        "type": "section",
+        "text": {"type": "mrkdwn", "text": f"🚗 *DELIVERY TODAY* — {len(deliveries)} vehicle(s)\n\n{delivery_text}"}
+    })
     blocks.append({"type": "divider"})
 
-    # ── AVAILABLE STR ──────────────────────────────────────
-    blocks.append({"type": "section", "text": {"type": "mrkdwn",
-        "text": f"*✅ AVAILABLE STR ({avail_c})*"}})
-
-    # With upcoming booking
-    if booked:
-        booked_lines = "*📅 With upcoming booking:*\n"
-        for v in booked:
-            try:
-                nb = datetime.strptime(v["next"], "%Y-%m-%d").strftime("%d %b")
-            except:
-                nb = v["next"]
-            booked_lines += f"• *{v['name']}*  `{v['plate']}`  →  {nb}\n"
-        blocks.append({"type": "section", "text": {"type": "mrkdwn",
-            "text": booked_lines.rstrip()}})
-
-    # No upcoming booking — split into chunks if needed
-    if idle:
-        idle_header = f"*💤 No upcoming booking ({len(idle)}):*\n"
-        idle_lines  = ""
-        chunks      = []
-        for v in idle:
-            idle_lines += f"• *{v['name']}*  `{v['plate']}`\n"
-        # Split if too long
-        full = idle_header + idle_lines.rstrip()
-        if len(full) <= 2800:
-            blocks.append({"type": "section", "text": {"type": "mrkdwn", "text": full}})
-        else:
-            # First chunk with header
-            chunk, first = "", True
-            for line in idle_lines.splitlines():
-                candidate = chunk + line + "\n"
-                if len(candidate) > 2700:
-                    hdr = idle_header if first else ""
-                    blocks.append({"type": "section", "text": {"type": "mrkdwn",
-                        "text": hdr + chunk.rstrip()}})
-                    chunk = line + "\n"
-                    first = False
-                else:
-                    chunk = candidate
-            if chunk.strip():
-                hdr = idle_header if first else ""
-                blocks.append({"type": "section", "text": {"type": "mrkdwn",
-                    "text": hdr + chunk.rstrip()}})
-
+    # Return today
+    blocks.append({
+        "type": "section",
+        "text": {"type": "mrkdwn", "text": f"🔑 *RETURN TODAY* — {len(returns)} vehicle(s)\n\n{return_text}"}
+    })
     blocks.append({"type": "divider"})
 
-    # ── DELIVERY TODAY ─────────────────────────────────────
-    if to_deliver:
-        lines = "\n".join(
-            f"• *{e['vehicle']}*  `{e['plate']}`  ·  {e['customer']}  ·  {e['time']}"
-            for e in sorted(to_deliver, key=lambda x: x["time"]))
-        blocks.append({"type": "section", "text": {"type": "mrkdwn",
-            "text": f"*🚗 DELIVERY TODAY ({len(to_deliver)})*\n{lines}"}})
-    else:
-        blocks.append({"type": "section", "text": {"type": "mrkdwn",
-            "text": "*🚗 DELIVERY TODAY*\nNone scheduled."}})
-
-    blocks.append({"type": "divider"})
-
-    # ── RETURN TODAY ───────────────────────────────────────
-    if to_return:
-        lines = "\n".join(
-            f"• *{e['vehicle']}*  `{e['plate']}`  ·  {e['customer']}  ·  Due {e['time']}"
-            for e in sorted(to_return, key=lambda x: x["time"]))
-        blocks.append({"type": "section", "text": {"type": "mrkdwn",
-            "text": f"*🔑 RETURN TODAY ({len(to_return)})*\n{lines}"}})
-    else:
-        blocks.append({"type": "section", "text": {"type": "mrkdwn",
-            "text": "*🔑 RETURN TODAY*\nNone due today."}})
-
-    blocks.append({"type": "divider"})
+    # Footer
+    blocks += text_to_blocks(CONTACT_FOOTER)
     blocks.append({"type": "context", "elements": [{"type": "mrkdwn",
-        "text": f"MKV Car Rental  ·  Auto-posted 10AM Dubai time  ·  {date_str}"}]})
+        "text": "MKV Active Fleet • Auto-posted daily 10:00 AM Dubai time"}]})
 
-    return {"blocks": blocks, "text": f"MKV Fleet Status — {date_str} {day_str}"}
+    return {"blocks": blocks, "text": f"MKV Fleet Availability — {date_str} {day_str}"}
 
-# ─────────────────────────────────────────────
-#  POST TO SLACK
-# ─────────────────────────────────────────────
+# ─────────────────────────────────────────────────────────
+# 5. Post to Slack
+# ─────────────────────────────────────────────────────────
 def post_slack(message):
     r = requests.post(
         "https://slack.com/api/chat.postMessage",
         headers={"Authorization": f"Bearer {SLACK_TOKEN}", "Content-Type": "application/json"},
-        data=json.dumps({"channel": SLACK_CHANNEL, "username": "MKV Fleet Status",
-                         "icon_emoji": ":car:", "unfurl_links": False,
-                         "unfurl_media": False, **message}),
-        timeout=15)
+        data=json.dumps({
+            "channel":      SLACK_CHANNEL,
+            "username":     "MKV Fleet Status",
+            "icon_emoji":   ":car:",
+            "unfurl_links": False,
+            "unfurl_media": False,
+            **message
+        }),
+        timeout=15,
+    )
     res = r.json()
     if not res.get("ok"):
-        print(f"  Slack error: {res.get('error')}")
+        print(f"  ❌ Slack error: {res.get('error')}")
         raise SystemExit(1)
-    print("  Posted to Slack")
+    print("  ✅ Posted to Slack successfully")
 
-# ─────────────────────────────────────────────
-#  MAIN
-# ─────────────────────────────────────────────
+# ─────────────────────────────────────────────────────────
+# MAIN
+# ─────────────────────────────────────────────────────────
 if __name__ == "__main__":
     print("=" * 55)
     print("  MKV FLEET AVAILABILITY")
     print(f"  {now_dubai().strftime('%d %b %Y | %I:%M %p Dubai Time')}")
     print("=" * 55)
 
-    if DEBUG_MODE:
-        debug_dump()
-        raise SystemExit(0)
+    print("\n[1] Fetching fleet counts ...")
+    counts = fetch_counts()
 
-    print("\n[1] Fetching fleet data ...")
-    fleet_data = fetch_fleet_data()
-    counts     = fleet_data["counts"]
+    print("\n[2] Fetching available vehicles ...")
+    available = fetch_available_vehicles()
 
-    print("\n[2] Generating header image ...")
-    date_str  = now_dubai().strftime("%d %b %Y")
-    img_bytes = generate_fleet_image(
-        counts["total"], counts["rented_lease"],
-        counts["rented_ltr"], counts["rented_str"],
-        counts["available"], date_str)
-    if img_bytes:
-        upload_image_to_slack(img_bytes,
-            f"fleet_{date_str.replace(' ','_')}.png", SLACK_CHANNEL)
+    print("\n[3] Fetching today's deliveries and returns ...")
+    deliveries, returns = fetch_today_movements()
 
-    print("\n[3] Building message ...")
-    msg = build_message(fleet_data)
+    print("\n[4] Building Slack message ...")
+    msg = build_message(counts, available, deliveries, returns)
 
-    print("\n[4] Posting to Slack ...")
+    print("\n[5] Posting to Slack ...")
     post_slack(msg)
-
-    print("=" * 55)
-    print("  Done")
-    print("=" * 55)
