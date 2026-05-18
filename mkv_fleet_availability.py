@@ -289,7 +289,7 @@ def build_message(counts, available_vehicles, deliveries, returns):
     # Footer
     blocks += text_to_blocks(CONTACT_FOOTER)
     blocks.append({"type": "context", "elements": [{"type": "mrkdwn",
-        "text": "MKV Active Fleet • Auto-posted daily 10:00 AM Dubai time"}]})
+        "text": "MKV Active Fleet • Auto-posted daily 10:30 AM Dubai time"}]})
 
     return {"blocks": blocks, "text": f"MKV Fleet Availability — {date_str} {day_str}"}
 
