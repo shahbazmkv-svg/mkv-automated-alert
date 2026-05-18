@@ -2609,6 +2609,28 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010046-SALU-Range Rover": {
+      "thread_ts": "1779123639.857339",
+      "end_date": "2026-05-31",
+      "plate": "71064",
+      "customer": "Salute Rent A Car Llc",
+      "vehicle": "Range Rover Hse",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-05-17"
+    },
+    "0010020-BARA-Range Rover": {
+      "thread_ts": "1779123640.138709",
+      "end_date": "2026-05-15",
+      "plate": "71064",
+      "customer": "Barakath Ali Kibayathai",
+      "vehicle": "Range Rover Hse",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-05-14"
     }
   }
 }
