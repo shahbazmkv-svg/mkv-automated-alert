@@ -3597,7 +3597,7 @@
       "thread_ts": "1778958024.336939",
       "delivery_ts": "1778958034.484349",
       "pickup_ts": "1778961625.457569",
-      "closed_ts": null,
+      "closed_ts": "1779088522.907529",
       "extension_ts_list": [],
       "end_date": "2026-05-18",
       "plate": "72712",
@@ -3605,7 +3605,7 @@
       "vehicle": "Chevrolet Corvette",
       "delivery_alerted": true,
       "pickup_alerted": true,
-      "closed": false,
+      "closed": true,
       "start_date": "2026-05-17"
     },
     "0010034-ZAKA-BMW": {
