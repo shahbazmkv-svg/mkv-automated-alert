@@ -163,7 +163,7 @@ jobs:
           GMAIL_APP_PASSWORD:     ${{ secrets.GMAIL_APP_PASSWORD }}
           META_GMAIL_ADDRESS:     ${{ secrets.META_GMAIL_ADDRESS }}
           META_GMAIL_APP_PASSWORD: ${{ secrets.META_GMAIL_APP_PASSWORD }}
-          TEST_MODE:              "false"
+          TEST_MODE:              "True"
         run: python "MKV Daily Ads Snapshot.py"
       - name: Keep repo active
         run: |
