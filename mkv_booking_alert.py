@@ -10,12 +10,10 @@ APPIC_KEY          = os.environ["APPIC_KEY"]
 SLACK_BOT_TOKEN    = os.environ["SLACK_BOT_TOKEN"]
 
 CHANNEL_BOOKINGS   = "C0ABPC606F7"   # #mkv-bookings (live)
-CHANNEL_DELIVERY   = "C0ACB9C8J01"   # #mkv-schedule-for-delivery (live)
-CHANNEL_TEST       = "C0B0TGBDCDU"   # #mkvtest
+CHANNEL_TEST       = "C0B0TGBDCDU"   # #mkv-test-automation
 
 TEST_MODE          = False
 TARGET_CHANNEL     = CHANNEL_TEST if TEST_MODE else CHANNEL_BOOKINGS
-TARGET_DELIVERY    = CHANNEL_TEST if TEST_MODE else CHANNEL_DELIVERY
 
 APPIC_BOOKINGS_URL = "https://www.appicfleet.com/appiccar-apis-mkv/get-mkv-bookings.php"
 STORE_FILE         = "booking_thread_store.json"
