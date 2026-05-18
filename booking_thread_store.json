@@ -3686,7 +3686,7 @@
     "0010039-MUNE-Bentley": {
       "thread_ts": "1779101118.688789",
       "delivery_ts": "1779101129.018369",
-      "pickup_ts": null,
+      "pickup_ts": "1779102025.829299",
       "closed_ts": null,
       "extension_ts_list": [],
       "end_date": "2026-05-19",
@@ -3694,7 +3694,7 @@
       "customer": "Muneer Nazarudeen Nazarudeen",
       "vehicle": "Bentley Bentayga",
       "delivery_alerted": true,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-05-18"
     }
