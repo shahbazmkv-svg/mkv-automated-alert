@@ -170,7 +170,7 @@ jobs:
           GOOGLE_ADS_REFRESH_TOKEN:       ${{ secrets.GOOGLE_ADS_REFRESH_TOKEN }}
           GOOGLE_ADS_CUSTOMER_ID:         ${{ secrets.GOOGLE_ADS_CUSTOMER_ID }}
           GOOGLE_ADS_LOGIN_CUSTOMER_ID:   ${{ secrets.GOOGLE_ADS_LOGIN_CUSTOMER_ID }}
-          TEST_MODE:                      "false"
+          TEST_MODE:                      "true"
         run: python "MKV Daily Ads Snapshot.py"
       - name: Keep repo active
         run: |
