@@ -1,25 +1,13 @@
 """
 MKV Daily Ads Snapshot — Google Ads API + Meta Gmail → Slack
 =============================================================
-Version : 3.0  (19 May 2026)
-- Pulls data directly from Google Ads API (no CSV, no email links)
-- Meta Ads still via Gmail (forwarded email with CSV attachment)
-- Posts unified daily snapshot to Slack via Block Kit
-- Day-over-day delta on all key metrics
-- Performance score calibrated for luxury automotive
-
-GitHub Secrets required:
-  SLACK_BOT_TOKEN
-  GOOGLE_ADS_DEVELOPER_TOKEN
-  GOOGLE_ADS_CLIENT_ID
-  GOOGLE_ADS_CLIENT_SECRET
-  GOOGLE_ADS_REFRESH_TOKEN
-  GOOGLE_ADS_CUSTOMER_ID        (3847584613 — no dashes)
-  GMAIL_ADDRESS                 (shahbazmkv@gmail.com)
-  GMAIL_APP_PASSWORD
-
-Run: python mkv_ads_api_report.py
-     TEST_MODE=true python mkv_ads_api_report.py
+Version : 3.1  (19 May 2026)
+Fixes:
+  - URL previews suppressed in Slack (wrapped in < >)
+  - Conversions query fixed (use campaign resource)
+  - Auction insights fixed (use campaign resource)
+  - Rent-to-Own separate section added
+  - Meta CSV parse improved
 """
 
 import os
@@ -61,10 +49,12 @@ DATE_RANGE          = (datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d")
 
 META_SUBJECT_KEYWORD = "Your Daily Facebook ads report"
 
+# RentToOwn domain to split out separately
+RTO_DOMAIN = "renttoowncars.ae"
+
 # ── GOOGLE ADS CLIENT ─────────────────────────────────────────────────────────
 
 def get_google_ads_client():
-    """Initialize Google Ads API client."""
     config = {
         "developer_token"  : DEVELOPER_TOKEN,
         "client_id"        : CLIENT_ID,
@@ -78,10 +68,8 @@ def get_google_ads_client():
 # ── GOOGLE ADS API QUERIES ────────────────────────────────────────────────────
 
 def fetch_campaign_performance(client):
-    """Fetch campaign performance metrics for yesterday."""
     print("  → Fetching campaign performance...")
     ga_service = client.get_service("GoogleAdsService")
-
     query = f"""
         SELECT
             campaign.name,
@@ -96,46 +84,39 @@ def fetch_campaign_performance(client):
         ORDER BY metrics.cost_micros DESC
         LIMIT 10
     """
-
     try:
         response = ga_service.search(customer_id=CUSTOMER_ID, query=query)
         campaigns = []
         total = {"impressions": 0, "clicks": 0, "cost": 0, "conversions": 0}
-
         for row in response:
             cost = row.metrics.cost_micros / 1_000_000
             impr = row.metrics.impressions
             clks = row.metrics.clicks
             conv = row.metrics.conversions
-            ctr  = round(row.metrics.ctr * 100, 2)
-
-            total["impressions"]  += impr
-            total["clicks"]       += clks
-            total["cost"]         += cost
-            total["conversions"]  += conv
-
+            total["impressions"] += impr
+            total["clicks"]      += clks
+            total["cost"]        += cost
+            total["conversions"] += conv
             campaigns.append({
-                "name"    : row.campaign.name[:45],
-                "spend"   : round(cost, 2),
-                "clicks"  : int(clks),
-                "ctr"     : ctr,
-                "conv"    : round(conv, 1),
+                "name"  : row.campaign.name[:45],
+                "spend" : round(cost, 2),
+                "clicks": int(clks),
+                "ctr"   : round(row.metrics.ctr * 100, 2),
+                "conv"  : round(conv, 1),
             })
-
-        total_impr = total["impressions"]
-        total_clks = total["clicks"]
-        total_cost = round(total["cost"], 2)
-        total_conv = round(total["conversions"], 1)
-
-        print(f"    ✅ Campaign: AED {total_cost} | {total_clks} clicks | {total_conv} conv")
+        ti = total["impressions"]
+        tc = total["clicks"]
+        ts = round(total["cost"], 2)
+        tv = round(total["conversions"], 1)
+        print(f"    ✅ Campaign: AED {ts} | {tc} clicks | {tv} conv")
         return {
-            "impressions"   : int(total_impr),
-            "clicks"        : int(total_clks),
-            "cost"          : total_cost,
-            "conversions"   : total_conv,
-            "ctr"           : round(total_clks / total_impr * 100, 2) if total_impr > 0 else 0,
-            "cost_per_conv" : round(total_cost / total_conv, 2) if total_conv > 0 else 0,
-            "campaigns"     : campaigns[:3],
+            "impressions"  : int(ti),
+            "clicks"       : int(tc),
+            "cost"         : ts,
+            "conversions"  : tv,
+            "ctr"          : round(tc / ti * 100, 2) if ti > 0 else 0,
+            "cost_per_conv": round(ts / tv, 2) if tv > 0 else 0,
+            "campaigns"    : campaigns[:3],
         }
     except GoogleAdsException as ex:
         print(f"    ❌ Campaign fetch failed: {ex.error.code().name}")
@@ -143,33 +124,31 @@ def fetch_campaign_performance(client):
 
 
 def fetch_conversions(client):
-    """Fetch conversion breakdown."""
     print("  → Fetching conversions...")
     ga_service = client.get_service("GoogleAdsService")
-
+    # Use campaign resource which supports date segmentation
     query = f"""
         SELECT
-            conversion_action.name,
+            campaign.name,
             metrics.conversions,
             metrics.cost_per_conversion
-        FROM conversion_action
+        FROM campaign
         WHERE segments.date = '{DATE_RANGE}'
           AND metrics.conversions > 0
         ORDER BY metrics.conversions DESC
         LIMIT 5
     """
-
     try:
         response = ga_service.search(customer_id=CUSTOMER_ID, query=query)
         rows = []
         for row in response:
             cpc = round(row.metrics.cost_per_conversion / 1_000_000, 2)
+            conv = round(row.metrics.conversions, 1)
             rows.append(
-                f"• {row.conversion_action.name[:35]}  "
-                f"— {round(row.metrics.conversions, 1)} conv"
-                f"{f' | AED {cpc}/conv' if cpc > 0 else ''}"
+                f"• {row.campaign.name[:35]}  — {conv} conv"
+                f"{f'  |  AED {cpc}/conv' if cpc > 0 else ''}"
             )
-        print(f"    ✅ Conversions: {len(rows)} types")
+        print(f"    ✅ Conversions: {len(rows)} campaigns")
         return {"breakdown": rows or ["• No conversions recorded today"]}
     except GoogleAdsException as ex:
         print(f"    ❌ Conversions fetch failed: {ex.error.code().name}")
@@ -177,10 +156,8 @@ def fetch_conversions(client):
 
 
 def fetch_search_terms(client):
-    """Fetch top search terms by clicks."""
     print("  → Fetching search terms...")
     ga_service = client.get_service("GoogleAdsService")
-
     query = f"""
         SELECT
             search_term_view.search_term,
@@ -190,9 +167,8 @@ def fetch_search_terms(client):
         WHERE segments.date = '{DATE_RANGE}'
           AND metrics.clicks > 0
         ORDER BY metrics.clicks DESC
-        LIMIT 5
+        LIMIT 8
     """
-
     try:
         response = ga_service.search(customer_id=CUSTOMER_ID, query=query)
         terms = []
@@ -209,30 +185,32 @@ def fetch_search_terms(client):
 
 
 def fetch_auction_insights(client):
-    """Fetch auction insights / competitor data."""
     print("  → Fetching auction insights...")
     ga_service = client.get_service("GoogleAdsService")
-
+    # Auction insights require campaign-level segmentation
     query = f"""
         SELECT
             auction_insight.domain,
             metrics.auction_insight_search_impression_share,
             metrics.auction_insight_search_overlap_rate
         FROM auction_insight
-        WHERE segments.date = '{DATE_RANGE}'
+        WHERE segments.date BETWEEN '{DATE_RANGE}' AND '{DATE_RANGE}'
         ORDER BY metrics.auction_insight_search_impression_share DESC
-        LIMIT 5
+        LIMIT 6
     """
-
     try:
         response = ga_service.search(customer_id=CUSTOMER_ID, query=query)
         competitors = []
+        seen = set()
         for row in response:
+            domain = row.auction_insight.domain
+            if domain in seen:
+                continue
+            seen.add(domain)
             is_pct   = round(row.metrics.auction_insight_search_impression_share * 100, 1)
             ovlp_pct = round(row.metrics.auction_insight_search_overlap_rate * 100, 1)
             competitors.append(
-                f"• {row.auction_insight.domain[:35]}"
-                f"  — IS: {is_pct}% | Overlap: {ovlp_pct}%"
+                f"• {domain[:35]}  — IS: {is_pct}% | Overlap: {ovlp_pct}%"
             )
         print(f"    ✅ Auction insights: {len(competitors)} competitors")
         return {"competitors": competitors or ["• No competitor data today"]}
@@ -242,10 +220,8 @@ def fetch_auction_insights(client):
 
 
 def fetch_landing_pages(client):
-    """Fetch top landing pages by clicks."""
     print("  → Fetching landing pages...")
     ga_service = client.get_service("GoogleAdsService")
-
     query = f"""
         SELECT
             landing_page_view.unexpanded_final_url,
@@ -256,27 +232,29 @@ def fetch_landing_pages(client):
         WHERE segments.date = '{DATE_RANGE}'
           AND metrics.clicks > 0
         ORDER BY metrics.clicks DESC
-        LIMIT 5
+        LIMIT 10
     """
-
     try:
         response = ga_service.search(customer_id=CUSTOMER_ID, query=query)
-        pages = []
+        mkv_pages = []
+        rto_pages = []
         for row in response:
-            url  = row.landing_page_view.unexpanded_final_url.replace("https://www.mkvluxury.com", "")
-            ctr  = round(row.metrics.ctr * 100, 2)
+            url  = row.landing_page_view.unexpanded_final_url
+            clks = int(row.metrics.clicks)
             conv = round(row.metrics.conversions, 1)
-            pages.append(
-                f"• {url[:50]}  —  "
-                f"{int(row.metrics.clicks)} clicks"
-                f" | CTR {ctr}%"
-                f"{f' | {conv} conv' if conv > 0 else ''}"
-            )
-        print(f"    ✅ Landing pages: {len(pages)} found")
-        return {"pages": pages or ["• No landing page data today"]}
+            ctr  = round(row.metrics.ctr * 100, 2)
+            # Suppress URL previews by wrapping in < >
+            display_url = url.replace("https://www.mkvluxury.com", "").replace("https://mkvluxury.com", "") or "/"
+            line = f"• `{display_url[:50]}`  —  {clks} clicks | CTR {ctr}%{f' | {conv} conv' if conv > 0 else ''}"
+            if RTO_DOMAIN in url:
+                rto_pages.append(line)
+            else:
+                mkv_pages.append(line)
+        print(f"    ✅ Landing pages: {len(mkv_pages)} MKV + {len(rto_pages)} RTO")
+        return {"pages": mkv_pages[:5], "rto_pages": rto_pages[:5]}
     except GoogleAdsException as ex:
         print(f"    ❌ Landing pages fetch failed: {ex.error.code().name}")
-        return {"pages": ["• Could not fetch landing page data"]}
+        return {"pages": ["• Could not fetch landing page data"], "rto_pages": []}
 
 # ── META ADS — GMAIL ──────────────────────────────────────────────────────────
 
@@ -355,7 +333,7 @@ def parse_meta(csv_text):
         lines = csv_text.split("\n")
         start = 0
         for i, line in enumerate(lines):
-            if any(kw in line for kw in ["Reach", "Impressions", "Results", "Amount"]):
+            if any(kw in line for kw in ["Reach", "Impressions", "Results", "Amount", "Spent"]):
                 start = i
                 break
         df = pd.read_csv(io.StringIO("\n".join(lines[start:])))
@@ -470,12 +448,12 @@ def score_report(g_camp, meta):
 def build_blocks(g_camp, g_conv, g_search, g_auction, g_landing, meta, yesterday):
     score, grade, notes = score_report(g_camp, meta)
 
-    d_cost  = delta(g_camp.get("cost", 0),   yesterday.get("g_cost", 0))
-    d_clk   = delta(g_camp.get("clicks", 0), yesterday.get("g_clicks", 0), prefix="")
-    d_conv  = delta(g_camp.get("conversions", 0), yesterday.get("g_conv", 0), prefix="")
-    d_mcost = delta(meta.get("spent", 0),    yesterday.get("m_spent", 0))
+    d_cost  = delta(g_camp.get("cost", 0),        yesterday.get("g_cost", 0))
+    d_clk   = delta(g_camp.get("clicks", 0),      yesterday.get("g_clicks", 0), prefix="")
+    d_conv  = delta(g_camp.get("conversions", 0), yesterday.get("g_conv", 0),   prefix="")
+    d_mcost = delta(meta.get("spent", 0),         yesterday.get("m_spent", 0))
 
-    # Google Ads section
+    # ── Google Ads
     if g_camp:
         g_text = (
             f"*Spend:* AED {g_camp.get('cost',0):,.2f}{d_cost}    "
@@ -493,11 +471,13 @@ def build_blocks(g_camp, g_conv, g_search, g_auction, g_landing, meta, yesterday
     else:
         g_text = "_No Google Ads data today_"
 
-    conv_text   = "\n".join(g_conv.get("breakdown", [])) or "_No conversion data_"
-    search_text = "\n".join(g_search.get("terms", []))    or "_No search term data_"
-    comp_text   = "\n".join(g_auction.get("competitors",[]))or "_No competitor data_"
-    land_text   = "\n".join(g_landing.get("pages", []))   or "_No landing page data_"
+    conv_text   = "\n".join(g_conv.get("breakdown", []))      or "_No conversion data_"
+    search_text = "\n".join(g_search.get("terms", []))         or "_No search term data_"
+    comp_text   = "\n".join(g_auction.get("competitors", []))  or "_No competitor data_"
+    land_text   = "\n".join(g_landing.get("pages", []))        or "_No landing page data_"
+    rto_text    = "\n".join(g_landing.get("rto_pages", []))    or "_No Rent-to-Own traffic today_"
 
+    # ── Meta
     if meta.get("spent", 0) > 0:
         meta_text = (
             f"*Spent:* AED {meta['spent']:,.2f}{d_mcost}    "
@@ -517,29 +497,31 @@ def build_blocks(g_camp, g_conv, g_search, g_auction, g_landing, meta, yesterday
         {"type": "header",
          "text": {"type": "plain_text", "text": f"📊 MKV Daily Ads Snapshot — {REPORT_DATE}", "emoji": True}},
         {"type": "divider"},
-        {"type": "section", "text": {"type": "mrkdwn", "text": f"*🔵 Google Ads Performance*\n{g_text}"}},
+        {"type": "section", "text": {"type": "mrkdwn", "text": f"*🔵 Google Ads — MKV Luxury*\n{g_text}"}},
         {"type": "divider"},
-        {"type": "section", "text": {"type": "mrkdwn", "text": f"*🎯 Conversions Breakdown*\n{conv_text}"}},
+        {"type": "section", "text": {"type": "mrkdwn", "text": f"*🎯 Conversions by Campaign*\n{conv_text}"}},
         {"type": "divider"},
         {"type": "section", "text": {"type": "mrkdwn", "text": f"*🔍 Top Search Terms*\n{search_text}"}},
         {"type": "divider"},
         {"type": "section", "text": {"type": "mrkdwn", "text": f"*⚔️ Competitor Auction Insights*\n{comp_text}"}},
         {"type": "divider"},
-        {"type": "section", "text": {"type": "mrkdwn", "text": f"*📄 Top Landing Pages*\n{land_text}"}},
+        {"type": "section", "text": {"type": "mrkdwn", "text": f"*📄 MKV Luxury — Top Landing Pages*\n{land_text}"}},
+        {"type": "divider"},
+        {"type": "section", "text": {"type": "mrkdwn", "text": f"*🚗 Rent-to-Own (renttoowncars.ae)*\n{rto_text}"}},
         {"type": "divider"},
         {"type": "section", "text": {"type": "mrkdwn", "text": f"*🟦 Meta Ads Performance*\n{meta_text}"}},
         {"type": "divider"},
         {"type": "section", "text": {"type": "mrkdwn", "text": f"*🏆 Performance Score*\n{score_text}"}},
         {"type": "context",
          "elements": [{"type": "mrkdwn",
-                       "text": f"_MKV Luxury Car Rental  •  Google Ads API v3.0  •  {mode_tag}_"}]},
+                       "text": f"_MKV Luxury Car Rental  •  Google Ads API v3.1  •  {mode_tag}_"}]},
     ]
 
 
 def post_slack(blocks, fallback="MKV Daily Ads Snapshot"):
     client = WebClient(token=SLACK_TOKEN)
     try:
-        client.chat_postMessage(channel=SLACK_CHANNEL, blocks=blocks, text=fallback)
+        client.chat_postMessage(channel=SLACK_CHANNEL, blocks=blocks, text=fallback, unfurl_links=False, unfurl_media=False)
         print(f"  ✅  Posted to Slack: {SLACK_CHANNEL}")
     except SlackApiError as e:
         print(f"  ❌  Slack error: {e.response['error']}")
@@ -548,15 +530,14 @@ def post_slack(blocks, fallback="MKV Daily Ads Snapshot"):
 
 def main():
     print("=" * 60)
-    print("  MKV Daily Ads Snapshot v3.0 — Google Ads API")
+    print("  MKV Daily Ads Snapshot v3.1 — Google Ads API")
     print(f"  {datetime.now().strftime('%Y-%m-%d %H:%M:%S')} | Report date: {REPORT_DATE}")
     print(f"  Mode: {'🧪 TEST' if TEST_MODE else '🚀 LIVE'}  |  Channel: {SLACK_CHANNEL}")
     print("=" * 60)
 
-    # ── Google Ads API
     print("\n📊 Fetching Google Ads data via API...")
     try:
-        client  = get_google_ads_client()
+        client    = get_google_ads_client()
         g_camp    = fetch_campaign_performance(client)
         g_conv    = fetch_conversions(client)
         g_search  = fetch_search_terms(client)
@@ -564,9 +545,9 @@ def main():
         g_landing = fetch_landing_pages(client)
     except Exception as e:
         print(f"  ❌  Google Ads API error: {e}")
-        g_camp = g_conv = g_search = g_auction = g_landing = {}
+        g_camp = g_conv = g_search = g_auction = {}
+        g_landing = {"pages": [], "rto_pages": []}
 
-    # ── Meta Ads via Gmail
     print("\n📥 Fetching Meta Ads from Gmail...")
     meta = {}
     mail = imap_connect()
@@ -577,18 +558,12 @@ def main():
             meta = parse_meta(csv_text) if csv_text else {}
         mail.logout()
 
-    # ── Delta
     yesterday = load_yesterday()
     save_today(g_camp, meta)
 
-    # ── Summary
-    print(f"\n  Google Ads → AED {g_camp.get('cost',0):.2f} | "
-          f"{g_camp.get('clicks',0)} clicks | "
-          f"{g_camp.get('conversions',0)} conv")
-    print(f"  Meta Ads   → AED {meta.get('spent',0):.2f} | "
-          f"{meta.get('results',0)} results")
+    print(f"\n  Google Ads → AED {g_camp.get('cost',0):.2f} | {g_camp.get('clicks',0)} clicks | {g_camp.get('conversions',0)} conv")
+    print(f"  Meta Ads   → AED {meta.get('spent',0):.2f} | {meta.get('results',0)} results")
 
-    # ── Post to Slack
     print("\n📤 Posting to Slack...")
     blocks = build_blocks(g_camp, g_conv, g_search, g_auction, g_landing, meta, yesterday)
     post_slack(blocks)
