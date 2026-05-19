@@ -17,6 +17,9 @@ on:
           - booking-bot
           - ads-snapshot
 
+permissions:
+  contents: write
+
 jobs:
 
   fleet-availability:
@@ -49,7 +52,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          token: token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
@@ -158,12 +161,12 @@ jobs:
       - run: pip install requests pytz slack-sdk pandas openpyxl --break-system-packages
       - name: Run Daily Ads Snapshot
         env:
-          SLACK_BOT_TOKEN:        ${{ secrets.SLACK_BOT_TOKEN }}
-          GMAIL_ADDRESS:          ${{ secrets.GMAIL_ADDRESS }}
-          GMAIL_APP_PASSWORD:     ${{ secrets.GMAIL_APP_PASSWORD }}
-          META_GMAIL_ADDRESS:     ${{ secrets.META_GMAIL_ADDRESS }}
+          SLACK_BOT_TOKEN:         ${{ secrets.SLACK_BOT_TOKEN }}
+          GMAIL_ADDRESS:           ${{ secrets.GMAIL_ADDRESS }}
+          GMAIL_APP_PASSWORD:      ${{ secrets.GMAIL_APP_PASSWORD }}
+          META_GMAIL_ADDRESS:      ${{ secrets.META_GMAIL_ADDRESS }}
           META_GMAIL_APP_PASSWORD: ${{ secrets.META_GMAIL_APP_PASSWORD }}
-          TEST_MODE:              "True"
+          TEST_MODE:               "True"
         run: python "MKV Daily Ads Snapshot.py"
       - name: Keep repo active
         run: |
