@@ -47,7 +47,7 @@ SLACK_TOKEN        = os.environ.get("SLACK_BOT_TOKEN", "YOUR_SLACK_BOT_TOKEN")
 GMAIL_ADDRESS      = os.environ.get("GMAIL_ADDRESS", "shahbazmkv@gmail.com")
 GMAIL_APP_PASSWORD = os.environ.get("GMAIL_APP_PASSWORD", "YOUR_APP_PASSWORD")
 
-TEST_MODE          = os.environ.get("TEST_MODE", "false").lower() == "true"
+TEST_MODE          = os.environ.get("TEST_MODE", "true").lower() == "true"
 SLACK_CHANNEL      = "C0B0TGBDCDU" if TEST_MODE else "C0AASQKLY59"
 
 DELTA_FILE         = "mkv_yesterday_metrics.json"   # stores prev day for delta
