@@ -1,481 +1,440 @@
 """
-MKV Daily Ads Snapshot — Gmail → Slack Automation
-==================================================
-Version : 2.0  (19 May 2026)
-Changes : Correct email subjects, Meta forwarded email fix,
-          Google Ads download-link parser, retry logic,
-          day-over-day delta, Slack Block Kit, error alerts.
+MKV Daily Ads Snapshot — Google Ads API + Meta Gmail → Slack
+=============================================================
+Version : 3.0  (19 May 2026)
+- Pulls data directly from Google Ads API (no CSV, no email links)
+- Meta Ads still via Gmail (forwarded email with CSV attachment)
+- Posts unified daily snapshot to Slack via Block Kit
+- Day-over-day delta on all key metrics
+- Performance score calibrated for luxury automotive
 
-Gmail accounts
-  Google Ads reports → shahbazmkv@gmail.com
-  Meta Ads report    → forwarded to shahbazmkv@gmail.com
-                       (original from contact@mkvluxury.com)
-
-Slack channels
-  Test  : mkv-test-automation   C0B0TGBDCDU
-  Live  : mkv-marketing-team    C0AASQKLY59
-
-GitHub Secrets required
+GitHub Secrets required:
   SLACK_BOT_TOKEN
-  GMAIL_ADDRESS         (shahbazmkv@gmail.com)
-  GMAIL_APP_PASSWORD    (16-char App Password)
+  GOOGLE_ADS_DEVELOPER_TOKEN
+  GOOGLE_ADS_CLIENT_ID
+  GOOGLE_ADS_CLIENT_SECRET
+  GOOGLE_ADS_REFRESH_TOKEN
+  GOOGLE_ADS_CUSTOMER_ID        (3847584613 — no dashes)
+  GMAIL_ADDRESS                 (shahbazmkv@gmail.com)
+  GMAIL_APP_PASSWORD
 
-Run: python mkv_daily_report_v2.py
-     TEST_MODE=true python mkv_daily_report_v2.py
+Run: python mkv_ads_api_report.py
+     TEST_MODE=true python mkv_ads_api_report.py
 """
 
-import imaplib
-import email
-import io
-import gzip
 import os
+import io
 import re
 import json
 import time
+import gzip
+import imaplib
 import urllib.request
-import urllib.parse
 import pandas as pd
 from datetime import datetime, timedelta
 from email import message_from_bytes
 from email.header import decode_header
+from google.ads.googleads.client import GoogleAdsClient
+from google.ads.googleads.errors import GoogleAdsException
 from slack_sdk import WebClient
 from slack_sdk.errors import SlackApiError
 
 # ── CONFIG ────────────────────────────────────────────────────────────────────
 
-SLACK_TOKEN        = os.environ.get("SLACK_BOT_TOKEN", "YOUR_SLACK_BOT_TOKEN")
-GMAIL_ADDRESS      = os.environ.get("GMAIL_ADDRESS", "shahbazmkv@gmail.com")
-GMAIL_APP_PASSWORD = os.environ.get("GMAIL_APP_PASSWORD", "YOUR_APP_PASSWORD")
+SLACK_TOKEN         = os.environ.get("SLACK_BOT_TOKEN", "")
+DEVELOPER_TOKEN     = os.environ.get("GOOGLE_ADS_DEVELOPER_TOKEN", "")
+CLIENT_ID           = os.environ.get("GOOGLE_ADS_CLIENT_ID", "")
+CLIENT_SECRET       = os.environ.get("GOOGLE_ADS_CLIENT_SECRET", "")
+REFRESH_TOKEN       = os.environ.get("GOOGLE_ADS_REFRESH_TOKEN", "")
+CUSTOMER_ID         = os.environ.get("GOOGLE_ADS_CUSTOMER_ID", "")
+LOGIN_CUSTOMER_ID   = os.environ.get("GOOGLE_ADS_LOGIN_CUSTOMER_ID", "")
 
-TEST_MODE          = os.environ.get("TEST_MODE", "true").lower() == "true"
-SLACK_CHANNEL      = "C0B0TGBDCDU" if TEST_MODE else "C0AASQKLY59"
+GMAIL_ADDRESS       = os.environ.get("GMAIL_ADDRESS", "")
+GMAIL_APP_PASSWORD  = os.environ.get("GMAIL_APP_PASSWORD", "")
 
-DELTA_FILE         = "mkv_yesterday_metrics.json"   # stores prev day for delta
+TEST_MODE           = os.environ.get("TEST_MODE", "false").lower() == "true"
+SLACK_CHANNEL       = "C0B0TGBDCDU" if TEST_MODE else "C0AASQKLY59"
 
-# ── EXACT subject lines as they arrive in Gmail ───────────────────────────────
-GOOGLE_SUBJECTS = {
-    "campaign"    : "Your Google Ads report is ready: Campaign performance",
-    "conversions" : "Your Google Ads report is ready: Conversions",
-    "search_terms": "Your Google Ads report is ready: Search terms",
-    "auction"     : "Your Google Ads report is ready: Auction insights - search",
-    "landing"     : "Your Google Ads report is ready: MKV Google Ads - Landing Pages",
-}
+DELTA_FILE          = "mkv_yesterday_metrics.json"
+REPORT_DATE         = (datetime.now() - timedelta(days=1)).strftime("%d %b %Y")
+DATE_RANGE          = (datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d")
 
-# Meta arrives as a forward — search by subject keyword in shahbazmkv inbox
 META_SUBJECT_KEYWORD = "Your Daily Facebook ads report"
 
-REPORT_DATE = (datetime.now() - timedelta(days=1)).strftime("%d %b %Y")  # yesterday's data
+# ── GOOGLE ADS CLIENT ─────────────────────────────────────────────────────────
 
-# ── IMAP HELPERS ──────────────────────────────────────────────────────────────
+def get_google_ads_client():
+    """Initialize Google Ads API client."""
+    config = {
+        "developer_token"  : DEVELOPER_TOKEN,
+        "client_id"        : CLIENT_ID,
+        "client_secret"    : CLIENT_SECRET,
+        "refresh_token"    : REFRESH_TOKEN,
+        "login_customer_id": LOGIN_CUSTOMER_ID,
+        "use_proto_plus"   : True,
+    }
+    return GoogleAdsClient.load_from_dict(config)
+
+# ── GOOGLE ADS API QUERIES ────────────────────────────────────────────────────
+
+def fetch_campaign_performance(client):
+    """Fetch campaign performance metrics for yesterday."""
+    print("  → Fetching campaign performance...")
+    ga_service = client.get_service("GoogleAdsService")
+
+    query = f"""
+        SELECT
+            campaign.name,
+            metrics.impressions,
+            metrics.clicks,
+            metrics.cost_micros,
+            metrics.conversions,
+            metrics.ctr
+        FROM campaign
+        WHERE segments.date = '{DATE_RANGE}'
+          AND campaign.status = 'ENABLED'
+        ORDER BY metrics.cost_micros DESC
+        LIMIT 10
+    """
+
+    try:
+        response = ga_service.search(customer_id=CUSTOMER_ID, query=query)
+        campaigns = []
+        total = {"impressions": 0, "clicks": 0, "cost": 0, "conversions": 0}
+
+        for row in response:
+            cost = row.metrics.cost_micros / 1_000_000
+            impr = row.metrics.impressions
+            clks = row.metrics.clicks
+            conv = row.metrics.conversions
+            ctr  = round(row.metrics.ctr * 100, 2)
+
+            total["impressions"]  += impr
+            total["clicks"]       += clks
+            total["cost"]         += cost
+            total["conversions"]  += conv
+
+            campaigns.append({
+                "name"    : row.campaign.name[:45],
+                "spend"   : round(cost, 2),
+                "clicks"  : int(clks),
+                "ctr"     : ctr,
+                "conv"    : round(conv, 1),
+            })
+
+        total_impr = total["impressions"]
+        total_clks = total["clicks"]
+        total_cost = round(total["cost"], 2)
+        total_conv = round(total["conversions"], 1)
+
+        print(f"    ✅ Campaign: AED {total_cost} | {total_clks} clicks | {total_conv} conv")
+        return {
+            "impressions"   : int(total_impr),
+            "clicks"        : int(total_clks),
+            "cost"          : total_cost,
+            "conversions"   : total_conv,
+            "ctr"           : round(total_clks / total_impr * 100, 2) if total_impr > 0 else 0,
+            "cost_per_conv" : round(total_cost / total_conv, 2) if total_conv > 0 else 0,
+            "campaigns"     : campaigns[:3],
+        }
+    except GoogleAdsException as ex:
+        print(f"    ❌ Campaign fetch failed: {ex.error.code().name}")
+        return {}
+
+
+def fetch_conversions(client):
+    """Fetch conversion breakdown."""
+    print("  → Fetching conversions...")
+    ga_service = client.get_service("GoogleAdsService")
+
+    query = f"""
+        SELECT
+            conversion_action.name,
+            metrics.conversions,
+            metrics.cost_per_conversion
+        FROM conversion_action
+        WHERE segments.date = '{DATE_RANGE}'
+          AND metrics.conversions > 0
+        ORDER BY metrics.conversions DESC
+        LIMIT 5
+    """
+
+    try:
+        response = ga_service.search(customer_id=CUSTOMER_ID, query=query)
+        rows = []
+        for row in response:
+            cpc = round(row.metrics.cost_per_conversion / 1_000_000, 2)
+            rows.append(
+                f"• {row.conversion_action.name[:35]}  "
+                f"— {round(row.metrics.conversions, 1)} conv"
+                f"{f' | AED {cpc}/conv' if cpc > 0 else ''}"
+            )
+        print(f"    ✅ Conversions: {len(rows)} types")
+        return {"breakdown": rows or ["• No conversions recorded today"]}
+    except GoogleAdsException as ex:
+        print(f"    ❌ Conversions fetch failed: {ex.error.code().name}")
+        return {"breakdown": ["• Could not fetch conversion data"]}
+
+
+def fetch_search_terms(client):
+    """Fetch top search terms by clicks."""
+    print("  → Fetching search terms...")
+    ga_service = client.get_service("GoogleAdsService")
+
+    query = f"""
+        SELECT
+            search_term_view.search_term,
+            metrics.clicks,
+            metrics.impressions
+        FROM search_term_view
+        WHERE segments.date = '{DATE_RANGE}'
+          AND metrics.clicks > 0
+        ORDER BY metrics.clicks DESC
+        LIMIT 5
+    """
+
+    try:
+        response = ga_service.search(customer_id=CUSTOMER_ID, query=query)
+        terms = []
+        for row in response:
+            terms.append(
+                f"• {row.search_term_view.search_term[:50]}"
+                f"  ({int(row.metrics.clicks)} clicks)"
+            )
+        print(f"    ✅ Search terms: {len(terms)} found")
+        return {"terms": terms or ["• No search term data today"]}
+    except GoogleAdsException as ex:
+        print(f"    ❌ Search terms fetch failed: {ex.error.code().name}")
+        return {"terms": ["• Could not fetch search term data"]}
+
+
+def fetch_auction_insights(client):
+    """Fetch auction insights / competitor data."""
+    print("  → Fetching auction insights...")
+    ga_service = client.get_service("GoogleAdsService")
+
+    query = f"""
+        SELECT
+            auction_insight.domain,
+            metrics.auction_insight_search_impression_share,
+            metrics.auction_insight_search_overlap_rate
+        FROM auction_insight
+        WHERE segments.date = '{DATE_RANGE}'
+        ORDER BY metrics.auction_insight_search_impression_share DESC
+        LIMIT 5
+    """
+
+    try:
+        response = ga_service.search(customer_id=CUSTOMER_ID, query=query)
+        competitors = []
+        for row in response:
+            is_pct   = round(row.metrics.auction_insight_search_impression_share * 100, 1)
+            ovlp_pct = round(row.metrics.auction_insight_search_overlap_rate * 100, 1)
+            competitors.append(
+                f"• {row.auction_insight.domain[:35]}"
+                f"  — IS: {is_pct}% | Overlap: {ovlp_pct}%"
+            )
+        print(f"    ✅ Auction insights: {len(competitors)} competitors")
+        return {"competitors": competitors or ["• No competitor data today"]}
+    except GoogleAdsException as ex:
+        print(f"    ❌ Auction insights fetch failed: {ex.error.code().name}")
+        return {"competitors": ["• Could not fetch competitor data"]}
+
+
+def fetch_landing_pages(client):
+    """Fetch top landing pages by clicks."""
+    print("  → Fetching landing pages...")
+    ga_service = client.get_service("GoogleAdsService")
+
+    query = f"""
+        SELECT
+            landing_page_view.unexpanded_final_url,
+            metrics.clicks,
+            metrics.conversions,
+            metrics.ctr
+        FROM landing_page_view
+        WHERE segments.date = '{DATE_RANGE}'
+          AND metrics.clicks > 0
+        ORDER BY metrics.clicks DESC
+        LIMIT 5
+    """
+
+    try:
+        response = ga_service.search(customer_id=CUSTOMER_ID, query=query)
+        pages = []
+        for row in response:
+            url  = row.landing_page_view.unexpanded_final_url.replace("https://www.mkvluxury.com", "")
+            ctr  = round(row.metrics.ctr * 100, 2)
+            conv = round(row.metrics.conversions, 1)
+            pages.append(
+                f"• {url[:50]}  —  "
+                f"{int(row.metrics.clicks)} clicks"
+                f" | CTR {ctr}%"
+                f"{f' | {conv} conv' if conv > 0 else ''}"
+            )
+        print(f"    ✅ Landing pages: {len(pages)} found")
+        return {"pages": pages or ["• No landing page data today"]}
+    except GoogleAdsException as ex:
+        print(f"    ❌ Landing pages fetch failed: {ex.error.code().name}")
+        return {"pages": ["• Could not fetch landing page data"]}
+
+# ── META ADS — GMAIL ──────────────────────────────────────────────────────────
 
 def imap_connect(retries=3):
-    """Connect to Gmail IMAP with retry logic."""
     for attempt in range(1, retries + 1):
         try:
             mail = imaplib.IMAP4_SSL("imap.gmail.com")
             mail.login(GMAIL_ADDRESS, GMAIL_APP_PASSWORD)
             mail.select("inbox")
-            print(f"  ✅  Gmail connected (attempt {attempt})")
+            print(f"  ✅  Gmail connected")
             return mail
         except Exception as e:
-            print(f"  ⚠️   Gmail connect attempt {attempt} failed: {e}")
+            print(f"  ⚠️   Gmail attempt {attempt} failed: {e}")
             if attempt < retries:
                 time.sleep(5)
-    print("  ❌  Could not connect to Gmail after 3 attempts")
     return None
 
 
-def fetch_email_by_subject(mail, subject_line):
-    """
-    Search inbox for an email whose subject contains subject_line.
-    Tries today first, then yesterday as fallback.
-    Returns the raw email.Message object or None.
-    """
+def fetch_meta_email(mail):
     for days_ago in [0, 1]:
         since = (datetime.now() - timedelta(days=days_ago)).strftime("%d-%b-%Y")
-        # Use SUBJECT search — works even for forwarded emails
-        query = f'(SUBJECT "{subject_line}" SINCE {since})'
+        query = f'(SUBJECT "{META_SUBJECT_KEYWORD}" SINCE {since})'
         _, msg_ids = mail.search(None, query)
         ids = msg_ids[0].split() if msg_ids[0] else []
         if ids:
-            latest = ids[-1]
-            _, msg_data = mail.fetch(latest, "(RFC822)")
-            raw = msg_data[0][1]
-            msg = message_from_bytes(raw)
-            subj = _decode_subject(msg.get("Subject", ""))
-            print(f"  ✅  Found: '{subj[:60]}' (SINCE {since})")
+            _, msg_data = mail.fetch(ids[-1], "(RFC822)")
+            msg = message_from_bytes(msg_data[0][1])
+            print(f"  ✅  Meta email found")
             return msg
-    print(f"  ⚠️   Not found: '{subject_line}'")
+    print(f"  ⚠️   Meta email not found")
     return None
 
 
-def _decode_subject(raw_subject):
-    parts = decode_header(raw_subject)
-    decoded = ""
-    for part, enc in parts:
-        if isinstance(part, bytes):
-            decoded += part.decode(enc or "utf-8", errors="ignore")
-        else:
-            decoded += str(part)
-    return decoded
-
-# ── CSV EXTRACTION ────────────────────────────────────────────────────────────
-
-def extract_csv_from_message(msg):
-    """
-    Extract CSV content from an email message.
-    Handles: direct CSV attachment, GZ attachment, download link in body.
-    Returns a string (CSV text) or None.
-    """
-    # 1. Check for CSV / GZ attachments
+def extract_csv(msg):
     for part in msg.walk():
         fname = part.get_filename() or ""
         ctype = part.get_content_type()
-        is_csv = (
-            fname.endswith(".csv") or
-            fname.endswith(".csv.gz") or
-            ctype in ("text/csv", "application/csv",
-                      "application/octet-stream", "application/gzip")
-        )
-        if is_csv and part.get_payload(decode=True):
+        if fname.endswith(".csv") or ctype in ("text/csv", "application/csv", "application/octet-stream"):
             payload = part.get_payload(decode=True)
-            if fname.endswith(".gz") or ctype == "application/gzip":
-                try:
-                    payload = gzip.decompress(payload)
-                except Exception:
-                    pass
-            return _decode_csv_bytes(payload)
-
-    # 2. Look for a download link in the plain-text body
-    for part in msg.walk():
-        if part.get_content_type() == "text/plain":
-            body = part.get_payload(decode=True)
-            if body:
-                text = body.decode("utf-8", errors="ignore")
-                # Google Ads report download links
-                link_match = re.search(
-                    r'https://storage\.googleapis\.com/[^\s"<>]+\.csv[^\s"<>]*',
-                    text
-                )
-                if link_match:
-                    url = link_match.group(0).strip()
-                    print(f"    → Downloading CSV from link: {url[:80]}...")
-                    return _download_url(url)
-
+            if payload:
+                for enc in ("utf-8-sig", "utf-8", "latin-1"):
+                    try:
+                        return payload.decode(enc)
+                    except:
+                        continue
     return None
 
-
-def _decode_csv_bytes(payload):
-    """Try multiple encodings to decode CSV bytes."""
-    for enc in ("utf-8-sig", "utf-8", "latin-1"):
-        try:
-            return payload.decode(enc)
-        except Exception:
-            continue
-    return payload.decode("utf-8", errors="replace")
-
-
-def _download_url(url, retries=3):
-    """Download a URL and return content as string."""
-    for attempt in range(1, retries + 1):
-        try:
-            req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
-            with urllib.request.urlopen(req, timeout=30) as resp:
-                return _decode_csv_bytes(resp.read())
-        except Exception as e:
-            print(f"    ⚠️   Download attempt {attempt} failed: {e}")
-            if attempt < retries:
-                time.sleep(3)
-    return None
-
-# ── CSV → DATAFRAME ───────────────────────────────────────────────────────────
-
-def csv_to_df(csv_text, report_name=""):
-    """
-    Convert CSV text to a clean DataFrame.
-    Skips Google Ads header/footer rows automatically.
-    """
-    if not csv_text:
-        return None
-    try:
-        lines = csv_text.split("\n")
-        # Find the header row (first row containing known column keywords)
-        header_keywords = [
-            "Campaign", "Impressions", "Clicks", "Cost", "Search term",
-            "Reach", "Results", "Ad set", "Conversions", "Landing page",
-            "Display URL", "Impression share"
-        ]
-        start = 0
-        for i, line in enumerate(lines):
-            if any(kw in line for kw in header_keywords):
-                start = i
-                break
-
-        df = pd.read_csv(io.StringIO("\n".join(lines[start:])))
-        # Drop completely empty rows and Google summary/footer rows
-        df = df.dropna(how="all")
-        first_col = df.columns[0]
-        df = df[~df[first_col].astype(str).str.match(
-            r"^(Total|Report|©|Grand|\s*$)", na=False
-        )]
-        df = df.reset_index(drop=True)
-        print(f"    → {report_name}: {len(df)} rows loaded")
-        return df
-    except Exception as e:
-        print(f"    ❌  CSV parse error ({report_name}): {e}")
-        return None
-
-# ── NORMALISE HELPERS ─────────────────────────────────────────────────────────
 
 def norm_cols(df):
-    """Normalise column names: lowercase, replace spaces/slashes with _."""
     df = df.copy()
-    df.columns = [
-        c.strip().lower()
-         .replace(" ", "_").replace("/", "_")
-         .replace("(", "").replace(")", "")
-        for c in df.columns
-    ]
+    df.columns = [c.strip().lower().replace(" ", "_").replace("/", "_").replace("(", "").replace(")", "") for c in df.columns]
     return df
 
 
 def to_num(series):
-    """Convert a Series to numeric, stripping currency symbols & commas."""
     return pd.to_numeric(
-        series.astype(str)
-              .str.replace(",", "", regex=False)
+        series.astype(str).str.replace(",", "", regex=False)
               .str.replace("AED", "", regex=False)
-              .str.replace("د.إ", "", regex=False)
-              .str.replace("%", "", regex=False)
-              .str.strip(),
+              .str.replace("%", "", regex=False).str.strip(),
         errors="coerce"
     ).fillna(0)
 
 
 def find_col(df, *keywords):
-    """Return first column name whose lowercase contains any keyword."""
     for kw in keywords:
         for col in df.columns:
             if kw in col:
                 return col
     return None
 
-# ── PARSERS ───────────────────────────────────────────────────────────────────
 
-def parse_campaign(df):
-    if df is None or df.empty:
+def parse_meta(csv_text):
+    if not csv_text:
         return {}
-    df = norm_cols(df)
-    imp_col = find_col(df, "impress")
-    clk_col = find_col(df, "clicks")
-    cst_col = find_col(df, "cost")       # avoid "cost_per_conv"
-    cnv_col = find_col(df, "conversions")
-    cam_col = find_col(df, "campaign")
-
-    # Exclude cost-per-conversion columns from spend total
-    if cst_col and ("conv" in cst_col or "per" in cst_col):
-        cst_col = None
-        for col in df.columns:
-            if "cost" in col and "conv" not in col and "per" not in col:
-                cst_col = col
+    try:
+        lines = csv_text.split("\n")
+        start = 0
+        for i, line in enumerate(lines):
+            if any(kw in line for kw in ["Reach", "Impressions", "Results", "Amount"]):
+                start = i
                 break
+        df = pd.read_csv(io.StringIO("\n".join(lines[start:])))
+        df = df.dropna(how="all").reset_index(drop=True)
+        df = norm_cols(df)
 
-    impr = to_num(df[imp_col]).sum() if imp_col else 0
-    clks = to_num(df[clk_col]).sum() if clk_col else 0
-    cost = to_num(df[cst_col]).sum() if cst_col else 0
-    conv = to_num(df[cnv_col]).sum() if cnv_col else 0
+        imp_col   = find_col(df, "impress")
+        reach_col = find_col(df, "reach")
+        clk_col   = find_col(df, "clicks")
+        cst_col   = find_col(df, "spent", "spend", "amount")
+        res_col   = find_col(df, "results")
+        cpr_col   = find_col(df, "cost_per_result", "cost_per")
 
-    # Top campaigns breakdown
-    campaigns = []
-    if cam_col:
-        for _, row in df.iterrows():
-            c_impr = to_num(pd.Series([row[imp_col]])).iloc[0] if imp_col else 0
-            c_clks = to_num(pd.Series([row[clk_col]])).iloc[0] if clk_col else 0
-            c_cost = to_num(pd.Series([row[cst_col]])).iloc[0] if cst_col else 0
-            campaigns.append({
-                "name"  : str(row[cam_col])[:45],
-                "spend" : round(c_cost, 2),
-                "clicks": int(c_clks),
-                "ctr"   : round(c_clks / c_impr * 100, 2) if c_impr > 0 else 0,
-            })
-        campaigns.sort(key=lambda x: x["spend"], reverse=True)
+        spent = round(to_num(df[cst_col]).sum(), 2)   if cst_col   else 0
+        impr  = int(to_num(df[imp_col]).sum())         if imp_col   else 0
+        reach = int(to_num(df[reach_col]).sum())       if reach_col else 0
+        clks  = int(to_num(df[clk_col]).sum())         if clk_col   else 0
+        res   = int(to_num(df[res_col]).sum())          if res_col   else 0
+        cpr   = round(to_num(df[cpr_col]).mean(), 2)   if cpr_col   else 0
+        ctr   = round(clks / impr * 100, 2)            if impr > 0  else 0
 
-    return {
-        "impressions"   : int(impr),
-        "clicks"        : int(clks),
-        "cost"          : round(cost, 2),
-        "conversions"   : int(conv),
-        "ctr"           : round(clks / impr * 100, 2) if impr > 0 else 0,
-        "cost_per_conv" : round(cost / conv, 2) if conv > 0 else 0,
-        "campaigns"     : campaigns[:3],
-    }
-
-
-def parse_conversions(df):
-    if df is None or df.empty:
+        print(f"    ✅ Meta: AED {spent} | {res} results | CTR {ctr}%")
+        return {"spent": spent, "impressions": impr, "reach": reach,
+                "clicks": clks, "results": res, "cost_per_result": cpr, "ctr": ctr}
+    except Exception as e:
+        print(f"    ❌ Meta parse error: {e}")
         return {}
-    df = norm_cols(df)
-    action_col = find_col(df, "action", "type", "conversion_name")
-    value_col  = find_col(df, "conversions", "value")
-    cpc_col    = find_col(df, "cost_per", "cost__conv")
-    rows = []
-    if action_col:
-        for _, row in df.iterrows():
-            val = f" — {row[value_col]}" if value_col else ""
-            cpc = f" | AED {row[cpc_col]}/conv" if cpc_col else ""
-            rows.append(f"• {row[action_col]}{val}{cpc}")
-    return {"breakdown": rows[:5]}
-
-
-def parse_search_terms(df, top_n=5):
-    if df is None or df.empty:
-        return {}
-    df = norm_cols(df)
-    term_col = find_col(df, "search_term", "query", "term")
-    clk_col  = find_col(df, "clicks")
-    if not term_col or not clk_col:
-        return {}
-    df[clk_col] = to_num(df[clk_col])
-    top = df.nlargest(top_n, clk_col)
-    return {
-        "terms": [
-            f"• {row[term_col]}  ({int(row[clk_col])} clicks)"
-            for _, row in top.iterrows()
-        ]
-    }
-
-
-def parse_auction(df, top_n=5):
-    if df is None or df.empty:
-        return {}
-    df = norm_cols(df)
-    domain_col  = find_col(df, "domain", "display_url", "competitor", "name")
-    overlap_col = find_col(df, "overlap", "impression_share")
-    rows = []
-    for _, row in df.head(top_n).iterrows():
-        overlap = f"  {row[overlap_col]}" if overlap_col else ""
-        rows.append(f"• {row[domain_col]}{overlap}")
-    return {"competitors": rows}
-
-
-def parse_landing(df, top_n=3):
-    if df is None or df.empty:
-        return {}
-    df = norm_cols(df)
-    url_col = find_col(df, "landing_page", "final_url", "url")
-    clk_col = find_col(df, "clicks")
-    ctr_col = find_col(df, "ctr")
-    if not url_col or not clk_col:
-        return {}
-    df[clk_col] = to_num(df[clk_col])
-    top = df.nlargest(top_n, clk_col)
-    pages = []
-    for _, r in top.iterrows():
-        url   = str(r[url_col]).replace("https://www.mkvluxury.com", "")
-        ctr   = f" | CTR {r[ctr_col]}" if ctr_col else ""
-        pages.append(f"• {url[:55]}  —  {int(r[clk_col])} clicks{ctr}")
-    return {"pages": pages}
-
-
-def parse_meta(df):
-    """
-    Parse Meta Ads CSV.
-    Meta exports: Amount spent (AED), Reach, Impressions, Clicks (all),
-                  Results, Cost per result, CTR (all)
-    """
-    if df is None or df.empty:
-        return {}
-    df = norm_cols(df)
-    imp_col  = find_col(df, "impress")
-    reach_col= find_col(df, "reach")
-    clk_col  = find_col(df, "clicks")
-    cst_col  = find_col(df, "spent", "spend", "amount")
-    res_col  = find_col(df, "results")
-    cpr_col  = find_col(df, "cost_per_result", "cost_per")
-
-    spent = round(to_num(df[cst_col]).sum(), 2) if cst_col else 0
-    impr  = int(to_num(df[imp_col]).sum())  if imp_col  else 0
-    reach = int(to_num(df[reach_col]).sum()) if reach_col else 0
-    clks  = int(to_num(df[clk_col]).sum())  if clk_col  else 0
-    res   = int(to_num(df[res_col]).sum())   if res_col  else 0
-    cpr   = round(to_num(df[cpr_col]).mean(), 2) if cpr_col else 0
-
-    ctr   = round(clks / impr * 100, 2) if impr > 0 else 0
-
-    return {
-        "spent"          : spent,
-        "impressions"    : impr,
-        "reach"          : reach,
-        "clicks"         : clks,
-        "results"        : res,
-        "cost_per_result": cpr,
-        "ctr"            : ctr,
-    }
 
 # ── DAY-OVER-DAY DELTA ────────────────────────────────────────────────────────
 
 def load_yesterday():
     try:
         if os.path.exists(DELTA_FILE):
-            with open(DELTA_FILE, "r") as f:
+            with open(DELTA_FILE) as f:
                 return json.load(f)
-    except Exception:
+    except:
         pass
     return {}
 
 
 def save_today(g_camp, meta):
-    data = {
-        "date"       : REPORT_DATE,
-        "g_cost"     : g_camp.get("cost", 0),
-        "g_clicks"   : g_camp.get("clicks", 0),
-        "g_conv"     : g_camp.get("conversions", 0),
-        "g_ctr"      : g_camp.get("ctr", 0),
-        "m_spent"    : meta.get("spent", 0),
-        "m_results"  : meta.get("results", 0),
-    }
     try:
         with open(DELTA_FILE, "w") as f:
-            json.dump(data, f)
+            json.dump({
+                "date"     : REPORT_DATE,
+                "g_cost"   : g_camp.get("cost", 0),
+                "g_clicks" : g_camp.get("clicks", 0),
+                "g_conv"   : g_camp.get("conversions", 0),
+                "m_spent"  : meta.get("spent", 0),
+                "m_results": meta.get("results", 0),
+            }, f)
     except Exception as e:
-        print(f"  ⚠️   Could not save delta file: {e}")
+        print(f"  ⚠️   Could not save delta: {e}")
 
 
-def delta(today_val, yesterday_val, prefix="AED ", pct=False):
-    """Return a formatted delta string e.g. '+AED 120 ↑' or '-5% ↓'."""
-    if yesterday_val == 0:
+def delta(today, yesterday, prefix="AED "):
+    if yesterday == 0:
         return ""
-    diff = today_val - yesterday_val
-    pct_change = round(diff / yesterday_val * 100, 1)
+    diff = today - yesterday
     arrow = "↑" if diff > 0 else "↓" if diff < 0 else "→"
-    if pct:
-        return f"  ({'+' if diff >= 0 else ''}{pct_change}% {arrow})"
     return f"  ({'+' if diff >= 0 else ''}{prefix}{abs(diff):,.0f} {arrow})"
 
 # ── PERFORMANCE SCORE ─────────────────────────────────────────────────────────
 
 def score_report(g_camp, meta):
-    """
-    Score 0–100. Thresholds calibrated for luxury car rental industry.
-    CTR benchmark: 2–3% for luxury automotive.
-    """
-    score  = 0
-    notes  = []
-
+    score = 0
+    notes = []
     ctr  = g_camp.get("ctr", 0)
     conv = g_camp.get("conversions", 0)
     cost = g_camp.get("cost", 0)
     cpc  = g_camp.get("cost_per_conv", 0)
 
-    # CTR (25 pts)
     if ctr >= 3:
-        score += 25; notes.append("✅ CTR above industry benchmark (3%+)")
+        score += 25; notes.append("✅ CTR above benchmark (3%+)")
     elif ctr >= 1.5:
         score += 15; notes.append("🟡 CTR average — test new headlines")
     elif ctr > 0:
-        score += 5;  notes.append("🔴 Low CTR — urgent ad copy review needed")
+        score += 5;  notes.append("🔴 Low CTR — ad copy review needed")
 
-    # Conversions (30 pts)
     if conv >= 5:
         score += 30; notes.append("✅ Strong conversions")
     elif conv >= 1:
@@ -483,7 +442,6 @@ def score_report(g_camp, meta):
     else:
         notes.append("🔴 Zero conversions — check tracking & landing pages")
 
-    # Cost efficiency (20 pts)
     if 0 < cpc < 100:
         score += 20; notes.append("✅ Cost/conv efficient")
     elif 0 < cpc < 200:
@@ -491,36 +449,33 @@ def score_report(g_camp, meta):
     elif cpc >= 200:
         notes.append("🔴 High cost per conversion")
 
-    # Spend active (10 pts)
     if cost > 0:
         score += 10
 
-    # Meta (15 pts)
     if meta.get("spent", 0) > 0:
         score += 10; notes.append("✅ Meta Ads active")
         if meta.get("ctr", 0) >= 1.5:
             score += 5; notes.append("✅ Meta CTR strong")
 
     grade = (
-        "🟢 Excellent"        if score >= 80 else
-        "🟡 Good"             if score >= 60 else
-        "🟠 Needs Improvement" if score >= 40 else
+        "🟢 Excellent"         if score >= 80 else
+        "🟡 Good"              if score >= 60 else
+        "🟠 Needs Improvement"  if score >= 40 else
         "🔴 Needs Attention"
     )
     return min(score, 100), grade, notes
 
-# ── SLACK BLOCK KIT MESSAGE ───────────────────────────────────────────────────
+# ── SLACK BLOCK KIT ───────────────────────────────────────────────────────────
 
 def build_blocks(g_camp, g_conv, g_search, g_auction, g_landing, meta, yesterday):
     score, grade, notes = score_report(g_camp, meta)
 
-    # ── Deltas
-    d_cost  = delta(g_camp.get("cost", 0),    yesterday.get("g_cost", 0))
-    d_clk   = delta(g_camp.get("clicks", 0),  yesterday.get("g_clicks", 0), prefix="")
-    d_conv  = delta(g_camp.get("conversions",0),yesterday.get("g_conv",0), prefix="")
-    d_mcost = delta(meta.get("spent", 0),     yesterday.get("m_spent", 0))
+    d_cost  = delta(g_camp.get("cost", 0),   yesterday.get("g_cost", 0))
+    d_clk   = delta(g_camp.get("clicks", 0), yesterday.get("g_clicks", 0), prefix="")
+    d_conv  = delta(g_camp.get("conversions", 0), yesterday.get("g_conv", 0), prefix="")
+    d_mcost = delta(meta.get("spent", 0),    yesterday.get("m_spent", 0))
 
-    # ── Section texts
+    # Google Ads section
     if g_camp:
         g_text = (
             f"*Spend:* AED {g_camp.get('cost',0):,.2f}{d_cost}    "
@@ -536,7 +491,7 @@ def build_blocks(g_camp, g_conv, g_search, g_auction, g_landing, meta, yesterday
                 lines.append(f"  • {c['name']}  —  AED {c['spend']:,.0f} | {c['clicks']:,} clicks | {c['ctr']}% CTR")
             g_text += "\n" + "\n".join(lines)
     else:
-        g_text = "_No Google Ads data received yet_"
+        g_text = "_No Google Ads data today_"
 
     conv_text   = "\n".join(g_conv.get("breakdown", [])) or "_No conversion data_"
     search_text = "\n".join(g_search.get("terms", []))    or "_No search term data_"
@@ -556,64 +511,36 @@ def build_blocks(g_camp, g_conv, g_search, g_auction, g_landing, meta, yesterday
         meta_text = "_No Meta Ads data today_"
 
     score_text = f"*Score: {score}/100 — {grade}*\n" + "\n".join(notes)
+    mode_tag   = "🧪 TEST MODE" if TEST_MODE else "🚀 LIVE"
 
-    mode_tag = "🧪 TEST MODE" if TEST_MODE else "🚀 LIVE"
-
-    blocks = [
+    return [
         {"type": "header",
-         "text": {"type": "plain_text",
-                  "text": f"📊 MKV Daily Ads Snapshot — {REPORT_DATE}",
-                  "emoji": True}},
+         "text": {"type": "plain_text", "text": f"📊 MKV Daily Ads Snapshot — {REPORT_DATE}", "emoji": True}},
         {"type": "divider"},
-        {"type": "section",
-         "text": {"type": "mrkdwn", "text": f"*🔵 Google Ads Performance*\n{g_text}"}},
+        {"type": "section", "text": {"type": "mrkdwn", "text": f"*🔵 Google Ads Performance*\n{g_text}"}},
         {"type": "divider"},
-        {"type": "section",
-         "text": {"type": "mrkdwn", "text": f"*🎯 Conversions Breakdown*\n{conv_text}"}},
+        {"type": "section", "text": {"type": "mrkdwn", "text": f"*🎯 Conversions Breakdown*\n{conv_text}"}},
         {"type": "divider"},
-        {"type": "section",
-         "text": {"type": "mrkdwn", "text": f"*🔍 Top Search Terms*\n{search_text}"}},
+        {"type": "section", "text": {"type": "mrkdwn", "text": f"*🔍 Top Search Terms*\n{search_text}"}},
         {"type": "divider"},
-        {"type": "section",
-         "text": {"type": "mrkdwn", "text": f"*⚔️ Competitor Auction Insights*\n{comp_text}"}},
+        {"type": "section", "text": {"type": "mrkdwn", "text": f"*⚔️ Competitor Auction Insights*\n{comp_text}"}},
         {"type": "divider"},
-        {"type": "section",
-         "text": {"type": "mrkdwn", "text": f"*📄 Top Landing Pages*\n{land_text}"}},
+        {"type": "section", "text": {"type": "mrkdwn", "text": f"*📄 Top Landing Pages*\n{land_text}"}},
         {"type": "divider"},
-        {"type": "section",
-         "text": {"type": "mrkdwn", "text": f"*🟦 Meta Ads Performance*\n{meta_text}"}},
+        {"type": "section", "text": {"type": "mrkdwn", "text": f"*🟦 Meta Ads Performance*\n{meta_text}"}},
         {"type": "divider"},
-        {"type": "section",
-         "text": {"type": "mrkdwn", "text": f"*🏆 Performance Score*\n{score_text}"}},
+        {"type": "section", "text": {"type": "mrkdwn", "text": f"*🏆 Performance Score*\n{score_text}"}},
         {"type": "context",
          "elements": [{"type": "mrkdwn",
-                       "text": (f"_MKV Luxury Car Rental  •  Auto-generated  •  {mode_tag}_")}]},
-    ]
-    return blocks
-
-
-def build_error_blocks(errors):
-    """Post a warning block if some reports could not be fetched."""
-    error_list = "\n".join(f"• {e}" for e in errors)
-    return [
-        {"type": "section",
-         "text": {"type": "mrkdwn",
-                  "text": (f"⚠️  *MKV Ads Report — Partial Data Warning* ({REPORT_DATE})\n"
-                           f"The following reports could not be fetched:\n{error_list}\n"
-                           f"_Check Gmail and re-run if needed._")}},
+                       "text": f"_MKV Luxury Car Rental  •  Google Ads API v3.0  •  {mode_tag}_"}]},
     ]
 
-# ── SLACK POST ────────────────────────────────────────────────────────────────
 
-def post_slack(blocks, fallback_text="MKV Daily Ads Snapshot"):
+def post_slack(blocks, fallback="MKV Daily Ads Snapshot"):
     client = WebClient(token=SLACK_TOKEN)
     try:
-        client.chat_postMessage(
-            channel=SLACK_CHANNEL,
-            blocks=blocks,
-            text=fallback_text,
-        )
-        print(f"  ✅  Posted to Slack channel: {SLACK_CHANNEL}")
+        client.chat_postMessage(channel=SLACK_CHANNEL, blocks=blocks, text=fallback)
+        print(f"  ✅  Posted to Slack: {SLACK_CHANNEL}")
     except SlackApiError as e:
         print(f"  ❌  Slack error: {e.response['error']}")
 
@@ -621,80 +548,50 @@ def post_slack(blocks, fallback_text="MKV Daily Ads Snapshot"):
 
 def main():
     print("=" * 60)
-    print("  MKV Daily Ads Snapshot v2.0")
+    print("  MKV Daily Ads Snapshot v3.0 — Google Ads API")
     print(f"  {datetime.now().strftime('%Y-%m-%d %H:%M:%S')} | Report date: {REPORT_DATE}")
     print(f"  Mode: {'🧪 TEST' if TEST_MODE else '🚀 LIVE'}  |  Channel: {SLACK_CHANNEL}")
     print("=" * 60)
 
-    errors = []
+    # ── Google Ads API
+    print("\n📊 Fetching Google Ads data via API...")
+    try:
+        client  = get_google_ads_client()
+        g_camp    = fetch_campaign_performance(client)
+        g_conv    = fetch_conversions(client)
+        g_search  = fetch_search_terms(client)
+        g_auction = fetch_auction_insights(client)
+        g_landing = fetch_landing_pages(client)
+    except Exception as e:
+        print(f"  ❌  Google Ads API error: {e}")
+        g_camp = g_conv = g_search = g_auction = g_landing = {}
 
-    # ── Connect Gmail
+    # ── Meta Ads via Gmail
+    print("\n📥 Fetching Meta Ads from Gmail...")
+    meta = {}
     mail = imap_connect()
-    if not mail:
-        post_slack(build_error_blocks(["Could not connect to Gmail after 3 attempts"]),
-                   "MKV Ads Report — Gmail Connection Failed")
-        return
+    if mail:
+        meta_msg = fetch_meta_email(mail)
+        if meta_msg:
+            csv_text = extract_csv(meta_msg)
+            meta = parse_meta(csv_text) if csv_text else {}
+        mail.logout()
 
-    # ── Fetch Google Ads reports
-    print("\n📥 Fetching Google Ads reports...")
-    raw_reports = {}
-    for key, subject in GOOGLE_SUBJECTS.items():
-        msg = fetch_email_by_subject(mail, subject)
-        if msg:
-            csv_text = extract_csv_from_message(msg)
-            raw_reports[key] = csv_to_df(csv_text, key) if csv_text else None
-            if raw_reports[key] is None:
-                errors.append(f"Google Ads '{key}' — email found but CSV empty/unreadable")
-        else:
-            raw_reports[key] = None
-            errors.append(f"Google Ads '{key}' — email not found in Gmail")
-
-    # ── Fetch Meta Ads report (forwarded, in shahbazmkv inbox)
-    print("\n📥 Fetching Meta Ads report (forwarded)...")
-    meta_msg = fetch_email_by_subject(mail, META_SUBJECT_KEYWORD)
-    if meta_msg:
-        meta_csv = extract_csv_from_message(meta_msg)
-        df_meta  = csv_to_df(meta_csv, "meta") if meta_csv else None
-        if df_meta is None:
-            errors.append("Meta Ads — email found but CSV not readable")
-    else:
-        df_meta = None
-        errors.append("Meta Ads — email not found in Gmail")
-
-    mail.logout()
-
-    # ── Parse all reports
-    print("\n🔄 Parsing reports...")
-    g_camp    = parse_campaign(raw_reports.get("campaign"))
-    g_conv    = parse_conversions(raw_reports.get("conversions"))
-    g_search  = parse_search_terms(raw_reports.get("search_terms"))
-    g_auction = parse_auction(raw_reports.get("auction"))
-    g_landing = parse_landing(raw_reports.get("landing"))
-    meta      = parse_meta(df_meta)
-
-    # ── Delta vs yesterday
+    # ── Delta
     yesterday = load_yesterday()
     save_today(g_camp, meta)
 
-    # ── Print summary
-    print(f"\n  Google Ads → Spend: AED {g_camp.get('cost',0):.2f} | "
-          f"Clicks: {g_camp.get('clicks',0)} | "
-          f"CTR: {g_camp.get('ctr',0)}% | "
-          f"Conv: {g_camp.get('conversions',0)}")
-    print(f"  Meta Ads   → Spent: AED {meta.get('spent',0):.2f} | "
-          f"Results: {meta.get('results',0)} | "
-          f"CTR: {meta.get('ctr',0)}%")
+    # ── Summary
+    print(f"\n  Google Ads → AED {g_camp.get('cost',0):.2f} | "
+          f"{g_camp.get('clicks',0)} clicks | "
+          f"{g_camp.get('conversions',0)} conv")
+    print(f"  Meta Ads   → AED {meta.get('spent',0):.2f} | "
+          f"{meta.get('results',0)} results")
 
-    # ── Post report to Slack
+    # ── Post to Slack
     print("\n📤 Posting to Slack...")
     blocks = build_blocks(g_camp, g_conv, g_search, g_auction, g_landing, meta, yesterday)
     post_slack(blocks)
-
-    # ── Post error warning if any reports failed
-    if errors:
-        print(f"\n⚠️  {len(errors)} report(s) had issues — posting warning...")
-        post_slack(build_error_blocks(errors), "MKV Ads Report — Data Warning")
-
     print("\n✅  Done!\n")
 
 
