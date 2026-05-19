@@ -187,36 +187,44 @@ def fetch_search_terms(client):
 def fetch_auction_insights(client):
     print("  → Fetching auction insights...")
     ga_service = client.get_service("GoogleAdsService")
-    # Auction insights require campaign-level segmentation
+    date_7d_ago = (datetime.now() - timedelta(days=7)).strftime("%Y-%m-%d")
     query = f"""
         SELECT
             auction_insight.domain,
             metrics.auction_insight_search_impression_share,
             metrics.auction_insight_search_overlap_rate
         FROM auction_insight
-        WHERE segments.date BETWEEN '{DATE_RANGE}' AND '{DATE_RANGE}'
+        WHERE segments.date BETWEEN '{date_7d_ago}' AND '{DATE_RANGE}'
         ORDER BY metrics.auction_insight_search_impression_share DESC
-        LIMIT 6
+        LIMIT 10
     """
     try:
         response = ga_service.search(customer_id=CUSTOMER_ID, query=query)
-        competitors = []
-        seen = set()
+        competitors = {}
         for row in response:
             domain = row.auction_insight.domain
-            if domain in seen:
+            if not domain:
                 continue
-            seen.add(domain)
-            is_pct   = round(row.metrics.auction_insight_search_impression_share * 100, 1)
-            ovlp_pct = round(row.metrics.auction_insight_search_overlap_rate * 100, 1)
-            competitors.append(
-                f"• {domain[:35]}  — IS: {is_pct}% | Overlap: {ovlp_pct}%"
-            )
-        print(f"    ✅ Auction insights: {len(competitors)} competitors")
-        return {"competitors": competitors or ["• No competitor data today"]}
+            is_val   = row.metrics.auction_insight_search_impression_share
+            ovlp_val = row.metrics.auction_insight_search_overlap_rate
+            if domain not in competitors:
+                competitors[domain] = {"is": [], "overlap": []}
+            competitors[domain]["is"].append(is_val)
+            competitors[domain]["overlap"].append(ovlp_val)
+        rows = []
+        for domain, vals in sorted(
+            competitors.items(),
+            key=lambda x: sum(x[1]["is"]) / max(len(x[1]["is"]), 1),
+            reverse=True
+        )[:6]:
+            is_pct   = round(sum(vals["is"]) / len(vals["is"]) * 100, 1)
+            ovlp_pct = round(sum(vals["overlap"]) / len(vals["overlap"]) * 100, 1)
+            rows.append(f"• {domain[:35]}  — IS: {is_pct}% | Overlap: {ovlp_pct}%")
+        print(f"    ✅ Auction insights: {len(rows)} competitors")
+        return {"competitors": rows or ["• No competitor data available"]}
     except GoogleAdsException as ex:
-        print(f"    ❌ Auction insights fetch failed: {ex.error.code().name}")
-        return {"competitors": ["• Could not fetch competitor data"]}
+        print(f"    ❌ Auction insights failed: {ex.error.code().name}")
+        return {"competitors": [f"• Error: {ex.error.code().name}"]}
 
 
 def fetch_landing_pages(client):
