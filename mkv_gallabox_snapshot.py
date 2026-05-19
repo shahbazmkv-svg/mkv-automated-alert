@@ -9,34 +9,23 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 #   True  -> bot token + chat.postMessage -> #mkv-test-automation (C0B0TGBDCDU)
 #            MTD store NOT written to disk
 #   False -> webhook -> #mkv-daily-lead-report (C0ABN1ZKSGN)
-#            MTD store saved normally
 # ==============================================================================
 TEST_MODE = False
 
 # ==============================================================================
-# SLACK CHANNEL IDs
-# ==============================================================================
-CHANNEL_LEAD_REPORT = "C0ABN1ZKSGN"   # #mkv-daily-lead-report  (live)
-CHANNEL_TEST        = "C0B0TGBDCDU"   # #mkv-test-automation    (test)
-
-ACTIVE_CHANNEL = CHANNEL_TEST if TEST_MODE else CHANNEL_LEAD_REPORT
-
-# ==============================================================================
-# CREDENTIALS - env vars (GitHub Secrets) with local fallbacks
+# CREDENTIALS
 # ==============================================================================
 ACCOUNT_ID  = os.environ.get("GALLABOX_ACCOUNT_ID", "66e3f05033e71154d5fdd76c")
 API_KEY     = os.environ.get("GALLABOX_API_KEY",    "69e7694e2da59f609317986b")
 API_SECRET  = os.environ.get("GALLABOX_API_SECRET", "984394d316324482a8615eba6742b3ab")
 
-# Bot token: used in TEST_MODE via chat.postMessage to exact channel ID
-SLACK_BOT_TOKEN = os.environ.get("SLACK_BOT_TOKEN", "")
+SLACK_BOT_TOKEN     = os.environ.get("SLACK_BOT_TOKEN", "")
+WEBHOOK_LEAD_REPORT = os.environ.get("WEBHOOK_LEADS",   "https://hooks.slack.com/services/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")
 
-# Webhooks: live mode only
-WEBHOOK_LEAD_REPORT  = os.environ.get("WEBHOOK_LEADS",        "https://hooks.slack.com/services/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")
-WEBHOOK_CUST_SERVICE = os.environ.get("WEBHOOK_CUST_SERVICE", "https://hooks.slack.com/services/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")
-
-# MTD store path
 MTD_STORE = os.environ.get("MTD_STORE_PATH", "mtd_store.json")
+
+CHANNEL_LIVE = "C0ABN1ZKSGN"   # #mkv-daily-lead-report
+CHANNEL_TEST = "C0B0TGBDCDU"   # #mkv-test-automation
 
 # ==============================================================================
 # GALLABOX CONFIG
@@ -50,7 +39,7 @@ GALLABOX_CHANNELS = [
 ]
 
 # ==============================================================================
-# DATE / TIME SETUP
+# DATE / TIME
 # ==============================================================================
 dubai_tz            = timezone(timedelta(hours=4))
 utc_tz              = timezone.utc
@@ -122,7 +111,7 @@ def fetch_contact_details(contact_id):
 def fetch_all_conversations():
     all_convs = []; seen_ids = set()
     for ch in GALLABOX_CHANNELS:
-        for page in range(1, 3):
+        for page in range(1, 6):
             params = {"limit": 100, "page": page, "channelId": ch["id"], "channelType": "whatsapp"}
             try:
                 r     = requests.get(BASE_URL + "/conversations", headers=GALLABOX_HEADERS, params=params, timeout=15)
@@ -217,138 +206,71 @@ def process_gallabox(store):
 
 # ==============================================================================
 # SLACK SENDER
-#   TEST_MODE  -> bot token + chat.postMessage -> CHANNEL_TEST (C0B0TGBDCDU)
-#   Live mode  -> webhook  -> #mkv-daily-lead-report (C0ABN1ZKSGN)
 # ==============================================================================
-# ==============================================================================
-# SLACK SENDER
-#   TEST_MODE  -> bot token + chat.postMessage -> #mkv-test-automation (C0B0TGBDCDU)
-#   Live mode  -> webhook  -> #mkv-daily-lead-report (C0ABN1ZKSGN)
-#   Accepts a payload dict with 'text' (fallback) and 'blocks'
-# ==============================================================================
-def send_to_slack(payload):
+def send_to_slack(message):
     if TEST_MODE:
         if not SLACK_BOT_TOKEN:
-            print("  [ERROR] SLACK_BOT_TOKEN not set - cannot post in TEST_MODE")
+            print("  [ERROR] SLACK_BOT_TOKEN not set")
             return
-        payload["channel"] = ACTIVE_CHANNEL
         r = requests.post(
             "https://slack.com/api/chat.postMessage",
             headers={"Authorization": "Bearer " + SLACK_BOT_TOKEN, "Content-Type": "application/json"},
-            json=payload,
+            json={"channel": CHANNEL_TEST, "text": message},
             timeout=10,
         )
         result = r.json()
-        if result.get("ok"):
-            print("  Slack OK -> #mkv-test-automation (C0B0TGBDCDU)")
-        else:
-            print("  Slack error: " + str(result.get("error")))
+        if result.get("ok"): print("  Slack OK -> #mkv-test-automation")
+        else: print("  Slack error: " + str(result.get("error")))
     else:
-        r = requests.post(WEBHOOK_LEAD_REPORT, json=payload, timeout=10)
-        if r.status_code == 200:
-            print("  Slack OK -> #mkv-daily-lead-report (C0ABN1ZKSGN)")
-        else:
-            print("  Slack error: " + str(r.status_code))
-
+        r = requests.post(WEBHOOK_LEAD_REPORT, json={"text": message}, timeout=10)
+        if r.status_code == 200: print("  Slack OK -> #mkv-daily-lead-report")
+        else: print("  Slack error: " + str(r.status_code))
 
 # ==============================================================================
-# MESSAGE BUILDER - Block Kit (mobile optimised)
-#
-# Agent table  : header row + one section per agent (2 fields: FTD col | MTD col)
-# Source table : header + one section per source   (2 fields: name+FTD | MTD)
-# Stage table  : header + one section per stage    (2 fields: name+FTD | MTD)
-#
-# Slack renders section.fields as a 2-column grid on all screen sizes.
-# No fixed-width ASCII, no horizontal scroll on mobile.
+# MESSAGE BUILDER — plain text (inline, one screen)
 # ==============================================================================
 def build_msg_gallabox(g):
     fa = g["ftd_agents"]; fs = g["ftd_sources"]; fg = g["ftd_stages"]
     ma = g["mtd_agents"]; ms = g["mtd_sources"]; mg = g["mtd_stages"]
 
-    def sec(text):
-        return {"type": "section", "text": {"type": "mrkdwn", "text": text}}
-
-    def divider():
-        return {"type": "divider"}
-
-    def context(text):
-        return {"type": "context", "elements": [{"type": "mrkdwn", "text": text}]}
-
-    # Agent row: name(16) | F.Rec(6) | F.Trg(6) | M.Rec(6) | M.Trg(6)  = 42 chars
-    def agent_row(name, frec, ftrg, mrec, mtrg):
-        return "{:<16} {:>5} {:>5} {:>5} {:>5}".format(str(name)[:16], frec, ftrg, mrec, mtrg)
-
-    # Source/Stage row: name(20) | FTD(5) | MTD(6)  = 31 chars
-    def src_row(name, ftd, mtd):
-        return "{:<20} {:>4} {:>5}".format(str(name)[:20], ftd, mtd)
-
-    blocks = []
-
-    # HEADER
-    blocks.append({
-        "type": "header",
-        "text": {"type": "plain_text", "text": "MKV Luxury - Leads & Agents Report", "emoji": True}
-    })
-    blocks.append(context(
-        ":calendar: " + report_dt + "   |   _FTD = " + yesterday_str + "  |  MTD = month cumulative_"
-    ))
-
-    # AGENT PERFORMANCE
-    blocks.append(divider())
-    blocks.append(sec(":dart: *AGENT PERFORMANCE*\n_F.Rec=FTD rec | F.Trg=FTD trg | M.Rec=MTD rec | M.Trg=MTD trg_"))
-
     all_agents = sorted(set(list(fa.keys()) + list(ma.keys())))
-    ag_lines = [
-        agent_row("Agent", "F.Rec", "F.Trg", "M.Rec", "M.Trg"),
-        "-" * 42,
-    ]
+    ag  = "{:<20} {:>6} {:>6} {:>7} {:>7}\n".format("Agent","F.Rec","F.Trg","M.Rec","M.Trg")
+    ag += "-"*50 + "\n"
     for name in all_agents:
-        f = fa.get(name, {"recd": 0, "trig": 0})
-        m = ma.get(name, {"recd": 0, "trig": 0})
-        ag_lines.append(agent_row(name, f["recd"], f["trig"], m["recd"], m["trig"]))
-    ag_lines.append("-" * 42)
-    ag_lines.append(agent_row(
+        f = fa.get(name, {"recd":0,"trig":0}); m = ma.get(name, {"recd":0,"trig":0})
+        ag += "{:<20} {:>6} {:>6} {:>7} {:>7}\n".format(name[:20], f["recd"], f["trig"], m["recd"], m["trig"])
+    ag += "-"*50 + "\n"
+    ag += "{:<20} {:>6} {:>6} {:>7} {:>7}".format(
         "TOTAL",
         sum(v["recd"] for v in fa.values()), sum(v["trig"] for v in fa.values()),
-        sum(v["recd"] for v in ma.values()), sum(v["trig"] for v in ma.values()),
-    ))
-    blocks.append(sec("```" + "\n".join(ag_lines) + "```"))
+        sum(v["recd"] for v in ma.values()), sum(v["trig"] for v in ma.values()))
 
-    # LEAD SOURCE
-    blocks.append(divider())
-    blocks.append(sec(":globe_with_meridians: *LEAD SOURCE*"))
-
-    SOURCE_ORDER = ["Google Ads", "Facebook / Instagram", "Instagram DMs", "OneClickDrive", "Website"]
-    all_srcs = SOURCE_ORDER + [s for s in sorted(set(list(fs.keys()) + list(ms.keys()))) if s not in SOURCE_ORDER]
-    src_lines = [src_row("Source", "FTD", "MTD"), "-" * 31]
+    SOURCE_ORDER = ["Google Ads","Facebook / Instagram","Instagram DMs","OneClickDrive","Website"]
+    all_srcs = SOURCE_ORDER + [s for s in sorted(set(list(fs.keys())+list(ms.keys()))) if s not in SOURCE_ORDER]
+    src  = "{:<24} {:>5}  {:>7}\n".format("Source","FTD","MTD") + "-"*38 + "\n"
     for s in all_srcs:
-        fv = fs.get(s, 0); mv = ms.get(s, 0)
-        if fv > 0 or mv > 0:
-            src_lines.append(src_row(s, fv, mv))
-    src_lines.append("-" * 31)
-    src_lines.append(src_row("TOTAL", sum(fs.values()), sum(ms.values())))
-    blocks.append(sec("```" + "\n".join(src_lines) + "```"))
+        if fs.get(s,0) > 0 or ms.get(s,0) > 0:
+            src += "{:<24} {:>5}  {:>7}\n".format(s[:24], fs.get(s,0), ms.get(s,0))
+    src += "-"*38 + "\n"
+    src += "{:<24} {:>5}  {:>7}".format("TOTAL", sum(fs.values()), sum(ms.values()))
 
-    # LEAD STAGE
-    blocks.append(divider())
-    blocks.append(sec(":chart_with_upwards_trend: *LEAD STAGE*"))
-
-    STAGE_ORDER = ["Lead created", "Qualified lead", "Converted lead", "Unknown"]
-    all_stgs = STAGE_ORDER + [s for s in sorted(set(list(fg.keys()) + list(mg.keys()))) if s not in STAGE_ORDER]
-    stg_lines = [src_row("Stage", "FTD", "MTD"), "-" * 31]
+    STAGE_ORDER = ["Lead created","Qualified lead","Converted lead","Unknown"]
+    all_stgs = STAGE_ORDER + [s for s in sorted(set(list(fg.keys())+list(mg.keys()))) if s not in STAGE_ORDER]
+    stg  = "{:<24} {:>5}  {:>7}\n".format("Stage","FTD","MTD") + "-"*38 + "\n"
     for s in all_stgs:
-        fv = fg.get(s, 0); mv = mg.get(s, 0)
-        if fv > 0 or mv > 0:
-            stg_lines.append(src_row(s, fv, mv))
-    stg_lines.append("-" * 31)
-    stg_lines.append(src_row("TOTAL", sum(fg.values()), sum(mg.values())))
-    blocks.append(sec("```" + "\n".join(stg_lines) + "```"))
+        if fg.get(s,0) > 0 or mg.get(s,0) > 0:
+            stg += "{:<24} {:>5}  {:>7}\n".format(s[:24], fg.get(s,0), mg.get(s,0))
+    stg += "-"*38 + "\n"
+    stg += "{:<24} {:>5}  {:>7}".format("TOTAL", sum(fg.values()), sum(mg.values()))
 
-    return {
-        "text": "MKV Luxury - Leads & Agents Report | " + report_dt,
-        "blocks": blocks,
-    }
-
+    return (
+        ":bar_chart: *MKV LUXURY — LEADS & AGENTS REPORT*\n"
+        + ":calendar: " + report_dt + "\n"
+        + "_FTD = Yesterday (" + yesterday_str + ") | MTD = Month cumulative_\n\n"
+        + "*:dart: AGENT PERFORMANCE*\n" + "```" + ag + "```\n"
+        + "*:globe_with_meridians: LEAD SOURCE*\n" + "```" + src + "```\n"
+        + "*:chart_with_upwards_trend: LEAD STAGE*\n" + "```" + stg + "```"
+    )
 
 # ==============================================================================
 # MAIN
@@ -359,8 +281,7 @@ def main():
     print("  " + report_dt)
     print("  Reporting for : " + yesterday_str)
     print("  TEST_MODE     : " + str(TEST_MODE))
-    print("  Channel       : " + ("#mkv-test-automation (C0B0TGBDCDU)" if TEST_MODE else "#mkv-daily-lead-report (C0ABN1ZKSGN)"))
-    print("  Post method   : " + ("bot token / chat.postMessage" if TEST_MODE else "webhook"))
+    print("  Channel       : " + ("#mkv-test-automation" if TEST_MODE else "#mkv-daily-lead-report"))
     print("="*56)
 
     print("\n  Loading MTD store...")
