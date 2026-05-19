@@ -203,15 +203,15 @@ def extract(b):
         "total_amt":    total_amt,
         "advance":      advance_amt,
         "balance":      balance_amt,
-        "pay_mode":     (b.get("paymentMode")    or "—").strip(),
+        "pay_mode":     (b.get("paymentMode")    or "—").strip(),    
         "km_allowed":   (lambda api_km, r: (
-                        f"{int(float(api_km))} KM" if api_km and float(api_km) > 0
-                        else next(
-                        (w.rstrip("S") + " KM" for w in r.upper().replace("KMS","KM").replace("KM"," KM ").split()
-                         if w.rstrip("S").isdigit() and 50 < int(w.rstrip("S")) <= 1000),
-                        "—"
-                            )
-                        ))(str(b.get("dailyKmsLimit") or b.get("kmAllowed") or b.get("allowedKm") or "0"), b.get("remarks", "") or ""),
+                            f"{int(float(api_km))} KM" if api_km and float(api_km) > 0
+                            else next(
+                                (w.rstrip("S") + " KM" for w in r.upper().replace("KMS","KM").replace("KM"," KM ").split()
+                                 if w.rstrip("S").isdigit() and 50 < int(w.rstrip("S")) <= 1000),
+                                "—"
+                                )
+                            ))(str(b.get("dailyKmsLimit") or b.get("kmAllowed") or b.get("allowedKm") or "0"), b.get("remarks", "") or ""),
         "remarks":      (b.get("remarks")        or "—").strip() or "—",
         "status":       status,
         "status_label": "DRAFT" if status == "draft" else "CONFIRMED",
