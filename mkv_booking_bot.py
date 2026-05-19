@@ -71,6 +71,7 @@ def save_store(store):
 
 def post_message(channel, blocks, text, thread_ts=None):
     payload = {"channel": channel, "text": text, "blocks": blocks}
+               "unfurl_links": False, "unfurl_media": False}
     if thread_ts:
         payload["thread_ts"] = thread_ts
     try:
