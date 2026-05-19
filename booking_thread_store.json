@@ -2684,6 +2684,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010050-MUNE-Chevrolet": {
+      "thread_ts": "1779180319.956969",
+      "end_date": "2026-05-20",
+      "plate": "78042",
+      "customer": "Muneer Nazarudeen Nazarudeen",
+      "vehicle": "Chevrolet Tahoe",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-05-19"
     }
   }
 }
