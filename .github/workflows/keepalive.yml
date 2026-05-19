@@ -148,7 +148,7 @@ jobs:
           git commit -m "chore: booking bot store $(date +'%Y-%m-%d %H:%M')" || true
           git push || git pull --rebase origin main && git push || true
 
-ads-snapshot:
+  ads-snapshot:
     if: github.event.inputs.job == 'ads-snapshot' || github.event.inputs.job == 'all'
     runs-on: ubuntu-latest
     steps:
