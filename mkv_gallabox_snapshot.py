@@ -10,7 +10,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 #            MTD store NOT written to disk
 #   False -> webhook -> #mkv-daily-lead-report (C0ABN1ZKSGN)
 # ==============================================================================
-TEST_MODE = True
+TEST_MODE = False
 
 # ==============================================================================
 # CREDENTIALS
@@ -233,39 +233,44 @@ def build_msg_gallabox(g):
     fa = g["ftd_agents"]; fs = g["ftd_sources"]; fg = g["ftd_stages"]
     ma = g["mtd_agents"]; ms = g["mtd_sources"]; mg = g["mtd_stages"]
 
+    # Agent table — 31 chars wide (fits Slack mobile)
+    # FR=FTD rec, FT=FTD trg, MR=MTD rec, MT=MTD trg
     all_agents = sorted(set(list(fa.keys()) + list(ma.keys())))
-    ag  = "{:<20} {:>6} {:>6} {:>7} {:>7}\n".format("Agent","F.Rec","F.Trg","M.Rec","M.Trg")
-    ag += "-"*50 + "\n"
+    ag  = "{:<13} {:>4} {:>4} {:>5} {:>5}\n".format("Agent","FR","FT","MR","MT")
+    ag += "-"*31 + "\n"
     for name in all_agents:
         f = fa.get(name, {"recd":0,"trig":0}); m = ma.get(name, {"recd":0,"trig":0})
-        ag += "{:<20} {:>6} {:>6} {:>7} {:>7}\n".format(name[:20], f["recd"], f["trig"], m["recd"], m["trig"])
-    ag += "-"*50 + "\n"
-    ag += "{:<20} {:>6} {:>6} {:>7} {:>7}".format(
+        ag += "{:<13} {:>4} {:>4} {:>5} {:>5}\n".format(name[:13], f["recd"], f["trig"], m["recd"], m["trig"])
+    ag += "-"*31 + "\n"
+    ag += "{:<13} {:>4} {:>4} {:>5} {:>5}".format(
         "TOTAL",
         sum(v["recd"] for v in fa.values()), sum(v["trig"] for v in fa.values()),
         sum(v["recd"] for v in ma.values()), sum(v["trig"] for v in ma.values()))
 
+    # Source table — 28 chars wide
     SOURCE_ORDER = ["Google Ads","Facebook / Instagram","Instagram DMs","OneClickDrive","Website"]
     all_srcs = SOURCE_ORDER + [s for s in sorted(set(list(fs.keys())+list(ms.keys()))) if s not in SOURCE_ORDER]
-    src  = "{:<24} {:>5}  {:>7}\n".format("Source","FTD","MTD") + "-"*38 + "\n"
+    src  = "{:<16} {:>4}  {:>6}\n".format("Source","FTD","MTD") + "-"*28 + "\n"
     for s in all_srcs:
         if fs.get(s,0) > 0 or ms.get(s,0) > 0:
-            src += "{:<24} {:>5}  {:>7}\n".format(s[:24], fs.get(s,0), ms.get(s,0))
-    src += "-"*38 + "\n"
-    src += "{:<24} {:>5}  {:>7}".format("TOTAL", sum(fs.values()), sum(ms.values()))
+            src += "{:<16} {:>4}  {:>6}\n".format(s[:16], fs.get(s,0), ms.get(s,0))
+    src += "-"*28 + "\n"
+    src += "{:<16} {:>4}  {:>6}".format("TOTAL", sum(fs.values()), sum(ms.values()))
 
+    # Stage table — 28 chars wide
     STAGE_ORDER = ["Lead created","Qualified lead","Converted lead","Unknown"]
     all_stgs = STAGE_ORDER + [s for s in sorted(set(list(fg.keys())+list(mg.keys()))) if s not in STAGE_ORDER]
-    stg  = "{:<24} {:>5}  {:>7}\n".format("Stage","FTD","MTD") + "-"*38 + "\n"
+    stg  = "{:<16} {:>4}  {:>6}\n".format("Stage","FTD","MTD") + "-"*28 + "\n"
     for s in all_stgs:
         if fg.get(s,0) > 0 or mg.get(s,0) > 0:
-            stg += "{:<24} {:>5}  {:>7}\n".format(s[:24], fg.get(s,0), mg.get(s,0))
-    stg += "-"*38 + "\n"
-    stg += "{:<24} {:>5}  {:>7}".format("TOTAL", sum(fg.values()), sum(mg.values()))
+            stg += "{:<16} {:>4}  {:>6}\n".format(s[:16], fg.get(s,0), mg.get(s,0))
+    stg += "-"*28 + "\n"
+    stg += "{:<16} {:>4}  {:>6}".format("TOTAL", sum(fg.values()), sum(mg.values()))
 
     return (
         ":bar_chart: *MKV LUXURY — LEADS & AGENTS REPORT*\n"
         + ":calendar: " + report_dt + "\n"
+        + "_FR/FT=FTD rec/trg | MR/MT=MTD rec/trg_\n"
         + "_FTD = Yesterday (" + yesterday_str + ") | MTD = Month cumulative_\n\n"
         + "*:dart: AGENT PERFORMANCE*\n" + "```" + ag + "```\n"
         + "*:globe_with_meridians: LEAD SOURCE*\n" + "```" + src + "```\n"
