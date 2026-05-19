@@ -148,7 +148,7 @@ jobs:
           git commit -m "chore: booking bot store $(date +'%Y-%m-%d %H:%M')" || true
           git push || git pull --rebase origin main && git push || true
 
-  ads-snapshot:
+ads-snapshot:
     if: github.event.inputs.job == 'ads-snapshot' || github.event.inputs.job == 'all'
     runs-on: ubuntu-latest
     steps:
@@ -158,15 +158,19 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - run: pip install requests pytz slack-sdk pandas openpyxl --break-system-packages
+      - run: pip install requests pytz slack-sdk pandas openpyxl google-ads google-auth-oauthlib --break-system-packages
       - name: Run Daily Ads Snapshot
         env:
-          SLACK_BOT_TOKEN:         ${{ secrets.SLACK_BOT_TOKEN }}
-          GMAIL_ADDRESS:           ${{ secrets.GMAIL_ADDRESS }}
-          GMAIL_APP_PASSWORD:      ${{ secrets.GMAIL_APP_PASSWORD }}
-          META_GMAIL_ADDRESS:      ${{ secrets.META_GMAIL_ADDRESS }}
-          META_GMAIL_APP_PASSWORD: ${{ secrets.META_GMAIL_APP_PASSWORD }}
-          TEST_MODE:               "True"
+          SLACK_BOT_TOKEN:                ${{ secrets.SLACK_BOT_TOKEN }}
+          GMAIL_ADDRESS:                  ${{ secrets.GMAIL_ADDRESS }}
+          GMAIL_APP_PASSWORD:             ${{ secrets.GMAIL_APP_PASSWORD }}
+          GOOGLE_ADS_DEVELOPER_TOKEN:     ${{ secrets.GOOGLE_ADS_DEVELOPER_TOKEN }}
+          GOOGLE_ADS_CLIENT_ID:           ${{ secrets.GOOGLE_ADS_CLIENT_ID }}
+          GOOGLE_ADS_CLIENT_SECRET:       ${{ secrets.GOOGLE_ADS_CLIENT_SECRET }}
+          GOOGLE_ADS_REFRESH_TOKEN:       ${{ secrets.GOOGLE_ADS_REFRESH_TOKEN }}
+          GOOGLE_ADS_CUSTOMER_ID:         ${{ secrets.GOOGLE_ADS_CUSTOMER_ID }}
+          GOOGLE_ADS_LOGIN_CUSTOMER_ID:   ${{ secrets.GOOGLE_ADS_LOGIN_CUSTOMER_ID }}
+          TEST_MODE:                      "true"
         run: python "MKV Daily Ads Snapshot.py"
       - name: Keep repo active
         run: |
