@@ -2729,6 +2729,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010053-SALM-Bentley": {
+      "thread_ts": "1779228918.744059",
+      "end_date": "2026-05-31",
+      "plate": "33789",
+      "customer": "Salma Mezouari",
+      "vehicle": "Bentley Bentayga",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-05-24"
     }
   }
 }
