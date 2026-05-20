@@ -2774,6 +2774,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010056-PRIM-Mercedes-Benz": {
+      "thread_ts": "1779305422.661119",
+      "end_date": "2026-05-22",
+      "plate": "60137",
+      "customer": "Prime Keys Car Rental Llc",
+      "vehicle": "Mercedes-Benz Mercedes  G63",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-05-20"
     }
   }
 }
