@@ -10,7 +10,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 #            MTD store NOT written to disk
 #   False -> webhook -> #mkv-daily-lead-report (C0ABN1ZKSGN)
 # ==============================================================================
-TEST_MODE = False
+TEST_MODE = True
 
 # ==============================================================================
 # CREDENTIALS
