@@ -385,15 +385,15 @@ def extract_csv(msg):
             text = body.decode("utf-8", errors="ignore")
             # Meta CSV download link pattern
             patterns = [
-                r'https?://[^\s"'<>]+\.csv[^\s"'<>]*',
-                r'https?://lookaside\.facebook\.com/[^\s"'<>]+',
-                r'https?://[^\s"'<>]*facebook[^\s"'<>]*csv[^\s"'<>]*',
-                r'https?://[^\s"'<>]*report[^\s"'<>]*\.csv[^\s"'<>]*',
+                r'https?://[^\s"<>]+\.csv[^\s"<>]*',
+                r'https?://lookaside\.facebook\.com/[^\s"<>]+',
+                r'https?://[^\s"<>]*facebook[^\s"<>]*csv[^\s"<>]*',
+                r'https?://[^\s"<>]*report[^\s"<>]*\.csv[^\s"<>]*',
             ]
             for pattern in patterns:
                 match = re.search(pattern, text)
                 if match:
-                    url = match.group(0).strip().rstrip('>')\.rstrip('"'')
+                    url = match.group(0).strip().rstrip('>').rstrip('"')
                     print(f"    → Downloading Meta CSV from: {url[:80]}...")
                     try:
                         req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
