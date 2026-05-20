@@ -49,6 +49,11 @@ DATE_RANGE          = (datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d")
 
 META_SUBJECT_KEYWORD = "Your Daily Facebook ads report"
 
+# Meta Ads API
+META_ACCESS_TOKEN   = os.environ.get("META_ACCESS_TOKEN", "")
+META_AD_ACCOUNT_ID  = os.environ.get("META_AD_ACCOUNT_ID", "699611181993619")
+META_RTO_ACCOUNT_ID = os.environ.get("META_RTO_ACCOUNT_ID", "900731551390821")
+
 # RentToOwn domain to split out separately
 RTO_DOMAIN = "renttoowncars.ae"
 
@@ -266,6 +271,65 @@ def fetch_landing_pages(client):
 
 # ── META ADS — GMAIL ──────────────────────────────────────────────────────────
 
+# ── META ADS API ──────────────────────────────────────────────────────────────
+
+def fetch_meta_api(account_id, account_name="MKV Luxury"):
+    """Fetch Meta Ads data via Marketing API."""
+    if not META_ACCESS_TOKEN:
+        print(f"  ⚠️  No Meta access token configured")
+        return {}
+    print(f"  → Fetching Meta Ads for {account_name}...")
+    try:
+        url = (
+            f"https://graph.facebook.com/v19.0/act_{account_id}/insights"
+            f"?fields=spend,impressions,clicks,reach,actions,cost_per_action_type"
+            f"&date_preset=yesterday"
+            f"&access_token={META_ACCESS_TOKEN}"
+        )
+        req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+        with urllib.request.urlopen(req, timeout=30) as resp:
+            data = json.loads(resp.read().decode())
+        
+        if not data.get("data"):
+            print(f"  ⚠️  No Meta data for {account_name}")
+            return {}
+        
+        row = data["data"][0]
+        spent = round(float(row.get("spend", 0)), 2)
+        impr  = int(row.get("impressions", 0))
+        clks  = int(row.get("clicks", 0))
+        reach = int(row.get("reach", 0))
+        ctr   = round(clks / impr * 100, 2) if impr > 0 else 0
+        
+        # Parse actions
+        actions = row.get("actions", [])
+        results = 0
+        messaging = 0
+        for a in actions:
+            if a["action_type"] in ("onsite_conversion.total_messaging_connection",
+                                     "onsite_conversion.messaging_first_reply"):
+                messaging = max(messaging, int(a.get("value", 0)))
+            if a["action_type"] in ("link_click", "landing_page_view"):
+                results += int(a.get("value", 0))
+        
+        # Cost per result
+        cpr = round(spent / max(messaging, 1), 2) if messaging > 0 else 0
+        
+        print(f"    ✅ {account_name}: AED {spent} | {impr:,} impr | {clks} clicks | {messaging} msgs")
+        return {
+            "spent"          : spent,
+            "impressions"    : impr,
+            "reach"          : reach,
+            "clicks"         : clks,
+            "results"        : messaging,
+            "cost_per_result": cpr,
+            "ctr"            : ctr,
+        }
+    except Exception as e:
+        print(f"  ❌ Meta API error for {account_name}: {e}")
+        return {}
+
+
 def imap_connect(retries=3):
     for attempt in range(1, retries + 1):
         try:
@@ -297,6 +361,8 @@ def fetch_meta_email(mail):
 
 
 def extract_csv(msg):
+    """Extract CSV from email — handles attachments and download links."""
+    # 1. Check for direct CSV attachment
     for part in msg.walk():
         fname = part.get_filename() or ""
         ctype = part.get_content_type()
@@ -308,6 +374,38 @@ def extract_csv(msg):
                         return payload.decode(enc)
                     except:
                         continue
+
+    # 2. Look for CSV download link in HTML or plain text body (Meta Ads emails)
+    for part in msg.walk():
+        ctype = part.get_content_type()
+        if ctype in ("text/html", "text/plain"):
+            body = part.get_payload(decode=True)
+            if not body:
+                continue
+            text = body.decode("utf-8", errors="ignore")
+            # Meta CSV download link pattern
+            patterns = [
+                r'https?://[^\s"'<>]+\.csv[^\s"'<>]*',
+                r'https?://lookaside\.facebook\.com/[^\s"'<>]+',
+                r'https?://[^\s"'<>]*facebook[^\s"'<>]*csv[^\s"'<>]*',
+                r'https?://[^\s"'<>]*report[^\s"'<>]*\.csv[^\s"'<>]*',
+            ]
+            for pattern in patterns:
+                match = re.search(pattern, text)
+                if match:
+                    url = match.group(0).strip().rstrip('>')\.rstrip('"'')
+                    print(f"    → Downloading Meta CSV from: {url[:80]}...")
+                    try:
+                        req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+                        with urllib.request.urlopen(req, timeout=30) as resp:
+                            raw = resp.read()
+                            for enc in ("utf-8-sig", "utf-8", "latin-1"):
+                                try:
+                                    return raw.decode(enc)
+                                except:
+                                    continue
+                    except Exception as e:
+                        print(f"    ⚠️  Download failed: {e}")
     return None
 
 
@@ -522,7 +620,7 @@ def build_blocks(g_camp, g_conv, g_search, g_auction, g_landing, meta, yesterday
         {"type": "section", "text": {"type": "mrkdwn", "text": f"*🏆 Performance Score*\n{score_text}"}},
         {"type": "context",
          "elements": [{"type": "mrkdwn",
-                       "text": f"_MKV Luxury Car Rental  •  Google Ads API v3.1  •  {mode_tag}_"}]},
+                       "text": f"_MKV Luxury Car Rental  •  Google Ads API + Meta API v3.2  •  {mode_tag}_"}]},
     ]
 
 
@@ -538,7 +636,7 @@ def post_slack(blocks, fallback="MKV Daily Ads Snapshot"):
 
 def main():
     print("=" * 60)
-    print("  MKV Daily Ads Snapshot v3.1 — Google Ads API")
+    print("  MKV Daily Ads Snapshot v3.2 — Google Ads API")
     print(f"  {datetime.now().strftime('%Y-%m-%d %H:%M:%S')} | Report date: {REPORT_DATE}")
     print(f"  Mode: {'🧪 TEST' if TEST_MODE else '🚀 LIVE'}  |  Channel: {SLACK_CHANNEL}")
     print("=" * 60)
@@ -556,15 +654,18 @@ def main():
         g_camp = g_conv = g_search = g_auction = {}
         g_landing = {"pages": [], "rto_pages": []}
 
-    print("\n📥 Fetching Meta Ads from Gmail...")
-    meta = {}
-    mail = imap_connect()
-    if mail:
-        meta_msg = fetch_meta_email(mail)
-        if meta_msg:
-            csv_text = extract_csv(meta_msg)
-            meta = parse_meta(csv_text) if csv_text else {}
-        mail.logout()
+    print("\n📥 Fetching Meta Ads via API...")
+    meta = fetch_meta_api(META_AD_ACCOUNT_ID, "MKV Luxury")
+    if not meta:
+        # Fallback to Gmail if API fails
+        print("  → Falling back to Gmail...")
+        mail = imap_connect()
+        if mail:
+            meta_msg = fetch_meta_email(mail)
+            if meta_msg:
+                csv_text = extract_csv(meta_msg)
+                meta = parse_meta(csv_text) if csv_text else {}
+            mail.logout()
 
     yesterday = load_yesterday()
     save_today(g_camp, meta)
