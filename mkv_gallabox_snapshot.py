@@ -22,7 +22,7 @@ API_SECRET  = os.environ.get("GALLABOX_API_SECRET", "984394d316324482a8615eba674
 SLACK_BOT_TOKEN     = os.environ.get("SLACK_BOT_TOKEN", "")
 WEBHOOK_LEAD_REPORT = os.environ.get("WEBHOOK_LEADS",   "https://hooks.slack.com/services/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")
 
-MTD_STORE = os.environ.get("MTD_STORE_PATH", "mtd_store.json")
+MTD_STORE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "mtd_store.json")
 
 CHANNEL_LIVE = "C0ABN1ZKSGN"   # #mkv-daily-lead-report
 CHANNEL_TEST = "C0B0TGBDCDU"   # #mkv-test-automation
