@@ -2693,7 +2693,7 @@
       "vehicle": "Chevrolet Tahoe",
       "delivery_alerted": true,
       "pickup_alerted": true,
-      "closed": false,
+      "closed": true,
       "start_date": "2026-05-19",
       "delivery_ts": null,
       "pickup_ts": null,
