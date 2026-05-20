@@ -171,6 +171,8 @@ jobs:
           GOOGLE_ADS_CUSTOMER_ID:         ${{ secrets.GOOGLE_ADS_CUSTOMER_ID }}
           GOOGLE_ADS_LOGIN_CUSTOMER_ID:   ${{ secrets.GOOGLE_ADS_LOGIN_CUSTOMER_ID }}
           TEST_MODE:                      "true"
+          META_ACCESS_TOKEN:              ${{ secrets.META_ACCESS_TOKEN }}
+          META_AD_ACCOUNT_ID:             ${{ secrets.META_AD_ACCOUNT_ID }}
         run: python "MKV Daily Ads Snapshot.py"
       - name: Keep repo active
         run: |
