@@ -250,57 +250,44 @@ def fetch_keyword_recommendations(client, search_terms_data):
 
 
 def fetch_auction_insights(client):
-    """Fetch competitor auction insights via segments.auction_insight_domain."""
-    print("  → Fetching auction insights...")
+    """
+    Auction Insights is not available via Google Ads API (UI-only feature).
+    Instead, fetch impression share & search rank metrics per campaign.
+    """
+    print("  → Fetching impression share & competitive metrics...")
     ga_service = client.get_service("GoogleAdsService")
-    date_7d_ago = (datetime.now() - timedelta(days=7)).strftime("%Y-%m-%d")
-
-    # Correct approach: use segments.auction_insight_domain from campaign resource
     query = f"""
         SELECT
-            segments.auction_insight_domain,
-            metrics.auction_insight_search_impression_share,
-            metrics.auction_insight_search_overlap_rate,
-            metrics.auction_insight_search_outranking_share
+            campaign.name,
+            metrics.search_impression_share,
+            metrics.search_rank_lost_impression_share,
+            metrics.search_budget_lost_impression_share,
+            metrics.search_top_impression_share
         FROM campaign
-        WHERE segments.date BETWEEN '{date_7d_ago}' AND '{DATE_RANGE}'
+        WHERE segments.date = '{DATE_RANGE}'
           AND campaign.status = 'ENABLED'
-        LIMIT 100
+          AND metrics.impressions > 0
+        ORDER BY metrics.search_impression_share DESC
+        LIMIT 5
     """
     try:
         response = ga_service.search(customer_id=CUSTOMER_ID, query=query)
-        competitors = {}
-        for row in response:
-            domain = row.segments.auction_insight_domain
-            if not domain or domain.strip() == "":
-                continue
-            is_val      = row.metrics.auction_insight_search_impression_share
-            ovlp_val    = row.metrics.auction_insight_search_overlap_rate
-            outrank_val = row.metrics.auction_insight_search_outranking_share
-            if domain not in competitors:
-                competitors[domain] = {"is": [], "overlap": [], "outrank": []}
-            competitors[domain]["is"].append(is_val)
-            competitors[domain]["overlap"].append(ovlp_val)
-            competitors[domain]["outrank"].append(outrank_val)
-
         rows = []
-        for domain, vals in sorted(
-            competitors.items(),
-            key=lambda x: sum(x[1]["is"]) / max(len(x[1]["is"]), 1),
-            reverse=True
-        )[:6]:
-            is_pct      = round(sum(vals["is"]) / len(vals["is"]) * 100, 1)
-            ovlp_pct    = round(sum(vals["overlap"]) / len(vals["overlap"]) * 100, 1)
-            outrank_pct = round(sum(vals["outrank"]) / len(vals["outrank"]) * 100, 1)
+        for row in response:
+            name     = row.campaign.name[:35]
+            is_pct   = round(row.metrics.search_impression_share * 100, 1)
+            lost_rank = round(row.metrics.search_rank_lost_impression_share * 100, 1)
+            lost_bud  = round(row.metrics.search_budget_lost_impression_share * 100, 1)
+            top_is    = round(row.metrics.search_top_impression_share * 100, 1)
             rows.append(
-                f"• {domain[:32]}  — IS: {is_pct}% | Overlap: {ovlp_pct}% | Outrank: {outrank_pct}%"
+                f"• {name}\n"
+                f"  IS: {is_pct}% | Top IS: {top_is}% | Lost (rank): {lost_rank}% | Lost (budget): {lost_bud}%"
             )
-
-        print(f"    ✅ Auction insights: {len(rows)} competitors found")
-        return {"competitors": rows or ["• No competitor data for this period"]}
+        print(f"    ✅ Impression share: {len(rows)} campaigns")
+        return {"competitors": rows or ["• No impression share data today"]}
     except GoogleAdsException as ex:
-        print(f"    ❌ Auction insights failed: {ex.error.code().name}")
-        return {"competitors": ["• Competitor data unavailable"]}
+        print(f"    ❌ Impression share failed: {ex.error.code().name}")
+        return {"competitors": ["• Data unavailable — check Google Ads UI for Auction Insights"]}
 
 
 def fetch_landing_pages(client):
@@ -386,16 +373,19 @@ def fetch_meta_campaigns(account_id, access_token, account_name=""):
 
 def fetch_meta_api(account_id, account_name="MKV Luxury"):
     """Fetch Meta Ads data via Marketing API."""
-    if not META_ACCESS_TOKEN:
+    token = META_ACCESS_TOKEN
+    if not token:
         print(f"  ⚠️  No Meta access token configured")
         return {}
     print(f"  → Fetching Meta Ads for {account_name}...")
     try:
+        # Use yesterday date explicitly for reliability
         url = (
-            f"https://graph.facebook.com/v19.0/act_{account_id}/insights"
+            f"https://graph.facebook.com/v20.0/act_{account_id}/insights"
             f"?fields=spend,impressions,clicks,reach,actions"
             f"&date_preset=yesterday"
-            f"&access_token={META_ACCESS_TOKEN}"
+            f"&level=account"
+            f"&access_token={token}"
         )
         req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
         with urllib.request.urlopen(req, timeout=30) as resp:
@@ -737,7 +727,7 @@ def build_blocks(g_camp, g_conv, g_search, g_auction, g_landing, meta, yesterday
         {"type": "divider"},
         {"type": "section", "text": {"type": "mrkdwn", "text": f"*🔑 Keyword Recommendations*\n{kw_text}"}},
         {"type": "divider"},
-        {"type": "section", "text": {"type": "mrkdwn", "text": f"*⚔️ Competitor Auction Insights*\n{comp_text}"}},
+        {"type": "section", "text": {"type": "mrkdwn", "text": f"*📊 Search Impression Share*\n{comp_text}"}},
         {"type": "divider"},
         {"type": "section", "text": {"type": "mrkdwn", "text": f"*📄 MKV Luxury — Top Landing Pages*\n{land_text}"}},
         {"type": "divider"},
@@ -748,7 +738,7 @@ def build_blocks(g_camp, g_conv, g_search, g_auction, g_landing, meta, yesterday
         {"type": "section", "text": {"type": "mrkdwn", "text": f"*🏆 Performance Score*\n{score_text}"}},
         {"type": "context",
          "elements": [{"type": "mrkdwn",
-                       "text": f"_MKV Luxury Car Rental  •  Google Ads API + Meta API v3.5  •  {mode_tag}_"}]},
+                       "text": f"_MKV Luxury Car Rental  •  Google Ads API + Meta API v3.6  •  {mode_tag}_"}]},
     ]
 
 
@@ -764,7 +754,7 @@ def post_slack(blocks, fallback="MKV Daily Ads Snapshot"):
 
 def main():
     print("=" * 60)
-    print("  MKV Daily Ads Snapshot v3.5 — Google Ads API")
+    print("  MKV Daily Ads Snapshot v3.6 — Google Ads API")
     print(f"  {datetime.now().strftime('%Y-%m-%d %H:%M:%S')} | Report date: {REPORT_DATE}")
     print(f"  Mode: {'🧪 TEST' if TEST_MODE else '🚀 LIVE'}  |  Channel: {SLACK_CHANNEL}")
     print("=" * 60)
