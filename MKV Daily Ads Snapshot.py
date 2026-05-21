@@ -72,6 +72,43 @@ def get_google_ads_client():
 
 # ── GOOGLE ADS API QUERIES ────────────────────────────────────────────────────
 
+def fetch_mtd_google(client):
+    """Fetch Month-to-Date Google Ads metrics."""
+    print("  → Fetching MTD Google Ads...")
+    ga_service = client.get_service("GoogleAdsService")
+    mtd_start = datetime.now().replace(day=1).strftime("%Y-%m-%d")
+    query = f"""
+        SELECT
+            metrics.impressions,
+            metrics.clicks,
+            metrics.cost_micros,
+            metrics.conversions,
+            metrics.ctr
+        FROM customer
+        WHERE segments.date BETWEEN '{mtd_start}' AND '{DATE_RANGE}'
+    """
+    try:
+        response = ga_service.search(customer_id=CUSTOMER_ID, query=query)
+        impr = clks = cost = conv = 0
+        for row in response:
+            impr += row.metrics.impressions
+            clks += row.metrics.clicks
+            cost += row.metrics.cost_micros / 1_000_000
+            conv += row.metrics.conversions
+        print(f"    ✅ MTD Google: AED {round(cost,2)} | {int(clks)} clicks | {round(conv,1)} conv")
+        return {
+            "impressions" : int(impr),
+            "clicks"      : int(clks),
+            "cost"        : round(cost, 2),
+            "conversions" : round(conv, 1),
+            "ctr"         : round(clks / impr * 100, 2) if impr > 0 else 0,
+            "cost_per_conv": round(cost / conv, 2) if conv > 0 else 0,
+        }
+    except GoogleAdsException as ex:
+        print(f"    ❌ MTD Google failed: {ex.error.code().name}")
+        return {}
+
+
 def fetch_campaign_performance(client):
     print("  → Fetching campaign performance...")
     ga_service = client.get_service("GoogleAdsService")
@@ -442,6 +479,40 @@ def fetch_meta_campaigns(account_id, access_token, account_name=""):
         return []
 
 
+def fetch_meta_mtd(account_id, account_name=""):
+    """Fetch Meta Ads Month-to-Date metrics."""
+    token = META_ACCESS_TOKEN
+    if not token:
+        return {}
+    mtd_start = datetime.now().replace(day=1).strftime("%Y-%m-%d")
+    try:
+        url = (
+            f"https://graph.facebook.com/v20.0/act_{account_id}/insights"
+            f"?fields=spend,impressions,clicks,reach,actions"
+            f"&time_range=%7B%22since%22%3A%22{mtd_start}%22%2C%22until%22%3A%22{DATE_RANGE}%22%7D"
+            f"&level=account"
+            f"&access_token={token}"
+        )
+        req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+        with urllib.request.urlopen(req, timeout=30) as resp:
+            data = json.loads(resp.read().decode())
+        if not data.get("data"):
+            return {}
+        row = data["data"][0]
+        spent = round(float(row.get("spend", 0)), 2)
+        impr  = int(row.get("impressions", 0))
+        clks  = int(row.get("clicks", 0))
+        actions = row.get("actions", [])
+        messaging = 0
+        for a in actions:
+            if a["action_type"] == "onsite_conversion.total_messaging_connection":
+                messaging = max(messaging, int(a.get("value", 0)))
+        return {"spent": spent, "impressions": impr, "clicks": clks, "results": messaging}
+    except Exception as e:
+        print(f"  ⚠️  Meta MTD error: {e}")
+        return {}
+
+
 def fetch_meta_api(account_id, account_name="MKV Luxury"):
     """Fetch Meta Ads data via Marketing API."""
     token = META_ACCESS_TOKEN
@@ -727,7 +798,7 @@ def score_report(g_camp, meta):
 
 # ── SLACK BLOCK KIT ───────────────────────────────────────────────────────────
 
-def build_blocks(g_camp, g_conv, g_search, g_auction, g_landing, meta, meta_rto, yesterday, kw_recs=None, comp_kw=None):
+def build_blocks(g_camp, g_mtd, g_conv, g_search, g_auction, g_landing, meta, meta_mtd, meta_rto, meta_rto_mtd, yesterday, kw_recs=None, comp_kw=None):
     score, grade, notes = score_report(g_camp, meta)
     if kw_recs is None:
         kw_recs = {"add": [], "remove": []}
@@ -741,6 +812,15 @@ def build_blocks(g_camp, g_conv, g_search, g_auction, g_landing, meta, meta_rto,
 
     # ── Google Ads
     if g_camp:
+        # MTD row
+        mtd_line = ""
+        if g_mtd:
+            mtd_line = (
+                f"\n*MTD:* AED {g_mtd.get('cost',0):,.0f} spent | "
+                f"{g_mtd.get('clicks',0):,} clicks | "
+                f"{g_mtd.get('conversions',0)} conv | "
+                f"AED {g_mtd.get('cost_per_conv',0):,.2f}/conv"
+            )
         g_text = (
             f"*Spend:* AED {g_camp.get('cost',0):,.2f}{d_cost}    "
             f"*Clicks:* {g_camp.get('clicks',0):,}{d_clk}\n"
@@ -748,18 +828,43 @@ def build_blocks(g_camp, g_conv, g_search, g_auction, g_landing, meta, meta_rto,
             f"*CTR:* {g_camp.get('ctr',0)}%\n"
             f"*Conversions:* {g_camp.get('conversions',0)}{d_conv}    "
             f"*Cost/Conv:* AED {g_camp.get('cost_per_conv',0):,.2f}"
+            f"{mtd_line}"
         )
         if g_camp.get("campaigns"):
             lines = ["\n*Top Campaigns:*"]
             for c in g_camp["campaigns"]:
                 lines.append(f"  • {c['name']}  —  AED {c['spend']:,.0f} | {c['clicks']:,} clicks | {c['ctr']}% CTR")
             g_text += "\n" + "\n".join(lines)
+
+        # Key actions for Google Ads
+        g_actions = []
+        if g_camp.get("ctr", 0) < 3:
+            g_actions.append("⚡ CTR below 3% — review ad copy & headlines")
+        if g_camp.get("cost_per_conv", 0) > 100:
+            g_actions.append("⚡ High cost/conv — pause underperforming keywords")
+        for c in g_camp.get("campaigns", []):
+            if c["spend"] > 50 and c["ctr"] < 2:
+                g_actions.append(f"⚡ {c['name'][:25]} — low CTR, review ad copy")
+        if g_actions:
+            g_text += "\n\n*🔴 Actions:*\n" + "\n".join(g_actions[:3])
     else:
         g_text = "_No Google Ads data today_"
 
     conv_text   = "\n".join(g_conv.get("breakdown", []))      or "_No conversion data_"
     search_text = "\n".join(g_search.get("terms", []))         or "_No search term data_"
-    comp_text   = "\n".join(g_auction.get("competitors", []))  or "_No competitor data_"
+    comp_lines = g_auction.get("competitors", [])
+    # Add key actions for impression share
+    is_actions = []
+    for line in comp_lines:
+        if "Lost (budget): 9" in line or "Lost (budget): 8" in line:
+            camp = line.split("\n")[0].replace("•","").strip()
+            is_actions.append(f"⚡ {camp[:25]} — increase budget to capture lost IS")
+        if "Lost (rank): 7" in line or "Lost (rank): 8" in line or "Lost (rank): 9" in line:
+            camp = line.split("\n")[0].replace("•","").strip()
+            is_actions.append(f"⚡ {camp[:25]} — improve Quality Score to win rank")
+    if is_actions:
+        comp_lines = comp_lines + ["\n*🔴 Actions:*"] + is_actions[:3]
+    comp_text = "\n".join(comp_lines) or "_No impression share data_"
     land_text   = "\n".join(g_landing.get("pages", []))        or "_No landing page data_"
     rto_text    = "\n".join(g_landing.get("rto_pages", []))    or "_No Rent-to-Own traffic today_"
 
@@ -770,6 +875,13 @@ def build_blocks(g_camp, g_conv, g_search, g_auction, g_landing, meta, meta_rto,
 
     # ── Meta MKV Luxury
     if meta.get("spent", 0) > 0:
+        mtd_meta_line = ""
+        if meta_mtd:
+            mtd_meta_line = (
+                f"\n*MTD:* AED {meta_mtd.get('spent',0):,.0f} spent | "
+                f"{meta_mtd.get('clicks',0):,} clicks | "
+                f"{meta_mtd.get('results',0)} results"
+            )
         meta_text = (
             f"*Spent:* AED {meta['spent']:,.2f}{d_mcost}    "
             f"*Results:* {meta['results']}    "
@@ -777,18 +889,36 @@ def build_blocks(g_camp, g_conv, g_search, g_auction, g_landing, meta, meta_rto,
             f"*Impressions:* {meta['impressions']:,}    "
             f"*Reach:* {meta['reach']:,}    "
             f"*CTR:* {meta['ctr']}%"
+            f"{mtd_meta_line}"
         )
         if meta.get("campaigns"):
             lines = ["\n*Campaigns:*"]
             for c in meta["campaigns"]:
                 lines.append(f"  • {c['name']}  —  AED {c['spend']:,.0f} | {c['clicks']:,} clicks | {c['ctr']}% CTR")
             meta_text += "\n" + "\n".join(lines)
+        # Key actions for Meta
+        meta_actions = []
+        if meta.get("ctr", 0) < 1:
+            meta_actions.append("⚡ CTR below 1% — refresh creative/audience")
+        if meta.get("cost_per_result", 0) > 50:
+            meta_actions.append("⚡ High cost/result — test new ad formats")
+        if meta.get("results", 0) == 0:
+            meta_actions.append("⚡ Zero results today — check campaign delivery")
+        if meta_actions:
+            meta_text += "\n\n*🔴 Actions:*\n" + "\n".join(meta_actions[:2])
     else:
         meta_text = "_No Meta Ads data today_"
 
     # ── Meta RTO
     if meta_rto and meta_rto.get("spent", 0) > 0:
         d_rto = delta(meta_rto.get("spent", 0), yesterday.get("m_rto_spent", 0))
+        mtd_rto_line = ""
+        if meta_rto_mtd:
+            mtd_rto_line = (
+                f"\n*MTD:* AED {meta_rto_mtd.get('spent',0):,.0f} spent | "
+                f"{meta_rto_mtd.get('clicks',0):,} clicks | "
+                f"{meta_rto_mtd.get('results',0)} results"
+            )
         meta_rto_text = (
             f"*Spent:* AED {meta_rto['spent']:,.2f}{d_rto}    "
             f"*Results:* {meta_rto['results']}    "
@@ -796,14 +926,34 @@ def build_blocks(g_camp, g_conv, g_search, g_auction, g_landing, meta, meta_rto,
             f"*Impressions:* {meta_rto['impressions']:,}    "
             f"*Reach:* {meta_rto['reach']:,}    "
             f"*CTR:* {meta_rto['ctr']}%"
+            f"{mtd_rto_line}"
         )
+        # Key actions for RTO
+        rto_actions = []
+        if meta_rto.get("ctr", 0) < 1:
+            rto_actions.append("⚡ CTR below 1% — refresh RTO creative")
+        if meta_rto.get("cost_per_result", 0) > 100:
+            rto_actions.append("⚡ High cost/result — review RTO targeting")
+        if rto_actions:
+            meta_rto_text += "\n\n*🔴 Actions:*\n" + "\n".join(rto_actions[:2])
     else:
         meta_rto_text = "_No Lease to Own Meta data today_"
 
     # ── Competitor keyword analysis
     comp_terms_text = "\n".join(comp_kw.get("competitor_terms", [])) or "_No competitor searches detected_"
     opp_terms_text  = "\n".join(comp_kw.get("opportunity_terms", [])) or "_No missed opportunities detected_"
-    comp_kw_text    = f"*🎯 Competitor searches hitting your ads:*\n{comp_terms_text}\n\n*💡 High-intent terms with 0 conversions:*\n{opp_terms_text}"
+    comp_kw_actions = []
+    if comp_kw.get("competitor_terms"):
+        comp_kw_actions.append("⚡ Create competitor comparison landing pages")
+        comp_kw_actions.append("⚡ Add competitor names as exact match keywords")
+    if comp_kw.get("opportunity_terms"):
+        comp_kw_actions.append("⚡ Add high-intent 0-conv terms to exact match campaigns")
+    comp_kw_action_text = "\n".join(comp_kw_actions) if comp_kw_actions else ""
+    comp_kw_text = (
+        f"*🎯 Competitor searches hitting your ads:*\n{comp_terms_text}\n\n"
+        f"*💡 High-intent terms with 0 conversions:*\n{opp_terms_text}"
+        + (f"\n\n*🔴 Actions:*\n{comp_kw_action_text}" if comp_kw_action_text else "")
+    )
 
     score_text = f"*Score: {score}/100 — {grade}*\n" + "\n".join(notes)
     mode_tag   = "🧪 TEST MODE" if TEST_MODE else "🚀 LIVE"
@@ -835,7 +985,7 @@ def build_blocks(g_camp, g_conv, g_search, g_auction, g_landing, meta, meta_rto,
         {"type": "section", "text": {"type": "mrkdwn", "text": f"*🏆 Performance Score*\n{score_text}"}},
         {"type": "context",
          "elements": [{"type": "mrkdwn",
-                       "text": f"_MKV Luxury Car Rental  •  Google Ads API + Meta API v3.7  •  {mode_tag}_"}]},
+                       "text": f"_MKV Luxury Car Rental  •  Google Ads API + Meta API v3.8  •  {mode_tag}_"}]},
     ]
 
 
@@ -851,15 +1001,17 @@ def post_slack(blocks, fallback="MKV Daily Ads Snapshot"):
 
 def main():
     print("=" * 60)
-    print("  MKV Daily Ads Snapshot v3.7 — Google Ads API")
+    print("  MKV Daily Ads Snapshot v3.8 — Google Ads API")
     print(f"  {datetime.now().strftime('%Y-%m-%d %H:%M:%S')} | Report date: {REPORT_DATE}")
     print(f"  Mode: {'🧪 TEST' if TEST_MODE else '🚀 LIVE'}  |  Channel: {SLACK_CHANNEL}")
     print("=" * 60)
 
     print("\n📊 Fetching Google Ads data via API...")
+    client = None
     try:
         client    = get_google_ads_client()
         g_camp    = fetch_campaign_performance(client)
+        g_mtd     = fetch_mtd_google(client)
         g_conv    = fetch_conversions(client)
         g_search  = fetch_search_terms(client)
         g_auction = fetch_auction_insights(client)
@@ -867,11 +1019,14 @@ def main():
     except Exception as e:
         print(f"  ❌  Google Ads API error: {e}")
         g_camp = g_conv = g_search = g_auction = {}
+        g_mtd  = {}
         g_landing = {"pages": [], "rto_pages": []}
 
     print("\n📥 Fetching Meta Ads via API...")
-    meta = fetch_meta_api(META_AD_ACCOUNT_ID, "MKV Luxury")
-    meta_rto = fetch_meta_api(META_RTO_ACCOUNT_ID, "MKV Lease to Own") if META_RTO_ACCOUNT_ID else {}
+    meta      = fetch_meta_api(META_AD_ACCOUNT_ID, "MKV Luxury")
+    meta_rto  = fetch_meta_api(META_RTO_ACCOUNT_ID, "MKV Lease to Own") if META_RTO_ACCOUNT_ID else {}
+    meta_mtd  = fetch_meta_mtd(META_AD_ACCOUNT_ID, "MKV Luxury")
+    meta_rto_mtd = fetch_meta_mtd(META_RTO_ACCOUNT_ID) if META_RTO_ACCOUNT_ID else {}
     if not meta:
         # Fallback to Gmail if API fails
         print("  → Falling back to Gmail...")
@@ -894,7 +1049,7 @@ def main():
     comp_kw  = fetch_competitor_keywords(client) if g_search else {"competitor_terms": [], "opportunity_terms": []}
 
     print("\n📤 Posting to Slack...")
-    blocks = build_blocks(g_camp, g_conv, g_search, g_auction, g_landing, meta, meta_rto, yesterday, kw_recs, comp_kw)
+    blocks = build_blocks(g_camp, g_mtd, g_conv, g_search, g_auction, g_landing, meta, meta_mtd, meta_rto, meta_rto_mtd, yesterday, kw_recs, comp_kw)
     post_slack(blocks)
     print("\n✅  Done!\n")
 
