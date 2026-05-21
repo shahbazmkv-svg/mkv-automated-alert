@@ -370,6 +370,59 @@ def fetch_weekly_summary(client):
         print(f"    ❌ Weekly summary failed: {ex.error.code().name}")
         return {"rows": ["• Weekly data unavailable"]}
 
+def fetch_mtd_google_split(client):
+    """Fetch Month-to-Date Google Ads metrics split by Rental vs RTO campaigns."""
+    print("  → Fetching MTD Google split (Rental vs RTO)...")
+    ga_service = client.get_service("GoogleAdsService")
+    mtd_start = datetime.now().replace(day=1).strftime("%Y-%m-%d")
+    query = f"""
+        SELECT
+            campaign.name,
+            metrics.clicks,
+            metrics.cost_micros,
+            metrics.conversions,
+            metrics.impressions
+        FROM campaign
+        WHERE segments.date BETWEEN '{mtd_start}' AND '{DATE_RANGE}'
+          AND campaign.status = 'ENABLED'
+    """
+    try:
+        response = ga_service.search(customer_id=CUSTOMER_ID, query=query)
+        rental = {"clicks": 0, "cost": 0, "conversions": 0, "impressions": 0}
+        rto    = {"clicks": 0, "cost": 0, "conversions": 0, "impressions": 0}
+
+        for row in response:
+            name = row.campaign.name.lower()
+            clks = int(row.metrics.clicks)
+            cost = round(row.metrics.cost_micros / 1_000_000, 2)
+            conv = round(row.metrics.conversions, 1)
+            impr = int(row.metrics.impressions)
+
+            # Split by campaign name
+            if "rent to own" in name or "rto" in name or "lease" in name:
+                rto["clicks"]      += clks
+                rto["cost"]        += cost
+                rto["conversions"] += conv
+                rto["impressions"] += impr
+            else:
+                rental["clicks"]      += clks
+                rental["cost"]        += cost
+                rental["conversions"] += conv
+                rental["impressions"] += impr
+
+        for d in [rental, rto]:
+            d["cost"]         = round(d["cost"], 2)
+            d["conversions"]  = round(d["conversions"], 1)
+            d["ctr"]          = round(d["clicks"] / d["impressions"] * 100, 2) if d["impressions"] > 0 else 0
+            d["cost_per_conv"]= round(d["cost"] / d["conversions"], 2) if d["conversions"] > 0 else 0
+
+        print(f"    ✅ Google MTD Split — Rental: AED {rental['cost']} | RTO: AED {rto['cost']}")
+        return {"rental": rental, "rto": rto}
+    except GoogleAdsException as ex:
+        print(f"    ❌ Google MTD split failed: {ex.error.code().name}")
+        return {}
+
+
 def fetch_mtd_google(client):
     """Fetch Month-to-Date Google Ads metrics."""
     print("  → Fetching MTD Google Ads...")
@@ -777,6 +830,42 @@ def fetch_meta_campaigns(account_id, access_token, account_name=""):
         return []
 
 
+def fetch_meta_weekly(account_id):
+    """Fetch Meta Ads last 7 days day-by-day breakdown."""
+    token = META_ACCESS_TOKEN
+    if not token:
+        return {}
+    week_start = (datetime.now() - timedelta(days=7)).strftime("%Y-%m-%d")
+    try:
+        url = (
+            f"https://graph.facebook.com/v20.0/act_{account_id}/insights"
+            f"?fields=spend,impressions,clicks,actions,date_start"
+            f"&time_range=%7B%22since%22%3A%22{week_start}%22%2C%22until%22%3A%22{DATE_RANGE}%22%7D"
+            f"&time_increment=1"
+            f"&level=account"
+            f"&access_token={token}"
+        )
+        req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+        with urllib.request.urlopen(req, timeout=30) as resp:
+            data = json.loads(resp.read().decode())
+        daily = {}
+        for row in data.get("data", []):
+            date  = row.get("date_start", "")
+            spent = round(float(row.get("spend", 0)), 2)
+            clks  = int(row.get("clicks", 0))
+            impr  = int(row.get("impressions", 0))
+            results = 0
+            for a in row.get("actions", []):
+                if a["action_type"] == "onsite_conversion.total_messaging_connection":
+                    results = max(results, int(a.get("value", 0)))
+            if date and spent > 0:
+                daily[date] = {"spent": spent, "clicks": clks, "results": results, "impr": impr}
+        return {"daily": daily}
+    except Exception as e:
+        print(f"  ⚠️  Meta weekly error: {e}")
+        return {}
+
+
 def fetch_meta_mtd(account_id, account_name=""):
     """Fetch Meta Ads Month-to-Date metrics."""
     token = META_ACCESS_TOKEN
@@ -1096,7 +1185,7 @@ def score_report(g_camp, meta):
 
 # ── SLACK BLOCK KIT ───────────────────────────────────────────────────────────
 
-def build_blocks(g_camp, g_mtd, g_conv, g_search, g_auction, g_landing, g_geo, g_weekly, meta, meta_mtd, meta_rto, meta_rto_mtd, meta_placement, meta_age_gender, yesterday, kw_recs=None, comp_kw=None):
+def build_blocks(g_camp, g_mtd, g_mtd_split, g_conv, g_search, g_auction, g_landing, g_geo, g_weekly, meta, meta_mtd, meta_weekly, meta_rto, meta_rto_mtd, meta_rto_weekly, meta_placement, meta_age_gender, yesterday, kw_recs=None, comp_kw=None):
     score, grade, notes = score_report(g_camp, meta)
     if kw_recs is None:
         kw_recs = {"add": [], "remove": []}
@@ -1279,22 +1368,69 @@ def build_blocks(g_camp, g_mtd, g_conv, g_search, g_auction, g_landing, g_geo, g
     if geo_actions:
         geo_text += "\n\n*🔴 Actions:*\n" + "\n".join(geo_actions[:3])
 
-    # ── Weekly Summary (Google + Meta combined)
-    weekly_rows = g_weekly.get("rows", []).copy()
-    # Add Meta weekly context
-    if meta_mtd.get("spent", 0) > 0:
-        weekly_rows.append(f"\n*Meta MKV MTD:* AED {meta_mtd.get('spent',0):,.0f} | {meta_mtd.get('results',0)} results")
-    if meta_rto_mtd and meta_rto_mtd.get("spent", 0) > 0:
-        weekly_rows.append(f"*Meta RTO MTD:* AED {meta_rto_mtd.get('spent',0):,.0f} | {meta_rto_mtd.get('results',0)} results")
-    # Combined MTD spend
+    # ── Weekly Summary — Google
+    g_weekly_rows = []
+    g_w = g_weekly.get("rows", [])
+    if g_w:
+        g_weekly_rows = g_w
+    google_weekly_text = "\n".join(g_weekly_rows) if g_weekly_rows else "_No Google weekly data_"
+
+    # ── Weekly Summary — Meta MKV Luxury
+    meta_weekly_rows = []
+    if meta_weekly.get("daily"):
+        daily_m = meta_weekly["daily"]
+        total_spent = round(sum(v["spent"] for v in daily_m.values()), 2)
+        total_clks  = sum(v["clicks"] for v in daily_m.values())
+        total_res   = sum(v["results"] for v in daily_m.values())
+        best_m  = max(daily_m.items(), key=lambda x: x[1]["results"], default=(None,{}))
+        worst_m = min(daily_m.items(), key=lambda x: x[1]["results"], default=(None,{}))
+        meta_weekly_rows.append(f"*7-Day Totals:* AED {total_spent:,.0f} | {total_clks:,} clicks | {total_res} results")
+        if best_m[0]:
+            meta_weekly_rows.append(f"*Best day:* {best_m[0]} — {best_m[1].get('results',0)} results | AED {best_m[1].get('spent',0):,.0f}")
+        if worst_m[0]:
+            meta_weekly_rows.append(f"*Weakest day:* {worst_m[0]} — {worst_m[1].get('results',0)} results | AED {worst_m[1].get('spent',0):,.0f}")
+        meta_weekly_rows.append("\n*Daily Breakdown:*")
+        for date, vals in sorted(daily_m.items()):
+            day_name = datetime.strptime(date, "%Y-%m-%d").strftime("%a %d %b")
+            meta_weekly_rows.append(f"  {day_name}  —  AED {vals['spent']:,.0f} | {vals['clicks']} clicks | {vals['results']} results")
+    meta_weekly_text = "\n".join(meta_weekly_rows) if meta_weekly_rows else "_No Meta weekly data_"
+
+    # ── Weekly Summary — Meta RTO
+    meta_rto_weekly_rows = []
+    if meta_rto_weekly.get("daily"):
+        daily_r = meta_rto_weekly["daily"]
+        total_spent_r = round(sum(v["spent"] for v in daily_r.values()), 2)
+        total_clks_r  = sum(v["clicks"] for v in daily_r.values())
+        total_res_r   = sum(v["results"] for v in daily_r.values())
+        meta_rto_weekly_rows.append(f"*7-Day Totals:* AED {total_spent_r:,.0f} | {total_clks_r:,} clicks | {total_res_r} results")
+        meta_rto_weekly_rows.append("\n*Daily Breakdown:*")
+        for date, vals in sorted(daily_r.items()):
+            day_name = datetime.strptime(date, "%Y-%m-%d").strftime("%a %d %b")
+            meta_rto_weekly_rows.append(f"  {day_name}  —  AED {vals['spent']:,.0f} | {vals['clicks']} clicks | {vals['results']} results")
+    meta_rto_weekly_text = "\n".join(meta_rto_weekly_rows) if meta_rto_weekly_rows else "_No RTO weekly data_"
+
+    # ── Combined MTD
     total_mtd = (
         g_mtd.get("cost", 0) +
         meta_mtd.get("spent", 0) +
         (meta_rto_mtd.get("spent", 0) if meta_rto_mtd else 0)
     )
-    if total_mtd > 0:
-        weekly_rows.insert(0, f"*💰 Total MTD Spend (Google + Meta):* AED {total_mtd:,.0f}")
-    weekly_text = "\n".join(weekly_rows) if weekly_rows else "_No weekly data_"
+    # Google split
+    g_rental = g_mtd_split.get("rental", {})
+    g_rto    = g_mtd_split.get("rto", {})
+    g_split_line = ""
+    if g_rental or g_rto:
+        g_split_line = (
+            f"\n    ↳ Rental: AED {g_rental.get('cost',0):,.0f} | {g_rental.get('conversions',0)} conv | AED {g_rental.get('cost_per_conv',0):,.2f}/conv"
+            f"\n    ↳ Rent-to-Own: AED {g_rto.get('cost',0):,.0f} | {g_rto.get('conversions',0)} conv | AED {g_rto.get('cost_per_conv',0):,.2f}/conv"
+        )
+
+    combined_mtd_text = (
+        f"*💰 Total MTD Spend (All Channels):* AED {total_mtd:,.0f}\n"
+        f"  • *Google Ads:* AED {g_mtd.get('cost',0):,.0f} | {g_mtd.get('conversions',0)} conv | AED {g_mtd.get('cost_per_conv',0):,.2f}/conv{g_split_line}\n"
+        f"  • *Meta MKV Luxury:* AED {meta_mtd.get('spent',0):,.0f} | {meta_mtd.get('results',0)} results\n"
+        f"  • *Meta Lease to Own:* AED {meta_rto_mtd.get('spent',0) if meta_rto_mtd else 0:,.0f} | {meta_rto_mtd.get('results',0) if meta_rto_mtd else 0} results"
+    ) if total_mtd > 0 else "_No MTD data_"
 
     # ── Meta Placement
     placement_text = "\n".join(meta_placement.get("placements", [])) or "_No placement data today_"
@@ -1352,12 +1488,12 @@ def build_blocks(g_camp, g_mtd, g_conv, g_search, g_auction, g_landing, g_geo, g
         {"type": "section", "text": {"type": "mrkdwn", "text": f"*🕵️ Competitor & Opportunity Keywords*\n{comp_kw_text}"}},
         {"type": "divider"},
         {"type": "divider"},
-        {"type": "section", "text": {"type": "mrkdwn", "text": f"*📅 Weekly Summary (Last 7 Days)*\n{weekly_text}"}},
+        {"type": "section", "text": {"type": "mrkdwn", "text": f"*📅 MTD Summary (All Channels)*\n{combined_mtd_text}"}},
         {"type": "divider"},
         {"type": "section", "text": {"type": "mrkdwn", "text": f"*🏆 Performance Score*\n{score_text}"}},
         {"type": "context",
          "elements": [{"type": "mrkdwn",
-                       "text": f"_MKV Luxury Car Rental  •  Google Ads API + Meta API v4.1  •  {mode_tag}_"}]},
+                       "text": f"_MKV Luxury Car Rental  •  Google Ads API + Meta API v4.4  •  {mode_tag}_"}]},
     ]
 
 
@@ -1373,7 +1509,7 @@ def post_slack(blocks, fallback="MKV Daily Ads Snapshot"):
 
 def main():
     print("=" * 60)
-    print("  MKV Daily Ads Snapshot v4.1 — Google Ads API")
+    print("  MKV Daily Ads Snapshot v4.4 — Google Ads API")
     print(f"  {datetime.now().strftime('%Y-%m-%d %H:%M:%S')} | Report date: {REPORT_DATE}")
     print(f"  Mode: {'🧪 TEST' if TEST_MODE else '🚀 LIVE'}  |  Channel: {SLACK_CHANNEL}")
     print("=" * 60)
@@ -1383,7 +1519,8 @@ def main():
     try:
         client    = get_google_ads_client()
         g_camp    = fetch_campaign_performance(client)
-        g_mtd     = fetch_mtd_google(client)
+        g_mtd      = fetch_mtd_google(client)
+        g_mtd_split = fetch_mtd_google_split(client)
         g_conv    = fetch_conversions(client)
         g_search  = fetch_search_terms(client)
         g_auction = fetch_auction_insights(client)
@@ -1393,16 +1530,19 @@ def main():
     except Exception as e:
         print(f"  ❌  Google Ads API error: {e}")
         g_camp = g_conv = g_search = g_auction = {}
-        g_mtd  = {}
-        g_landing = {"pages": [], "rto_pages": []}
+        g_mtd       = {}
+        g_mtd_split = {}
+        g_landing   = {"pages": [], "rto_pages": []}
         g_geo  = {"locations": []}
         g_weekly = {"rows": []}
 
     print("\n📥 Fetching Meta Ads via API...")
     meta          = fetch_meta_api(META_AD_ACCOUNT_ID, "MKV Luxury")
     meta_rto      = fetch_meta_api(META_RTO_ACCOUNT_ID, "MKV Lease to Own") if META_RTO_ACCOUNT_ID else {}
-    meta_mtd      = fetch_meta_mtd(META_AD_ACCOUNT_ID, "MKV Luxury")
-    meta_rto_mtd  = fetch_meta_mtd(META_RTO_ACCOUNT_ID) if META_RTO_ACCOUNT_ID else {}
+    meta_mtd        = fetch_meta_mtd(META_AD_ACCOUNT_ID, "MKV Luxury")
+    meta_rto_mtd    = fetch_meta_mtd(META_RTO_ACCOUNT_ID) if META_RTO_ACCOUNT_ID else {}
+    meta_weekly     = fetch_meta_weekly(META_AD_ACCOUNT_ID) if META_AD_ACCOUNT_ID else {}
+    meta_rto_weekly = fetch_meta_weekly(META_RTO_ACCOUNT_ID) if META_RTO_ACCOUNT_ID else {}
     meta_placement = fetch_meta_placement(META_AD_ACCOUNT_ID) if META_AD_ACCOUNT_ID else {}
     meta_age_gender = fetch_meta_age_gender(META_AD_ACCOUNT_ID) if META_AD_ACCOUNT_ID else {}
     if not meta:
@@ -1427,7 +1567,7 @@ def main():
     comp_kw  = fetch_competitor_keywords(client) if g_search else {"competitor_terms": [], "opportunity_terms": []}
 
     print("\n📤 Posting to Slack...")
-    blocks = build_blocks(g_camp, g_mtd, g_conv, g_search, g_auction, g_landing, g_geo, g_weekly, meta, meta_mtd, meta_rto, meta_rto_mtd, meta_placement, meta_age_gender, yesterday, kw_recs, comp_kw)
+    blocks = build_blocks(g_camp, g_mtd, g_mtd_split, g_conv, g_search, g_auction, g_landing, g_geo, g_weekly, meta, meta_mtd, meta_weekly, meta_rto, meta_rto_mtd, meta_rto_weekly, meta_placement, meta_age_gender, yesterday, kw_recs, comp_kw)
     post_slack(blocks)
     print("\n✅  Done!\n")
 
