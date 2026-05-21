@@ -2849,6 +2849,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010061-ALEX-McLaren": {
+      "thread_ts": "1779372922.372439",
+      "end_date": "2026-05-23",
+      "plate": "47041",
+      "customer": "Alexei Close",
+      "vehicle": "Mclaren Spider Artura",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-05-21"
     }
   }
 }
