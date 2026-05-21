@@ -1119,319 +1119,232 @@ def score_report(g_camp, meta):
 
 # ── SLACK BLOCK KIT ───────────────────────────────────────────────────────────
 
-def build_blocks(g_camp, g_mtd, g_mtd_split, g_conv, g_search, g_auction, g_landing, g_geo, g_weekly, meta, meta_mtd, meta_weekly, meta_rto, meta_rto_mtd, meta_rto_weekly, meta_placement, meta_age_gender, yesterday, kw_recs=None, comp_kw=None):
-    score, grade, notes = score_report(g_camp, meta)
-    if kw_recs is None:
-        kw_recs = {"add": [], "remove": []}
-    if comp_kw is None:
-        comp_kw = {"competitor_terms": [], "opportunity_terms": []}
 
-    d_cost  = delta(g_camp.get("cost", 0),        yesterday.get("g_cost", 0))
-    d_clk   = delta(g_camp.get("clicks", 0),      yesterday.get("g_clicks", 0), prefix="")
-    d_conv  = delta(g_camp.get("conversions", 0), yesterday.get("g_conv", 0),   prefix="")
-    d_mcost = delta(meta.get("spent", 0),         yesterday.get("m_spent", 0))
+def build_google_report(g_camp, g_mtd, g_mtd_split, g_conv, g_search, g_auction, g_landing, g_geo, yesterday, kw_recs, comp_kw):
+    """Clean Google Ads daily report — campaign focused."""
+    mode_tag = "🧪 TEST" if TEST_MODE else "🚀 LIVE"
 
-    # ── Google Ads
-    if g_camp:
-        # MTD row
-        mtd_line = ""
-        if g_mtd:
-            mtd_line = (
-                f"\n*MTD:* AED {g_mtd.get('cost',0):,.0f} spent | "
-                f"{g_mtd.get('clicks',0):,} clicks | "
-                f"{g_mtd.get('conversions',0)} conv | "
-                f"AED {g_mtd.get('cost_per_conv',0):,.2f}/conv"
-            )
-        g_text = (
-            f"*Spend:* AED {g_camp.get('cost',0):,.2f}{d_cost}    "
-            f"*Clicks:* {g_camp.get('clicks',0):,}{d_clk}\n"
-            f"*Impressions:* {g_camp.get('impressions',0):,}    "
-            f"*CTR:* {g_camp.get('ctr',0)}%\n"
-            f"*Conversions:* {g_camp.get('conversions',0)}{d_conv}    "
-            f"*Cost/Conv:* AED {g_camp.get('cost_per_conv',0):,.2f}"
-            f"{mtd_line}"
+    d_cost = delta(g_camp.get("cost", 0), yesterday.get("g_cost", 0))
+    d_conv = delta(g_camp.get("conversions", 0), yesterday.get("g_conv", 0), prefix="")
+
+    # ── Section 1: Daily Overview
+    daily = (
+        f"*Spend:* AED {g_camp.get('cost',0):,.2f}{d_cost}    "
+        f"*Clicks:* {g_camp.get('clicks',0):,}\n"
+        f"*Impressions:* {g_camp.get('impressions',0):,}    "
+        f"*CTR:* {g_camp.get('ctr',0)}%\n"
+        f"*Conversions:* {g_camp.get('conversions',0)}{d_conv}    "
+        f"*Cost/Conv:* AED {g_camp.get('cost_per_conv',0):,.2f}"
+    )
+    if g_mtd:
+        daily += (
+            f"\n*MTD:* AED {g_mtd.get('cost',0):,.0f} | "
+            f"{g_mtd.get('conversions',0)} conv | "
+            f"AED {g_mtd.get('cost_per_conv',0):,.2f}/conv"
         )
-        if g_camp.get("campaigns"):
-            lines = ["\n*Top Campaigns:*"]
-            for c in g_camp["campaigns"]:
-                lines.append(f"  • {c['name']}  —  AED {c['spend']:,.0f} | {c['clicks']:,} clicks | {c['ctr']}% CTR")
-            g_text += "\n" + "\n".join(lines)
 
-        # Key actions for Google Ads
-        g_actions = []
-        if g_camp.get("ctr", 0) < 3:
-            g_actions.append("⚡ CTR below 3% — review ad copy & headlines")
-        if g_camp.get("cost_per_conv", 0) > 100:
-            g_actions.append("⚡ High cost/conv — pause underperforming keywords")
-        for c in g_camp.get("campaigns", []):
-            if c["spend"] > 50 and c["ctr"] < 2:
-                g_actions.append(f"⚡ {c['name'][:25]} — low CTR, review ad copy")
-        if g_actions:
-            g_text += "\n\n*🔴 Actions:*\n" + "\n".join(g_actions[:3])
-    else:
-        g_text = "_No Google Ads data today_"
+    # ── Section 2: Campaign breakdown
+    camp_lines = []
+    for c in g_camp.get("campaigns", []):
+        camp_lines.append(
+            f"• *{c['name']}*\n"
+            f"  AED {c['spend']:,.0f} | {c['clicks']:,} clicks | {c['ctr']}% CTR"
+        )
+    # Conversions per campaign
+    for cv in g_conv.get("breakdown", []):
+        camp_lines.append(cv)
+    camp_text = "\n".join(camp_lines) or "_No campaign data_"
 
-    conv_text   = "\n".join(g_conv.get("breakdown", []))      or "_No conversion data_"
-    search_text = "\n".join(g_search.get("terms", []))         or "_No search term data_"
-    comp_lines = g_auction.get("competitors", [])
-    # Add key actions for impression share
+    # MTD split
+    mtd_split_text = ""
+    if g_mtd_split:
+        r = g_mtd_split.get("rental", {})
+        t = g_mtd_split.get("rto", {})
+        mtd_split_text = (
+            f"• *Rental MTD:* AED {r.get('cost',0):,.0f} | {r.get('conversions',0)} conv | AED {r.get('cost_per_conv',0):,.2f}/conv\n"
+            f"• *Rent-to-Own MTD:* AED {t.get('cost',0):,.0f} | {t.get('conversions',0)} conv | AED {t.get('cost_per_conv',0):,.2f}/conv"
+        )
+
+    # ── Section 3: Impression Share + Actions
+    is_lines = []
     is_actions = []
-    for line in comp_lines:
+    for line in g_auction.get("competitors", []):
+        is_lines.append(line)
         if "Lost (budget): 9" in line or "Lost (budget): 8" in line:
-            camp = line.split("\n")[0].replace("•","").strip()
-            is_actions.append(f"⚡ {camp[:25]} — increase budget to capture lost IS")
+            camp = line.split("\n")[0].replace("•","").strip()[:25]
+            is_actions.append(f"⚡ Increase budget — {camp}")
         if "Lost (rank): 7" in line or "Lost (rank): 8" in line or "Lost (rank): 9" in line:
-            camp = line.split("\n")[0].replace("•","").strip()
-            is_actions.append(f"⚡ {camp[:25]} — improve Quality Score to win rank")
+            camp = line.split("\n")[0].replace("•","").strip()[:25]
+            is_actions.append(f"⚡ Improve Quality Score — {camp}")
+    is_text = "\n".join(is_lines) or "_No impression share data_"
     if is_actions:
-        comp_lines = comp_lines + ["\n*🔴 Actions:*"] + is_actions[:3]
-    comp_text = "\n".join(comp_lines) or "_No impression share data_"
-    land_text   = "\n".join(g_landing.get("pages", []))        or "_No landing page data_"
-    rto_text    = "\n".join(g_landing.get("rto_pages", []))    or "_No Rent-to-Own traffic today_"
+        is_text += "\n\n*Actions:*\n" + "\n".join(is_actions[:3])
 
-    # ── Keyword recommendations
-    add_text    = "\n".join(kw_recs.get("add", []))    or "_No new keywords to add_"
-    remove_text = "\n".join(kw_recs.get("remove", [])) or "_No irrelevant terms detected_"
-    kw_text     = f"*➕ Add as keywords:*\n{add_text}\n\n*➖ Add as negatives:*\n{remove_text}"
+    # ── Section 4: Search terms + Keywords
+    search_text = "\n".join(g_search.get("terms", [])) or "_No search term data_"
+    add_kw   = "\n".join(kw_recs.get("add", [])) or "• None today"
+    neg_kw   = "\n".join(kw_recs.get("remove", [])) or "• None today"
+    kw_text  = f"*➕ Add:* \n{add_kw}\n\n*➖ Negative:* \n{neg_kw}"
 
-    # ── Meta MKV Luxury
+    # ── Section 5: Competitor keywords
+    comp_text = ""
+    if comp_kw.get("competitor_terms"):
+        comp_text += "*Competitor searches:*\n" + "\n".join(comp_kw["competitor_terms"][:4])
+    if comp_kw.get("opportunity_terms"):
+        comp_text += "\n\n*High-intent 0-conv:*\n" + "\n".join(comp_kw["opportunity_terms"][:4])
+        comp_text += "\n\n*Actions:*\n⚡ Add to exact match campaigns\n⚡ Create competitor landing pages"
+    if not comp_text:
+        comp_text = "_No competitor data today_"
+
+    # ── Section 6: Geographic
+    geo_text = ""
+    countries = g_geo.get("countries", [])
+    cities    = g_geo.get("cities", [])
+    if countries:
+        geo_text += "*By Country:*\n" + "\n".join(countries[:4])
+    if cities and cities != countries:
+        geo_text += "\n\n*By City:*\n" + "\n".join(cities[:4])
+    if not geo_text:
+        geo_text = "_No geographic data_"
+
+    # ── Score
+    score = 0
+    if g_camp.get("ctr", 0) >= 3: score += 25
+    elif g_camp.get("ctr", 0) >= 1.5: score += 15
+    if g_camp.get("conversions", 0) >= 5: score += 30
+    elif g_camp.get("conversions", 0) >= 1: score += 15
+    if 0 < g_camp.get("cost_per_conv", 0) < 100: score += 20
+    if g_camp.get("cost", 0) > 0: score += 10
+    grade = "🟢 Excellent" if score >= 70 else "🟡 Good" if score >= 50 else "🔴 Needs Attention"
+
+    return [
+        {"type": "header", "text": {"type": "plain_text", "text": f"🔵 Google Ads Report — {REPORT_DATE}", "emoji": True}},
+        {"type": "section", "text": {"type": "mrkdwn", "text": f"*📊 Daily Performance*\n{daily}"}},
+        {"type": "divider"},
+        {"type": "section", "text": {"type": "mrkdwn", "text": f"*🎯 Campaign Breakdown*\n{camp_text}"}},
+        {"type": "divider"},
+        {"type": "section", "text": {"type": "mrkdwn", "text": f"*📈 MTD Split (Rental vs RTO)*\n{mtd_split_text or '_No MTD data_'}"}},
+        {"type": "divider"},
+        {"type": "section", "text": {"type": "mrkdwn", "text": f"*📊 Search Impression Share*\n{is_text}"}},
+        {"type": "divider"},
+        {"type": "section", "text": {"type": "mrkdwn", "text": f"*🔍 Search Terms*\n{search_text}"}},
+        {"type": "divider"},
+        {"type": "section", "text": {"type": "mrkdwn", "text": f"*🔑 Keyword Actions*\n{kw_text}"}},
+        {"type": "divider"},
+        {"type": "section", "text": {"type": "mrkdwn", "text": f"*🕵️ Competitor Analysis*\n{comp_text}"}},
+        {"type": "divider"},
+        {"type": "section", "text": {"type": "mrkdwn", "text": f"*🌍 Geographic*\n{geo_text}"}},
+        {"type": "divider"},
+        {"type": "section", "text": {"type": "mrkdwn", "text": f"*🏆 Score: {score}/100 — {grade}*"}},
+        {"type": "context", "elements": [{"type": "mrkdwn", "text": f"_MKV Google Ads • v4.6 • {mode_tag}_"}]},
+    ]
+
+
+def build_meta_report(meta, meta_mtd, meta_rto, meta_rto_mtd, meta_placement, meta_age_gender, yesterday):
+    """Clean Meta Ads daily report — campaign focused."""
+    mode_tag = "🧪 TEST" if TEST_MODE else "🚀 LIVE"
+    d_mcost  = delta(meta.get("spent", 0), yesterday.get("m_spent", 0))
+    d_rto    = delta(meta_rto.get("spent", 0) if meta_rto else 0, yesterday.get("m_rto_spent", 0))
+
+    # ── MKV Luxury
     if meta.get("spent", 0) > 0:
-        mtd_meta_line = ""
-        if meta_mtd:
-            mtd_meta_line = (
-                f"\n*MTD:* AED {meta_mtd.get('spent',0):,.0f} spent | "
-                f"{meta_mtd.get('clicks',0):,} clicks | "
-                f"{meta_mtd.get('results',0)} results"
-            )
-        meta_text = (
+        mkv_text = (
             f"*Spent:* AED {meta['spent']:,.2f}{d_mcost}    "
             f"*Results:* {meta['results']}    "
             f"*Cost/Result:* AED {meta['cost_per_result']:,.2f}\n"
             f"*Impressions:* {meta['impressions']:,}    "
             f"*Reach:* {meta['reach']:,}    "
             f"*CTR:* {meta['ctr']}%"
-            f"{mtd_meta_line}"
         )
+        if meta_mtd:
+            mkv_text += f"\n*MTD:* AED {meta_mtd.get('spent',0):,.0f} | {meta_mtd.get('results',0)} results"
+        # Campaign breakdown
         if meta.get("campaigns"):
-            lines = ["\n*Campaigns:*"]
+            mkv_text += "\n\n*Campaigns:*"
             for c in meta["campaigns"]:
-                lines.append(f"  • {c['name']}  —  AED {c['spend']:,.0f} | {c['clicks']:,} clicks | {c['ctr']}% CTR")
-            meta_text += "\n" + "\n".join(lines)
-        # Key actions for Meta
-        meta_actions = []
+                mkv_text += f"\n• {c['name']}  —  AED {c['spend']:,.0f} | {c['clicks']} clicks | {c['ctr']}% CTR"
+        # Actions
+        actions = []
         if meta.get("ctr", 0) < 1:
-            meta_actions.append("⚡ CTR below 1% — refresh creative/audience")
+            actions.append("⚡ CTR below 1% — refresh creative/audience")
         if meta.get("cost_per_result", 0) > 50:
-            meta_actions.append("⚡ High cost/result — test new ad formats")
+            actions.append("⚡ High cost/result — test new ad formats")
         if meta.get("results", 0) == 0:
-            meta_actions.append("⚡ Zero results today — check campaign delivery")
-        if meta_actions:
-            meta_text += "\n\n*🔴 Actions:*\n" + "\n".join(meta_actions[:2])
+            actions.append("⚡ Zero results — check campaign delivery")
+        if actions:
+            mkv_text += "\n\n*Actions:*\n" + "\n".join(actions)
     else:
-        meta_text = "_No Meta Ads data today_"
+        mkv_text = "_No MKV Luxury Meta data today_"
 
-    # ── Meta RTO
+    # ── Lease to Own
     if meta_rto and meta_rto.get("spent", 0) > 0:
-        d_rto = delta(meta_rto.get("spent", 0), yesterday.get("m_rto_spent", 0))
-        mtd_rto_line = ""
-        if meta_rto_mtd:
-            mtd_rto_line = (
-                f"\n*MTD:* AED {meta_rto_mtd.get('spent',0):,.0f} spent | "
-                f"{meta_rto_mtd.get('clicks',0):,} clicks | "
-                f"{meta_rto_mtd.get('results',0)} results"
-            )
-        meta_rto_text = (
+        rto_text = (
             f"*Spent:* AED {meta_rto['spent']:,.2f}{d_rto}    "
             f"*Results:* {meta_rto['results']}    "
             f"*Cost/Result:* AED {meta_rto['cost_per_result']:,.2f}\n"
             f"*Impressions:* {meta_rto['impressions']:,}    "
             f"*Reach:* {meta_rto['reach']:,}    "
             f"*CTR:* {meta_rto['ctr']}%"
-            f"{mtd_rto_line}"
         )
-        # Key actions for RTO
+        if meta_rto_mtd:
+            rto_text += f"\n*MTD:* AED {meta_rto_mtd.get('spent',0):,.0f} | {meta_rto_mtd.get('results',0)} results"
+        if meta_rto.get("campaigns"):
+            rto_text += "\n\n*Campaigns:*"
+            for c in meta_rto["campaigns"]:
+                rto_text += f"\n• {c['name']}  —  AED {c['spend']:,.0f} | {c['clicks']} clicks | {c['ctr']}% CTR"
         rto_actions = []
         if meta_rto.get("ctr", 0) < 1:
             rto_actions.append("⚡ CTR below 1% — refresh RTO creative")
         if meta_rto.get("cost_per_result", 0) > 100:
-            rto_actions.append("⚡ High cost/result — review RTO targeting")
+            rto_actions.append("⚡ High cost/result — review targeting")
         if rto_actions:
-            meta_rto_text += "\n\n*🔴 Actions:*\n" + "\n".join(rto_actions[:2])
+            rto_text += "\n\n*Actions:*\n" + "\n".join(rto_actions)
     else:
-        meta_rto_text = "_No Lease to Own Meta data today_"
+        rto_text = "_No Lease to Own Meta data today_"
 
-    # ── Competitor keyword analysis
-    comp_terms_text = "\n".join(comp_kw.get("competitor_terms", [])) or "_No competitor searches detected_"
-    opp_terms_text  = "\n".join(comp_kw.get("opportunity_terms", [])) or "_No missed opportunities detected_"
-    comp_kw_actions = []
-    if comp_kw.get("competitor_terms"):
-        comp_kw_actions.append("⚡ Create competitor comparison landing pages")
-        comp_kw_actions.append("⚡ Add competitor names as exact match keywords")
-    if comp_kw.get("opportunity_terms"):
-        comp_kw_actions.append("⚡ Add high-intent 0-conv terms to exact match campaigns")
-    comp_kw_action_text = "\n".join(comp_kw_actions) if comp_kw_actions else ""
-    comp_kw_text = (
-        f"*🎯 Competitor searches hitting your ads:*\n{comp_terms_text}\n\n"
-        f"*💡 High-intent terms with 0 conversions:*\n{opp_terms_text}"
-        + (f"\n\n*🔴 Actions:*\n{comp_kw_action_text}" if comp_kw_action_text else "")
-    )
+    # ── Placement
+    placement_text = "\n".join(meta_placement.get("placements", [])) or "_No placement data_"
+    placement_actions = []
+    for p in meta_placement.get("placements", []):
+        if "reels" in p.lower():
+            placement_actions.append("⚡ Reels active — use vertical video creative")
+        if "instagram" in p.lower():
+            placement_actions.append("⚡ Instagram driving traffic — check story quality")
+    if placement_actions:
+        placement_text += "\n\n*Actions:*\n" + "\n".join(list(dict.fromkeys(placement_actions))[:2])
 
-    # ── Geographic
-    countries  = g_geo.get("countries", [])
-    cities     = g_geo.get("cities", [])
-    geo_text   = ""
-    if countries:
-        geo_text += "*🌐 By Country:*\n" + "\n".join(countries)
-    if cities and cities != countries:
-        geo_text += "\n\n*🏙️ By City/Region:*\n" + "\n".join(cities)
-    if not geo_text:
-        geo_text = "_No geographic data today_"
-    # Geo actions
-    geo_actions = []
-    all_locs = countries + cities
-    if any("saudi" in l.lower() for l in all_locs):
-        geo_actions.append("⚡ Saudi Arabia traffic detected — create Arabic campaign targeting KSA")
-    if any("india" in l.lower() for l in all_locs):
-        geo_actions.append("⚡ India traffic detected — consider excluding or creating separate campaign")
-    if any("abu dhabi" in l.lower() for l in all_locs):
-        geo_actions.append("⚡ Abu Dhabi showing traffic — consider dedicated Abu Dhabi campaign")
-    if any("uk" in l.lower() or "united kingdom" in l.lower() for l in all_locs):
-        geo_actions.append("⚡ UK visitors detected — target UK tourists planning Dubai trips")
-    if len(all_locs) > 4:
-        geo_actions.append("⚡ Multiple markets active — review location bid adjustments")
-    if geo_actions:
-        geo_text += "\n\n*🔴 Actions:*\n" + "\n".join(geo_actions[:3])
+    # ── Age/Gender
+    age_text = "\n".join(meta_age_gender.get("segments", [])) or "_No demographic data_"
+    if meta_age_gender.get("segments"):
+        age_text += "\n\n*Actions:*\n⚡ Focus budget on top-converting segments above"
 
-    # ── Weekly Summary — Google
-    g_weekly_rows = []
-    g_w = g_weekly.get("rows", [])
-    if g_w:
-        g_weekly_rows = g_w
-    google_weekly_text = "\n".join(g_weekly_rows) if g_weekly_rows else "_No Google weekly data_"
-
-    # ── Weekly Summary — Meta MKV Luxury
-    meta_weekly_rows = []
-    if meta_weekly.get("daily"):
-        daily_m = meta_weekly["daily"]
-        total_spent = round(sum(v["spent"] for v in daily_m.values()), 2)
-        total_clks  = sum(v["clicks"] for v in daily_m.values())
-        total_res   = sum(v["results"] for v in daily_m.values())
-        best_m  = max(daily_m.items(), key=lambda x: x[1]["results"], default=(None,{}))
-        worst_m = min(daily_m.items(), key=lambda x: x[1]["results"], default=(None,{}))
-        meta_weekly_rows.append(f"*7-Day Totals:* AED {total_spent:,.0f} | {total_clks:,} clicks | {total_res} results")
-        if best_m[0]:
-            meta_weekly_rows.append(f"*Best day:* {best_m[0]} — {best_m[1].get('results',0)} results | AED {best_m[1].get('spent',0):,.0f}")
-        if worst_m[0]:
-            meta_weekly_rows.append(f"*Weakest day:* {worst_m[0]} — {worst_m[1].get('results',0)} results | AED {worst_m[1].get('spent',0):,.0f}")
-        meta_weekly_rows.append("\n*Daily Breakdown:*")
-        for date, vals in sorted(daily_m.items()):
-            day_name = datetime.strptime(date, "%Y-%m-%d").strftime("%a %d %b")
-            meta_weekly_rows.append(f"  {day_name}  —  AED {vals['spent']:,.0f} | {vals['clicks']} clicks | {vals['results']} results")
-    meta_weekly_text = "\n".join(meta_weekly_rows) if meta_weekly_rows else "_No Meta weekly data_"
-
-    # ── Weekly Summary — Meta RTO
-    meta_rto_weekly_rows = []
-    if meta_rto_weekly.get("daily"):
-        daily_r = meta_rto_weekly["daily"]
-        total_spent_r = round(sum(v["spent"] for v in daily_r.values()), 2)
-        total_clks_r  = sum(v["clicks"] for v in daily_r.values())
-        total_res_r   = sum(v["results"] for v in daily_r.values())
-        meta_rto_weekly_rows.append(f"*7-Day Totals:* AED {total_spent_r:,.0f} | {total_clks_r:,} clicks | {total_res_r} results")
-        meta_rto_weekly_rows.append("\n*Daily Breakdown:*")
-        for date, vals in sorted(daily_r.items()):
-            day_name = datetime.strptime(date, "%Y-%m-%d").strftime("%a %d %b")
-            meta_rto_weekly_rows.append(f"  {day_name}  —  AED {vals['spent']:,.0f} | {vals['clicks']} clicks | {vals['results']} results")
-    meta_rto_weekly_text = "\n".join(meta_rto_weekly_rows) if meta_rto_weekly_rows else "_No RTO weekly data_"
-
-    # ── Combined MTD
+    # ── MTD Combined
     total_mtd = (
-        g_mtd.get("cost", 0) +
         meta_mtd.get("spent", 0) +
         (meta_rto_mtd.get("spent", 0) if meta_rto_mtd else 0)
     )
-    # Google split
-    g_rental = g_mtd_split.get("rental", {})
-    g_rto    = g_mtd_split.get("rto", {})
-    g_split_line = ""
-    if g_rental or g_rto:
-        g_split_line = (
-            f"\n    ↳ Rental: AED {g_rental.get('cost',0):,.0f} | {g_rental.get('conversions',0)} conv | AED {g_rental.get('cost_per_conv',0):,.2f}/conv"
-            f"\n    ↳ Rent-to-Own: AED {g_rto.get('cost',0):,.0f} | {g_rto.get('conversions',0)} conv | AED {g_rto.get('cost_per_conv',0):,.2f}/conv"
-        )
-
-    combined_mtd_text = (
-        f"*💰 Total MTD Spend (All Channels):* AED {total_mtd:,.0f}\n"
-        f"  • *Google Ads:* AED {g_mtd.get('cost',0):,.0f} | {g_mtd.get('conversions',0)} conv | AED {g_mtd.get('cost_per_conv',0):,.2f}/conv{g_split_line}\n"
-        f"  • *Meta MKV Luxury:* AED {meta_mtd.get('spent',0):,.0f} | {meta_mtd.get('results',0)} results\n"
-        f"  • *Meta Lease to Own:* AED {meta_rto_mtd.get('spent',0) if meta_rto_mtd else 0:,.0f} | {meta_rto_mtd.get('results',0) if meta_rto_mtd else 0} results"
+    mtd_text = (
+        f"*Total Meta MTD:* AED {total_mtd:,.0f}\n"
+        f"• MKV Luxury: AED {meta_mtd.get('spent',0):,.0f} | {meta_mtd.get('results',0)} results\n"
+        f"• Lease to Own: AED {meta_rto_mtd.get('spent',0) if meta_rto_mtd else 0:,.0f} | {meta_rto_mtd.get('results',0) if meta_rto_mtd else 0} results"
     ) if total_mtd > 0 else "_No MTD data_"
 
-    # ── Meta Placement
-    placement_text = "\n".join(meta_placement.get("placements", [])) or "_No placement data today_"
-    placement_actions = []
-    placements = meta_placement.get("placements", [])
-    if any("reels" in p.lower() for p in placements):
-        placement_actions.append("⚡ Reels active — ensure vertical video creative is optimised")
-    if any("instagram" in p.lower() for p in placements):
-        placement_actions.append("⚡ Instagram driving traffic — check story/reel creative quality")
-    if placement_actions:
-        placement_text += "\n\n*🔴 Actions:*\n" + "\n".join(placement_actions[:2])
-
-    # ── Meta Age/Gender
-    age_gender_text = "\n".join(meta_age_gender.get("segments", [])) or "_No demographic data today_"
-    demo_actions = []
-    segments = meta_age_gender.get("segments", [])
-    if segments:
-        demo_actions.append("⚡ Focus budget on top-converting age/gender segments")
-        if any("female" in s.lower() for s in segments[:2]):
-            demo_actions.append("⚡ Female segment converting — create female-targeted creatives")
-    if demo_actions:
-        age_gender_text += "\n\n*🔴 Actions:*\n" + "\n".join(demo_actions[:2])
-
-    score_text = f"*Score: {score}/100 — {grade}*\n" + "\n".join(notes)
-    mode_tag   = "🧪 TEST MODE" if TEST_MODE else "🚀 LIVE"
-
     return [
-        {"type": "header",
-         "text": {"type": "plain_text", "text": f"📊 MKV Daily Ads Snapshot — {REPORT_DATE}", "emoji": True}},
+        {"type": "header", "text": {"type": "plain_text", "text": f"🟦 Meta Ads Report — {REPORT_DATE}", "emoji": True}},
+        {"type": "section", "text": {"type": "mrkdwn", "text": f"*MKV Luxury*\n{mkv_text}"}},
         {"type": "divider"},
-        {"type": "section", "text": {"type": "mrkdwn", "text": f"*🔵 Google Ads — MKV Luxury*\n{g_text}"}},
+        {"type": "section", "text": {"type": "mrkdwn", "text": f"*🟪 Lease to Own*\n{rto_text}"}},
         {"type": "divider"},
-        {"type": "section", "text": {"type": "mrkdwn", "text": f"*🎯 Conversions by Campaign*\n{conv_text}"}},
+        {"type": "section", "text": {"type": "mrkdwn", "text": f"*📺 Placement Breakdown*\n{placement_text}"}},
         {"type": "divider"},
-        {"type": "section", "text": {"type": "mrkdwn", "text": f"*🔍 Top Search Terms*\n{search_text}"}},
+        {"type": "section", "text": {"type": "mrkdwn", "text": f"*👥 Age & Gender*\n{age_text}"}},
         {"type": "divider"},
-        {"type": "section", "text": {"type": "mrkdwn", "text": f"*🔑 Keyword Recommendations*\n{kw_text}"}},
-        {"type": "divider"},
-        {"type": "section", "text": {"type": "mrkdwn", "text": f"*📊 Search Impression Share*\n{comp_text}"}},
-        {"type": "divider"},
-        {"type": "section", "text": {"type": "mrkdwn", "text": f"*📄 MKV Luxury — Top Landing Pages*\n{land_text}"}},
-        {"type": "divider"},
-        {"type": "section", "text": {"type": "mrkdwn", "text": f"*🚗 Rent-to-Own (renttoowncars.ae)*\n{rto_text}"}},
-        {"type": "divider"},
-        {"type": "section", "text": {"type": "mrkdwn", "text": f"*🌍 Geographic Performance*\n{geo_text}"}},
-        {"type": "divider"},
-        {"type": "section", "text": {"type": "mrkdwn", "text": f"*🟦 Meta Ads — MKV Luxury*\n{meta_text}"}},
-        {"type": "divider"},
-        {"type": "section", "text": {"type": "mrkdwn", "text": f"*🟪 Meta Ads — Lease to Own*\n{meta_rto_text}"}},
-        {"type": "divider"},
-        {"type": "section", "text": {"type": "mrkdwn", "text": f"*📺 Meta Placement Breakdown*\n{placement_text}"}},
-        {"type": "divider"},
-        {"type": "section", "text": {"type": "mrkdwn", "text": f"*👥 Meta Age & Gender*\n{age_gender_text}"}},
-        {"type": "divider"},
-        {"type": "section", "text": {"type": "mrkdwn", "text": f"*🕵️ Competitor & Opportunity Keywords*\n{comp_kw_text}"}},
-        {"type": "divider"},
-        {"type": "divider"},
-        {"type": "section", "text": {"type": "mrkdwn", "text": f"*📅 MTD Summary (All Channels)*\n{combined_mtd_text}"}},
-        {"type": "divider"},
-        {"type": "section", "text": {"type": "mrkdwn", "text": f"*🏆 Performance Score*\n{score_text}"}},
-        {"type": "context",
-         "elements": [{"type": "mrkdwn",
-                       "text": f"_MKV Luxury Car Rental  •  Google Ads API + Meta API v4.6  •  {mode_tag}_"}]},
+        {"type": "section", "text": {"type": "mrkdwn", "text": f"*📅 MTD Summary*\n{mtd_text}"}},
+        {"type": "context", "elements": [{"type": "mrkdwn", "text": f"_MKV Meta Ads • v4.6 • {mode_tag}_"}]},
     ]
 
 
-def post_slack(blocks, fallback="MKV Daily Ads Snapshot"):
+def post_slack(blocks, fallback="MKV Ads Report"):
     client = WebClient(token=SLACK_TOKEN)
     try:
         client.chat_postMessage(channel=SLACK_CHANNEL, blocks=blocks, text=fallback, unfurl_links=False, unfurl_media=False)
@@ -1439,48 +1352,44 @@ def post_slack(blocks, fallback="MKV Daily Ads Snapshot"):
     except SlackApiError as e:
         print(f"  ❌  Slack error: {e.response['error']}")
 
-# ── MAIN ──────────────────────────────────────────────────────────────────────
 
 def main():
     print("=" * 60)
-    print("  MKV Daily Ads Snapshot v4.6 — Google Ads API")
+    print("  MKV Daily Ads Snapshot v4.6")
     print(f"  {datetime.now().strftime('%Y-%m-%d %H:%M:%S')} | Report date: {REPORT_DATE}")
     print(f"  Mode: {'🧪 TEST' if TEST_MODE else '🚀 LIVE'}  |  Channel: {SLACK_CHANNEL}")
     print("=" * 60)
 
-    print("\n📊 Fetching Google Ads data via API...")
     client = None
+    g_camp = g_conv = g_search = g_auction = {}
+    g_mtd = g_mtd_split = {}
+    g_landing = {"pages": [], "rto_pages": []}
+    g_geo = {"countries": [], "cities": []}
+    g_weekly = {"rows": []}
+
+    print("\n📊 Fetching Google Ads data...")
     try:
         client    = get_google_ads_client()
         g_camp    = fetch_campaign_performance(client)
-        g_mtd      = fetch_mtd_google(client)
+        g_mtd     = fetch_mtd_google(client)
         g_mtd_split = fetch_mtd_google_split(client)
         g_conv    = fetch_conversions(client)
         g_search  = fetch_search_terms(client)
         g_auction = fetch_auction_insights(client)
         g_landing = fetch_landing_pages(client)
         g_geo     = fetch_geographic(client)
-        g_weekly  = fetch_weekly_summary(client)
     except Exception as e:
         print(f"  ❌  Google Ads API error: {e}")
-        g_camp = g_conv = g_search = g_auction = {}
-        g_mtd       = {}
-        g_mtd_split = {}
-        g_landing   = {"pages": [], "rto_pages": []}
-        g_geo  = {"locations": []}
-        g_weekly = {"rows": []}
 
-    print("\n📥 Fetching Meta Ads via API...")
-    meta          = fetch_meta_api(META_AD_ACCOUNT_ID, "MKV Luxury")
-    meta_rto      = fetch_meta_api(META_RTO_ACCOUNT_ID, "MKV Lease to Own") if META_RTO_ACCOUNT_ID else {}
-    meta_mtd        = fetch_meta_mtd(META_AD_ACCOUNT_ID, "MKV Luxury")
-    meta_rto_mtd    = fetch_meta_mtd(META_RTO_ACCOUNT_ID) if META_RTO_ACCOUNT_ID else {}
-    meta_weekly     = fetch_meta_weekly(META_AD_ACCOUNT_ID) if META_AD_ACCOUNT_ID else {}
-    meta_rto_weekly = fetch_meta_weekly(META_RTO_ACCOUNT_ID) if META_RTO_ACCOUNT_ID else {}
-    meta_placement = fetch_meta_placement(META_AD_ACCOUNT_ID) if META_AD_ACCOUNT_ID else {}
+    print("\n📥 Fetching Meta Ads data...")
+    meta         = fetch_meta_api(META_AD_ACCOUNT_ID, "MKV Luxury")
+    meta_rto     = fetch_meta_api(META_RTO_ACCOUNT_ID, "MKV Lease to Own") if META_RTO_ACCOUNT_ID else {}
+    meta_mtd     = fetch_meta_mtd(META_AD_ACCOUNT_ID)
+    meta_rto_mtd = fetch_meta_mtd(META_RTO_ACCOUNT_ID) if META_RTO_ACCOUNT_ID else {}
+    meta_placement  = fetch_meta_placement(META_AD_ACCOUNT_ID) if META_AD_ACCOUNT_ID else {}
     meta_age_gender = fetch_meta_age_gender(META_AD_ACCOUNT_ID) if META_AD_ACCOUNT_ID else {}
+
     if not meta:
-        # Fallback to Gmail if API fails
         print("  → Falling back to Gmail...")
         mail = imap_connect()
         if mail:
@@ -1493,16 +1402,19 @@ def main():
     yesterday = load_yesterday()
     save_today(g_camp, meta, meta_rto)
 
-    print(f"\n  Google Ads → AED {g_camp.get('cost',0):.2f} | {g_camp.get('clicks',0)} clicks | {g_camp.get('conversions',0)} conv")
-    print(f"  Meta Ads   → AED {meta.get('spent',0):.2f} | {meta.get('results',0)} results")
+    kw_recs  = fetch_keyword_recommendations(client, g_search) if client and g_search else {"add": [], "remove": []}
+    comp_kw  = fetch_competitor_keywords(client) if client and g_search else {"competitor_terms": [], "opportunity_terms": []}
 
-    # Keyword recommendations & competitor analysis
-    kw_recs = fetch_keyword_recommendations(client, g_search) if g_search else {"add": [], "remove": []}
-    comp_kw  = fetch_competitor_keywords(client) if g_search else {"competitor_terms": [], "opportunity_terms": []}
+    print("\n📤 Posting Google Ads report to Slack...")
+    google_blocks = build_google_report(g_camp, g_mtd, g_mtd_split, g_conv, g_search, g_auction, g_landing, g_geo, yesterday, kw_recs, comp_kw)
+    post_slack(google_blocks, "MKV Google Ads Report")
 
-    print("\n📤 Posting to Slack...")
-    blocks = build_blocks(g_camp, g_mtd, g_mtd_split, g_conv, g_search, g_auction, g_landing, g_geo, g_weekly, meta, meta_mtd, meta_weekly, meta_rto, meta_rto_mtd, meta_rto_weekly, meta_placement, meta_age_gender, yesterday, kw_recs, comp_kw)
-    post_slack(blocks)
+    print("\n📤 Posting Meta Ads report to Slack...")
+    meta_blocks = build_meta_report(meta, meta_mtd, meta_rto, meta_rto_mtd, meta_placement, meta_age_gender, yesterday)
+    post_slack(meta_blocks, "MKV Meta Ads Report")
+
+    print(f"\n  Google → AED {g_camp.get('cost',0):.2f} | {g_camp.get('clicks',0)} clicks | {g_camp.get('conversions',0)} conv")
+    print(f"  Meta   → AED {meta.get('spent',0):.2f} | {meta.get('results',0)} results")
     print("\n✅  Done!\n")
 
 
