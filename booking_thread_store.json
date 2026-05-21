@@ -2814,6 +2814,21 @@
       "delivery_alerted": true,
       "pickup_alerted": false,
       "closed": false,
+      "start_date": "2026-05-21",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
+    },
+    "0010059-BARA-Kia": {
+      "thread_ts": "1779356721.874279",
+      "end_date": "2026-06-20",
+      "plate": "97018",
+      "customer": "Barakath Ali Kibayathai",
+      "vehicle": "Kia Cerato",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "closed": false,
       "start_date": "2026-05-21"
     }
   }
