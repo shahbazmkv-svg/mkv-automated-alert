@@ -1162,115 +1162,117 @@ def score_report(g_camp, meta):
 
 
 def build_google_report(g_camp, g_mtd, g_mtd_split, g_conv, g_search, g_auction, g_landing, g_geo, yesterday, kw_recs, comp_kw):
-    """Clean Google Ads daily report."""
     mode_tag = "🧪 TEST" if TEST_MODE else "🚀 LIVE"
-
     d_cost = delta(g_camp.get("cost", 0), yesterday.get("g_cost", 0))
     d_conv = delta(g_camp.get("conversions", 0), yesterday.get("g_conv", 0), prefix="")
 
-    # ── Daily Overview
+    # ── 1. Daily Overview
     daily = (
-        f"*Spend:* AED {g_camp.get('cost',0):,.2f}{d_cost}    "
-        f"*Clicks:* {g_camp.get('clicks',0):,}\n"
-        f"*Impressions:* {g_camp.get('impressions',0):,}    "
-        f"*CTR:* {g_camp.get('ctr',0)}%\n"
-        f"*Conversions:* {g_camp.get('conversions',0)}{d_conv}    "
-        f"*Cost/Conv:* AED {g_camp.get('cost_per_conv',0):,.2f}"
+        f"💰 *Spend:* AED {g_camp.get('cost',0):,.2f}{d_cost}\n"
+        f"👆 *Clicks:* {g_camp.get('clicks',0):,}   👁 *Impressions:* {g_camp.get('impressions',0):,}   📊 *CTR:* {g_camp.get('ctr',0)}%\n"
+        f"🎯 *Conversions:* {g_camp.get('conversions',0)}{d_conv}   💵 *Cost/Conv:* AED {g_camp.get('cost_per_conv',0):,.2f}"
     )
     if g_mtd:
-        daily += (
-            f"\n*MTD:* AED {g_mtd.get('cost',0):,.0f} | "
-            f"{g_mtd.get('conversions',0)} conv | "
-            f"AED {g_mtd.get('cost_per_conv',0):,.2f}/conv"
-        )
+        daily += f"\n📅 *MTD:* AED {g_mtd.get('cost',0):,.0f} spent  |  {g_mtd.get('conversions',0)} conv  |  AED {g_mtd.get('cost_per_conv',0):,.2f}/conv"
 
-    # ── Campaign Breakdown (daily + conversions)
-    camp_lines = []
+    # ── 2. Campaign Breakdown
     conv_map = {}
     for cv in g_conv.get("breakdown", []):
-        # parse "• CampaignName — X conv | AED Y/conv"
         if "—" in cv:
             parts = cv.split("—")
             cname = parts[0].replace("•","").strip()
-            conv_map[cname] = parts[1].strip() if len(parts) > 1 else ""
+            conv_map[cname] = parts[1].strip()
 
+    camp_lines = []
     for c in g_camp.get("campaigns", []):
         conv_info = conv_map.get(c["name"], "")
-        conv_str  = f" | {conv_info}" if conv_info else ""
+        conv_str  = f"  |  {conv_info}" if conv_info else ""
         camp_lines.append(
-            f"• *{c['name']}*\n"
-            f"  AED {c['spend']:,.0f} | {c['clicks']:,} clicks | {c['ctr']}% CTR{conv_str}"
+            f"*{c['name']}*\n"
+            f"  AED {c['spend']:,.0f}  |  {c['clicks']:,} clicks  |  {c['ctr']}% CTR{conv_str}"
         )
-    camp_text = "\n".join(camp_lines) or "_No campaign data_"
+    camp_text = "\n\n".join(camp_lines) or "_No campaign data_"
 
-    # ── MTD Split
-    mtd_split_text = "_No MTD split data_"
+    # ── 3. MTD Split
+    mtd_split_text = "_No MTD split_"
     if g_mtd_split:
         r = g_mtd_split.get("rental", {})
         t = g_mtd_split.get("rto", {})
         mtd_split_text = (
-            f"• *Rental:* AED {r.get('cost',0):,.0f} | {r.get('conversions',0)} conv | AED {r.get('cost_per_conv',0):,.2f}/conv\n"
-            f"• *Rent-to-Own:* AED {t.get('cost',0):,.0f} | {t.get('conversions',0)} conv | AED {t.get('cost_per_conv',0):,.2f}/conv"
+            f"🚗 *Rental:*  AED {r.get('cost',0):,.0f}  |  {r.get('conversions',0)} conv  |  AED {r.get('cost_per_conv',0):,.2f}/conv\n"
+            f"🔄 *Rent-to-Own:*  AED {t.get('cost',0):,.0f}  |  {t.get('conversions',0)} conv  |  AED {t.get('cost_per_conv',0):,.2f}/conv"
         )
 
-    # ── Search Terms with campaign source
-    search_text = "\n".join(g_search.get("terms", [])) or "_No search term data_"
+    # ── 4. Search Terms
+    # Show highest clicks first, compact format
+    raw_terms = g_search.get("raw", [])
+    search_lines = []
+    for r in sorted(raw_terms, key=lambda x: x["clicks"], reverse=True)[:8]:
+        conv_str = f" | {r['conv']} conv" if r["conv"] > 0 else ""
+        search_lines.append(
+            f"• `{r['term'][:40]}` — {r['clicks']} clicks{conv_str} | _{r['campaign'][:25]}_"
+        )
+    search_text = "\n".join(search_lines) or "_No search term data_"
 
-    # ── Keyword Actions with campaign names
-    add_kw  = "\n".join(kw_recs.get("add", [])) or "• None today"
-    neg_kw  = "\n".join(kw_recs.get("remove", [])) or "• None today"
-    kw_text = f"*➕ Add to campaigns:*\n{add_kw}\n\n*➖ Add as negatives:*\n{neg_kw}"
+    # ── 5. Keyword Actions
+    add_kw = g_kw_add = kw_recs.get("add", [])
+    neg_kw = kw_recs.get("remove", [])
+    kw_text = ""
+    if add_kw:
+        kw_text += "*➕ Add as exact match:*\n" + "\n".join(add_kw[:4])
+    if neg_kw:
+        kw_text += ("\n\n" if kw_text else "") + "*➖ Review / add as negative:*\n" + "\n".join(neg_kw[:4])
+    if not kw_text:
+        kw_text = "_No keyword actions today_"
 
-    # ── Geographic
-    geo_text = ""
-    countries = g_geo.get("countries", [])
-    cities    = g_geo.get("cities", [])
-    if countries:
-        geo_text += "*By Country:*\n" + "\n".join(countries[:4])
-    if cities and cities != countries:
-        geo_text += "\n\n*By City:*\n" + "\n".join(cities[:5])
-    if not geo_text:
-        geo_text = "_No geographic data_"
-    # Geo actions
-    all_locs = countries + cities
-    geo_actions = []
-    if any("saudi" in l.lower() for l in all_locs):
-        geo_actions.append("⚡ Saudi Arabia traffic — create Arabic KSA campaign")
-    if any("india" in l.lower() for l in all_locs):
-        geo_actions.append("⚡ India traffic — consider exclusion or separate campaign")
-    if any("abu dhabi" in l.lower() for l in all_locs):
-        geo_actions.append("⚡ Abu Dhabi — consider dedicated campaign")
-    if any("uk" in l.lower() or "united kingdom" in l.lower() for l in all_locs):
-        geo_actions.append("⚡ UK visitors — target tourists planning Dubai trips")
-    if geo_actions:
-        geo_text += "\n\n*Actions:*\n" + "\n".join(geo_actions[:3])
+    # ── 6. Geographic (cities only)
+    cities = g_geo.get("cities", [])
+    if cities:
+        geo_text = "\n".join(cities[:5])
+        geo_actions = []
+        for l in cities:
+            if "abu dhabi" in l.lower(): geo_actions.append("⚡ Abu Dhabi active — consider dedicated campaign")
+            if "saudi" in l.lower():     geo_actions.append("⚡ Saudi traffic — create Arabic KSA campaign")
+            if "india" in l.lower():     geo_actions.append("⚡ India traffic — review targeting")
+        if geo_actions:
+            geo_text += "\n\n" + "\n".join(list(dict.fromkeys(geo_actions))[:2])
+    else:
+        geo_text = "_No city data today_"
 
     # ── Score
     score = 0
-    if g_camp.get("ctr", 0) >= 3: score += 25
-    elif g_camp.get("ctr", 0) >= 1.5: score += 15
-    if g_camp.get("conversions", 0) >= 5: score += 30
-    elif g_camp.get("conversions", 0) >= 1: score += 15
-    if 0 < g_camp.get("cost_per_conv", 0) < 100: score += 20
-    if g_camp.get("cost", 0) > 0: score += 10
+    if g_camp.get("ctr", 0) >= 3:           score += 25
+    elif g_camp.get("ctr", 0) >= 1.5:       score += 15
+    if g_camp.get("conversions", 0) >= 5:    score += 30
+    elif g_camp.get("conversions", 0) >= 1:  score += 15
+    if 0 < g_camp.get("cost_per_conv",0) < 100: score += 20
+    if g_camp.get("cost", 0) > 0:           score += 10
     grade = "🟢 Excellent" if score >= 70 else "🟡 Good" if score >= 50 else "🔴 Needs Attention"
 
     return [
-        {"type": "header", "text": {"type": "plain_text", "text": f"🔵 Google Ads Report — {REPORT_DATE}", "emoji": True}},
-        {"type": "section", "text": {"type": "mrkdwn", "text": f"*📊 Daily Performance*\n{daily}"}},
+        {"type": "header",
+         "text": {"type": "plain_text", "text": f"🔵 Google Ads — {REPORT_DATE}", "emoji": True}},
+        {"type": "section",
+         "text": {"type": "mrkdwn", "text": daily}},
         {"type": "divider"},
-        {"type": "section", "text": {"type": "mrkdwn", "text": f"*🎯 Campaign Breakdown*\n{camp_text}"}},
+        {"type": "section",
+         "text": {"type": "mrkdwn", "text": f"*🎯 Campaign Breakdown*\n\n{camp_text}"}},
         {"type": "divider"},
-        {"type": "section", "text": {"type": "mrkdwn", "text": f"*📈 MTD Split (Rental vs RTO)*\n{mtd_split_text}"}},
+        {"type": "section",
+         "text": {"type": "mrkdwn", "text": f"*📈 MTD Split*\n{mtd_split_text}"}},
         {"type": "divider"},
-        {"type": "section", "text": {"type": "mrkdwn", "text": f"*🔍 Search Terms (by Campaign)*\n{search_text}"}},
+        {"type": "section",
+         "text": {"type": "mrkdwn", "text": f"*🔍 Search Terms*\n{search_text}"}},
         {"type": "divider"},
-        {"type": "section", "text": {"type": "mrkdwn", "text": f"*🔑 Keyword Actions*\n{kw_text}"}},
+        {"type": "section",
+         "text": {"type": "mrkdwn", "text": f"*🔑 Keyword Actions*\n{kw_text}"}},
         {"type": "divider"},
-        {"type": "section", "text": {"type": "mrkdwn", "text": f"*🌍 Geographic*\n{geo_text}"}},
+        {"type": "section",
+         "text": {"type": "mrkdwn", "text": f"*🌍 Geographic (City)*\n{geo_text}"}},
         {"type": "divider"},
-        {"type": "section", "text": {"type": "mrkdwn", "text": f"*🏆 Score: {score}/100 — {grade}*"}},
-        {"type": "context", "elements": [{"type": "mrkdwn", "text": f"_MKV Google Ads • v4.7 • {mode_tag}_"}]},
+        {"type": "context",
+         "elements": [{"type": "mrkdwn",
+                       "text": f"*🏆 Score: {score}/100 — {grade}*   |   MKV Google Ads v4.9 • {mode_tag}"}]},
     ]
 
 
@@ -1373,7 +1375,7 @@ def build_meta_report(meta, meta_mtd, meta_rto, meta_rto_mtd, meta_placement, me
 
         {"type": "divider"},
         {"type": "section", "text": {"type": "mrkdwn", "text": f"*📅 MTD Summary*\n{mtd_text}"}},
-        {"type": "context", "elements": [{"type": "mrkdwn", "text": f"_MKV Meta Ads • v4.7 • {mode_tag}_"}]},
+        {"type": "context", "elements": [{"type": "mrkdwn", "text": f"_MKV Meta Ads • v4.9 • {mode_tag}_"}]},
     ]
 
 
@@ -1388,7 +1390,7 @@ def post_slack(blocks, fallback="MKV Ads Report"):
 
 def main():
     print("=" * 60)
-    print("  MKV Daily Ads Snapshot v4.7")
+    print("  MKV Daily Ads Snapshot v4.9")
     print(f"  {datetime.now().strftime('%Y-%m-%d %H:%M:%S')} | Report date: {REPORT_DATE}")
     print(f"  Mode: {'🧪 TEST' if TEST_MODE else '🚀 LIVE'}  |  Channel: {SLACK_CHANNEL}")
     print("=" * 60)
