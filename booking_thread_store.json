@@ -2894,6 +2894,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010063-FAST-Ferrari": {
+      "thread_ts": "1779387322.600639",
+      "end_date": "2026-05-24",
+      "plate": "97019",
+      "customer": "Fastlane Luxury Car Rent Llc",
+      "vehicle": "Ferrari Purosangue",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-05-21"
     }
   }
 }
