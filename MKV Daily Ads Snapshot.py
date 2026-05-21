@@ -1266,13 +1266,11 @@ def build_google_report(g_camp, g_mtd, g_mtd_split, g_conv, g_search, g_auction,
         {"type": "divider"},
         {"type": "section",
          "text": {"type": "mrkdwn", "text": f"*🔑 Keyword Actions*\n{kw_text}"}},
-        {"type": "divider"},
-        {"type": "section",
-         "text": {"type": "mrkdwn", "text": f"*🌍 Geographic (City)*\n{geo_text}"}},
+
         {"type": "divider"},
         {"type": "context",
          "elements": [{"type": "mrkdwn",
-                       "text": f"*🏆 Score: {score}/100 — {grade}*   |   MKV Google Ads v5.1 • {mode_tag}"}]},
+                       "text": f"*🏆 Score: {score}/100 — {grade}*   |   MKV Google Ads v5.3 • {mode_tag}"}]},
     ]
 
 
@@ -1395,7 +1393,7 @@ def build_meta_report(meta, meta_mtd, meta_rto, meta_rto_mtd, meta_placement, me
 
         {"type": "divider"},
         {"type": "section", "text": {"type": "mrkdwn", "text": f"*📅 MTD Summary*\n{mtd_text}"}},
-        {"type": "context", "elements": [{"type": "mrkdwn", "text": f"_MKV Meta Ads • v5.1 • {mode_tag}_"}]},
+        {"type": "context", "elements": [{"type": "mrkdwn", "text": f"_MKV Meta Ads • v5.3 • {mode_tag}_"}]},
     ]
 
 
@@ -1410,7 +1408,7 @@ def post_slack(blocks, fallback="MKV Ads Report"):
 
 def main():
     print("=" * 60)
-    print("  MKV Daily Ads Snapshot v5.1")
+    print("  MKV Daily Ads Snapshot v5.3")
     print(f"  {datetime.now().strftime('%Y-%m-%d %H:%M:%S')} | Report date: {REPORT_DATE}")
     print(f"  Mode: {'🧪 TEST' if TEST_MODE else '🚀 LIVE'}  |  Channel: {SLACK_CHANNEL}")
     print("=" * 60)
