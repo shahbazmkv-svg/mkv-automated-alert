@@ -73,354 +73,123 @@ def get_google_ads_client():
 # ── GOOGLE ADS API QUERIES ────────────────────────────────────────────────────
 
 
-# Known geo target IDs for UAE and common locations
+# Known geo target IDs
 GEO_NAMES = {
-    "100001": "United Arab Emirates",
-    "1011245": "Dubai", "9041":    "Dubai",
-    "1011246": "Abu Dhabi", "9045": "Abu Dhabi",
-    "1011247": "Sharjah", "9046":  "Sharjah",
-    "1011248": "Ajman",
-    "1011249": "Ras Al Khaimah",
-    "1011250": "Fujairah",
-    "1011251": "Umm Al Quwain",
-    "2784":    "United Arab Emirates",
-    "20636":   "Dubai",
-    "20637":   "Abu Dhabi",
-    "20638":   "Sharjah",
-    "1007741": "Saudi Arabia",
-    "2682":    "United Kingdom",
-    "2840":    "United States",
-    "2356":    "India",
-    "2276":    "Germany",
-    "2250":    "France",
-    "2643":    "United Kingdom",
-    "2408":    "Japan",
-    "2156":    "China",
-    "2643":    "United Kingdom",
+    "2784": "United Arab Emirates",
+    "1011245": "Dubai", "20636": "Dubai",
+    "1011246": "Abu Dhabi", "20637": "Abu Dhabi",
+    "1011247": "Sharjah", "20638": "Sharjah",
+    "1011248": "Ajman", "1011249": "Ras Al Khaimah",
+    "1011250": "Fujairah", "1011251": "Umm Al Quwain",
+    "2682": "United Kingdom", "2840": "United States",
+    "2356": "India", "2276": "Germany",
+    "2250": "France", "2408": "Japan",
+    "2156": "China", "2036": "Australia",
+    "2124": "Canada", "2643": "United Kingdom",
+    "1007741": "Saudi Arabia", "2682": "United Kingdom",
+    "2410": "South Korea", "2702": "Singapore",
+    "2784": "United Arab Emirates",
 }
 
 
-def resolve_geo_name(resource_name):
-    """Resolve geo target constant ID to human-readable name."""
-    geo_id = resource_name.split("/")[-1] if "/" in resource_name else resource_name
-    return GEO_NAMES.get(geo_id, f"Location {geo_id}")
+def resolve_geo(resource_name, geo_svc):
+    """Resolve geo resource name to city/country name."""
+    geo_id = resource_name.split("/")[-1]
+    if geo_id in GEO_NAMES:
+        return GEO_NAMES[geo_id]
+    try:
+        gtc = geo_svc.get_geo_target_constant(resource_name=f"geoTargetConstants/{geo_id}")
+        name = gtc.canonical_name or gtc.name
+        # canonical_name format: "Dubai, Dubai, United Arab Emirates"
+        # Take first part only for city, or full for country
+        if "," in name:
+            return name.split(",")[0].strip()
+        return name
+    except:
+        return None
 
 
 def fetch_geographic(client):
-    """Fetch top countries AND cities by performance."""
-    print("  → Fetching geographic data (country + city)...")
+    """Fetch top countries and cities by performance."""
+    print("  → Fetching geographic data...")
     ga_service = client.get_service("GoogleAdsService")
     geo_svc    = client.get_service("GeoTargetConstantService")
 
-    def get_geo_name(resource_name):
-        """Resolve geo target resource name to readable name."""
-        geo_id = resource_name.split("/")[-1] if "/" in resource_name else resource_name
-        # Try known IDs first
-        if geo_id in GEO_NAMES:
-            return GEO_NAMES[geo_id]
-        # Try API
-        try:
-            gtc = geo_svc.get_geo_target_constant(resource_name=f"geoTargetConstants/{geo_id}")
-            return gtc.canonical_name or gtc.name or f"Location {geo_id}"
-        except:
-            return GEO_NAMES.get(geo_id, f"Location {geo_id}")
-
     results = {"countries": [], "cities": []}
 
-    # 1. Country level
+    # Single query: geographic_view with location_type to separate country vs city
+    query = f"""
+        SELECT
+            geographic_view.resource_name,
+            geographic_view.location_type,
+            metrics.clicks,
+            metrics.cost_micros,
+            metrics.conversions,
+            metrics.impressions
+        FROM geographic_view
+        WHERE segments.date = '{DATE_RANGE}'
+          AND metrics.clicks > 0
+        ORDER BY metrics.clicks DESC
+        LIMIT 30
+    """
     try:
-        query_country = f"""
-            SELECT
-                geographic_view.resource_name,
-                geographic_view.location_type,
-                metrics.clicks,
-                metrics.cost_micros,
-                metrics.conversions,
-                metrics.impressions
-            FROM geographic_view
-            WHERE segments.date = '{DATE_RANGE}'
-              AND geographic_view.location_type = 'LOCATION_OF_PRESENCE'
-              AND metrics.clicks > 0
-            ORDER BY metrics.clicks DESC
-            LIMIT 8
-        """
-        resp = ga_service.search(customer_id=CUSTOMER_ID, query=query_country)
+        response = ga_service.search(customer_id=CUSTOMER_ID, query=query)
         country_data = {}
-        for row in resp:
-            name  = get_geo_name(row.geographic_view.resource_name)
-            clks  = int(row.metrics.clicks)
-            cost  = round(row.metrics.cost_micros / 1_000_000, 2)
-            conv  = round(row.metrics.conversions, 1)
-            impr  = int(row.metrics.impressions)
-            ctr   = round(clks / impr * 100, 1) if impr > 0 else 0
-            # Aggregate by name (avoid duplicates)
-            if name not in country_data:
-                country_data[name] = {"clicks": 0, "cost": 0, "conv": 0, "impr": 0}
-            country_data[name]["clicks"] += clks
-            country_data[name]["cost"]   += cost
-            country_data[name]["conv"]   += conv
-            country_data[name]["impr"]   += impr
-
-        for name, vals in sorted(country_data.items(), key=lambda x: x[1]["clicks"], reverse=True)[:6]:
-            ctr_val  = round(vals["clicks"] / vals["impr"] * 100, 1) if vals["impr"] > 0 else 0
-            conv_str = f" | {vals['conv']} conv" if vals["conv"] > 0 else ""
-            results["countries"].append(
-                f"• {name[:28]}  —  {vals['clicks']} clicks | AED {vals['cost']:,.0f} | CTR {ctr_val}%{conv_str}"
-            )
-        print(f"    ✅ Countries: {len(results['countries'])}")
-    except Exception as e:
-        print(f"    ⚠️  Country fetch failed: {e}")
-        results["countries"] = ["• Country data unavailable"]
-
-    # 2. City level — use user_location_view
-    try:
-        query_city = f"""
-            SELECT
-                user_location_view.country_criterion_id,
-                metrics.clicks,
-                metrics.cost_micros,
-                metrics.conversions,
-                metrics.impressions
-            FROM user_location_view
-            WHERE segments.date = '{DATE_RANGE}'
-              AND metrics.clicks > 0
-            ORDER BY metrics.clicks DESC
-            LIMIT 8
-        """
-        resp2 = ga_service.search(customer_id=CUSTOMER_ID, query=query_city)
-        city_data = {}
-        for row in resp2:
-            cid   = str(row.user_location_view.country_criterion_id)
-            name  = GEO_NAMES.get(cid, None)
-            if not name:
-                try:
-                    gtc  = geo_svc.get_geo_target_constant(resource_name=f"geoTargetConstants/{cid}")
-                    name = gtc.canonical_name or gtc.name or f"Location {cid}"
-                except:
-                    name = f"Location {cid}"
-            clks = int(row.metrics.clicks)
-            cost = round(row.metrics.cost_micros / 1_000_000, 2)
-            conv = round(row.metrics.conversions, 1)
-            impr = int(row.metrics.impressions)
-            if name not in city_data:
-                city_data[name] = {"clicks": 0, "cost": 0, "conv": 0, "impr": 0}
-            city_data[name]["clicks"] += clks
-            city_data[name]["cost"]   += cost
-            city_data[name]["conv"]   += conv
-            city_data[name]["impr"]   += impr
-
-        for name, vals in sorted(city_data.items(), key=lambda x: x[1]["clicks"], reverse=True)[:6]:
-            ctr_val  = round(vals["clicks"] / vals["impr"] * 100, 1) if vals["impr"] > 0 else 0
-            conv_str = f" | {vals['conv']} conv" if vals["conv"] > 0 else ""
-            results["cities"].append(
-                f"• {name[:28]}  —  {vals['clicks']} clicks | AED {vals['cost']:,.0f} | CTR {ctr_val}%{conv_str}"
-            )
-        print(f"    ✅ Cities: {len(results['cities'])}")
-    except Exception as e:
-        print(f"    ⚠️  City fetch failed: {e}")
-        results["cities"] = ["• City data unavailable"]
-
-    return results
-
-
-
-def fetch_meta_placement(account_id):
-    """Fetch Meta Ads performance by placement (Feed, Reels, Stories etc)."""
-    token = META_ACCESS_TOKEN
-    if not token:
-        return {}
-    print(f"  → Fetching Meta placement breakdown...")
-    try:
-        url = (
-            f"https://graph.facebook.com/v20.0/act_{account_id}/insights"
-            f"?fields=spend,impressions,clicks,publisher_platform,platform_position"
-            f"&date_preset=yesterday"
-            f"&breakdowns=publisher_platform%2Cplatform_position"
-            f"&level=account"
-            f"&access_token={token}"
-        )
-        req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
-        with urllib.request.urlopen(req, timeout=30) as resp:
-            data = json.loads(resp.read().decode())
-        placements = {}
-        for row in data.get("data", []):
-            platform = row.get("publisher_platform", "unknown").title()
-            position = row.get("platform_position", "").replace("_", " ").title()
-            key = f"{platform} — {position}"
-            spent = round(float(row.get("spend", 0)), 2)
-            clks  = int(row.get("clicks", 0))
-            impr  = int(row.get("impressions", 0))
-            if spent > 0:
-                if key not in placements:
-                    placements[key] = {"spent": 0, "clicks": 0, "impressions": 0}
-                placements[key]["spent"]  += spent
-                placements[key]["clicks"] += clks
-                placements[key]["impressions"] += impr
-        rows = []
-        for name, vals in sorted(placements.items(), key=lambda x: x[1]["spent"], reverse=True)[:6]:
-            ctr = round(vals["clicks"] / vals["impressions"] * 100, 2) if vals["impressions"] > 0 else 0
-            rows.append(f"• {name[:35]}  —  AED {vals['spent']:,.2f} | {vals['clicks']} clicks | CTR {ctr}%")
-        print(f"    ✅ Meta placements: {len(rows)} found")
-        return {"placements": rows or ["• No placement data today"]}
-    except Exception as e:
-        print(f"    ❌ Meta placement failed: {e}")
-        return {"placements": ["• Placement data unavailable"]}
-
-
-def fetch_meta_age_gender(account_id):
-    """Fetch Meta Ads performance by age and gender."""
-    token = META_ACCESS_TOKEN
-    if not token:
-        return {}
-    print(f"  → Fetching Meta age/gender breakdown...")
-    try:
-        url = (
-            f"https://graph.facebook.com/v20.0/act_{account_id}/insights"
-            f"?fields=spend,impressions,clicks,actions"
-            f"&date_preset=yesterday"
-            f"&breakdowns=age,gender"
-            f"&level=account"
-            f"&access_token={token}"
-        )
-        req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
-        with urllib.request.urlopen(req, timeout=30) as resp:
-            data = json.loads(resp.read().decode())
-        segments = []
-        for row in data.get("data", []):
-            age    = row.get("age", "")
-            gender = row.get("gender", "").title()
-            spent  = round(float(row.get("spend", 0)), 2)
-            clks   = int(row.get("clicks", 0))
-            impr   = int(row.get("impressions", 0))
-            # Get results from actions
-            results = 0
-            for a in row.get("actions", []):
-                if a["action_type"] == "onsite_conversion.total_messaging_connection":
-                    results = max(results, int(a.get("value", 0)))
-            if spent > 0:
-                cpr = round(spent / results, 2) if results > 0 else 0
-                segments.append({
-                    "label": f"{gender} {age}",
-                    "spent": spent, "clicks": clks,
-                    "results": results, "cpr": cpr, "impressions": impr
-                })
-        # Sort by results then clicks
-        segments.sort(key=lambda x: (x["results"], x["clicks"]), reverse=True)
-        rows = []
-        for s in segments[:6]:
-            ctr = round(s["clicks"] / s["impressions"] * 100, 2) if s["impressions"] > 0 else 0
-            res_str = f" | {s['results']} results @ AED {s['cpr']:,.0f}" if s["results"] > 0 else ""
-            rows.append(f"• {s['label']:<15}  AED {s['spent']:,.2f} | {s['clicks']} clicks | CTR {ctr}%{res_str}")
-        print(f"    ✅ Meta age/gender: {len(rows)} segments")
-        return {"segments": rows or ["• No age/gender data today"]}
-    except Exception as e:
-        print(f"    ❌ Meta age/gender failed: {e}")
-        return {"segments": ["• Age/gender data unavailable"]}
-
-
-def fetch_weekly_summary(client):
-    """Fetch last 7 days summary for weekly context."""
-    print("  → Fetching weekly summary...")
-    ga_service = client.get_service("GoogleAdsService")
-    week_start = (datetime.now() - timedelta(days=7)).strftime("%Y-%m-%d")
-    query = f"""
-        SELECT
-            segments.date,
-            metrics.clicks,
-            metrics.cost_micros,
-            metrics.conversions,
-            metrics.impressions
-        FROM customer
-        WHERE segments.date BETWEEN '{week_start}' AND '{DATE_RANGE}'
-        ORDER BY segments.date ASC
-    """
-    try:
-        response = ga_service.search(customer_id=CUSTOMER_ID, query=query)
-        daily = {}
-        for row in response:
-            d = row.segments.date
-            daily[d] = {
-                "clicks": int(row.metrics.clicks),
-                "cost"  : round(row.metrics.cost_micros / 1_000_000, 2),
-                "conv"  : round(row.metrics.conversions, 1),
-                "impr"  : int(row.metrics.impressions),
-            }
-        # Weekly totals
-        total_clicks = sum(v["clicks"] for v in daily.values())
-        total_cost   = round(sum(v["cost"] for v in daily.values()), 2)
-        total_conv   = round(sum(v["conv"] for v in daily.values()), 1)
-        avg_ctr      = round(sum(v["clicks"] for v in daily.values()) /
-                             max(sum(v["impr"] for v in daily.values()), 1) * 100, 2)
-        # Best and worst day
-        best_day  = max(daily.items(), key=lambda x: x[1]["conv"], default=(None, {}))
-        worst_day = min(daily.items(), key=lambda x: x[1]["conv"], default=(None, {}))
-        rows = [
-            f"*7-Day Totals:* AED {total_cost:,.0f} spent | {total_clicks:,} clicks | {total_conv} conv | {avg_ctr}% CTR",
-            f"*Best day:*  {best_day[0]} — {best_day[1].get('conv',0)} conv | AED {best_day[1].get('cost',0):,.0f}",
-            f"*Weakest day:* {worst_day[0]} — {worst_day[1].get('conv',0)} conv | AED {worst_day[1].get('cost',0):,.0f}",
-        ]
-        # Day-by-day
-        rows.append("\n*Daily Breakdown:*")
-        for date, vals in sorted(daily.items()):
-            day_name = datetime.strptime(date, "%Y-%m-%d").strftime("%a %d %b")
-            rows.append(f"  {day_name}  —  AED {vals['cost']:,.0f} | {vals['clicks']} clicks | {vals['conv']} conv")
-        print(f"    ✅ Weekly summary: {len(daily)} days")
-        return {"rows": rows}
-    except GoogleAdsException as ex:
-        print(f"    ❌ Weekly summary failed: {ex.error.code().name}")
-        return {"rows": ["• Weekly data unavailable"]}
-
-def fetch_mtd_google_split(client):
-    """Fetch Month-to-Date Google Ads metrics split by Rental vs RTO campaigns."""
-    print("  → Fetching MTD Google split (Rental vs RTO)...")
-    ga_service = client.get_service("GoogleAdsService")
-    mtd_start = datetime.now().replace(day=1).strftime("%Y-%m-%d")
-    query = f"""
-        SELECT
-            campaign.name,
-            metrics.clicks,
-            metrics.cost_micros,
-            metrics.conversions,
-            metrics.impressions
-        FROM campaign
-        WHERE segments.date BETWEEN '{mtd_start}' AND '{DATE_RANGE}'
-          AND campaign.status = 'ENABLED'
-    """
-    try:
-        response = ga_service.search(customer_id=CUSTOMER_ID, query=query)
-        rental = {"clicks": 0, "cost": 0, "conversions": 0, "impressions": 0}
-        rto    = {"clicks": 0, "cost": 0, "conversions": 0, "impressions": 0}
+        city_data    = {}
 
         for row in response:
-            name = row.campaign.name.lower()
+            loc_type = str(row.geographic_view.location_type)
+            resource = row.geographic_view.resource_name
             clks = int(row.metrics.clicks)
             cost = round(row.metrics.cost_micros / 1_000_000, 2)
             conv = round(row.metrics.conversions, 1)
             impr = int(row.metrics.impressions)
 
-            # Split by campaign name
-            if "rent to own" in name or "rto" in name or "lease" in name:
-                rto["clicks"]      += clks
-                rto["cost"]        += cost
-                rto["conversions"] += conv
-                rto["impressions"] += impr
+            name = resolve_geo(resource, geo_svc) or resource.split("/")[-1]
+
+            # location_type 0 or LOCATION_OF_PRESENCE = country/region level
+            # location_type 1 or USER_LOCATION = city level
+            if "LOCATION_OF_PRESENCE" in loc_type or loc_type == "0":
+                if name not in country_data:
+                    country_data[name] = {"clicks":0,"cost":0,"conv":0,"impr":0}
+                country_data[name]["clicks"] += clks
+                country_data[name]["cost"]   += cost
+                country_data[name]["conv"]   += conv
+                country_data[name]["impr"]   += impr
             else:
-                rental["clicks"]      += clks
-                rental["cost"]        += cost
-                rental["conversions"] += conv
-                rental["impressions"] += impr
+                if name not in city_data:
+                    city_data[name] = {"clicks":0,"cost":0,"conv":0,"impr":0}
+                city_data[name]["clicks"] += clks
+                city_data[name]["cost"]   += cost
+                city_data[name]["conv"]   += conv
+                city_data[name]["impr"]   += impr
 
-        for d in [rental, rto]:
-            d["cost"]         = round(d["cost"], 2)
-            d["conversions"]  = round(d["conversions"], 1)
-            d["ctr"]          = round(d["clicks"] / d["impressions"] * 100, 2) if d["impressions"] > 0 else 0
-            d["cost_per_conv"]= round(d["cost"] / d["conversions"], 2) if d["conversions"] > 0 else 0
+        # If city_data empty, use country_data as city approximation
+        if not city_data and country_data:
+            city_data = country_data
 
-        print(f"    ✅ Google MTD Split — Rental: AED {rental['cost']} | RTO: AED {rto['cost']}")
-        return {"rental": rental, "rto": rto}
+        # Format countries
+        for name, v in sorted(country_data.items(), key=lambda x: x[1]["clicks"], reverse=True)[:5]:
+            ctr = round(v["clicks"]/v["impr"]*100,1) if v["impr"] > 0 else 0
+            conv_str = f" | {v['conv']} conv" if v["conv"] > 0 else ""
+            results["countries"].append(
+                f"• {name[:28]}  —  {v['clicks']} clicks | AED {v['cost']:,.0f} | CTR {ctr}%{conv_str}"
+            )
+
+        # Format cities
+        for name, v in sorted(city_data.items(), key=lambda x: x[1]["clicks"], reverse=True)[:5]:
+            ctr = round(v["clicks"]/v["impr"]*100,1) if v["impr"] > 0 else 0
+            conv_str = f" | {v['conv']} conv" if v["conv"] > 0 else ""
+            results["cities"].append(
+                f"• {name[:28]}  —  {v['clicks']} clicks | AED {v['cost']:,.0f} | CTR {ctr}%{conv_str}"
+            )
+
+        print(f"    ✅ Geo: {len(results['countries'])} countries, {len(results['cities'])} cities")
+        return results
+
     except GoogleAdsException as ex:
-        print(f"    ❌ Google MTD split failed: {ex.error.code().name}")
-        return {}
+        print(f"    ❌ Geographic failed: {ex.error.code().name}")
+        return {"countries": ["• Geographic data unavailable"], "cities": []}
 
 
 def fetch_mtd_google(client):
@@ -1348,7 +1117,7 @@ def build_blocks(g_camp, g_mtd, g_mtd_split, g_conv, g_search, g_auction, g_land
     geo_text   = ""
     if countries:
         geo_text += "*🌐 By Country:*\n" + "\n".join(countries)
-    if cities:
+    if cities and cities != countries:
         geo_text += "\n\n*🏙️ By City/Region:*\n" + "\n".join(cities)
     if not geo_text:
         geo_text = "_No geographic data today_"
@@ -1493,7 +1262,7 @@ def build_blocks(g_camp, g_mtd, g_mtd_split, g_conv, g_search, g_auction, g_land
         {"type": "section", "text": {"type": "mrkdwn", "text": f"*🏆 Performance Score*\n{score_text}"}},
         {"type": "context",
          "elements": [{"type": "mrkdwn",
-                       "text": f"_MKV Luxury Car Rental  •  Google Ads API + Meta API v4.4  •  {mode_tag}_"}]},
+                       "text": f"_MKV Luxury Car Rental  •  Google Ads API + Meta API v4.5  •  {mode_tag}_"}]},
     ]
 
 
@@ -1509,7 +1278,7 @@ def post_slack(blocks, fallback="MKV Daily Ads Snapshot"):
 
 def main():
     print("=" * 60)
-    print("  MKV Daily Ads Snapshot v4.4 — Google Ads API")
+    print("  MKV Daily Ads Snapshot v4.5 — Google Ads API")
     print(f"  {datetime.now().strftime('%Y-%m-%d %H:%M:%S')} | Report date: {REPORT_DATE}")
     print(f"  Mode: {'🧪 TEST' if TEST_MODE else '🚀 LIVE'}  |  Channel: {SLACK_CHANNEL}")
     print("=" * 60)
