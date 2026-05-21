@@ -72,6 +72,229 @@ def get_google_ads_client():
 
 # ── GOOGLE ADS API QUERIES ────────────────────────────────────────────────────
 
+
+def fetch_geographic(client):
+    """Fetch top cities/countries by performance."""
+    print("  → Fetching geographic data...")
+    ga_service = client.get_service("GoogleAdsService")
+    query = f"""
+        SELECT
+            geographic_view.country_criterion_id,
+            segments.geo_target_city,
+            metrics.clicks,
+            metrics.cost_micros,
+            metrics.conversions,
+            metrics.impressions
+        FROM geographic_view
+        WHERE segments.date = '{DATE_RANGE}'
+          AND metrics.clicks > 0
+        ORDER BY metrics.clicks DESC
+        LIMIT 10
+    """
+    try:
+        response = ga_service.search(customer_id=CUSTOMER_ID, query=query)
+        geo_data = []
+        resource_svc = client.get_service("GeoTargetConstantService")
+        for row in response:
+            clks  = int(row.metrics.clicks)
+            cost  = round(row.metrics.cost_micros / 1_000_000, 2)
+            conv  = round(row.metrics.conversions, 1)
+            impr  = int(row.metrics.impressions)
+            ctr   = round(clks / impr * 100, 1) if impr > 0 else 0
+            city  = str(row.segments.geo_target_city) if row.segments.geo_target_city else "Unknown"
+            geo_data.append({
+                "city": city, "clicks": clks,
+                "cost": cost, "conv": conv, "ctr": ctr
+            })
+        # Format output
+        rows = []
+        for g in geo_data[:6]:
+            conv_str = f" | {g['conv']} conv" if g['conv'] > 0 else ""
+            rows.append(
+                f"• {g['city'][:25]}  —  {g['clicks']} clicks | "
+                f"AED {g['cost']:,.0f} | CTR {g['ctr']}%{conv_str}"
+            )
+        print(f"    ✅ Geographic: {len(rows)} locations")
+        return {"locations": rows or ["• No geographic data today"]}
+    except GoogleAdsException as ex:
+        print(f"    ❌ Geographic failed: {ex.error.code().name}")
+        # Fallback: use location without city segment
+        try:
+            query2 = f"""
+                SELECT
+                    geographic_view.resource_name,
+                    geographic_view.location_type,
+                    metrics.clicks,
+                    metrics.cost_micros,
+                    metrics.conversions
+                FROM geographic_view
+                WHERE segments.date = '{DATE_RANGE}'
+                  AND metrics.clicks > 0
+                ORDER BY metrics.clicks DESC
+                LIMIT 8
+            """
+            response2 = ga_service.search(customer_id=CUSTOMER_ID, query=query2)
+            rows2 = []
+            for row in response2:
+                clks = int(row.metrics.clicks)
+                cost = round(row.metrics.cost_micros / 1_000_000, 2)
+                conv = round(row.metrics.conversions, 1)
+                loc  = row.geographic_view.resource_name.split("/")[-1]
+                conv_str = f" | {conv} conv" if conv > 0 else ""
+                rows2.append(f"• Location {loc}  —  {clks} clicks | AED {cost:,.0f}{conv_str}")
+            print(f"    ✅ Geographic (fallback): {len(rows2)} locations")
+            return {"locations": rows2 or ["• No geographic data"]}
+        except Exception as e2:
+            print(f"    ❌ Geographic fallback failed: {e2}")
+            return {"locations": ["• Geographic data unavailable"]}
+
+
+def fetch_meta_placement(account_id):
+    """Fetch Meta Ads performance by placement (Feed, Reels, Stories etc)."""
+    token = META_ACCESS_TOKEN
+    if not token:
+        return {}
+    print(f"  → Fetching Meta placement breakdown...")
+    try:
+        url = (
+            f"https://graph.facebook.com/v20.0/act_{account_id}/insights"
+            f"?fields=spend,impressions,clicks,actions,publisher_platform,platform_position"
+            f"&date_preset=yesterday"
+            f"&breakdowns=publisher_platform,platform_position"
+            f"&level=account"
+            f"&access_token={token}"
+        )
+        req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+        with urllib.request.urlopen(req, timeout=30) as resp:
+            data = json.loads(resp.read().decode())
+        placements = {}
+        for row in data.get("data", []):
+            platform = row.get("publisher_platform", "unknown").title()
+            position = row.get("platform_position", "").replace("_", " ").title()
+            key = f"{platform} — {position}"
+            spent = round(float(row.get("spend", 0)), 2)
+            clks  = int(row.get("clicks", 0))
+            impr  = int(row.get("impressions", 0))
+            if spent > 0:
+                if key not in placements:
+                    placements[key] = {"spent": 0, "clicks": 0, "impressions": 0}
+                placements[key]["spent"]  += spent
+                placements[key]["clicks"] += clks
+                placements[key]["impressions"] += impr
+        rows = []
+        for name, vals in sorted(placements.items(), key=lambda x: x[1]["spent"], reverse=True)[:6]:
+            ctr = round(vals["clicks"] / vals["impressions"] * 100, 2) if vals["impressions"] > 0 else 0
+            rows.append(f"• {name[:35]}  —  AED {vals['spent']:,.2f} | {vals['clicks']} clicks | CTR {ctr}%")
+        print(f"    ✅ Meta placements: {len(rows)} found")
+        return {"placements": rows or ["• No placement data today"]}
+    except Exception as e:
+        print(f"    ❌ Meta placement failed: {e}")
+        return {"placements": ["• Placement data unavailable"]}
+
+
+def fetch_meta_age_gender(account_id):
+    """Fetch Meta Ads performance by age and gender."""
+    token = META_ACCESS_TOKEN
+    if not token:
+        return {}
+    print(f"  → Fetching Meta age/gender breakdown...")
+    try:
+        url = (
+            f"https://graph.facebook.com/v20.0/act_{account_id}/insights"
+            f"?fields=spend,impressions,clicks,actions"
+            f"&date_preset=yesterday"
+            f"&breakdowns=age,gender"
+            f"&level=account"
+            f"&access_token={token}"
+        )
+        req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+        with urllib.request.urlopen(req, timeout=30) as resp:
+            data = json.loads(resp.read().decode())
+        segments = []
+        for row in data.get("data", []):
+            age    = row.get("age", "")
+            gender = row.get("gender", "").title()
+            spent  = round(float(row.get("spend", 0)), 2)
+            clks   = int(row.get("clicks", 0))
+            impr   = int(row.get("impressions", 0))
+            # Get results from actions
+            results = 0
+            for a in row.get("actions", []):
+                if a["action_type"] == "onsite_conversion.total_messaging_connection":
+                    results = max(results, int(a.get("value", 0)))
+            if spent > 0:
+                cpr = round(spent / results, 2) if results > 0 else 0
+                segments.append({
+                    "label": f"{gender} {age}",
+                    "spent": spent, "clicks": clks,
+                    "results": results, "cpr": cpr, "impressions": impr
+                })
+        # Sort by results then clicks
+        segments.sort(key=lambda x: (x["results"], x["clicks"]), reverse=True)
+        rows = []
+        for s in segments[:6]:
+            ctr = round(s["clicks"] / s["impressions"] * 100, 2) if s["impressions"] > 0 else 0
+            res_str = f" | {s['results']} results @ AED {s['cpr']:,.0f}" if s["results"] > 0 else ""
+            rows.append(f"• {s['label']:<15}  AED {s['spent']:,.2f} | {s['clicks']} clicks | CTR {ctr}%{res_str}")
+        print(f"    ✅ Meta age/gender: {len(rows)} segments")
+        return {"segments": rows or ["• No age/gender data today"]}
+    except Exception as e:
+        print(f"    ❌ Meta age/gender failed: {e}")
+        return {"segments": ["• Age/gender data unavailable"]}
+
+
+def fetch_weekly_summary(client):
+    """Fetch last 7 days summary for weekly context."""
+    print("  → Fetching weekly summary...")
+    ga_service = client.get_service("GoogleAdsService")
+    week_start = (datetime.now() - timedelta(days=7)).strftime("%Y-%m-%d")
+    query = f"""
+        SELECT
+            segments.date,
+            metrics.clicks,
+            metrics.cost_micros,
+            metrics.conversions,
+            metrics.impressions
+        FROM customer
+        WHERE segments.date BETWEEN '{week_start}' AND '{DATE_RANGE}'
+        ORDER BY segments.date ASC
+    """
+    try:
+        response = ga_service.search(customer_id=CUSTOMER_ID, query=query)
+        daily = {}
+        for row in response:
+            d = row.segments.date
+            daily[d] = {
+                "clicks": int(row.metrics.clicks),
+                "cost"  : round(row.metrics.cost_micros / 1_000_000, 2),
+                "conv"  : round(row.metrics.conversions, 1),
+                "impr"  : int(row.metrics.impressions),
+            }
+        # Weekly totals
+        total_clicks = sum(v["clicks"] for v in daily.values())
+        total_cost   = round(sum(v["cost"] for v in daily.values()), 2)
+        total_conv   = round(sum(v["conv"] for v in daily.values()), 1)
+        avg_ctr      = round(sum(v["clicks"] for v in daily.values()) /
+                             max(sum(v["impr"] for v in daily.values()), 1) * 100, 2)
+        # Best and worst day
+        best_day  = max(daily.items(), key=lambda x: x[1]["conv"], default=(None, {}))
+        worst_day = min(daily.items(), key=lambda x: x[1]["conv"], default=(None, {}))
+        rows = [
+            f"*7-Day Totals:* AED {total_cost:,.0f} spent | {total_clicks:,} clicks | {total_conv} conv | {avg_ctr}% CTR",
+            f"*Best day:*  {best_day[0]} — {best_day[1].get('conv',0)} conv | AED {best_day[1].get('cost',0):,.0f}",
+            f"*Weakest day:* {worst_day[0]} — {worst_day[1].get('conv',0)} conv | AED {worst_day[1].get('cost',0):,.0f}",
+        ]
+        # Day-by-day
+        rows.append("\n*Daily Breakdown:*")
+        for date, vals in sorted(daily.items()):
+            day_name = datetime.strptime(date, "%Y-%m-%d").strftime("%a %d %b")
+            rows.append(f"  {day_name}  —  AED {vals['cost']:,.0f} | {vals['clicks']} clicks | {vals['conv']} conv")
+        print(f"    ✅ Weekly summary: {len(daily)} days")
+        return {"rows": rows}
+    except GoogleAdsException as ex:
+        print(f"    ❌ Weekly summary failed: {ex.error.code().name}")
+        return {"rows": ["• Weekly data unavailable"]}
+
 def fetch_mtd_google(client):
     """Fetch Month-to-Date Google Ads metrics."""
     print("  → Fetching MTD Google Ads...")
@@ -798,7 +1021,7 @@ def score_report(g_camp, meta):
 
 # ── SLACK BLOCK KIT ───────────────────────────────────────────────────────────
 
-def build_blocks(g_camp, g_mtd, g_conv, g_search, g_auction, g_landing, meta, meta_mtd, meta_rto, meta_rto_mtd, yesterday, kw_recs=None, comp_kw=None):
+def build_blocks(g_camp, g_mtd, g_conv, g_search, g_auction, g_landing, g_geo, g_weekly, meta, meta_mtd, meta_rto, meta_rto_mtd, meta_placement, meta_age_gender, yesterday, kw_recs=None, comp_kw=None):
     score, grade, notes = score_report(g_camp, meta)
     if kw_recs is None:
         kw_recs = {"add": [], "remove": []}
@@ -955,6 +1178,43 @@ def build_blocks(g_camp, g_mtd, g_conv, g_search, g_auction, g_landing, meta, me
         + (f"\n\n*🔴 Actions:*\n{comp_kw_action_text}" if comp_kw_action_text else "")
     )
 
+    # ── Geographic
+    geo_text = "\n".join(g_geo.get("locations", [])) or "_No geographic data today_"
+    # Geo actions
+    geo_actions = []
+    locations = g_geo.get("locations", [])
+    if any("abu dhabi" in l.lower() for l in locations):
+        geo_actions.append("⚡ Abu Dhabi showing traffic — consider dedicated campaign")
+    if len(locations) > 3:
+        geo_actions.append("⚡ Multiple cities active — add location bid adjustments")
+    if geo_actions:
+        geo_text += "\n\n*🔴 Actions:*\n" + "\n".join(geo_actions)
+
+    # ── Weekly Summary
+    weekly_text = "\n".join(g_weekly.get("rows", [])) or "_No weekly data_"
+
+    # ── Meta Placement
+    placement_text = "\n".join(meta_placement.get("placements", [])) or "_No placement data today_"
+    placement_actions = []
+    placements = meta_placement.get("placements", [])
+    if any("reels" in p.lower() for p in placements):
+        placement_actions.append("⚡ Reels active — ensure vertical video creative is optimised")
+    if any("instagram" in p.lower() for p in placements):
+        placement_actions.append("⚡ Instagram driving traffic — check story/reel creative quality")
+    if placement_actions:
+        placement_text += "\n\n*🔴 Actions:*\n" + "\n".join(placement_actions[:2])
+
+    # ── Meta Age/Gender
+    age_gender_text = "\n".join(meta_age_gender.get("segments", [])) or "_No demographic data today_"
+    demo_actions = []
+    segments = meta_age_gender.get("segments", [])
+    if segments:
+        demo_actions.append("⚡ Focus budget on top-converting age/gender segments")
+        if any("female" in s.lower() for s in segments[:2]):
+            demo_actions.append("⚡ Female segment converting — create female-targeted creatives")
+    if demo_actions:
+        age_gender_text += "\n\n*🔴 Actions:*\n" + "\n".join(demo_actions[:2])
+
     score_text = f"*Score: {score}/100 — {grade}*\n" + "\n".join(notes)
     mode_tag   = "🧪 TEST MODE" if TEST_MODE else "🚀 LIVE"
 
@@ -976,16 +1236,25 @@ def build_blocks(g_camp, g_mtd, g_conv, g_search, g_auction, g_landing, meta, me
         {"type": "divider"},
         {"type": "section", "text": {"type": "mrkdwn", "text": f"*🚗 Rent-to-Own (renttoowncars.ae)*\n{rto_text}"}},
         {"type": "divider"},
+        {"type": "section", "text": {"type": "mrkdwn", "text": f"*🌍 Geographic Performance*\n{geo_text}"}},
+        {"type": "divider"},
         {"type": "section", "text": {"type": "mrkdwn", "text": f"*🟦 Meta Ads — MKV Luxury*\n{meta_text}"}},
         {"type": "divider"},
         {"type": "section", "text": {"type": "mrkdwn", "text": f"*🟪 Meta Ads — Lease to Own*\n{meta_rto_text}"}},
         {"type": "divider"},
+        {"type": "section", "text": {"type": "mrkdwn", "text": f"*📺 Meta Placement Breakdown*\n{placement_text}"}},
+        {"type": "divider"},
+        {"type": "section", "text": {"type": "mrkdwn", "text": f"*👥 Meta Age & Gender*\n{age_gender_text}"}},
+        {"type": "divider"},
         {"type": "section", "text": {"type": "mrkdwn", "text": f"*🕵️ Competitor & Opportunity Keywords*\n{comp_kw_text}"}},
+        {"type": "divider"},
+        {"type": "divider"},
+        {"type": "section", "text": {"type": "mrkdwn", "text": f"*📅 Weekly Summary (Last 7 Days)*\n{weekly_text}"}},
         {"type": "divider"},
         {"type": "section", "text": {"type": "mrkdwn", "text": f"*🏆 Performance Score*\n{score_text}"}},
         {"type": "context",
          "elements": [{"type": "mrkdwn",
-                       "text": f"_MKV Luxury Car Rental  •  Google Ads API + Meta API v3.8  •  {mode_tag}_"}]},
+                       "text": f"_MKV Luxury Car Rental  •  Google Ads API + Meta API v3.9  •  {mode_tag}_"}]},
     ]
 
 
@@ -1001,7 +1270,7 @@ def post_slack(blocks, fallback="MKV Daily Ads Snapshot"):
 
 def main():
     print("=" * 60)
-    print("  MKV Daily Ads Snapshot v3.8 — Google Ads API")
+    print("  MKV Daily Ads Snapshot v3.9 — Google Ads API")
     print(f"  {datetime.now().strftime('%Y-%m-%d %H:%M:%S')} | Report date: {REPORT_DATE}")
     print(f"  Mode: {'🧪 TEST' if TEST_MODE else '🚀 LIVE'}  |  Channel: {SLACK_CHANNEL}")
     print("=" * 60)
@@ -1016,17 +1285,23 @@ def main():
         g_search  = fetch_search_terms(client)
         g_auction = fetch_auction_insights(client)
         g_landing = fetch_landing_pages(client)
+        g_geo     = fetch_geographic(client)
+        g_weekly  = fetch_weekly_summary(client)
     except Exception as e:
         print(f"  ❌  Google Ads API error: {e}")
         g_camp = g_conv = g_search = g_auction = {}
         g_mtd  = {}
         g_landing = {"pages": [], "rto_pages": []}
+        g_geo  = {"locations": []}
+        g_weekly = {"rows": []}
 
     print("\n📥 Fetching Meta Ads via API...")
-    meta      = fetch_meta_api(META_AD_ACCOUNT_ID, "MKV Luxury")
-    meta_rto  = fetch_meta_api(META_RTO_ACCOUNT_ID, "MKV Lease to Own") if META_RTO_ACCOUNT_ID else {}
-    meta_mtd  = fetch_meta_mtd(META_AD_ACCOUNT_ID, "MKV Luxury")
-    meta_rto_mtd = fetch_meta_mtd(META_RTO_ACCOUNT_ID) if META_RTO_ACCOUNT_ID else {}
+    meta          = fetch_meta_api(META_AD_ACCOUNT_ID, "MKV Luxury")
+    meta_rto      = fetch_meta_api(META_RTO_ACCOUNT_ID, "MKV Lease to Own") if META_RTO_ACCOUNT_ID else {}
+    meta_mtd      = fetch_meta_mtd(META_AD_ACCOUNT_ID, "MKV Luxury")
+    meta_rto_mtd  = fetch_meta_mtd(META_RTO_ACCOUNT_ID) if META_RTO_ACCOUNT_ID else {}
+    meta_placement = fetch_meta_placement(META_AD_ACCOUNT_ID) if META_AD_ACCOUNT_ID else {}
+    meta_age_gender = fetch_meta_age_gender(META_AD_ACCOUNT_ID) if META_AD_ACCOUNT_ID else {}
     if not meta:
         # Fallback to Gmail if API fails
         print("  → Falling back to Gmail...")
@@ -1049,7 +1324,7 @@ def main():
     comp_kw  = fetch_competitor_keywords(client) if g_search else {"competitor_terms": [], "opportunity_terms": []}
 
     print("\n📤 Posting to Slack...")
-    blocks = build_blocks(g_camp, g_mtd, g_conv, g_search, g_auction, g_landing, meta, meta_mtd, meta_rto, meta_rto_mtd, yesterday, kw_recs, comp_kw)
+    blocks = build_blocks(g_camp, g_mtd, g_conv, g_search, g_auction, g_landing, g_geo, g_weekly, meta, meta_mtd, meta_rto, meta_rto_mtd, meta_placement, meta_age_gender, yesterday, kw_recs, comp_kw)
     post_slack(blocks)
     print("\n✅  Done!\n")
 
