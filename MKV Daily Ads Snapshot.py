@@ -447,6 +447,181 @@ def fetch_auction_insights(client):
         return {"competitors": ["• Data unavailable — check Google Ads UI for Auction Insights"]}
 
 
+
+def fetch_mtd_google_split(client):
+    """Fetch MTD Google Ads split by Rental vs RTO campaigns."""
+    print("  → Fetching MTD Google split (Rental vs RTO)...")
+    ga_service = client.get_service("GoogleAdsService")
+    mtd_start = datetime.now().replace(day=1).strftime("%Y-%m-%d")
+    query = f"""
+        SELECT
+            campaign.name,
+            metrics.clicks,
+            metrics.cost_micros,
+            metrics.conversions,
+            metrics.impressions
+        FROM campaign
+        WHERE segments.date BETWEEN '{mtd_start}' AND '{DATE_RANGE}'
+          AND campaign.status = 'ENABLED'
+    """
+    try:
+        response = ga_service.search(customer_id=CUSTOMER_ID, query=query)
+        rental = {"clicks": 0, "cost": 0, "conversions": 0, "impressions": 0}
+        rto    = {"clicks": 0, "cost": 0, "conversions": 0, "impressions": 0}
+        for row in response:
+            name = row.campaign.name.lower()
+            clks = int(row.metrics.clicks)
+            cost = round(row.metrics.cost_micros / 1_000_000, 2)
+            conv = round(row.metrics.conversions, 1)
+            impr = int(row.metrics.impressions)
+            if "rent to own" in name or "rto" in name or "lease" in name:
+                rto["clicks"] += clks; rto["cost"] += cost
+                rto["conversions"] += conv; rto["impressions"] += impr
+            else:
+                rental["clicks"] += clks; rental["cost"] += cost
+                rental["conversions"] += conv; rental["impressions"] += impr
+        for d in [rental, rto]:
+            d["cost"]          = round(d["cost"], 2)
+            d["conversions"]   = round(d["conversions"], 1)
+            d["ctr"]           = round(d["clicks"] / d["impressions"] * 100, 2) if d["impressions"] > 0 else 0
+            d["cost_per_conv"] = round(d["cost"] / d["conversions"], 2) if d["conversions"] > 0 else 0
+        print(f"    ✅ Google MTD Split — Rental: AED {rental['cost']} | RTO: AED {rto['cost']}")
+        return {"rental": rental, "rto": rto}
+    except GoogleAdsException as ex:
+        print(f"    ❌ Google MTD split failed: {ex.error.code().name}")
+        return {}
+
+
+def fetch_weekly_summary(client):
+    """Fetch last 7 days summary."""
+    print("  → Fetching weekly summary...")
+    ga_service = client.get_service("GoogleAdsService")
+    week_start = (datetime.now() - timedelta(days=7)).strftime("%Y-%m-%d")
+    query = f"""
+        SELECT
+            segments.date,
+            metrics.clicks,
+            metrics.cost_micros,
+            metrics.conversions,
+            metrics.impressions
+        FROM customer
+        WHERE segments.date BETWEEN '{week_start}' AND '{DATE_RANGE}'
+        ORDER BY segments.date ASC
+    """
+    try:
+        response = ga_service.search(customer_id=CUSTOMER_ID, query=query)
+        daily = {}
+        for row in response:
+            d = row.segments.date
+            daily[d] = {
+                "clicks": int(row.metrics.clicks),
+                "cost"  : round(row.metrics.cost_micros / 1_000_000, 2),
+                "conv"  : round(row.metrics.conversions, 1),
+                "impr"  : int(row.metrics.impressions),
+            }
+        total_clicks = sum(v["clicks"] for v in daily.values())
+        total_cost   = round(sum(v["cost"] for v in daily.values()), 2)
+        total_conv   = round(sum(v["conv"] for v in daily.values()), 1)
+        avg_ctr      = round(total_clicks / max(sum(v["impr"] for v in daily.values()), 1) * 100, 2)
+        best_day     = max(daily.items(), key=lambda x: x[1]["conv"], default=(None, {}))
+        worst_day    = min(daily.items(), key=lambda x: x[1]["conv"], default=(None, {}))
+        rows = [
+            f"*7-Day Totals:* AED {total_cost:,.0f} | {total_clicks:,} clicks | {total_conv} conv | {avg_ctr}% CTR",
+            f"*Best day:* {best_day[0]} — {best_day[1].get('conv',0)} conv | AED {best_day[1].get('cost',0):,.0f}",
+            f"*Weakest day:* {worst_day[0]} — {worst_day[1].get('conv',0)} conv | AED {worst_day[1].get('cost',0):,.0f}",
+            "\n*Daily Breakdown:*"
+        ]
+        for date, vals in sorted(daily.items()):
+            day_name = datetime.strptime(date, "%Y-%m-%d").strftime("%a %d %b")
+            rows.append(f"  {day_name}  —  AED {vals['cost']:,.0f} | {vals['clicks']} clicks | {vals['conv']} conv")
+        print(f"    ✅ Weekly: {len(daily)} days")
+        return {"rows": rows}
+    except GoogleAdsException as ex:
+        print(f"    ❌ Weekly failed: {ex.error.code().name}")
+        return {"rows": []}
+
+
+def fetch_meta_placement(account_id):
+    """Fetch Meta Ads by platform (Facebook, Instagram etc)."""
+    token = META_ACCESS_TOKEN
+    if not token:
+        return {}
+    print(f"  → Fetching Meta placement breakdown...")
+    try:
+        url = (
+            f"https://graph.facebook.com/v20.0/act_{account_id}/insights"
+            f"?fields=spend,impressions,clicks,reach"
+            f"&date_preset=yesterday"
+            f"&breakdowns=publisher_platform"
+            f"&level=account"
+            f"&access_token={token}"
+        )
+        req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+        with urllib.request.urlopen(req, timeout=30) as resp:
+            data = json.loads(resp.read().decode())
+        rows = []
+        for row in sorted(data.get("data", []), key=lambda x: float(x.get("spend", 0)), reverse=True)[:6]:
+            platform = row.get("publisher_platform", "unknown").replace("_", " ").title()
+            spent = round(float(row.get("spend", 0)), 2)
+            clks  = int(row.get("clicks", 0))
+            impr  = int(row.get("impressions", 0))
+            reach = int(row.get("reach", 0))
+            if spent > 0:
+                ctr = round(clks / impr * 100, 2) if impr > 0 else 0
+                rows.append(f"• {platform}  —  AED {spent:,.2f} | {clks} clicks | Reach {reach:,} | CTR {ctr}%")
+        print(f"    ✅ Meta placements: {len(rows)}")
+        return {"placements": rows or ["• No placement data today"]}
+    except Exception as e:
+        print(f"    ❌ Meta placement failed: {e}")
+        return {"placements": ["• Placement data unavailable"]}
+
+
+def fetch_meta_age_gender(account_id):
+    """Fetch Meta Ads by age and gender."""
+    token = META_ACCESS_TOKEN
+    if not token:
+        return {}
+    print(f"  → Fetching Meta age/gender breakdown...")
+    try:
+        url = (
+            f"https://graph.facebook.com/v20.0/act_{account_id}/insights"
+            f"?fields=spend,impressions,clicks,actions"
+            f"&date_preset=yesterday"
+            f"&breakdowns=age%2Cgender"
+            f"&level=account"
+            f"&access_token={token}"
+        )
+        req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+        with urllib.request.urlopen(req, timeout=30) as resp:
+            data = json.loads(resp.read().decode())
+        segments = []
+        for row in data.get("data", []):
+            age    = row.get("age", "")
+            gender = row.get("gender", "").title()
+            spent  = round(float(row.get("spend", 0)), 2)
+            clks   = int(row.get("clicks", 0))
+            impr   = int(row.get("impressions", 0))
+            results = 0
+            for a in row.get("actions", []):
+                if a["action_type"] == "onsite_conversion.total_messaging_connection":
+                    results = max(results, int(a.get("value", 0)))
+            if spent > 0:
+                cpr = round(spent / results, 2) if results > 0 else 0
+                segments.append({"label": f"{gender} {age}", "spent": spent,
+                                  "clicks": clks, "results": results, "cpr": cpr, "impressions": impr})
+        segments.sort(key=lambda x: (x["results"], x["clicks"]), reverse=True)
+        rows = []
+        for s in segments[:6]:
+            ctr = round(s["clicks"] / s["impressions"] * 100, 2) if s["impressions"] > 0 else 0
+            res_str = f" | {s['results']} results @ AED {s['cpr']:,.0f}" if s["results"] > 0 else ""
+            rows.append(f"• {s['label']:<15}  AED {s['spent']:,.2f} | {s['clicks']} clicks | CTR {ctr}%{res_str}")
+        print(f"    ✅ Meta age/gender: {len(rows)} segments")
+        return {"segments": rows or ["• No demographic data today"]}
+    except Exception as e:
+        print(f"    ❌ Meta age/gender failed: {e}")
+        return {"segments": ["• Age/gender data unavailable"]}
+
+
 def fetch_competitor_keywords(client):
     """
     Identify competitor-branded search terms in your traffic
