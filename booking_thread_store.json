@@ -2834,6 +2834,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010060-YASS-Morgan": {
+      "thread_ts": "1779366622.819119",
+      "end_date": "2026-05-22",
+      "plate": "I 47203",
+      "customer": "Yassin Nuur Sheekh",
+      "vehicle": "Morgan Morgan Supersport",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-05-21"
     }
   }
 }
