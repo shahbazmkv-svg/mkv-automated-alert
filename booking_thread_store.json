@@ -2864,6 +2864,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "009522-PAPA-Land Rover": {
+      "thread_ts": "1779378320.276159",
+      "end_date": "2026-05-25",
+      "plate": "78043",
+      "customer": "Papa Momar",
+      "vehicle": "Land Rover Defender",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-05-21"
     }
   }
 }
