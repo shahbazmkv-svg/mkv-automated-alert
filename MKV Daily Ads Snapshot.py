@@ -73,51 +73,51 @@ def get_google_ads_client():
 # ── GOOGLE ADS API QUERIES ────────────────────────────────────────────────────
 
 
-# Known geo target IDs
+# Geo target constant IDs → readable names
 GEO_NAMES = {
-    "2784": "United Arab Emirates",
-    "1011245": "Dubai", "20636": "Dubai",
+    "2784": "United Arab Emirates", "9006157": "United Arab Emirates",
+    "1011245": "Dubai", "20636": "Dubai", "9047765": "Dubai",
     "1011246": "Abu Dhabi", "20637": "Abu Dhabi",
     "1011247": "Sharjah", "20638": "Sharjah",
     "1011248": "Ajman", "1011249": "Ras Al Khaimah",
     "1011250": "Fujairah", "1011251": "Umm Al Quwain",
-    "2682": "United Kingdom", "2840": "United States",
-    "2356": "India", "2276": "Germany",
-    "2250": "France", "2408": "Japan",
-    "2156": "China", "2036": "Australia",
-    "2124": "Canada", "2643": "United Kingdom",
     "1007741": "Saudi Arabia", "2682": "United Kingdom",
+    "2840": "United States", "2356": "India",
+    "2276": "Germany", "2250": "France",
+    "2036": "Australia", "2124": "Canada",
     "2410": "South Korea", "2702": "Singapore",
-    "2784": "United Arab Emirates",
+    "2408": "Japan", "2156": "China",
 }
 
 
-def resolve_geo(resource_name, geo_svc):
-    """Resolve geo resource name to city/country name."""
-    geo_id = resource_name.split("/")[-1]
+def get_geo_name(resource_name, geo_svc):
+    """Resolve geoTargetConstants/XXXX to a human name."""
+    # Extract ID from resource name or raw string
+    geo_id = resource_name.split("/")[-1].split("~")[0].strip()
+
+    # Try known IDs first
     if geo_id in GEO_NAMES:
         return GEO_NAMES[geo_id]
+
+    # Try Google API
     try:
-        gtc = geo_svc.get_geo_target_constant(resource_name=f"geoTargetConstants/{geo_id}")
-        name = gtc.canonical_name or gtc.name
-        # canonical_name format: "Dubai, Dubai, United Arab Emirates"
-        # Take first part only for city, or full for country
+        gtc  = geo_svc.get_geo_target_constant(resource_name=f"geoTargetConstants/{geo_id}")
+        name = gtc.canonical_name or gtc.name or ""
+        # canonical_name = "Dubai, Dubai, United Arab Emirates" → take first segment
         if "," in name:
             return name.split(",")[0].strip()
-        return name
+        return name if name else f"Region {geo_id}"
     except:
-        return None
+        return f"Region {geo_id}"
 
 
 def fetch_geographic(client):
-    """Fetch top countries and cities by performance."""
-    print("  → Fetching geographic data...")
+    """Fetch top countries and cities by click volume."""
+    print("  → Fetching geographic performance...")
     ga_service = client.get_service("GoogleAdsService")
     geo_svc    = client.get_service("GeoTargetConstantService")
 
-    results = {"countries": [], "cities": []}
-
-    # Single query: geographic_view with location_type to separate country vs city
+    # Query geographic_view — gives us location_type to split country vs city
     query = f"""
         SELECT
             geographic_view.resource_name,
@@ -133,59 +133,49 @@ def fetch_geographic(client):
         LIMIT 30
     """
     try:
-        response = ga_service.search(customer_id=CUSTOMER_ID, query=query)
-        country_data = {}
-        city_data    = {}
+        response    = ga_service.search(customer_id=CUSTOMER_ID, query=query)
+        country_agg = {}
+        city_agg    = {}
 
         for row in response:
-            loc_type = str(row.geographic_view.location_type)
-            resource = row.geographic_view.resource_name
+            resource = row.geographic_view.resource_name  # e.g. "geoTargetConstants/2784"
+            loc_type = row.geographic_view.location_type  # enum value
             clks = int(row.metrics.clicks)
             cost = round(row.metrics.cost_micros / 1_000_000, 2)
             conv = round(row.metrics.conversions, 1)
             impr = int(row.metrics.impressions)
 
-            name = resolve_geo(resource, geo_svc) or resource.split("/")[-1]
+            name = get_geo_name(resource, geo_svc)
 
-            # location_type 0 or LOCATION_OF_PRESENCE = country/region level
-            # location_type 1 or USER_LOCATION = city level
-            if "LOCATION_OF_PRESENCE" in loc_type or loc_type == "0":
-                if name not in country_data:
-                    country_data[name] = {"clicks":0,"cost":0,"conv":0,"impr":0}
-                country_data[name]["clicks"] += clks
-                country_data[name]["cost"]   += cost
-                country_data[name]["conv"]   += conv
-                country_data[name]["impr"]   += impr
-            else:
-                if name not in city_data:
-                    city_data[name] = {"clicks":0,"cost":0,"conv":0,"impr":0}
-                city_data[name]["clicks"] += clks
-                city_data[name]["cost"]   += cost
-                city_data[name]["conv"]   += conv
-                city_data[name]["impr"]   += impr
+            # location_type: 0 = UNSPECIFIED, 1 = LOCATION_OF_PRESENCE, 2 = AREA_OF_INTEREST
+            # LOCATION_OF_PRESENCE = where the user physically is (most reliable)
+            lt = int(loc_type)
+            target = country_agg if lt <= 1 else city_agg
 
-        # If city_data empty, use country_data as city approximation
-        if not city_data and country_data:
-            city_data = country_data
+            if name not in target:
+                target[name] = {"clicks": 0, "cost": 0, "conv": 0, "impr": 0}
+            target[name]["clicks"] += clks
+            target[name]["cost"]   += cost
+            target[name]["conv"]   += conv
+            target[name]["impr"]   += impr
 
-        # Format countries
-        for name, v in sorted(country_data.items(), key=lambda x: x[1]["clicks"], reverse=True)[:5]:
-            ctr = round(v["clicks"]/v["impr"]*100,1) if v["impr"] > 0 else 0
-            conv_str = f" | {v['conv']} conv" if v["conv"] > 0 else ""
-            results["countries"].append(
-                f"• {name[:28]}  —  {v['clicks']} clicks | AED {v['cost']:,.0f} | CTR {ctr}%{conv_str}"
-            )
+        def format_geo(agg, limit=5):
+            rows = []
+            for name, v in sorted(agg.items(), key=lambda x: x[1]["clicks"], reverse=True)[:limit]:
+                ctr      = round(v["clicks"] / v["impr"] * 100, 1) if v["impr"] > 0 else 0
+                conv_str = f" | {v['conv']} conv" if v["conv"] > 0 else ""
+                rows.append(f"• {name[:28]}  —  {v['clicks']} clicks | AED {v['cost']:,.0f} | CTR {ctr}%{conv_str}")
+            return rows
 
-        # Format cities
-        for name, v in sorted(city_data.items(), key=lambda x: x[1]["clicks"], reverse=True)[:5]:
-            ctr = round(v["clicks"]/v["impr"]*100,1) if v["impr"] > 0 else 0
-            conv_str = f" | {v['conv']} conv" if v["conv"] > 0 else ""
-            results["cities"].append(
-                f"• {name[:28]}  —  {v['clicks']} clicks | AED {v['cost']:,.0f} | CTR {ctr}%{conv_str}"
-            )
+        countries = format_geo(country_agg)
+        cities    = format_geo(city_agg)
 
-        print(f"    ✅ Geo: {len(results['countries'])} countries, {len(results['cities'])} cities")
-        return results
+        # If city_agg is empty (all went to country), show country only
+        if not cities:
+            cities = countries
+
+        print(f"    ✅ Geo: {len(countries)} countries | {len(cities)} cities")
+        return {"countries": countries or ["• No country data"], "cities": cities or ["• No city data"]}
 
     except GoogleAdsException as ex:
         print(f"    ❌ Geographic failed: {ex.error.code().name}")
@@ -1437,7 +1427,7 @@ def build_blocks(g_camp, g_mtd, g_mtd_split, g_conv, g_search, g_auction, g_land
         {"type": "section", "text": {"type": "mrkdwn", "text": f"*🏆 Performance Score*\n{score_text}"}},
         {"type": "context",
          "elements": [{"type": "mrkdwn",
-                       "text": f"_MKV Luxury Car Rental  •  Google Ads API + Meta API v4.5  •  {mode_tag}_"}]},
+                       "text": f"_MKV Luxury Car Rental  •  Google Ads API + Meta API v4.6  •  {mode_tag}_"}]},
     ]
 
 
@@ -1453,7 +1443,7 @@ def post_slack(blocks, fallback="MKV Daily Ads Snapshot"):
 
 def main():
     print("=" * 60)
-    print("  MKV Daily Ads Snapshot v4.5 — Google Ads API")
+    print("  MKV Daily Ads Snapshot v4.6 — Google Ads API")
     print(f"  {datetime.now().strftime('%Y-%m-%d %H:%M:%S')} | Report date: {REPORT_DATE}")
     print(f"  Mode: {'🧪 TEST' if TEST_MODE else '🚀 LIVE'}  |  Channel: {SLACK_CHANNEL}")
     print("=" * 60)
