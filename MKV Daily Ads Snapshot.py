@@ -290,6 +290,77 @@ def fetch_auction_insights(client):
         return {"competitors": ["• Data unavailable — check Google Ads UI for Auction Insights"]}
 
 
+def fetch_competitor_keywords(client):
+    """
+    Identify competitor-branded search terms in your traffic
+    and suggest keywords to capture competitor leads.
+    """
+    print("  → Fetching competitor keyword opportunities...")
+    ga_service = client.get_service("GoogleAdsService")
+
+    query = f"""
+        SELECT
+            search_term_view.search_term,
+            metrics.clicks,
+            metrics.impressions,
+            metrics.conversions,
+            metrics.cost_micros
+        FROM search_term_view
+        WHERE segments.date BETWEEN '{(datetime.now() - timedelta(days=7)).strftime("%Y-%m-%d")}' AND '{DATE_RANGE}'
+          AND metrics.impressions > 0
+        ORDER BY metrics.clicks DESC
+        LIMIT 100
+    """
+
+    # Known competitors in Dubai luxury car rental
+    competitor_names = [
+        "rotana", "trinity", "luxury supercar", "vip motors", "shift",
+        "hertz", "sixt", "europcar", "avis", "budget", "diamond",
+        "rpm", "cars25", "carnaby", "prestige", "octane"
+    ]
+
+    try:
+        response = ga_service.search(customer_id=CUSTOMER_ID, query=query)
+        competitor_terms = []
+        opportunity_terms = []
+
+        for row in response:
+            term  = row.search_term_view.search_term.lower()
+            clks  = int(row.metrics.clicks)
+            impr  = int(row.metrics.impressions)
+            conv  = round(row.metrics.conversions, 1)
+            cost  = round(row.metrics.cost_micros / 1_000_000, 2)
+
+            # Check if competitor name appears in search term
+            for comp in competitor_names:
+                if comp in term:
+                    competitor_terms.append(
+                        f"• `{row.search_term_view.search_term[:45]}`  "
+                        f"— {clks} clicks | {conv} conv | AED {cost:.0f}"
+                    )
+                    break
+
+            # High-intent terms with good volume but no conversions = opportunity
+            high_intent_words = ["rent", "hire", "rental", "luxury", "supercar",
+                                 "lamborghini", "ferrari", "rolls", "bentley",
+                                 "porsche", "mclaren", "dubai"]
+            if (any(w in term for w in high_intent_words) and
+                    impr >= 3 and conv == 0 and clks > 0):
+                opportunity_terms.append(
+                    f"• `{row.search_term_view.search_term[:45]}`  "
+                    f"— {impr} impr | {clks} clicks | 0 conv → add to campaigns"
+                )
+
+        print(f"    ✅ Competitor terms: {len(competitor_terms)} | Opportunities: {len(opportunity_terms)}")
+        return {
+            "competitor_terms": competitor_terms[:5] or ["• No competitor searches detected"],
+            "opportunity_terms": opportunity_terms[:5] or ["• No missed opportunities detected"],
+        }
+    except GoogleAdsException as ex:
+        print(f"    ❌ Competitor keywords failed: {ex.error.code().name}")
+        return {"competitor_terms": [], "opportunity_terms": []}
+
+
 def fetch_landing_pages(client):
     print("  → Fetching landing pages...")
     ga_service = client.get_service("GoogleAdsService")
@@ -584,16 +655,17 @@ def load_yesterday():
     return {}
 
 
-def save_today(g_camp, meta):
+def save_today(g_camp, meta, meta_rto=None):
     try:
         with open(DELTA_FILE, "w") as f:
             json.dump({
-                "date"     : REPORT_DATE,
-                "g_cost"   : g_camp.get("cost", 0),
-                "g_clicks" : g_camp.get("clicks", 0),
-                "g_conv"   : g_camp.get("conversions", 0),
-                "m_spent"  : meta.get("spent", 0),
-                "m_results": meta.get("results", 0),
+                "date"        : REPORT_DATE,
+                "g_cost"      : g_camp.get("cost", 0),
+                "g_clicks"    : g_camp.get("clicks", 0),
+                "g_conv"      : g_camp.get("conversions", 0),
+                "m_spent"     : meta.get("spent", 0),
+                "m_results"   : meta.get("results", 0),
+                "m_rto_spent" : meta_rto.get("spent", 0) if meta_rto else 0,
             }, f)
     except Exception as e:
         print(f"  ⚠️   Could not save delta: {e}")
@@ -655,10 +727,12 @@ def score_report(g_camp, meta):
 
 # ── SLACK BLOCK KIT ───────────────────────────────────────────────────────────
 
-def build_blocks(g_camp, g_conv, g_search, g_auction, g_landing, meta, yesterday, kw_recs=None):
+def build_blocks(g_camp, g_conv, g_search, g_auction, g_landing, meta, meta_rto, yesterday, kw_recs=None, comp_kw=None):
     score, grade, notes = score_report(g_camp, meta)
     if kw_recs is None:
         kw_recs = {"add": [], "remove": []}
+    if comp_kw is None:
+        comp_kw = {"competitor_terms": [], "opportunity_terms": []}
 
     d_cost  = delta(g_camp.get("cost", 0),        yesterday.get("g_cost", 0))
     d_clk   = delta(g_camp.get("clicks", 0),      yesterday.get("g_clicks", 0), prefix="")
@@ -694,7 +768,7 @@ def build_blocks(g_camp, g_conv, g_search, g_auction, g_landing, meta, yesterday
     remove_text = "\n".join(kw_recs.get("remove", [])) or "_No irrelevant terms detected_"
     kw_text     = f"*➕ Add as keywords:*\n{add_text}\n\n*➖ Add as negatives:*\n{remove_text}"
 
-    # ── Meta
+    # ── Meta MKV Luxury
     if meta.get("spent", 0) > 0:
         meta_text = (
             f"*Spent:* AED {meta['spent']:,.2f}{d_mcost}    "
@@ -711,6 +785,25 @@ def build_blocks(g_camp, g_conv, g_search, g_auction, g_landing, meta, yesterday
             meta_text += "\n" + "\n".join(lines)
     else:
         meta_text = "_No Meta Ads data today_"
+
+    # ── Meta RTO
+    if meta_rto and meta_rto.get("spent", 0) > 0:
+        d_rto = delta(meta_rto.get("spent", 0), yesterday.get("m_rto_spent", 0))
+        meta_rto_text = (
+            f"*Spent:* AED {meta_rto['spent']:,.2f}{d_rto}    "
+            f"*Results:* {meta_rto['results']}    "
+            f"*Cost/Result:* AED {meta_rto['cost_per_result']:,.2f}\n"
+            f"*Impressions:* {meta_rto['impressions']:,}    "
+            f"*Reach:* {meta_rto['reach']:,}    "
+            f"*CTR:* {meta_rto['ctr']}%"
+        )
+    else:
+        meta_rto_text = "_No Lease to Own Meta data today_"
+
+    # ── Competitor keyword analysis
+    comp_terms_text = "\n".join(comp_kw.get("competitor_terms", [])) or "_No competitor searches detected_"
+    opp_terms_text  = "\n".join(comp_kw.get("opportunity_terms", [])) or "_No missed opportunities detected_"
+    comp_kw_text    = f"*🎯 Competitor searches hitting your ads:*\n{comp_terms_text}\n\n*💡 High-intent terms with 0 conversions:*\n{opp_terms_text}"
 
     score_text = f"*Score: {score}/100 — {grade}*\n" + "\n".join(notes)
     mode_tag   = "🧪 TEST MODE" if TEST_MODE else "🚀 LIVE"
@@ -733,12 +826,16 @@ def build_blocks(g_camp, g_conv, g_search, g_auction, g_landing, meta, yesterday
         {"type": "divider"},
         {"type": "section", "text": {"type": "mrkdwn", "text": f"*🚗 Rent-to-Own (renttoowncars.ae)*\n{rto_text}"}},
         {"type": "divider"},
-        {"type": "section", "text": {"type": "mrkdwn", "text": f"*🟦 Meta Ads Performance*\n{meta_text}"}},
+        {"type": "section", "text": {"type": "mrkdwn", "text": f"*🟦 Meta Ads — MKV Luxury*\n{meta_text}"}},
+        {"type": "divider"},
+        {"type": "section", "text": {"type": "mrkdwn", "text": f"*🟪 Meta Ads — Lease to Own*\n{meta_rto_text}"}},
+        {"type": "divider"},
+        {"type": "section", "text": {"type": "mrkdwn", "text": f"*🕵️ Competitor & Opportunity Keywords*\n{comp_kw_text}"}},
         {"type": "divider"},
         {"type": "section", "text": {"type": "mrkdwn", "text": f"*🏆 Performance Score*\n{score_text}"}},
         {"type": "context",
          "elements": [{"type": "mrkdwn",
-                       "text": f"_MKV Luxury Car Rental  •  Google Ads API + Meta API v3.6  •  {mode_tag}_"}]},
+                       "text": f"_MKV Luxury Car Rental  •  Google Ads API + Meta API v3.7  •  {mode_tag}_"}]},
     ]
 
 
@@ -754,7 +851,7 @@ def post_slack(blocks, fallback="MKV Daily Ads Snapshot"):
 
 def main():
     print("=" * 60)
-    print("  MKV Daily Ads Snapshot v3.6 — Google Ads API")
+    print("  MKV Daily Ads Snapshot v3.7 — Google Ads API")
     print(f"  {datetime.now().strftime('%Y-%m-%d %H:%M:%S')} | Report date: {REPORT_DATE}")
     print(f"  Mode: {'🧪 TEST' if TEST_MODE else '🚀 LIVE'}  |  Channel: {SLACK_CHANNEL}")
     print("=" * 60)
@@ -774,6 +871,7 @@ def main():
 
     print("\n📥 Fetching Meta Ads via API...")
     meta = fetch_meta_api(META_AD_ACCOUNT_ID, "MKV Luxury")
+    meta_rto = fetch_meta_api(META_RTO_ACCOUNT_ID, "MKV Lease to Own") if META_RTO_ACCOUNT_ID else {}
     if not meta:
         # Fallback to Gmail if API fails
         print("  → Falling back to Gmail...")
@@ -786,16 +884,17 @@ def main():
             mail.logout()
 
     yesterday = load_yesterday()
-    save_today(g_camp, meta)
+    save_today(g_camp, meta, meta_rto)
 
     print(f"\n  Google Ads → AED {g_camp.get('cost',0):.2f} | {g_camp.get('clicks',0)} clicks | {g_camp.get('conversions',0)} conv")
     print(f"  Meta Ads   → AED {meta.get('spent',0):.2f} | {meta.get('results',0)} results")
 
-    # Keyword recommendations
-    kw_recs = fetch_keyword_recommendations(client if 'client' in dir() else None, g_search) if g_search else {"add": [], "remove": []}
+    # Keyword recommendations & competitor analysis
+    kw_recs = fetch_keyword_recommendations(client, g_search) if g_search else {"add": [], "remove": []}
+    comp_kw  = fetch_competitor_keywords(client) if g_search else {"competitor_terms": [], "opportunity_terms": []}
 
     print("\n📤 Posting to Slack...")
-    blocks = build_blocks(g_camp, g_conv, g_search, g_auction, g_landing, meta, yesterday, kw_recs)
+    blocks = build_blocks(g_camp, g_conv, g_search, g_auction, g_landing, meta, meta_rto, yesterday, kw_recs, comp_kw)
     post_slack(blocks)
     print("\n✅  Done!\n")
 
