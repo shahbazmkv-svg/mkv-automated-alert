@@ -112,12 +112,23 @@ def get_geo_name(resource_name, geo_svc):
 
 
 def fetch_geographic(client):
-    """Fetch top countries and cities by click volume."""
+    """Fetch top countries and cities by performance."""
     print("  → Fetching geographic performance...")
     ga_service = client.get_service("GoogleAdsService")
     geo_svc    = client.get_service("GeoTargetConstantService")
 
-    # Query geographic_view — gives us location_type to split country vs city
+    def resolve(resource_name):
+        geo_id = resource_name.split("/")[-1].split("~")[0]
+        if geo_id in GEO_NAMES:
+            return GEO_NAMES[geo_id]
+        try:
+            gtc  = geo_svc.get_geo_target_constant(resource_name=f"geoTargetConstants/{geo_id}")
+            name = gtc.canonical_name or gtc.name or ""
+            # "Dubai, Dubai, United Arab Emirates" → "Dubai"
+            return name.split(",")[0].strip() if "," in name else name
+        except:
+            return None
+
     query = f"""
         SELECT
             geographic_view.resource_name,
@@ -130,53 +141,96 @@ def fetch_geographic(client):
         WHERE segments.date = '{DATE_RANGE}'
           AND metrics.clicks > 0
         ORDER BY metrics.clicks DESC
-        LIMIT 30
+        LIMIT 50
     """
     try:
-        response    = ga_service.search(customer_id=CUSTOMER_ID, query=query)
+        response = ga_service.search(customer_id=CUSTOMER_ID, query=query)
         country_agg = {}
         city_agg    = {}
 
         for row in response:
-            resource = row.geographic_view.resource_name  # e.g. "geoTargetConstants/2784"
-            loc_type = row.geographic_view.location_type  # enum value
+            resource = row.geographic_view.resource_name
+            loc_type = str(row.geographic_view.location_type)
             clks = int(row.metrics.clicks)
             cost = round(row.metrics.cost_micros / 1_000_000, 2)
             conv = round(row.metrics.conversions, 1)
             impr = int(row.metrics.impressions)
 
-            name = get_geo_name(resource, geo_svc)
+            name = resolve(resource)
+            if not name:
+                continue
 
-            # location_type: 0 = UNSPECIFIED, 1 = LOCATION_OF_PRESENCE, 2 = AREA_OF_INTEREST
-            # LOCATION_OF_PRESENCE = where the user physically is (most reliable)
-            lt = int(loc_type)
-            target = country_agg if lt <= 1 else city_agg
+            # Classify: countries are typically short names without commas
+            # location_type 1 = LOCATION_OF_PRESENCE (physical location)
+            # location_type 2 = AREA_OF_INTEREST
+            is_country = (
+                name in ["United Arab Emirates", "Saudi Arabia", "India",
+                         "United Kingdom", "United States", "Germany",
+                         "France", "Australia", "China", "Japan", "Canada"] or
+                "1" not in loc_type
+            )
 
+            target = country_agg if is_country else city_agg
             if name not in target:
-                target[name] = {"clicks": 0, "cost": 0, "conv": 0, "impr": 0}
+                target[name] = {"clicks":0,"cost":0,"conv":0,"impr":0}
             target[name]["clicks"] += clks
             target[name]["cost"]   += cost
             target[name]["conv"]   += conv
             target[name]["impr"]   += impr
 
-        def format_geo(agg, limit=5):
+        def fmt(agg, limit=5):
             rows = []
             for name, v in sorted(agg.items(), key=lambda x: x[1]["clicks"], reverse=True)[:limit]:
-                ctr      = round(v["clicks"] / v["impr"] * 100, 1) if v["impr"] > 0 else 0
+                ctr = round(v["clicks"]/v["impr"]*100,1) if v["impr"] > 0 else 0
                 conv_str = f" | {v['conv']} conv" if v["conv"] > 0 else ""
-                rows.append(f"• {name[:28]}  —  {v['clicks']} clicks | AED {v['cost']:,.0f} | CTR {ctr}%{conv_str}")
+                rows.append(f"• {name}  —  {v['clicks']} clicks | AED {v['cost']:,.0f} | CTR {ctr}%{conv_str}")
             return rows
 
-        countries = format_geo(country_agg)
-        cities    = format_geo(city_agg)
+        countries = fmt(country_agg)
+        cities    = fmt(city_agg)
 
-        # If city_agg is empty (all went to country), show country only
+        # If city_agg empty, try to get UAE city breakdown separately
         if not cities:
-            cities = countries
+            query2 = f"""
+                SELECT
+                    user_location_view.country_criterion_id,
+                    metrics.clicks,
+                    metrics.cost_micros,
+                    metrics.conversions,
+                    metrics.impressions
+                FROM user_location_view
+                WHERE segments.date = '{DATE_RANGE}'
+                  AND metrics.clicks > 0
+                ORDER BY metrics.clicks DESC
+                LIMIT 20
+            """
+            try:
+                resp2 = ga_service.search(customer_id=CUSTOMER_ID, query=query2)
+                city_agg2 = {}
+                for row in resp2:
+                    geo_id = str(row.user_location_view.country_criterion_id)
+                    name   = GEO_NAMES.get(geo_id) or resolve(f"geoTargetConstants/{geo_id}")
+                    if not name:
+                        continue
+                    clks = int(row.metrics.clicks)
+                    cost = round(row.metrics.cost_micros / 1_000_000, 2)
+                    conv = round(row.metrics.conversions, 1)
+                    impr = int(row.metrics.impressions)
+                    if name not in city_agg2:
+                        city_agg2[name] = {"clicks":0,"cost":0,"conv":0,"impr":0}
+                    city_agg2[name]["clicks"] += clks
+                    city_agg2[name]["cost"]   += cost
+                    city_agg2[name]["conv"]   += conv
+                    city_agg2[name]["impr"]   += impr
+                cities = fmt(city_agg2)
+            except:
+                pass
 
         print(f"    ✅ Geo: {len(countries)} countries | {len(cities)} cities")
-        return {"countries": countries or ["• No country data"], "cities": cities or ["• No city data"]}
-
+        return {
+            "countries": countries or ["• No country data"],
+            "cities"   : cities    or ["• No city data — UAE city breakdown requires location targeting setup"]
+        }
     except GoogleAdsException as ex:
         print(f"    ❌ Geographic failed: {ex.error.code().name}")
         return {"countries": ["• Geographic data unavailable"], "cities": []}
@@ -313,85 +367,72 @@ def fetch_search_terms(client):
     query = f"""
         SELECT
             search_term_view.search_term,
+            campaign.name,
             metrics.clicks,
-            metrics.impressions
+            metrics.impressions,
+            metrics.conversions,
+            metrics.cost_micros
         FROM search_term_view
         WHERE segments.date = '{DATE_RANGE}'
           AND metrics.clicks > 0
         ORDER BY metrics.clicks DESC
-        LIMIT 8
+        LIMIT 10
     """
     try:
         response = ga_service.search(customer_id=CUSTOMER_ID, query=query)
         terms = []
+        raw   = []
         for row in response:
-            terms.append(
-                f"• {row.search_term_view.search_term[:50]}"
-                f"  ({int(row.metrics.clicks)} clicks)"
-            )
+            term  = row.search_term_view.search_term
+            camp  = row.campaign.name[:30]
+            clks  = int(row.metrics.clicks)
+            conv  = round(row.metrics.conversions, 1)
+            cost  = round(row.metrics.cost_micros / 1_000_000, 2)
+            conv_str = f" | {conv} conv" if conv > 0 else ""
+            terms.append(f"• `{term[:45]}`  ({clks} clicks{conv_str})\n  _Campaign: {camp}_")
+            raw.append({"term": term, "campaign": camp, "clicks": clks, "conv": conv, "cost": cost})
         print(f"    ✅ Search terms: {len(terms)} found")
-        return {"terms": terms or ["• No search term data today"]}
+        return {"terms": terms or ["• No search term data today"], "raw": raw}
     except GoogleAdsException as ex:
         print(f"    ❌ Search terms fetch failed: {ex.error.code().name}")
-        return {"terms": ["• Could not fetch search term data"]}
+        return {"terms": ["• Could not fetch search term data"], "raw": []}
 
 
 def fetch_keyword_recommendations(client, search_terms_data):
-    """Analyse search terms to suggest add/remove keywords."""
-    terms = search_terms_data.get("terms", [])
-    if not terms or client is None:
+    """Analyse search terms to suggest add/remove from specific campaigns."""
+    raw = search_terms_data.get("raw", [])
+    if not raw or client is None:
         return {"add": [], "remove": []}
 
-    # Fetch negative keywords already in account
-    ga_service = client.get_service("GoogleAdsService")
-    query = f"""
-        SELECT
-            campaign_criterion.keyword.text,
-            campaign_criterion.negative
-        FROM campaign_criterion
-        WHERE campaign_criterion.negative = TRUE
-          AND campaign_criterion.type = 'KEYWORD'
-        LIMIT 50
-    """
-    existing_negatives = set()
-    try:
-        response = ga_service.search(customer_id=CUSTOMER_ID, query=query)
-        for row in response:
-            existing_negatives.add(row.campaign_criterion.keyword.text.lower())
-    except:
-        pass
-
-    # Known irrelevant terms for luxury car rental
     irrelevant_patterns = [
         "rpm", "kia soul", "hyundai staria", "yaris", "corolla",
         "cheap", "budget", "economy", "used car", "second hand",
-        "buy car", "purchase car", "car for sale"
+        "buy car", "purchase car", "car for sale", "one click"
     ]
+    high_intent = ["rental", "rent", "hire", "luxury", "supercar",
+                   "lamborghini", "ferrari", "rolls", "bentley", "dubai",
+                   "patrol", "audi", "limousine", "porsche", "without deposit"]
 
     add_keywords = []
     remove_keywords = []
 
-    for term_line in terms:
-        # Extract term from "• term (N clicks)" format
-        term = term_line.replace("•", "").strip()
-        if "(" in term:
-            term = term[:term.rfind("(")].strip()
+    for r in raw:
+        term      = r["term"]
+        camp      = r["campaign"]
         term_lower = term.lower()
 
-        # Flag for removal if matches irrelevant patterns
-        for pattern in irrelevant_patterns:
-            if pattern in term_lower and term_lower not in existing_negatives:
-                remove_keywords.append(f"• `{term}` — add as negative keyword")
-                break
-        else:
-            # Suggest adding as exact match if high-intent
-            high_intent = ["rental", "rent", "hire", "luxury", "supercar",
-                          "lamborghini", "ferrari", "rolls", "bentley", "dubai"]
-            if any(kw in term_lower for kw in high_intent):
-                add_keywords.append(f"• `{term}` — add as exact match")
+        is_irrelevant = any(p in term_lower for p in irrelevant_patterns)
+        is_high_intent = any(kw in term_lower for kw in high_intent)
+
+        if is_irrelevant:
+            remove_keywords.append(f"• `{term[:40]}` → add as negative in *{camp}*")
+        elif is_high_intent and r["conv"] == 0:
+            remove_keywords.append(f"• `{term[:40]}` → 0 conv, review in *{camp}*")
+        elif is_high_intent:
+            add_keywords.append(f"• `{term[:40]}` → add [exact match] to *{camp}*")
 
     return {
-        "add"   : add_keywords[:5] or ["• No new keywords to add today"],
+        "add"   : add_keywords[:5] or ["• No high-intent terms to add today"],
         "remove": remove_keywords[:5] or ["• No irrelevant terms detected today"]
     }
 
@@ -1121,13 +1162,13 @@ def score_report(g_camp, meta):
 
 
 def build_google_report(g_camp, g_mtd, g_mtd_split, g_conv, g_search, g_auction, g_landing, g_geo, yesterday, kw_recs, comp_kw):
-    """Clean Google Ads daily report — campaign focused."""
+    """Clean Google Ads daily report."""
     mode_tag = "🧪 TEST" if TEST_MODE else "🚀 LIVE"
 
     d_cost = delta(g_camp.get("cost", 0), yesterday.get("g_cost", 0))
     d_conv = delta(g_camp.get("conversions", 0), yesterday.get("g_conv", 0), prefix="")
 
-    # ── Section 1: Daily Overview
+    # ── Daily Overview
     daily = (
         f"*Spend:* AED {g_camp.get('cost',0):,.2f}{d_cost}    "
         f"*Clicks:* {g_camp.get('clicks',0):,}\n"
@@ -1143,69 +1184,66 @@ def build_google_report(g_camp, g_mtd, g_mtd_split, g_conv, g_search, g_auction,
             f"AED {g_mtd.get('cost_per_conv',0):,.2f}/conv"
         )
 
-    # ── Section 2: Campaign breakdown
+    # ── Campaign Breakdown (daily + conversions)
     camp_lines = []
+    conv_map = {}
+    for cv in g_conv.get("breakdown", []):
+        # parse "• CampaignName — X conv | AED Y/conv"
+        if "—" in cv:
+            parts = cv.split("—")
+            cname = parts[0].replace("•","").strip()
+            conv_map[cname] = parts[1].strip() if len(parts) > 1 else ""
+
     for c in g_camp.get("campaigns", []):
+        conv_info = conv_map.get(c["name"], "")
+        conv_str  = f" | {conv_info}" if conv_info else ""
         camp_lines.append(
             f"• *{c['name']}*\n"
-            f"  AED {c['spend']:,.0f} | {c['clicks']:,} clicks | {c['ctr']}% CTR"
+            f"  AED {c['spend']:,.0f} | {c['clicks']:,} clicks | {c['ctr']}% CTR{conv_str}"
         )
-    # Conversions per campaign
-    for cv in g_conv.get("breakdown", []):
-        camp_lines.append(cv)
     camp_text = "\n".join(camp_lines) or "_No campaign data_"
 
-    # MTD split
-    mtd_split_text = ""
+    # ── MTD Split
+    mtd_split_text = "_No MTD split data_"
     if g_mtd_split:
         r = g_mtd_split.get("rental", {})
         t = g_mtd_split.get("rto", {})
         mtd_split_text = (
-            f"• *Rental MTD:* AED {r.get('cost',0):,.0f} | {r.get('conversions',0)} conv | AED {r.get('cost_per_conv',0):,.2f}/conv\n"
-            f"• *Rent-to-Own MTD:* AED {t.get('cost',0):,.0f} | {t.get('conversions',0)} conv | AED {t.get('cost_per_conv',0):,.2f}/conv"
+            f"• *Rental:* AED {r.get('cost',0):,.0f} | {r.get('conversions',0)} conv | AED {r.get('cost_per_conv',0):,.2f}/conv\n"
+            f"• *Rent-to-Own:* AED {t.get('cost',0):,.0f} | {t.get('conversions',0)} conv | AED {t.get('cost_per_conv',0):,.2f}/conv"
         )
 
-    # ── Section 3: Impression Share + Actions
-    is_lines = []
-    is_actions = []
-    for line in g_auction.get("competitors", []):
-        is_lines.append(line)
-        if "Lost (budget): 9" in line or "Lost (budget): 8" in line:
-            camp = line.split("\n")[0].replace("•","").strip()[:25]
-            is_actions.append(f"⚡ Increase budget — {camp}")
-        if "Lost (rank): 7" in line or "Lost (rank): 8" in line or "Lost (rank): 9" in line:
-            camp = line.split("\n")[0].replace("•","").strip()[:25]
-            is_actions.append(f"⚡ Improve Quality Score — {camp}")
-    is_text = "\n".join(is_lines) or "_No impression share data_"
-    if is_actions:
-        is_text += "\n\n*Actions:*\n" + "\n".join(is_actions[:3])
-
-    # ── Section 4: Search terms + Keywords
+    # ── Search Terms with campaign source
     search_text = "\n".join(g_search.get("terms", [])) or "_No search term data_"
-    add_kw   = "\n".join(kw_recs.get("add", [])) or "• None today"
-    neg_kw   = "\n".join(kw_recs.get("remove", [])) or "• None today"
-    kw_text  = f"*➕ Add:* \n{add_kw}\n\n*➖ Negative:* \n{neg_kw}"
 
-    # ── Section 5: Competitor keywords
-    comp_text = ""
-    if comp_kw.get("competitor_terms"):
-        comp_text += "*Competitor searches:*\n" + "\n".join(comp_kw["competitor_terms"][:4])
-    if comp_kw.get("opportunity_terms"):
-        comp_text += "\n\n*High-intent 0-conv:*\n" + "\n".join(comp_kw["opportunity_terms"][:4])
-        comp_text += "\n\n*Actions:*\n⚡ Add to exact match campaigns\n⚡ Create competitor landing pages"
-    if not comp_text:
-        comp_text = "_No competitor data today_"
+    # ── Keyword Actions with campaign names
+    add_kw  = "\n".join(kw_recs.get("add", [])) or "• None today"
+    neg_kw  = "\n".join(kw_recs.get("remove", [])) or "• None today"
+    kw_text = f"*➕ Add to campaigns:*\n{add_kw}\n\n*➖ Add as negatives:*\n{neg_kw}"
 
-    # ── Section 6: Geographic
+    # ── Geographic
     geo_text = ""
     countries = g_geo.get("countries", [])
     cities    = g_geo.get("cities", [])
     if countries:
         geo_text += "*By Country:*\n" + "\n".join(countries[:4])
     if cities and cities != countries:
-        geo_text += "\n\n*By City:*\n" + "\n".join(cities[:4])
+        geo_text += "\n\n*By City:*\n" + "\n".join(cities[:5])
     if not geo_text:
         geo_text = "_No geographic data_"
+    # Geo actions
+    all_locs = countries + cities
+    geo_actions = []
+    if any("saudi" in l.lower() for l in all_locs):
+        geo_actions.append("⚡ Saudi Arabia traffic — create Arabic KSA campaign")
+    if any("india" in l.lower() for l in all_locs):
+        geo_actions.append("⚡ India traffic — consider exclusion or separate campaign")
+    if any("abu dhabi" in l.lower() for l in all_locs):
+        geo_actions.append("⚡ Abu Dhabi — consider dedicated campaign")
+    if any("uk" in l.lower() or "united kingdom" in l.lower() for l in all_locs):
+        geo_actions.append("⚡ UK visitors — target tourists planning Dubai trips")
+    if geo_actions:
+        geo_text += "\n\n*Actions:*\n" + "\n".join(geo_actions[:3])
 
     # ── Score
     score = 0
@@ -1223,20 +1261,16 @@ def build_google_report(g_camp, g_mtd, g_mtd_split, g_conv, g_search, g_auction,
         {"type": "divider"},
         {"type": "section", "text": {"type": "mrkdwn", "text": f"*🎯 Campaign Breakdown*\n{camp_text}"}},
         {"type": "divider"},
-        {"type": "section", "text": {"type": "mrkdwn", "text": f"*📈 MTD Split (Rental vs RTO)*\n{mtd_split_text or '_No MTD data_'}"}},
+        {"type": "section", "text": {"type": "mrkdwn", "text": f"*📈 MTD Split (Rental vs RTO)*\n{mtd_split_text}"}},
         {"type": "divider"},
-        {"type": "section", "text": {"type": "mrkdwn", "text": f"*📊 Search Impression Share*\n{is_text}"}},
-        {"type": "divider"},
-        {"type": "section", "text": {"type": "mrkdwn", "text": f"*🔍 Search Terms*\n{search_text}"}},
+        {"type": "section", "text": {"type": "mrkdwn", "text": f"*🔍 Search Terms (by Campaign)*\n{search_text}"}},
         {"type": "divider"},
         {"type": "section", "text": {"type": "mrkdwn", "text": f"*🔑 Keyword Actions*\n{kw_text}"}},
-        {"type": "divider"},
-        {"type": "section", "text": {"type": "mrkdwn", "text": f"*🕵️ Competitor Analysis*\n{comp_text}"}},
         {"type": "divider"},
         {"type": "section", "text": {"type": "mrkdwn", "text": f"*🌍 Geographic*\n{geo_text}"}},
         {"type": "divider"},
         {"type": "section", "text": {"type": "mrkdwn", "text": f"*🏆 Score: {score}/100 — {grade}*"}},
-        {"type": "context", "elements": [{"type": "mrkdwn", "text": f"_MKV Google Ads • v4.6 • {mode_tag}_"}]},
+        {"type": "context", "elements": [{"type": "mrkdwn", "text": f"_MKV Google Ads • v4.7 • {mode_tag}_"}]},
     ]
 
 
@@ -1336,11 +1370,10 @@ def build_meta_report(meta, meta_mtd, meta_rto, meta_rto_mtd, meta_placement, me
         {"type": "section", "text": {"type": "mrkdwn", "text": f"*🟪 Lease to Own*\n{rto_text}"}},
         {"type": "divider"},
         {"type": "section", "text": {"type": "mrkdwn", "text": f"*📺 Placement Breakdown*\n{placement_text}"}},
-        {"type": "divider"},
-        {"type": "section", "text": {"type": "mrkdwn", "text": f"*👥 Age & Gender*\n{age_text}"}},
+
         {"type": "divider"},
         {"type": "section", "text": {"type": "mrkdwn", "text": f"*📅 MTD Summary*\n{mtd_text}"}},
-        {"type": "context", "elements": [{"type": "mrkdwn", "text": f"_MKV Meta Ads • v4.6 • {mode_tag}_"}]},
+        {"type": "context", "elements": [{"type": "mrkdwn", "text": f"_MKV Meta Ads • v4.7 • {mode_tag}_"}]},
     ]
 
 
@@ -1355,7 +1388,7 @@ def post_slack(blocks, fallback="MKV Ads Report"):
 
 def main():
     print("=" * 60)
-    print("  MKV Daily Ads Snapshot v4.6")
+    print("  MKV Daily Ads Snapshot v4.7")
     print(f"  {datetime.now().strftime('%Y-%m-%d %H:%M:%S')} | Report date: {REPORT_DATE}")
     print(f"  Mode: {'🧪 TEST' if TEST_MODE else '🚀 LIVE'}  |  Channel: {SLACK_CHANNEL}")
     print("=" * 60)
