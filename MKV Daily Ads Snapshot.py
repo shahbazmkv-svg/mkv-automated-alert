@@ -1161,7 +1161,63 @@ def score_report(g_camp, meta):
 # ── SLACK BLOCK KIT ───────────────────────────────────────────────────────────
 
 
-def build_google_report(g_camp, g_mtd, g_mtd_split, g_conv, g_search, g_auction, g_landing, g_geo, yesterday, kw_recs, comp_kw):
+def fetch_device_split(client):
+    """Fetch performance by device: Mobile, Desktop, Tablet."""
+    print("  → Fetching device split...")
+    ga_service = client.get_service("GoogleAdsService")
+    query = f"""
+        SELECT
+            segments.device,
+            metrics.clicks,
+            metrics.cost_micros,
+            metrics.conversions,
+            metrics.impressions
+        FROM campaign
+        WHERE segments.date = '{DATE_RANGE}'
+          AND campaign.status = 'ENABLED'
+          AND metrics.clicks > 0
+    """
+    try:
+        response = ga_service.search(customer_id=CUSTOMER_ID, query=query)
+        devices = {}
+        for row in response:
+            dev  = str(row.segments.device).replace("Device.", "").title()
+            clks = int(row.metrics.clicks)
+            cost = round(row.metrics.cost_micros / 1_000_000, 2)
+            conv = round(row.metrics.conversions, 1)
+            impr = int(row.metrics.impressions)
+            if dev not in devices:
+                devices[dev] = {"clicks":0,"cost":0,"conv":0,"impr":0}
+            devices[dev]["clicks"] += clks
+            devices[dev]["cost"]   += cost
+            devices[dev]["conv"]   += conv
+            devices[dev]["impr"]   += impr
+
+        rows = []
+        for dev, v in sorted(devices.items(), key=lambda x: x[1]["clicks"], reverse=True):
+            if dev in ("Unspecified", "Unknown", "Other"):
+                continue
+            ctr  = round(v["clicks"]/v["impr"]*100,1) if v["impr"] > 0 else 0
+            cpc  = round(v["cost"]/v["conv"],2) if v["conv"] > 0 else 0
+            conv_str = f" | {v['conv']} conv | AED {cpc}/conv" if v["conv"] > 0 else ""
+            rows.append(f"• {dev}  —  {v['clicks']} clicks | AED {v['cost']:,.0f} | CTR {ctr}%{conv_str}")
+
+        # Actions
+        if rows:
+            mobile_clicks = devices.get("Mobile", {}).get("clicks", 0)
+            total_clicks  = sum(v["clicks"] for v in devices.values())
+            mobile_pct    = round(mobile_clicks / total_clicks * 100) if total_clicks > 0 else 0
+            if mobile_pct > 70:
+                rows.append(f"\n⚡ {mobile_pct}% mobile traffic — ensure mobile landing page is optimised")
+
+        print(f"    ✅ Devices: {len(rows)} found")
+        return {"rows": rows or ["• No device data today"]}
+    except Exception as ex:
+        print(f"    ❌ Device split failed: {ex}")
+        return {"rows": ["• Device data unavailable"]}
+
+
+def build_google_report(g_camp, g_mtd, g_mtd_split, g_conv, g_search, g_auction, g_landing, g_geo, g_device, yesterday, kw_recs, comp_kw):
     mode_tag = "🧪 TEST" if TEST_MODE else "🚀 LIVE"
     d_cost = delta(g_camp.get("cost", 0), yesterday.get("g_cost", 0))
     d_conv = delta(g_camp.get("conversions", 0), yesterday.get("g_conv", 0), prefix="")
@@ -1225,19 +1281,8 @@ def build_google_report(g_camp, g_mtd, g_mtd_split, g_conv, g_search, g_auction,
     if not kw_text:
         kw_text = "_No keyword actions today_"
 
-    # ── 6. Geographic (cities only)
-    cities = g_geo.get("cities", [])
-    if cities:
-        geo_text = "\n".join(cities[:5])
-        geo_actions = []
-        for l in cities:
-            if "abu dhabi" in l.lower(): geo_actions.append("⚡ Abu Dhabi active — consider dedicated campaign")
-            if "saudi" in l.lower():     geo_actions.append("⚡ Saudi traffic — create Arabic KSA campaign")
-            if "india" in l.lower():     geo_actions.append("⚡ India traffic — review targeting")
-        if geo_actions:
-            geo_text += "\n\n" + "\n".join(list(dict.fromkeys(geo_actions))[:2])
-    else:
-        geo_text = "_No city data today_"
+    # ── 6. Device split
+    device_text = "\n".join(g_device.get("rows", [])) or "_No device data_"
 
     # ── Score
     score = 0
@@ -1267,12 +1312,10 @@ def build_google_report(g_camp, g_mtd, g_mtd_split, g_conv, g_search, g_auction,
         {"type": "section",
          "text": {"type": "mrkdwn", "text": f"*🔑 Keyword Actions*\n{kw_text}"}},
         {"type": "divider"},
-        {"type": "section",
-         "text": {"type": "mrkdwn", "text": f"*🌍 Geographic*\n{geo_text}"}},
-        {"type": "divider"},
+
         {"type": "context",
          "elements": [{"type": "mrkdwn",
-                       "text": f"*🏆 Score: {score}/100 — {grade}*   |   MKV Google Ads v5.3 • {mode_tag}"}]},
+                       "text": f"*🏆 Score: {score}/100 — {grade}*   |   MKV Google Ads v5.5 • {mode_tag}"}]},
     ]
 
 
@@ -1395,7 +1438,7 @@ def build_meta_report(meta, meta_mtd, meta_rto, meta_rto_mtd, meta_placement, me
 
         {"type": "divider"},
         {"type": "section", "text": {"type": "mrkdwn", "text": f"*📅 MTD Summary*\n{mtd_text}"}},
-        {"type": "context", "elements": [{"type": "mrkdwn", "text": f"_MKV Meta Ads • v5.3 • {mode_tag}_"}]},
+        {"type": "context", "elements": [{"type": "mrkdwn", "text": f"_MKV Meta Ads • v5.5 • {mode_tag}_"}]},
     ]
 
 
@@ -1410,7 +1453,7 @@ def post_slack(blocks, fallback="MKV Ads Report"):
 
 def main():
     print("=" * 60)
-    print("  MKV Daily Ads Snapshot v5.3")
+    print("  MKV Daily Ads Snapshot v5.5")
     print(f"  {datetime.now().strftime('%Y-%m-%d %H:%M:%S')} | Report date: {REPORT_DATE}")
     print(f"  Mode: {'🧪 TEST' if TEST_MODE else '🚀 LIVE'}  |  Channel: {SLACK_CHANNEL}")
     print("=" * 60)
@@ -1433,6 +1476,7 @@ def main():
         g_auction = fetch_auction_insights(client)
         g_landing = fetch_landing_pages(client)
         g_geo     = fetch_geographic(client)
+        g_device  = fetch_device_split(client)
     except Exception as e:
         print(f"  ❌  Google Ads API error: {e}")
 
@@ -1461,7 +1505,7 @@ def main():
     comp_kw  = fetch_competitor_keywords(client) if client and g_search else {"competitor_terms": [], "opportunity_terms": []}
 
     print("\n📤 Posting Google Ads report to Slack...")
-    google_blocks = build_google_report(g_camp, g_mtd, g_mtd_split, g_conv, g_search, g_auction, g_landing, g_geo, yesterday, kw_recs, comp_kw)
+    google_blocks = build_google_report(g_camp, g_mtd, g_mtd_split, g_conv, g_search, g_auction, g_landing, g_geo, g_device, yesterday, kw_recs, comp_kw)
     post_slack(google_blocks, "MKV Google Ads Report")
 
     print("\n📤 Posting Meta Ads report to Slack...")
