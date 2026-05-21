@@ -189,47 +189,155 @@ def fetch_search_terms(client):
         return {"terms": ["• Could not fetch search term data"]}
 
 
+def fetch_keyword_recommendations(client, search_terms_data):
+    """Analyse search terms to suggest add/remove keywords."""
+    terms = search_terms_data.get("terms", [])
+    if not terms or client is None:
+        return {"add": [], "remove": []}
+
+    # Fetch negative keywords already in account
+    ga_service = client.get_service("GoogleAdsService")
+    query = f"""
+        SELECT
+            campaign_criterion.keyword.text,
+            campaign_criterion.negative
+        FROM campaign_criterion
+        WHERE campaign_criterion.negative = TRUE
+          AND campaign_criterion.type = 'KEYWORD'
+        LIMIT 50
+    """
+    existing_negatives = set()
+    try:
+        response = ga_service.search(customer_id=CUSTOMER_ID, query=query)
+        for row in response:
+            existing_negatives.add(row.campaign_criterion.keyword.text.lower())
+    except:
+        pass
+
+    # Known irrelevant terms for luxury car rental
+    irrelevant_patterns = [
+        "rpm", "kia soul", "hyundai staria", "yaris", "corolla",
+        "cheap", "budget", "economy", "used car", "second hand",
+        "buy car", "purchase car", "car for sale"
+    ]
+
+    add_keywords = []
+    remove_keywords = []
+
+    for term_line in terms:
+        # Extract term from "• term (N clicks)" format
+        term = term_line.replace("•", "").strip()
+        if "(" in term:
+            term = term[:term.rfind("(")].strip()
+        term_lower = term.lower()
+
+        # Flag for removal if matches irrelevant patterns
+        for pattern in irrelevant_patterns:
+            if pattern in term_lower and term_lower not in existing_negatives:
+                remove_keywords.append(f"• `{term}` — add as negative keyword")
+                break
+        else:
+            # Suggest adding as exact match if high-intent
+            high_intent = ["rental", "rent", "hire", "luxury", "supercar",
+                          "lamborghini", "ferrari", "rolls", "bentley", "dubai"]
+            if any(kw in term_lower for kw in high_intent):
+                add_keywords.append(f"• `{term}` — add as exact match")
+
+    return {
+        "add"   : add_keywords[:5] or ["• No new keywords to add today"],
+        "remove": remove_keywords[:5] or ["• No irrelevant terms detected today"]
+    }
+
+
 def fetch_auction_insights(client):
+    """Fetch competitor auction insights using campaign resource."""
     print("  → Fetching auction insights...")
     ga_service = client.get_service("GoogleAdsService")
     date_7d_ago = (datetime.now() - timedelta(days=7)).strftime("%Y-%m-%d")
+
+    # Must use campaign resource — auction_insight only works at campaign level
     query = f"""
         SELECT
+            campaign.name,
             auction_insight.domain,
             metrics.auction_insight_search_impression_share,
-            metrics.auction_insight_search_overlap_rate
-        FROM auction_insight
+            metrics.auction_insight_search_overlap_rate,
+            metrics.auction_insight_search_outranking_share
+        FROM campaign
         WHERE segments.date BETWEEN '{date_7d_ago}' AND '{DATE_RANGE}'
-        ORDER BY metrics.auction_insight_search_impression_share DESC
-        LIMIT 10
+          AND campaign.status = 'ENABLED'
+          AND auction_insight.domain IS NOT NULL
+        LIMIT 50
     """
     try:
         response = ga_service.search(customer_id=CUSTOMER_ID, query=query)
         competitors = {}
         for row in response:
             domain = row.auction_insight.domain
-            if not domain:
+            if not domain or domain.strip() == "":
                 continue
-            is_val   = row.metrics.auction_insight_search_impression_share
-            ovlp_val = row.metrics.auction_insight_search_overlap_rate
+            is_val      = row.metrics.auction_insight_search_impression_share
+            ovlp_val    = row.metrics.auction_insight_search_overlap_rate
+            outrank_val = row.metrics.auction_insight_search_outranking_share
             if domain not in competitors:
-                competitors[domain] = {"is": [], "overlap": []}
+                competitors[domain] = {"is": [], "overlap": [], "outrank": []}
             competitors[domain]["is"].append(is_val)
             competitors[domain]["overlap"].append(ovlp_val)
+            competitors[domain]["outrank"].append(outrank_val)
+
         rows = []
         for domain, vals in sorted(
             competitors.items(),
             key=lambda x: sum(x[1]["is"]) / max(len(x[1]["is"]), 1),
             reverse=True
         )[:6]:
-            is_pct   = round(sum(vals["is"]) / len(vals["is"]) * 100, 1)
-            ovlp_pct = round(sum(vals["overlap"]) / len(vals["overlap"]) * 100, 1)
-            rows.append(f"• {domain[:35]}  — IS: {is_pct}% | Overlap: {ovlp_pct}%")
-        print(f"    ✅ Auction insights: {len(rows)} competitors")
-        return {"competitors": rows or ["• No competitor data available"]}
+            is_pct      = round(sum(vals["is"]) / len(vals["is"]) * 100, 1)
+            ovlp_pct    = round(sum(vals["overlap"]) / len(vals["overlap"]) * 100, 1)
+            outrank_pct = round(sum(vals["outrank"]) / len(vals["outrank"]) * 100, 1)
+            rows.append(
+                f"• {domain[:30]}  — IS: {is_pct}% | Overlap: {ovlp_pct}% | Outrank: {outrank_pct}%"
+            )
+
+        print(f"    ✅ Auction insights: {len(rows)} competitors found")
+        return {"competitors": rows or ["• No competitor data — check campaign auction settings"]}
     except GoogleAdsException as ex:
         print(f"    ❌ Auction insights failed: {ex.error.code().name}")
-        return {"competitors": [f"• Error: {ex.error.code().name}"]}
+        # Fallback: try without date filter
+        try:
+            query2 = """
+                SELECT
+                    auction_insight.domain,
+                    metrics.auction_insight_search_impression_share,
+                    metrics.auction_insight_search_overlap_rate
+                FROM campaign
+                WHERE campaign.status = 'ENABLED'
+                  AND auction_insight.domain IS NOT NULL
+                LIMIT 30
+            """
+            response2 = ga_service.search(customer_id=CUSTOMER_ID, query=query2)
+            competitors2 = {}
+            for row in response2:
+                domain = row.auction_insight.domain
+                if not domain:
+                    continue
+                competitors2[domain] = {
+                    "is": row.metrics.auction_insight_search_impression_share,
+                    "overlap": row.metrics.auction_insight_search_overlap_rate
+                }
+            rows2 = []
+            for domain, vals in sorted(
+                competitors2.items(),
+                key=lambda x: x[1]["is"],
+                reverse=True
+            )[:6]:
+                is_pct   = round(vals["is"] * 100, 1)
+                ovlp_pct = round(vals["overlap"] * 100, 1)
+                rows2.append(f"• {domain[:35]}  — IS: {is_pct}% | Overlap: {ovlp_pct}%")
+            print(f"    ✅ Auction insights (fallback): {len(rows2)} competitors")
+            return {"competitors": rows2 or ["• No competitor data available"]}
+        except Exception as e2:
+            print(f"    ❌ Auction fallback failed: {e2}")
+            return {"competitors": ["• Competitor data unavailable"]}
 
 
 def fetch_landing_pages(client):
@@ -273,6 +381,46 @@ def fetch_landing_pages(client):
 
 # ── META ADS API ──────────────────────────────────────────────────────────────
 
+def fetch_meta_campaigns(account_id, access_token, account_name=""):
+    """Fetch Meta campaign-level breakdown."""
+    if not access_token:
+        return []
+    try:
+        since = DATE_RANGE
+        until = DATE_RANGE
+        url = (
+            f"https://graph.facebook.com/v19.0/act_{account_id}/campaigns"
+            f"?fields=name,status,insights.time_range(since={since},until={until})"
+            "{spend,impressions,clicks}"
+            f"&access_token={access_token}"
+        )
+        req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+        with urllib.request.urlopen(req, timeout=30) as resp:
+            data = json.loads(resp.read().decode())
+        campaigns = []
+        for c in data.get("data", []):
+            insights = c.get("insights", {}).get("data", [])
+            if not insights:
+                continue
+            ins = insights[0]
+            spend = round(float(ins.get("spend", 0)), 2)
+            if spend == 0:
+                continue
+            clks  = int(ins.get("clicks", 0))
+            impr  = int(ins.get("impressions", 0))
+            campaigns.append({
+                "name"  : c.get("name", "")[:40],
+                "spend" : spend,
+                "clicks": clks,
+                "ctr"   : round(clks / impr * 100, 2) if impr > 0 else 0,
+            })
+        campaigns.sort(key=lambda x: x["spend"], reverse=True)
+        return campaigns[:4]
+    except Exception as e:
+        print(f"  ⚠️  Meta campaign breakdown error: {e}")
+        return []
+
+
 def fetch_meta_api(account_id, account_name="MKV Luxury"):
     """Fetch Meta Ads data via Marketing API."""
     if not META_ACCESS_TOKEN:
@@ -315,6 +463,8 @@ def fetch_meta_api(account_id, account_name="MKV Luxury"):
         # Cost per result
         cpr = round(spent / max(messaging, 1), 2) if messaging > 0 else 0
         
+        # Fetch campaign breakdown
+        campaigns = fetch_meta_campaigns(account_id, META_ACCESS_TOKEN, account_name)
         print(f"    ✅ {account_name}: AED {spent} | {impr:,} impr | {clks} clicks | {messaging} msgs")
         return {
             "spent"          : spent,
@@ -324,6 +474,7 @@ def fetch_meta_api(account_id, account_name="MKV Luxury"):
             "results"        : messaging,
             "cost_per_result": cpr,
             "ctr"            : ctr,
+            "campaigns"      : campaigns,
         }
     except Exception as e:
         print(f"  ❌ Meta API error for {account_name}: {e}")
@@ -551,8 +702,10 @@ def score_report(g_camp, meta):
 
 # ── SLACK BLOCK KIT ───────────────────────────────────────────────────────────
 
-def build_blocks(g_camp, g_conv, g_search, g_auction, g_landing, meta, yesterday):
+def build_blocks(g_camp, g_conv, g_search, g_auction, g_landing, meta, yesterday, kw_recs=None):
     score, grade, notes = score_report(g_camp, meta)
+    if kw_recs is None:
+        kw_recs = {"add": [], "remove": []}
 
     d_cost  = delta(g_camp.get("cost", 0),        yesterday.get("g_cost", 0))
     d_clk   = delta(g_camp.get("clicks", 0),      yesterday.get("g_clicks", 0), prefix="")
@@ -583,6 +736,11 @@ def build_blocks(g_camp, g_conv, g_search, g_auction, g_landing, meta, yesterday
     land_text   = "\n".join(g_landing.get("pages", []))        or "_No landing page data_"
     rto_text    = "\n".join(g_landing.get("rto_pages", []))    or "_No Rent-to-Own traffic today_"
 
+    # ── Keyword recommendations
+    add_text    = "\n".join(kw_recs.get("add", []))    or "_No new keywords to add_"
+    remove_text = "\n".join(kw_recs.get("remove", [])) or "_No irrelevant terms detected_"
+    kw_text     = f"*➕ Add as keywords:*\n{add_text}\n\n*➖ Add as negatives:*\n{remove_text}"
+
     # ── Meta
     if meta.get("spent", 0) > 0:
         meta_text = (
@@ -593,6 +751,11 @@ def build_blocks(g_camp, g_conv, g_search, g_auction, g_landing, meta, yesterday
             f"*Reach:* {meta['reach']:,}    "
             f"*CTR:* {meta['ctr']}%"
         )
+        if meta.get("campaigns"):
+            lines = ["\n*Campaigns:*"]
+            for c in meta["campaigns"]:
+                lines.append(f"  • {c['name']}  —  AED {c['spend']:,.0f} | {c['clicks']:,} clicks | {c['ctr']}% CTR")
+            meta_text += "\n" + "\n".join(lines)
     else:
         meta_text = "_No Meta Ads data today_"
 
@@ -609,6 +772,8 @@ def build_blocks(g_camp, g_conv, g_search, g_auction, g_landing, meta, yesterday
         {"type": "divider"},
         {"type": "section", "text": {"type": "mrkdwn", "text": f"*🔍 Top Search Terms*\n{search_text}"}},
         {"type": "divider"},
+        {"type": "section", "text": {"type": "mrkdwn", "text": f"*🔑 Keyword Recommendations*\n{kw_text}"}},
+        {"type": "divider"},
         {"type": "section", "text": {"type": "mrkdwn", "text": f"*⚔️ Competitor Auction Insights*\n{comp_text}"}},
         {"type": "divider"},
         {"type": "section", "text": {"type": "mrkdwn", "text": f"*📄 MKV Luxury — Top Landing Pages*\n{land_text}"}},
@@ -620,7 +785,7 @@ def build_blocks(g_camp, g_conv, g_search, g_auction, g_landing, meta, yesterday
         {"type": "section", "text": {"type": "mrkdwn", "text": f"*🏆 Performance Score*\n{score_text}"}},
         {"type": "context",
          "elements": [{"type": "mrkdwn",
-                       "text": f"_MKV Luxury Car Rental  •  Google Ads API + Meta API v3.2  •  {mode_tag}_"}]},
+                       "text": f"_MKV Luxury Car Rental  •  Google Ads API + Meta API v3.3  •  {mode_tag}_"}]},
     ]
 
 
@@ -636,7 +801,7 @@ def post_slack(blocks, fallback="MKV Daily Ads Snapshot"):
 
 def main():
     print("=" * 60)
-    print("  MKV Daily Ads Snapshot v3.2 — Google Ads API")
+    print("  MKV Daily Ads Snapshot v3.3 — Google Ads API")
     print(f"  {datetime.now().strftime('%Y-%m-%d %H:%M:%S')} | Report date: {REPORT_DATE}")
     print(f"  Mode: {'🧪 TEST' if TEST_MODE else '🚀 LIVE'}  |  Channel: {SLACK_CHANNEL}")
     print("=" * 60)
@@ -673,8 +838,11 @@ def main():
     print(f"\n  Google Ads → AED {g_camp.get('cost',0):.2f} | {g_camp.get('clicks',0)} clicks | {g_camp.get('conversions',0)} conv")
     print(f"  Meta Ads   → AED {meta.get('spent',0):.2f} | {meta.get('results',0)} results")
 
+    # Keyword recommendations
+    kw_recs = fetch_keyword_recommendations(client if 'client' in dir() else None, g_search) if g_search else {"add": [], "remove": []}
+
     print("\n📤 Posting to Slack...")
-    blocks = build_blocks(g_camp, g_conv, g_search, g_auction, g_landing, meta, yesterday)
+    blocks = build_blocks(g_camp, g_conv, g_search, g_auction, g_landing, meta, yesterday, kw_recs)
     post_slack(blocks)
     print("\n✅  Done!\n")
 
