@@ -1272,7 +1272,7 @@ def build_google_report(g_camp, g_mtd, g_mtd_split, g_conv, g_search, g_auction,
         {"type": "divider"},
         {"type": "context",
          "elements": [{"type": "mrkdwn",
-                       "text": f"*🏆 Score: {score}/100 — {grade}*   |   MKV Google Ads v4.9 • {mode_tag}"}]},
+                       "text": f"*🏆 Score: {score}/100 — {grade}*   |   MKV Google Ads v5.1 • {mode_tag}"}]},
     ]
 
 
@@ -1307,8 +1307,19 @@ def build_meta_report(meta, meta_mtd, meta_rto, meta_rto_mtd, meta_placement, me
             actions.append("⚡ High cost/result — test new ad formats")
         if meta.get("results", 0) == 0:
             actions.append("⚡ Zero results — check campaign delivery")
-        if actions:
-            mkv_text += "\n\n*Actions:*\n" + "\n".join(actions)
+        # Always show standard actions
+        standard_actions = []
+        if meta.get("impressions", 0) > 0 and meta.get("results", 0) > 0:
+            cpr = meta.get("cost_per_result", 0)
+            if cpr > 30:
+                standard_actions.append("⚡ Cost/result AED {:.0f} — test new audience or creative".format(cpr))
+            if meta.get("ctr", 0) < 1.5:
+                standard_actions.append("⚡ CTR {:.2f}% — refresh ad creative".format(meta.get("ctr", 0)))
+            else:
+                standard_actions.append("✅ CTR {:.2f}% — creative performing well".format(meta.get("ctr", 0)))
+        all_actions = actions + standard_actions
+        if all_actions:
+            mkv_text += "\n\n*🔴 Actions:*\n" + "\n".join(all_actions[:3])
     else:
         mkv_text = "_No MKV Luxury Meta data today_"
 
@@ -1333,8 +1344,17 @@ def build_meta_report(meta, meta_mtd, meta_rto, meta_rto_mtd, meta_placement, me
             rto_actions.append("⚡ CTR below 1% — refresh RTO creative")
         if meta_rto.get("cost_per_result", 0) > 100:
             rto_actions.append("⚡ High cost/result — review targeting")
+        # Standard RTO actions
+        if meta_rto.get("results", 0) > 0:
+            cpr = meta_rto.get("cost_per_result", 0)
+            if cpr < 20:
+                rto_actions.append("✅ Cost/result AED {:.0f} — efficient, consider scaling budget".format(cpr))
+            elif cpr < 50:
+                rto_actions.append("🟡 Cost/result AED {:.0f} — monitor closely".format(cpr))
+            if meta_rto.get("ctr", 0) > 2:
+                rto_actions.append("✅ CTR {:.2f}% — strong creative performance".format(meta_rto.get("ctr", 0)))
         if rto_actions:
-            rto_text += "\n\n*Actions:*\n" + "\n".join(rto_actions)
+            rto_text += "\n\n*🔴 Actions:*\n" + "\n".join(rto_actions[:3])
     else:
         rto_text = "_No Lease to Own Meta data today_"
 
@@ -1375,7 +1395,7 @@ def build_meta_report(meta, meta_mtd, meta_rto, meta_rto_mtd, meta_placement, me
 
         {"type": "divider"},
         {"type": "section", "text": {"type": "mrkdwn", "text": f"*📅 MTD Summary*\n{mtd_text}"}},
-        {"type": "context", "elements": [{"type": "mrkdwn", "text": f"_MKV Meta Ads • v4.9 • {mode_tag}_"}]},
+        {"type": "context", "elements": [{"type": "mrkdwn", "text": f"_MKV Meta Ads • v5.1 • {mode_tag}_"}]},
     ]
 
 
@@ -1390,7 +1410,7 @@ def post_slack(blocks, fallback="MKV Ads Report"):
 
 def main():
     print("=" * 60)
-    print("  MKV Daily Ads Snapshot v4.9")
+    print("  MKV Daily Ads Snapshot v5.1")
     print(f"  {datetime.now().strftime('%Y-%m-%d %H:%M:%S')} | Report date: {REPORT_DATE}")
     print(f"  Mode: {'🧪 TEST' if TEST_MODE else '🚀 LIVE'}  |  Channel: {SLACK_CHANNEL}")
     print("=" * 60)
