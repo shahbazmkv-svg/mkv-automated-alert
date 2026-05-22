@@ -4,32 +4,19 @@ import os
 from datetime import datetime, timezone, timedelta
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
-# ==============================================================================
-# TEST MODE
-#   True  -> bot token + chat.postMessage -> #mkv-test-automation (C0B0TGBDCDU)
-#            MTD store NOT written to disk
-#   False -> webhook -> #mkv-daily-lead-report (C0ABN1ZKSGN)
-# ==============================================================================
-TEST_MODE = False
-
-# ==============================================================================
-# CREDENTIALS
-# ==============================================================================
+# ── CREDENTIALS ───────────────────────────────────────────────────────────────
 ACCOUNT_ID  = os.environ.get("GALLABOX_ACCOUNT_ID", "66e3f05033e71154d5fdd76c")
-API_KEY     = os.environ.get("GALLABOX_API_KEY",    "69e7694e2da59f609317986b")
-API_SECRET  = os.environ.get("GALLABOX_API_SECRET", "984394d316324482a8615eba6742b3ab")
+API_KEY     = os.environ.get("GALLABOX_API_KEY",    "6a1064ed5a8546db4ab5870b")
+API_SECRET  = os.environ.get("GALLABOX_API_SECRET", "e9e9903954a645f3adf7be9a86d7a4d2")
 
-SLACK_BOT_TOKEN     = os.environ.get("SLACK_BOT_TOKEN", "")
-WEBHOOK_LEAD_REPORT = os.environ.get("WEBHOOK_LEADS",   "https://hooks.slack.com/services/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")
+# ── SLACK ─────────────────────────────────────────────────────────────────────
+SLACK_BOT_TOKEN = os.environ.get("SLACK_BOT_TOKEN", "")
+CHANNEL_LIVE    = "C0ABN1ZKSGN"   # #mkv-daily-lead-report
+CHANNEL_TEST    = "C0B0TGBDCDU"   # #mkv-test-automation
+TEST_MODE       = os.environ.get("TEST_MODE", "false").lower() == "true"
 
 MTD_STORE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "mtd_store.json")
 
-CHANNEL_LIVE = "C0ABN1ZKSGN"   # #mkv-daily-lead-report
-CHANNEL_TEST = "C0B0TGBDCDU"   # #mkv-test-automation
-
-# ==============================================================================
-# GALLABOX CONFIG
-# ==============================================================================
 GALLABOX_HEADERS = {"apiKey": API_KEY, "apiSecret": API_SECRET, "Content-Type": "application/json"}
 BASE_URL = "https://server.gallabox.com/devapi/accounts/" + ACCOUNT_ID
 GALLABOX_CHANNELS = [
@@ -38,9 +25,6 @@ GALLABOX_CHANNELS = [
     {"name": "Rent to Own",           "id": "699d8cca452cc56936e21e45"},
 ]
 
-# ==============================================================================
-# DATE / TIME
-# ==============================================================================
 dubai_tz            = timezone(timedelta(hours=4))
 utc_tz              = timezone.utc
 now_dubai           = datetime.now(dubai_tz)
@@ -52,9 +36,6 @@ cur_month           = now_dubai.strftime("%Y-%m")
 yesterday_utc_start = yesterday_dubai.replace(hour=0,  minute=0,  second=0,  microsecond=0).astimezone(utc_tz)
 yesterday_utc_end   = yesterday_dubai.replace(hour=23, minute=59, second=59, microsecond=0).astimezone(utc_tz)
 
-# ==============================================================================
-# MTD STORE
-# ==============================================================================
 def load_mtd_store():
     try:
         if os.path.exists(MTD_STORE):
@@ -69,9 +50,6 @@ def load_mtd_store():
     return {"month": cur_month, "days": {}}
 
 def save_mtd_store(store):
-    if TEST_MODE:
-        print("  [TEST MODE] MTD store NOT written to disk")
-        return
     with open(MTD_STORE, "w", encoding="utf-8") as f:
         json.dump(store, f, indent=2, ensure_ascii=False)
 
@@ -84,9 +62,6 @@ def update_and_get_mtd(store, yesterday_snapshot):
             mtd[k] = mtd.get(k, 0) + v
     return mtd
 
-# ==============================================================================
-# GALLABOX API
-# ==============================================================================
 def parse_utc(ts):
     try:
         return datetime.fromisoformat(ts.replace("Z", "+00:00"))
@@ -111,7 +86,7 @@ def fetch_contact_details(contact_id):
 def fetch_all_conversations():
     all_convs = []; seen_ids = set()
     for ch in GALLABOX_CHANNELS:
-        for page in range(1, 6):
+        for page in range(1, 3):
             params = {"limit": 100, "page": page, "channelId": ch["id"], "channelType": "whatsapp"}
             try:
                 r     = requests.get(BASE_URL + "/conversations", headers=GALLABOX_HEADERS, params=params, timeout=15)
@@ -131,9 +106,6 @@ def fetch_all_conversations():
                 print("  [ERROR] Gallabox: " + str(e)); break
     return all_convs
 
-# ==============================================================================
-# DATA PROCESSING
-# ==============================================================================
 def process_gallabox(store):
     print("  Fetching conversations (for yesterday: " + yesterday_key + ")...")
     all_convs = fetch_all_conversations()
@@ -204,82 +176,72 @@ def process_gallabox(store):
         "mtd_agents": mtd_agents, "mtd_sources": mtd_sources, "mtd_stages": mtd_stages,
     }
 
-# ==============================================================================
-# SLACK SENDER
-# ==============================================================================
-def send_to_slack(message):
-    if TEST_MODE:
-        if not SLACK_BOT_TOKEN:
-            print("  [ERROR] SLACK_BOT_TOKEN not set")
-            return
+def send_to_slack(message, webhooks=None):
+    """Post to Slack using bot token — no webhook needed."""
+    token   = SLACK_BOT_TOKEN
+    channel = CHANNEL_TEST if TEST_MODE else CHANNEL_LIVE
+    ch_name = "#mkv-test-automation" if TEST_MODE else "#mkv-daily-lead-report"
+    if not token:
+        print("  [ERROR] SLACK_BOT_TOKEN not set")
+        return
+    try:
         r = requests.post(
             "https://slack.com/api/chat.postMessage",
-            headers={"Authorization": "Bearer " + SLACK_BOT_TOKEN, "Content-Type": "application/json"},
-            json={"channel": CHANNEL_TEST, "text": message},
+            headers={"Authorization": "Bearer " + token, "Content-Type": "application/json"},
+            json={"channel": channel, "text": message},
             timeout=10,
         )
         result = r.json()
-        if result.get("ok"): print("  Slack OK -> #mkv-test-automation")
-        else: print("  Slack error: " + str(result.get("error")))
-    else:
-        r = requests.post(WEBHOOK_LEAD_REPORT, json={"text": message}, timeout=10)
-        if r.status_code == 200: print("  Slack OK -> #mkv-daily-lead-report")
-        else: print("  Slack error: " + str(r.status_code))
+        if result.get("ok"):
+            print("  Slack OK -> " + ch_name)
+        else:
+            print("  Slack error: " + str(result.get("error")))
+    except Exception as e:
+        print("  Slack failed: " + str(e))
 
-# ==============================================================================
-# MESSAGE BUILDER — plain text (inline, one screen)
-# ==============================================================================
 def build_msg_gallabox(g):
     fa = g["ftd_agents"]; fs = g["ftd_sources"]; fg = g["ftd_stages"]
     ma = g["mtd_agents"]; ms = g["mtd_sources"]; mg = g["mtd_stages"]
 
-    # Agent table — 31 chars wide (fits Slack mobile)
-    # FR=FTD rec, FT=FTD trg, MR=MTD rec, MT=MTD trg
     all_agents = sorted(set(list(fa.keys()) + list(ma.keys())))
-    ag  = "{:<13} {:>4} {:>4} {:>5} {:>5}\n".format("Agent","FR","FT","MR","MT")
-    ag += "-"*31 + "\n"
+    ag  = "{:<20} {:>6} {:>6} {:>7} {:>7}\n".format("Agent","Y.Rec","Y.Trg","M.Rec","M.Trg")
+    ag += "-"*50 + "\n"
     for name in all_agents:
         f = fa.get(name, {"recd":0,"trig":0}); m = ma.get(name, {"recd":0,"trig":0})
-        ag += "{:<13} {:>4} {:>4} {:>5} {:>5}\n".format(name[:13], f["recd"], f["trig"], m["recd"], m["trig"])
-    ag += "-"*31 + "\n"
-    ag += "{:<13} {:>4} {:>4} {:>5} {:>5}".format(
+        ag += "{:<20} {:>6} {:>6} {:>7} {:>7}\n".format(name[:20], f["recd"], f["trig"], m["recd"], m["trig"])
+    ag += "-"*50 + "\n"
+    ag += "{:<20} {:>6} {:>6} {:>7} {:>7}".format(
         "TOTAL",
         sum(v["recd"] for v in fa.values()), sum(v["trig"] for v in fa.values()),
         sum(v["recd"] for v in ma.values()), sum(v["trig"] for v in ma.values()))
 
-    # Source table — 28 chars wide
     SOURCE_ORDER = ["Google Ads","Facebook / Instagram","Instagram DMs","OneClickDrive","Website"]
     all_srcs = SOURCE_ORDER + [s for s in sorted(set(list(fs.keys())+list(ms.keys()))) if s not in SOURCE_ORDER]
-    src  = "{:<16} {:>4}  {:>6}\n".format("Source","FTD","MTD") + "-"*28 + "\n"
+    src  = "{:<24} {:>5}  {:>7}\n".format("Source","YTD","MTD") + "-"*38 + "\n"
     for s in all_srcs:
         if fs.get(s,0) > 0 or ms.get(s,0) > 0:
-            src += "{:<16} {:>4}  {:>6}\n".format(s[:16], fs.get(s,0), ms.get(s,0))
-    src += "-"*28 + "\n"
-    src += "{:<16} {:>4}  {:>6}".format("TOTAL", sum(fs.values()), sum(ms.values()))
+            src += "{:<24} {:>5}  {:>7}\n".format(s[:24], fs.get(s,0), ms.get(s,0))
+    src += "-"*38 + "\n"
+    src += "{:<24} {:>5}  {:>7}".format("TOTAL", sum(fs.values()), sum(ms.values()))
 
-    # Stage table — 28 chars wide
     STAGE_ORDER = ["Lead created","Qualified lead","Converted lead","Unknown"]
     all_stgs = STAGE_ORDER + [s for s in sorted(set(list(fg.keys())+list(mg.keys()))) if s not in STAGE_ORDER]
-    stg  = "{:<16} {:>4}  {:>6}\n".format("Stage","FTD","MTD") + "-"*28 + "\n"
+    stg  = "{:<24} {:>5}  {:>7}\n".format("Stage","YTD","MTD") + "-"*38 + "\n"
     for s in all_stgs:
         if fg.get(s,0) > 0 or mg.get(s,0) > 0:
-            stg += "{:<16} {:>4}  {:>6}\n".format(s[:16], fg.get(s,0), mg.get(s,0))
-    stg += "-"*28 + "\n"
-    stg += "{:<16} {:>4}  {:>6}".format("TOTAL", sum(fg.values()), sum(mg.values()))
+            stg += "{:<24} {:>5}  {:>7}\n".format(s[:24], fg.get(s,0), mg.get(s,0))
+    stg += "-"*38 + "\n"
+    stg += "{:<24} {:>5}  {:>7}".format("TOTAL", sum(fg.values()), sum(mg.values()))
 
     return (
         ":bar_chart: *MKV LUXURY — LEADS & AGENTS REPORT*\n"
         + ":calendar: " + report_dt + "\n"
-        + "_FR/FT=FTD rec/trg | MR/MT=MTD rec/trg_\n"
-        + "_FTD = Yesterday (" + yesterday_str + ") | MTD = Month cumulative_\n\n"
+        + "_YTD = Yesterday (" + yesterday_str + ") | MTD = Month cumulative_\n\n"
         + "*:dart: AGENT PERFORMANCE*\n" + "```" + ag + "```\n"
         + "*:globe_with_meridians: LEAD SOURCE*\n" + "```" + src + "```\n"
         + "*:chart_with_upwards_trend: LEAD STAGE*\n" + "```" + stg + "```"
     )
 
-# ==============================================================================
-# MAIN
-# ==============================================================================
 def main():
     print("="*56)
     print("  MKV LUXURY - DAILY LEADS REPORT")
