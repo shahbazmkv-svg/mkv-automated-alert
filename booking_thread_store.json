@@ -2984,6 +2984,39 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010070-BARA-Porsche": {
+      "thread_ts": "1779460228.472799",
+      "end_date": "2026-06-21",
+      "plate": "P/ 8605",
+      "customer": "Barakath Ali Kibayathai",
+      "vehicle": "Porsche Cayenne",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-05-22"
+    },
+    "0010069-MUNE-Audi": {
+      "thread_ts": "1779460236.013909",
+      "end_date": "2026-05-24",
+      "plate": "89438",
+      "customer": "Muneer Nazarudeen Nazarudeen",
+      "vehicle": "Audi A6",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-05-22"
+    },
+    "008262-SQUT-Porsche": {
+      "thread_ts": "1779460250.140809",
+      "end_date": "2026-06-30",
+      "plate": "P/ 8605",
+      "customer": "Squtriox Car Rental Llc",
+      "vehicle": "Porsche Cayenne",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-05-19"
     }
   }
 }
