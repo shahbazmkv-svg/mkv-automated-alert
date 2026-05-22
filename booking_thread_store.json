@@ -3059,6 +3059,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010073-DHRU-Nissan": {
+      "thread_ts": "1779471025.354929",
+      "end_date": "2026-06-02",
+      "plate": "39810",
+      "customer": "Dhruv Umesh Parmar",
+      "vehicle": "Nissan Nissan Patrol Le Platinum City",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-05-23"
     }
   }
 }
