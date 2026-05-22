@@ -2994,7 +2994,11 @@
       "delivery_alerted": true,
       "pickup_alerted": false,
       "closed": false,
-      "start_date": "2026-05-22"
+      "start_date": "2026-05-22",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010069-MUNE-Audi": {
       "thread_ts": "1779460236.013909",
@@ -3005,7 +3009,11 @@
       "delivery_alerted": true,
       "pickup_alerted": false,
       "closed": false,
-      "start_date": "2026-05-22"
+      "start_date": "2026-05-22",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "008262-SQUT-Porsche": {
       "thread_ts": "1779460250.140809",
@@ -3016,7 +3024,11 @@
       "delivery_alerted": true,
       "pickup_alerted": false,
       "closed": false,
-      "start_date": "2026-05-19"
+      "start_date": "2026-05-19",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     }
   }
 }
