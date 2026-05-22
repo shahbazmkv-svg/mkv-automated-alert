@@ -3069,6 +3069,21 @@
       "delivery_alerted": true,
       "pickup_alerted": false,
       "closed": false,
+      "start_date": "2026-05-23",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
+    },
+    "0010074-LUXI-Porsche": {
+      "thread_ts": "1779471920.757839",
+      "end_date": "2026-05-24",
+      "plate": "64545",
+      "customer": "Luxilo Car Rental L.L.C",
+      "vehicle": "Porsche Cayman Gt4 Rs",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "closed": false,
       "start_date": "2026-05-23"
     }
   }
