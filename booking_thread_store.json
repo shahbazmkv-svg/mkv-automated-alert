@@ -2964,7 +2964,22 @@
       "delivery_alerted": true,
       "pickup_alerted": false,
       "closed": false,
-      "start_date": "2026-05-22"
+      "start_date": "2026-05-22",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
+    },
+    "0010068-MATH-Lotus": {
+      "thread_ts": "1779445823.748509",
+      "end_date": "2026-05-25",
+      "plate": "23652",
+      "customer": "Mathew Joseph Karimundackal Karimundackal  Joseph",
+      "vehicle": "Lotus Lotus Emira",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-05-23"
     }
   }
 }
