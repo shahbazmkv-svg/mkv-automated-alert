@@ -2954,6 +2954,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010067-SAHI-Bentley": {
+      "thread_ts": "1779444919.838759",
+      "end_date": "2026-05-24",
+      "plate": "33789",
+      "customer": "Sahil Narang Triloki Nath Narang",
+      "vehicle": "Bentley Bentayga",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-05-22"
     }
   }
 }
