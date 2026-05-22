@@ -2909,6 +2909,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010064-KARA-Land Rover": {
+      "thread_ts": "1779432317.671049",
+      "end_date": "2026-05-26",
+      "plate": "75037",
+      "customer": "Karan Anand Radia",
+      "vehicle": "Land Rover Svr",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-05-22"
     }
   }
 }
