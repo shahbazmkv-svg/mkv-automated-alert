@@ -1315,7 +1315,7 @@ def build_google_report(g_camp, g_mtd, g_mtd_split, g_conv, g_search, g_auction,
 
         {"type": "context",
          "elements": [{"type": "mrkdwn",
-                       "text": f"*🏆 Score: {score}/100 — {grade}*   |   MKV Google Ads v5.5 • {mode_tag}"}]},
+                       "text": f"*🏆 Score: {score}/100 — {grade}*   |   MKV Google Ads v5.6 • {mode_tag}"}]},
     ]
 
 
@@ -1438,7 +1438,7 @@ def build_meta_report(meta, meta_mtd, meta_rto, meta_rto_mtd, meta_placement, me
 
         {"type": "divider"},
         {"type": "section", "text": {"type": "mrkdwn", "text": f"*📅 MTD Summary*\n{mtd_text}"}},
-        {"type": "context", "elements": [{"type": "mrkdwn", "text": f"_MKV Meta Ads • v5.5 • {mode_tag}_"}]},
+        {"type": "context", "elements": [{"type": "mrkdwn", "text": f"_MKV Meta Ads • v5.6 • {mode_tag}_"}]},
     ]
 
 
@@ -1453,7 +1453,7 @@ def post_slack(blocks, fallback="MKV Ads Report"):
 
 def main():
     print("=" * 60)
-    print("  MKV Daily Ads Snapshot v5.5")
+    print("  MKV Daily Ads Snapshot v5.6")
     print(f"  {datetime.now().strftime('%Y-%m-%d %H:%M:%S')} | Report date: {REPORT_DATE}")
     print(f"  Mode: {'🧪 TEST' if TEST_MODE else '🚀 LIVE'}  |  Channel: {SLACK_CHANNEL}")
     print("=" * 60)
@@ -1508,12 +1508,10 @@ def main():
     google_blocks = build_google_report(g_camp, g_mtd, g_mtd_split, g_conv, g_search, g_auction, g_landing, g_geo, g_device, yesterday, kw_recs, comp_kw)
     post_slack(google_blocks, "MKV Google Ads Report")
 
-    print("\n📤 Posting Meta Ads report to Slack...")
-    meta_blocks = build_meta_report(meta, meta_mtd, meta_rto, meta_rto_mtd, meta_placement, meta_age_gender, yesterday)
-    post_slack(meta_blocks, "MKV Meta Ads Report")
+    # Meta report posted separately by mkv_meta_local.py
 
     print(f"\n  Google → AED {g_camp.get('cost',0):.2f} | {g_camp.get('clicks',0)} clicks | {g_camp.get('conversions',0)} conv")
-    print(f"  Meta   → AED {meta.get('spent',0):.2f} | {meta.get('results',0)} results")
+    print(f"  Meta   → Running separately via local script")
     print("\n✅  Done!\n")
 
 
