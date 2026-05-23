@@ -3134,6 +3134,28 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010079-ALDR-Lamborghini": {
+      "thread_ts": "1779543919.071019",
+      "end_date": "2026-05-27",
+      "plate": "C 63906",
+      "customer": "Aldrin Rigoberto Sharelton Martina",
+      "vehicle": "Lamborghini Urus  Se",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-05-23"
+    },
+    "0010078-ALSA-Lamborghini": {
+      "thread_ts": "1779543926.674169",
+      "end_date": "2026-05-31",
+      "plate": "C 63906",
+      "customer": "Alsaqr Alfadie Car Rental",
+      "vehicle": "Lamborghini Urus  Se",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-05-21"
     }
   }
 }
