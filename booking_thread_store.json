@@ -3104,6 +3104,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010076-BARA-Land Rover": {
+      "thread_ts": "1779524118.949669",
+      "end_date": "2026-06-22",
+      "plate": "94545",
+      "customer": "Barakath Ali Kibayathai",
+      "vehicle": "Land Rover Sport",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-05-23"
     }
   }
 }
