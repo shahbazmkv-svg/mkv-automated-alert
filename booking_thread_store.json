@@ -3144,7 +3144,11 @@
       "delivery_alerted": true,
       "pickup_alerted": false,
       "closed": false,
-      "start_date": "2026-05-23"
+      "start_date": "2026-05-23",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010078-ALSA-Lamborghini": {
       "thread_ts": "1779543926.674169",
@@ -3155,7 +3159,11 @@
       "delivery_alerted": true,
       "pickup_alerted": false,
       "closed": false,
-      "start_date": "2026-05-21"
+      "start_date": "2026-05-21",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     }
   }
 }
