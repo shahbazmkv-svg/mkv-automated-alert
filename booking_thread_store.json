@@ -3194,6 +3194,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010082-SAKA-Ford": {
+      "thread_ts": "1779630318.335049",
+      "end_date": "2026-05-28",
+      "plate": "26775",
+      "customer": "Sakar Ali Abdullah",
+      "vehicle": "Ford Ford Bronco",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-05-24"
     }
   }
 }
