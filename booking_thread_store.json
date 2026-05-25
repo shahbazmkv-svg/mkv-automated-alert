@@ -2867,12 +2867,12 @@
     },
     "009522-PAPA-Land Rover": {
       "thread_ts": "1779378320.276159",
-      "end_date": "2026-05-25",
+      "end_date": "2026-05-28",
       "plate": "78043",
       "customer": "Papa Momar",
       "vehicle": "Land Rover Defender",
       "delivery_alerted": true,
-      "pickup_alerted": true,
+      "pickup_alerted": false,
       "closed": false,
       "start_date": "2026-05-21",
       "delivery_ts": null,
@@ -2942,7 +2942,7 @@
     },
     "0010066-BEYA-GMC": {
       "thread_ts": "1779436827.196219",
-      "end_date": "2026-05-25",
+      "end_date": "2026-05-26",
       "plate": "69367",
       "customer": "Beyat Mohammed Abdulla Saeed Alfalasi",
       "vehicle": "Gmc Yukon",
