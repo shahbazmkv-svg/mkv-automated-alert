@@ -3284,6 +3284,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010088-NAKU-Lamborghini": {
+      "thread_ts": "1779707717.948669",
+      "end_date": "2026-05-26",
+      "plate": "72144",
+      "customer": "Nakulan Siji Siji Mohanan",
+      "vehicle": "Lamborghini Lamborghini Huracan",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-05-25"
     }
   }
 }
