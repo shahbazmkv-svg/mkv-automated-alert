@@ -12,14 +12,13 @@ SLACK_BOT_TOKEN    = os.environ["SLACK_BOT_TOKEN"]
 CHANNEL_BOOKINGS   = "C0ABPC606F7"   # #mkv-bookings (live)
 CHANNEL_TEST       = "C0AVCCCG0S0"   # #mkvtest
 
-TEST_MODE          = False
+TEST_MODE          = True
 TARGET_CHANNEL     = CHANNEL_TEST if TEST_MODE else CHANNEL_BOOKINGS
 
-APPIC_BOOKINGS_URL  = "https://www.appicfleet.com/appiccar-apis-mkv/get-mkv-bookings.php"
-APPIC_CHECKINOUT_URL= "https://www.appicfleet.com/appiccar-apis-mkv/get-mkv-checkin-checkout.php"
-STORE_FILE          = "booking_thread_store.json"
-DUBAI_TZ            = timezone(timedelta(hours=4))
-SLACK_HEADERS       = {
+APPIC_BOOKINGS_URL = "https://www.appicfleet.com/appiccar-apis-mkv/get-mkv-bookings.php"
+STORE_FILE         = "booking_thread_store.json"
+DUBAI_TZ           = timezone(timedelta(hours=4))
+SLACK_HEADERS      = {
     "Authorization": f"Bearer {SLACK_BOT_TOKEN}",
     "Content-Type": "application/json"
 }
@@ -71,7 +70,6 @@ def save_store(store):
 
 def post_message(channel, blocks, text, thread_ts=None):
     payload = {"channel": channel, "text": text, "blocks": blocks}
-               "unfurl_links": False, "unfurl_media": False}
     if thread_ts:
         payload["thread_ts"] = thread_ts
     try:
@@ -124,87 +122,113 @@ def extract(b):
         dur_str = f"{dur} day{'s' if dur != 1 else ''}"
     except:
         dur_str = "N/A"
+
+    # ── FINANCIALS ──────────────────────────────────────────────────
     try:
-        grand_total  = float(b.get("grandTotal", 0) or b.get("amount", 0) or 0)
-        amt_wo_vat   = float(b.get("amountWithoutVat", 0) or 0)
-        vat_val      = float(b.get("vatAmount", 0) or 0)
-        zero_dep_val = float(b.get("zeroDepositFee", 0) or 0)
-        addon_val    = float(b.get("addOnCharges", 0) or 0)
-        advance_val  = float(b.get("advanceReceived", 0) or 0)
-        balance_val  = grand_total - advance_val
+        rental_val   = float(b.get("baseRental")       or b.get("amount")          or 0)
+        zero_dep_val = float(b.get("cardooAmount")     or b.get("zeroDepositFee")  or 0)
+        delivery_val = float(b.get("deliveryCharges")  or b.get("dropoffCharge")   or 0)
+        pickup_val   = float(b.get("pickupCharges")    or b.get("pickupCharge")    or 0)
+        babyseat_val = float(b.get("babySeatCharges")  or b.get("babyseatCharge")  or 0)
+        addon_val    = float(b.get("addOnCharges")     or 0)
 
-        # Fallback: reverse-calculate if Appic doesn't return amountWithoutVat
-        if amt_wo_vat == 0 and grand_total > 0:
-            amt_wo_vat = round(grand_total / 1.05, 0)
-            vat_val    = grand_total - amt_wo_vat
+        # Grand total and VAT — direct from Appic
+        grand_total  = float(b.get("total")            or b.get("grandTotal")      or b.get("amount") or 0)
+        vat_val      = float(b.get("vatAmount")        or round(grand_total * 5 / 105, 0))
+        wo_vat_val   = float(b.get("amountWithoutVat") or round(grand_total / 1.05, 0))
+        advance_val  = float(b.get("advancePayment")   or b.get("advanceReceived") or 0)
+        deposit_val  = float(b.get("deposit")          or 0)
+        paid_val     = float(b.get("paidInTotal")      or 0)
+        balance_val  = grand_total - paid_val if paid_val > 0 else grand_total - advance_val
 
-        rental_amt   = f"AED {grand_total:,.0f}"   if grand_total > 0 else "TBC"
-        zero_dep_str = f"AED {zero_dep_val:,.0f}"  if zero_dep_val > 0 else "—"
-        addon_str    = f"AED {addon_val:,.0f}"      if addon_val > 0 else "—"
-        total_wo_vat = f"AED {amt_wo_vat:,.0f}"    if amt_wo_vat > 0 else "TBC"
-        vat_str      = f"AED {vat_val:,.0f}"        if vat_val > 0 else "—"
-        grand_str    = f"AED {grand_total:,.0f}"    if grand_total > 0 else "TBC"
-        advance_str  = f"AED {advance_val:,.0f}"
-        balance_str  = f"AED {balance_val:,.0f}"
-        total_amt    = grand_str
+        def amt(v): return f"AED {v:,.0f}" if v > 0 else "—"
+
+        rental_str       = amt(rental_val)
+        zero_dep_str     = amt(zero_dep_val)
+        delivery_str     = amt(delivery_val)
+        pickup_str       = amt(pickup_val)
+        babyseat_str     = amt(babyseat_val)
+        addon_str        = amt(addon_val)
+        wo_vat_str       = f"AED {wo_vat_val:,.0f}"   if wo_vat_val   > 0 else "TBC"
+        vat_str          = f"AED {vat_val:,.0f}"       if vat_val      > 0 else "—"
+        grand_str        = f"AED {grand_total:,.0f}"   if grand_total  > 0 else "TBC"
+        advance_str      = amt(advance_val)
+        deposit_str      = amt(deposit_val)
+        balance_str      = f"AED {balance_val:,.0f}"   if balance_val  > 0 else "—"
     except:
-        rental_amt   = "TBC"
-        zero_dep_str = "—"
-        addon_str    = "—"
-        total_wo_vat = "TBC"
-        vat_str      = "—"
-        grand_str    = "TBC"
-        advance_str  = "—"
-        balance_str  = "—"
-        total_amt    = "TBC"
+        rental_str = zero_dep_str = delivery_str = pickup_str = "—"
+        babyseat_str = addon_str = wo_vat_str = vat_str = "—"
+        grand_str = advance_str = deposit_str = balance_str = "TBC"
 
-    # KM Allowed — parse from remarks (e.g. "125 KM PER DAY")
+    # ── LOCATION ─────────────────────────────────────────────────────
+    location = (
+        b.get("deliveryLocation") or
+        b.get("pickupLocation")   or
+        b.get("dropoffLocation")  or
+        b.get("address")          or "—"
+    ).strip() or "—"
+
+    # ── KM ALLOWED ───────────────────────────────────────────────────
     import re as _re
-    remarks_raw = (b.get("remarks") or "").upper()
-    km_match    = _re.search(r'(\d+)\s*KM\s*PER\s*DAY', remarks_raw)
-    if km_match:
-        try:
-            daily_km    = int(km_match.group(1))
-            km_allowed  = f"{daily_km * max(dur, 1)} KM  ({daily_km} KM/day)"
-        except:
-            km_allowed  = f"{km_match.group(1)} KM/day"
-    else:
-        api_km = str(b.get("kmAllowed") or b.get("allowedKm") or "").strip()
-        km_allowed = f"{api_km} KM" if api_km and api_km != "0" else "—"
+    # Try Appic field first (dailyKmsLimit from UI)
+    daily_km_api = str(b.get("dailyKmsLimit") or b.get("kmAllowed") or b.get("allowedKm") or "").strip()
+    remarks_raw  = (b.get("remarks") or "").upper()
+    km_match     = _re.search(r'(\d+)\s*KM\s*(?:PER\s*DAY|\/DAY)?', remarks_raw)
 
-    pickup_loc  = (b.get("pickupLocation")  or "").strip()
-    dropoff_loc = (b.get("dropoffLocation") or "").strip()
-    location    = pickup_loc or dropoff_loc or "—"
-    status      = (b.get("status") or "confirmed").lower()
+    if daily_km_api and daily_km_api not in ("0", ""):
+        try:
+            km_allowed = f"{int(daily_km_api) * max(dur, 1)} KM  ({daily_km_api} KM/day)"
+        except:
+            km_allowed = f"{daily_km_api} KM/day"
+    elif km_match:
+        try:
+            daily_km   = int(km_match.group(1))
+            km_allowed = f"{daily_km * max(dur, 1)} KM  ({daily_km} KM/day)"
+        except:
+            km_allowed = f"{km_match.group(1)} KM/day"
+    else:
+        km_allowed = "—"
+
+    # ── EXTRA KM CHARGE ──────────────────────────────────────────────
+    extra_km_rate = str(b.get("extraKmCharge") or b.get("extraKmRate") or "").strip()
+    extra_km_str  = f"AED {float(extra_km_rate):,.0f}/KM" if extra_km_rate and extra_km_rate != "0" else "—"
+
+    # ── STATUS ───────────────────────────────────────────────────────
+    status = (b.get("status") or "confirmed").lower().strip()
 
     return {
-        "agr_no":       (b.get("contractID")     or "—").strip(),
-        "customer":     (b.get("customerName")   or "N/A").strip().title(),
-        "mobile":       (b.get("mobile")         or "N/A").strip(),
-        "email":        (b.get("clientEmail")    or "—").strip(),
-        "lead_source":  (b.get("leadSource")     or "—").strip(),
-        "agent":        (b.get("salesAgent")     or "—").strip(),
-        "vehicle":      (b.get("vehicleName")    or "N/A").strip().title(),
-        "plate":        (b.get("vehiclePlate")   or "N/A").strip(),
-        "start":        start,
-        "end":          end,
-        "s_time":       s_time,
-        "e_time":       e_time,
-        "dur_str":      dur_str,
-        "location":     location,
-        "rental_amt":   rental_amt,
-        "zero_dep":     zero_dep_str,
-        "addon":        addon_str,
-        "total_wo_vat": total_wo_vat,
-        "vat":          vat_str,
-        "total_amt":    grand_str,
-        "advance":      advance_str,
-        "balance":      balance_str,
-        "pay_mode":     (b.get("paymentMode")    or "—").strip(),
-        "km_allowed":   km_allowed,
-        "remarks":      (b.get("remarks")        or "—").strip() or "—",
-        "status":       status,
-        "status_label": "DRAFT" if status == "draft" else "CONFIRMED",
+        "agr_no":        (b.get("contractID")     or "—").strip(),
+        "customer":      (b.get("customerName")   or "N/A").strip().title(),
+        "mobile":        (b.get("mobile")         or b.get("phone") or "N/A").strip(),
+        "email":         (b.get("clientEmail")    or b.get("email") or "—").strip(),
+        "lead_source":   (b.get("source")         or b.get("leadSource") or "—").strip(),
+        "agent":         (b.get("salesAgent")     or b.get("salesAgentName") or "—").strip(),
+        "vehicle":       (b.get("vehicleName")    or "N/A").strip().title(),
+        "plate":         (b.get("vehiclePlate")   or "N/A").strip(),
+        "start":         start,
+        "end":           end,
+        "s_time":        s_time,
+        "e_time":        e_time,
+        "dur_str":       dur_str,
+        "location":      location,
+        "rental_amt":    rental_str,
+        "zero_dep":      zero_dep_str,
+        "delivery":      delivery_str,
+        "pickup_fee":    pickup_str,
+        "babyseat":      babyseat_str,
+        "addon":         addon_str,
+        "wo_vat":        wo_vat_str,
+        "vat":           vat_str,
+        "grand_total":   grand_str,
+        "advance":       advance_str,
+        "deposit":       deposit_str,
+        "balance":       balance_str,
+        "pay_mode":      (b.get("paymentMode")    or "—").strip(),
+        "km_allowed":    km_allowed,
+        "extra_km_rate": extra_km_str,
+        "remarks":       (b.get("remarks")        or "—").strip() or "—",
+        "status":        status,
+        "status_label":  "DRAFT" if status == "draft" else "CONFIRMED",
     }
 
 # ─────────────────────────────────────────────
@@ -227,20 +251,28 @@ def build_booking_card(f, now_str):
         f"{'Start':<14}: {fmt_date(f['start'])}  {f['s_time']}\n"
         f"{'End':<14}: {fmt_date(f['end'])}  {f['e_time']}\n"
         f"{'Duration':<14}: {f['dur_str']}\n"
-        f"{'Location':<14}: {f['location']}\n"
+        f"{'Delivery To':<14}: {f['location']}\n"
         f"{'─' * 36}\n"
-        f"{'Rental':<14}: {f['rental_amt']}\n"
-        f"{'Zero Deposit':<14}: {f['zero_dep']}\n"
-        f"{'Add-ons':<14}: {f['addon']}\n"
+        + (f"{'Rental':<14}: {f['rental_amt']}\n"       if f['rental_amt']   != '—' else "")
+        + (f"{'Zero Deposit':<14}: {f['zero_dep']}\n"   if f['zero_dep']     != '—' else "")
+        + (f"{'Delivery':<14}: {f['delivery']}\n"       if f['delivery']     != '—' else "")
+        + (f"{'Pickup Fee':<14}: {f['pickup_fee']}\n"   if f['pickup_fee']   != '—' else "")
+        + (f"{'Baby Seat':<14}: {f['babyseat']}\n"      if f['babyseat']     != '—' else "")
+        + (f"{'Add-ons':<14}: {f['addon']}\n"           if f['addon']        != '—' else "")
+        +
         f"{'─' * 36}\n"
-        f"{'Total w/o VAT':<14}: {f['total_wo_vat']}\n"
+        f"{'Amt w/o VAT':<14}: {f['wo_vat']}\n"
         f"{'VAT 5%':<14}: {f['vat']}\n"
-        f"{'Grand Total':<14}: {f['total_amt']}\n"
+        f"{'Grand Total':<14}: {f['grand_total']}\n"
         f"{'─' * 36}\n"
         f"{'Advance':<14}: {f['advance']}\n"
+        + (f"{'Deposit':<14}: {f['deposit']}\n"         if f['deposit']      != '—' else "")
+        +
         f"{'Balance':<14}: {f['balance']}\n"
         f"{'Payment Mode':<14}: {f['pay_mode']}\n"
         f"{'KM Allowed':<14}: {f['km_allowed']}\n"
+        + (f"{'Extra KM Rate':<14}: {f['extra_km_rate']}\n" if f['extra_km_rate'] != '—' else "")
+        +
         f"{'─' * 36}\n"
         f"{'Remarks':<14}: {f['remarks']}\n"
         f"{'─' * 36}\n"
@@ -418,151 +450,6 @@ def build_contract_closed(f, now_str):
 
 
 # ─────────────────────────────────────────────
-#  DOCUMENT FETCH & UPLOAD
-# ─────────────────────────────────────────────
-
-# Map of Appic field name → friendly label shown in Slack
-DOC_FIELDS = [
-    ("passportFile",       "Passport"),
-    ("passportExpiry",     "Passport Expiry"),
-    ("licenseFile",        "Driving Licence"),
-    ("licenseExpiry",      "Licence Expiry"),
-    ("emiratesIdFile",     "Emirates ID"),
-    ("emiratesIdExpiry",   "Emirates ID Expiry"),
-    ("visaFile",           "Visa"),
-    ("otherDoc",           "Other Document"),
-]
-
-def fetch_documents(agr_no, start_date, end_date):
-    """
-    Call get-mkv-checkin-checkout with direction=Out to retrieve
-    document URLs attached to this contract.
-    Returns list of (label, url) tuples for non-empty URLs.
-    """
-    try:
-        r = requests.post(
-            APPIC_CHECKINOUT_URL,
-            data={
-                "key":       APPIC_KEY,
-                "startDate": start_date,
-                "endDate":   end_date,
-                "direction": "Out",
-            },
-            timeout=15
-        )
-        r.raise_for_status()
-        data    = r.json()
-        records = data.get("data", data.get("checkinout", data.get("records", [])))
-        print(f"  Checkin/out API: {len(records)} records for docs")
-
-        # Find the record matching this contract
-        for rec in records:
-            cid = str(rec.get("contractID") or rec.get("agrNo") or "").strip()
-            if cid == agr_no:
-                docs = []
-                for field, label in DOC_FIELDS:
-                    url = str(rec.get(field) or "").strip()
-                    if url and url.startswith("http"):
-                        docs.append((label, url))
-                print(f"  Found {len(docs)} docs for {agr_no}")
-                return docs
-
-        print(f"  No checkin/out record found for {agr_no}")
-        return []
-    except Exception as e:
-        print(f"  fetch_documents error: {e}")
-        return []
-
-
-def upload_file_to_slack(channel, thread_ts, filename, file_bytes, filetype="auto"):
-    """
-    Upload a file to Slack using the v2 upload API.
-    Returns True on success.
-    """
-    try:
-        # Step 1 — get upload URL
-        r1 = requests.post(
-            "https://slack.com/api/files.getUploadURLExternal",
-            headers={"Authorization": f"Bearer {SLACK_BOT_TOKEN}"},
-            data={"filename": filename, "length": len(file_bytes)},
-            timeout=15
-        )
-        d1 = r1.json()
-        if not d1.get("ok"):
-            print(f"  getUploadURL error: {d1.get('error')}")
-            return False
-        upload_url = d1["upload_url"]
-        file_id    = d1["file_id"]
-
-        # Step 2 — upload bytes
-        r2 = requests.post(upload_url, data=file_bytes, timeout=30)
-        if r2.status_code not in (200, 201):
-            print(f"  Upload PUT failed: {r2.status_code}")
-            return False
-
-        # Step 3 — complete upload and share to channel/thread
-        r3 = requests.post(
-            "https://slack.com/api/files.completeUploadExternal",
-            headers={"Authorization": f"Bearer {SLACK_BOT_TOKEN}",
-                     "Content-Type": "application/json"},
-            json={
-                "files":    [{"id": file_id, "title": filename}],
-                "channel_id": channel,
-                "thread_ts":  thread_ts,
-            },
-            timeout=15
-        )
-        d3 = r3.json()
-        if not d3.get("ok"):
-            print(f"  completeUpload error: {d3.get('error')}")
-            return False
-        return True
-    except Exception as e:
-        print(f"  upload_file_to_slack error: {e}")
-        return False
-
-
-def post_documents(channel, thread_ts, agr_no, customer, docs):
-    """
-    Post a DOCUMENTS header message then upload each doc file into the thread.
-    """
-    if not docs:
-        print(f"  No documents to post for {agr_no}")
-        return
-
-    # Header message
-    post_message(channel, [
-        {"type": "section", "text": {"type": "mrkdwn",
-            "text": f"📎 *DOCUMENTS*\nAGR#: {agr_no} | {customer}"}},
-    ], f"Documents: {agr_no}", thread_ts=thread_ts)
-
-    # Upload each document
-    for label, url in docs:
-        try:
-            print(f"  Downloading: {label} — {url}")
-            r = requests.get(url, timeout=20)
-            if r.status_code != 200:
-                print(f"  Download failed ({r.status_code}): {url}")
-                continue
-            content_type = r.headers.get("Content-Type", "")
-            if "pdf" in content_type:
-                ext = ".pdf"
-            elif "png" in content_type:
-                ext = ".png"
-            elif "jpeg" in content_type or "jpg" in content_type:
-                ext = ".jpg"
-            else:
-                ext = ""
-            filename = f"{label.replace(' ', '_')}{ext}"
-            size_kb  = len(r.content) // 1024
-            print(f"  Uploading: {filename} ({size_kb} kB)")
-            ok = upload_file_to_slack(channel, thread_ts, filename, r.content)
-            print(f"  Upload {'OK' if ok else 'FAILED'}: {filename}")
-        except Exception as e:
-            print(f"  Document upload error for {label}: {e}")
-
-
-# ─────────────────────────────────────────────
 #  MAIN
 # ─────────────────────────────────────────────
 def main():
@@ -633,11 +520,6 @@ def main():
                     "start_date":       start,
                 }
                 print(f"  Booking card posted — thread: {ts}")
-
-                # Post documents in thread
-                docs = fetch_documents(f["agr_no"], start, end)
-                post_documents(TARGET_CHANNEL, ts, f["agr_no"], f["customer"], docs)
-
                 d_blocks, d_text = build_delivery_checklist(f, now_str)
                 d_ts = post_message(TARGET_CHANNEL, d_blocks, d_text, thread_ts=ts)
                 if d_ts:
