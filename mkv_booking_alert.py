@@ -10,18 +10,83 @@ APPIC_KEY          = os.environ["APPIC_KEY"]
 SLACK_BOT_TOKEN    = os.environ["SLACK_BOT_TOKEN"]
 
 CHANNEL_BOOKINGS   = "C0ABPC606F7"   # #mkv-bookings (live)
-CHANNEL_TEST       = "C0B0TGBDCDU"   # #mkv-test-automation
+CHANNEL_DELIVERY   = "C0ABLDUAZ0B"   # #mkv-delivery
+CHANNEL_TEST       = "C0B0TGBDCDU"   # #mkvtest
 
 TEST_MODE          = False
 TARGET_CHANNEL     = CHANNEL_TEST if TEST_MODE else CHANNEL_BOOKINGS
+TARGET_DELIVERY    = CHANNEL_TEST if TEST_MODE else CHANNEL_DELIVERY
 
-APPIC_BOOKINGS_URL = "https://www.appicfleet.com/appiccar-apis-mkv/get-mkv-bookings.php"
-STORE_FILE         = "booking_thread_store.json"
-DUBAI_TZ           = timezone(timedelta(hours=4))
-SLACK_HEADERS      = {
+APPIC_BOOKINGS_URL  = "https://www.appicfleet.com/appiccar-apis-mkv/get-mkv-bookings.php"
+APPIC_CHECKINOUT_URL= "https://www.appicfleet.com/appiccar-apis-mkv/get-mkv-checkin-checkout.php"
+CHANNEL_SCHEDULE    = "C0ACB9C8J01"   # #mkv-schedule-for-delivery
+STORE_FILE          = "booking_thread_store.json"
+DUBAI_TZ            = timezone(timedelta(hours=4))
+SLACK_HEADERS       = {
     "Authorization": f"Bearer {SLACK_BOT_TOKEN}",
     "Content-Type": "application/json"
 }
+
+# ─────────────────────────────────────────────
+#  DOCUMENT HELPERS
+# ─────────────────────────────────────────────
+DOC_FIELDS = [
+    ("passportFile",     "Passport"),
+    ("passportExpiry",   "Passport Expiry"),
+    ("licenseFile",      "Driving Licence"),
+    ("licenseExpiry",    "Licence Expiry"),
+    ("emiratesIdFile",   "Emirates ID"),
+    ("visaFile",         "Visa"),
+]
+
+def fetch_documents(agr_no, start_date, end_date):
+    try:
+        r = requests.post(APPIC_CHECKINOUT_URL,
+            data={"key": APPIC_KEY, "startDate": start_date, "endDate": end_date, "direction": "Out"},
+            timeout=15)
+        records = r.json().get("data", r.json().get("records", []))
+        for rec in records:
+            cid = str(rec.get("contractID") or rec.get("agrNo") or "").strip()
+            if cid == agr_no:
+                return [(label, str(rec.get(field) or "").strip())
+                        for field, label in DOC_FIELDS
+                        if str(rec.get(field) or "").strip().startswith("http")]
+        return []
+    except Exception as e:
+        print(f"  fetch_documents error: {e}")
+        return []
+
+def upload_file_to_slack(channel, thread_ts, filename, file_bytes):
+    try:
+        headers = {"Authorization": f"Bearer {SLACK_BOT_TOKEN}"}
+        r1 = requests.post("https://slack.com/api/files.getUploadURLExternal",
+            headers=headers, data={"filename": filename, "length": len(file_bytes)}, timeout=15)
+        d1 = r1.json()
+        if not d1.get("ok"): return False
+        requests.post(d1["upload_url"], data=file_bytes, timeout=30)
+        r3 = requests.post("https://slack.com/api/files.completeUploadExternal",
+            headers={**headers, "Content-Type": "application/json"},
+            json={"files": [{"id": d1["file_id"]}], "channel_id": channel, "thread_ts": thread_ts},
+            timeout=15)
+        return r3.json().get("ok", False)
+    except Exception as e:
+        print(f"  upload error: {e}")
+        return False
+
+def post_documents(channel, thread_ts, agr_no, customer, docs):
+    if not docs: return
+    post_message(channel, [
+        {"type": "section", "text": {"type": "mrkdwn",
+            "text": f"📎 *DOCUMENTS*\nAGR#: {agr_no} | {customer}"}}
+    ], f"Documents: {agr_no}", thread_ts=thread_ts)
+    for label, url in docs:
+        try:
+            r = requests.get(url, timeout=20)
+            if r.status_code != 200: continue
+            ext = ".pdf" if "pdf" in r.headers.get("Content-Type","") else ".jpg"
+            upload_file_to_slack(channel, thread_ts, f"{label.replace(' ','_')}{ext}", r.content)
+        except Exception as e:
+            print(f"  doc upload error {label}: {e}")
 
 def dubai_now():
     return datetime.now(DUBAI_TZ)
@@ -123,41 +188,34 @@ def extract(b):
     except:
         dur_str = "N/A"
     try:
-        amt_val      = float(b.get("amount", 0)           or 0)
-        zero_dep_v   = float(b.get("zeroDepositFee", 0)   or 0)
-        delivery_v   = float(b.get("dropoffCharge", 0)    or 0)
-        pickup_v     = float(b.get("pickupCharge", 0)     or 0)
-        babyseat_v   = float(b.get("babyseatCharge", 0)   or 0)
-        insurance_v  = float(b.get("insurance", 0)        or 0)
-        chauffeur_v  = float(b.get("chauffeurCharge", 0)  or 0)
-        addon_v      = float(b.get("addOnCharges", 0)     or 0)
-        api_vat      = float(b.get("vatAmount", 0)        or 0)
-        grand_total  = float(b.get("grandTotal", 0)       or 0)
-        excl_vat     = float(b.get("amountWithoutVat", 0) or 0)
-        advance      = float(b.get("advanceReceived", 0)  or 0)
+        amt_val    = float(b.get("amount", 0) or 0)
+        zero_dep_v = float(b.get("zeroDepositFee", 0) or 0)
+        addon_val  = float(b.get("addOnCharges", 0) or 0)
+        # VAT = 5% of (Rental + Zero Deposit + Add-ons)
+        vat_base   = amt_val + zero_dep_v + addon_val
+        api_vat    = float(b.get("vatAmount", 0) or 0)
+        vat_val    = api_vat if api_vat > 0 else round(vat_base * 0.05, 2)
+        # Use Appic grandTotal directly
+        grand_total = float(b.get("grandTotal", 0) or 0)
+        advance     = float(b.get("advanceReceived", 0) or 0)
+        # Recalculate components for display
+        vat_base    = amt_val + zero_dep_v + addon_val
+        api_vat     = float(b.get("vatAmount", 0) or 0)
+        vat_val     = api_vat if api_vat > 0 else round(vat_base * 0.05, 2)
+        # Use grandTotal if available, else calculate
+        total       = grand_total if grand_total > 0 else (amt_val + zero_dep_v + addon_val + vat_val)
+        balance     = total - advance
 
-        total        = grand_total if grand_total > 0 else (amt_val + zero_dep_v + delivery_v + pickup_v + babyseat_v + insurance_v + chauffeur_v + addon_v + api_vat)
-        balance      = total - advance
-
-        def fmt(v): return f"AED {v:,.0f}" if v > 0 else "—"
-
-        rental_amt    = fmt(amt_val)     if amt_val    > 0 else "TBC"
-        zero_dep_amt  = fmt(zero_dep_v)
-        delivery_amt  = fmt(delivery_v)
-        pickup_amt    = fmt(pickup_v)
-        babyseat_amt  = fmt(babyseat_v)
-        insurance_amt = fmt(insurance_v)
-        chauffeur_amt = fmt(chauffeur_v)
-        addon_amt     = fmt(addon_v)
-        vat_amt       = fmt(api_vat)
-        excl_vat_amt  = fmt(excl_vat)
-        total_amt     = fmt(total)       if total     > 0 else "TBC"
-        advance_amt   = fmt(advance)
-        balance_amt   = fmt(balance)     if balance   > 0 else "—"
+        rental_amt  = f"AED {amt_val:,.0f}"    if amt_val   > 0 else "TBC"
+        zero_dep_amt= f"AED {zero_dep_v:,.0f}" if zero_dep_v> 0 else "—"
+        addon_amt   = f"AED {addon_val:,.0f}"  if addon_val > 0 else "—"
+        vat_amt     = f"AED {vat_val:,.0f}"    if vat_val   > 0 else "—"
+        advance_amt = f"AED {advance:,.0f}"    if advance   > 0 else "—"
+        balance_amt = f"AED {balance:,.0f}"    if balance   > 0 else "—"
+        total_amt   = f"AED {total:,.0f}"      if total     > 0 else "TBC"
     except:
-        rental_amt = zero_dep_amt = delivery_amt = pickup_amt = babyseat_amt = "—"
-        insurance_amt = chauffeur_amt = addon_amt = vat_amt = excl_vat_amt = advance_amt = balance_amt = "—"
-        total_amt = "TBC"
+        rental_amt = zero_dep_amt = addon_amt = vat_amt = advance_amt = balance_amt = "—"
+        total_amt  = "TBC"
 
     pickup_loc  = (b.get("pickupLocation")  or "").strip()
     dropoff_loc = (b.get("dropoffLocation") or "").strip()
@@ -192,109 +250,21 @@ def extract(b):
         "location":     location,
         "rental_amt":   rental_amt,
         "zero_dep":     zero_dep_amt,
-        "delivery":     delivery_amt,
-        "pickup_chg":   pickup_amt,
-        "babyseat":     babyseat_amt,
-        "insurance":    insurance_amt,
-        "chauffeur":    chauffeur_amt,
         "addon":        addon_amt,
         "vat":          vat_amt,
-        "excl_vat":     excl_vat_amt,
         "total_amt":    total_amt,
         "advance":      advance_amt,
         "balance":      balance_amt,
-        "pay_mode":     (b.get("paymentMode")    or "—").strip(),    
-        "km_allowed":   (lambda api_km, r: (
-                            f"{int(float(api_km))} KM" if api_km and float(api_km) > 0
-                            else next(
-                                (w.rstrip("S") + " KM" for w in r.upper().replace("KMS","KM").replace("KM"," KM ").split()
-                                 if w.rstrip("S").isdigit() and 50 < int(w.rstrip("S")) <= 1000),
-                                "—"
-                                )
-                            ))(str(b.get("dailyKmsLimit") or b.get("kmAllowed") or b.get("allowedKm") or "0"), b.get("remarks", "") or ""),
+        "pay_mode":     (b.get("paymentMode")    or "—").strip(),
+        "km_allowed":   (lambda r: next(
+                            (w.rstrip("S") + " KM" for w in r.upper().replace("KMS","KM").replace("KM"," KM ").split()
+                             if w.rstrip("S").isdigit() and 50 < int(w.rstrip("S")) <= 1000),
+                            "—"
+                        ))(b.get("remarks", "") or ""),
         "remarks":      (b.get("remarks")        or "—").strip() or "—",
         "status":       status,
         "status_label": "DRAFT" if status == "draft" else "CONFIRMED",
     }
-
-# ─────────────────────────────────────────────
-#  DOCUMENT UPLOAD
-# ─────────────────────────────────────────────
-
-def upload_file_to_slack(channel, thread_ts, filename, content):
-    try:
-        r1 = requests.get(
-            "https://slack.com/api/files.getUploadURLExternal",
-            headers=SLACK_HEADERS,
-            params={"filename": filename, "length": len(content)},
-            timeout=10
-        )
-        d1 = r1.json()
-        if not d1.get("ok"):
-            print(f"  getUploadURL failed: {d1.get('error')}")
-            return False
-        upload_url = d1["upload_url"]
-        file_id    = d1["file_id"]
-
-        r2 = requests.post(upload_url, data=content, timeout=30)
-        if r2.status_code != 200:
-            print(f"  Upload PUT failed: {r2.status_code}")
-            return False
-
-        r3 = requests.post(
-            "https://slack.com/api/files.completeUploadExternal",
-            headers=SLACK_HEADERS,
-            json={"files": [{"id": file_id}], "channel_id": channel, "thread_ts": thread_ts},
-            timeout=10
-        )
-        d3 = r3.json()
-        if not d3.get("ok"):
-            print(f"  completeUpload failed: {d3.get('error')}")
-            return False
-        return True
-    except Exception as e:
-        print(f"  upload_file_to_slack error: {e}")
-        return False
-
-
-def post_documents(b, agr_no, customer, channel, thread_ts):
-    DOC_FIELDS = [
-        ("passportImg",      "Passport"),
-        ("passportExpImg",   "Passport Expiry"),
-        ("licenseImg",       "Driving Licence"),
-        ("licenseExpiryImg", "Licence Expiry"),
-        ("tradeLicenseImg",  "Trade Licence"),
-    ]
-    docs = []
-    for field, label in DOC_FIELDS:
-        url = str(b.get(field) or "").strip()
-        if url and url.startswith("http"):
-            docs.append((label, url))
-
-    if not docs:
-        print(f"  No documents found for {agr_no}")
-        return
-
-    post_message(channel, [
-        {"type": "section", "text": {"type": "mrkdwn",
-            "text": f"*DOCUMENTS*\nAGR#: {agr_no} | {customer}"}}
-    ], f"Documents: {agr_no}", thread_ts=thread_ts)
-
-    for label, url in docs:
-        try:
-            print(f"  Downloading: {label}")
-            r = requests.get(url, timeout=20)
-            if r.status_code != 200:
-                print(f"  Download failed ({r.status_code}): {url}")
-                continue
-            ct  = r.headers.get("Content-Type", "")
-            ext = ".pdf" if "pdf" in ct else ".png" if "png" in ct else ".jpg"
-            filename = f"{agr_no}_{label.replace(' ', '_')}{ext}"
-            ok = upload_file_to_slack(channel, thread_ts, filename, r.content)
-            print(f"  Upload {'OK' if ok else 'FAILED'}: {filename}")
-        except Exception as e:
-            print(f"  Doc upload error {label}: {e}")
-
 
 # ─────────────────────────────────────────────
 #  MESSAGE BUILDERS
@@ -320,18 +290,10 @@ def build_booking_card(f, now_str):
         f"{'Delivery To':<14}: {f['location']}\n"
         f"{'─' * 36}\n"
         f"{'Rental':<14}: {f['rental_amt']}\n"
-        + (f"{'Zero Deposit':<14}: {f['zero_dep']}\n"  if f['zero_dep']  != '—' else "")
-        + (f"{'Delivery':<14}: {f['delivery']}\n"      if f['delivery']  != '—' else "")
-        + (f"{'Pickup':<14}: {f['pickup_chg']}\n"      if f['pickup_chg']!= '—' else "")
-        + (f"{'Baby Seat':<14}: {f['babyseat']}\n"     if f['babyseat']  != '—' else "")
-        + (f"{'Insurance':<14}: {f['insurance']}\n"    if f['insurance'] != '—' else "")
-        + (f"{'Chauffeur':<14}: {f['chauffeur']}\n"    if f['chauffeur'] != '—' else "")
-        + (f"{'Add-ons':<14}: {f['addon']}\n"          if f['addon']     != '—' else "")
-        + f"{'─' * 36}\n"
-        f"{'Total w/o VAT':<14}: {f['excl_vat']}\n"
-        f"{'VAT 5%':<14}: {f['vat']}\n"
-        f"{'Grand Total':<14}: {f['total_amt']}\n"
-        f"{'─' * 36}\n"
+        f"{'Zero Deposit':<14}: {f['zero_dep']}\n"
+        f"{'Add-on':<14}: {f['addon']}\n"
+        f"{'VAT (5%)':<14}: {f['vat']}\n"
+        f"{'Total':<14}: {f['total_amt']}\n"
         f"{'Advance':<14}: {f['advance']}\n"
         f"{'Balance':<14}: {f['balance']}\n"
         f"{'Payment Mode':<14}: {f['pay_mode']}\n"
@@ -386,13 +348,6 @@ def build_booking_card(f, now_str):
                     "type": "button",
                     "text": {"type": "plain_text", "text": "🔑  Pickup"},
                     "action_id": "open_pickup",
-                    "value": booking_data
-                },
-                {
-                    "type": "button",
-                    "text": {"type": "plain_text", "text": "🗑️  Delete"},
-                    "style": "danger",
-                    "action_id": "delete_thread",
                     "value": booking_data
                 },
             ]
@@ -618,7 +573,17 @@ def main():
                     "start_date":       start,
                 }
                 print(f"  Booking card posted — thread: {ts}")
-                post_documents(b, f["agr_no"], f["customer"], TARGET_CHANNEL, ts)
+
+                # Post documents in thread
+                docs = fetch_documents(f["agr_no"], start, end)
+                post_documents(TARGET_CHANNEL, ts, f["agr_no"], f["customer"], docs)
+
+                # Same-day booking → also post to #mkv-schedule-for-delivery
+                today = now.strftime("%Y-%m-%d")
+                if start == today and not TEST_MODE:
+                    post_message(CHANNEL_SCHEDULE, blocks, text)
+                    print(f"  Same-day → posted to #mkv-schedule-for-delivery")
+
                 d_blocks, d_text = build_delivery_checklist(f, now_str)
                 d_ts = post_message(TARGET_CHANNEL, d_blocks, d_text, thread_ts=ts)
                 if d_ts:
@@ -638,9 +603,11 @@ def main():
 
             if end and old_end and end != old_end and end > old_end:
                 print(f"  EXTENSION: {customer} | {plate} | {old_end} -> {end}")
+                # Update end date in store — no extension card posted
                 bookings[key]["end_date"]       = end
                 bookings[key]["pickup_alerted"] = False
                 if thread_ts:
+                    # Post a simple extension note in the booking thread
                     try:
                         import datetime as _dt
                         days = (_dt.datetime.strptime(end, "%Y-%m-%d") - _dt.datetime.strptime(old_end, "%Y-%m-%d")).days
