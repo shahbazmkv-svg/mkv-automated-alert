@@ -3224,6 +3224,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010084-ALHA-Ferrari": {
+      "thread_ts": "1779668119.838639",
+      "end_date": "2026-06-03",
+      "plate": "97019",
+      "customer": "Alhasson, Walid Abdullaha",
+      "vehicle": "Ferrari Purosangue",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-05-25"
     }
   }
 }
