@@ -9,10 +9,11 @@ from datetime import datetime, timezone, timedelta
 APPIC_KEY          = os.environ["APPIC_KEY"]
 SLACK_BOT_TOKEN    = os.environ["SLACK_BOT_TOKEN"]
 
-CHANNEL_BOOKINGS   = "C0ABPC606F7"   # #mkv-bookings (live)
+CHANNEL_BOOKINGS   = "C0ABPC606F7"   # #mkv-bookings (ROOT)
+CHANNEL_SCHEDULE   = "C0ACB9C8J01"   # #mkv-schedule-for-delivery
 CHANNEL_TEST       = "C0AVCCCG0S0"   # #mkvtest
 
-TEST_MODE          = True
+TEST_MODE          = False
 TARGET_CHANNEL     = CHANNEL_TEST if TEST_MODE else CHANNEL_BOOKINGS
 
 APPIC_BOOKINGS_URL = "https://www.appicfleet.com/appiccar-apis-mkv/get-mkv-bookings.php"
@@ -520,6 +521,17 @@ def main():
                     "start_date":       start,
                 }
                 print(f"  Booking card posted — thread: {ts}")
+
+                # Fetch and post documents in thread
+                docs = fetch_documents(f["agr_no"], start, end)
+                post_documents(TARGET_CHANNEL, ts, f["agr_no"], f["customer"], docs)
+
+                # Same-day booking → also post to #mkv-schedule-for-delivery
+                today = dubai_now().strftime("%Y-%m-%d")
+                if start == today and not TEST_MODE:
+                    print(f"  Same-day booking → posting to #mkv-schedule-for-delivery")
+                    post_message(CHANNEL_SCHEDULE, blocks, text)
+
                 d_blocks, d_text = build_delivery_checklist(f, now_str)
                 d_ts = post_message(TARGET_CHANNEL, d_blocks, d_text, thread_ts=ts)
                 if d_ts:
