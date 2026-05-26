@@ -161,3 +161,5 @@ def fetch_bookings():
                 post_documents(TARGET_CHANNEL, ts, f["agr_no"], f["customer"], docs)
                 # Fetch and post Appic customer documents in the booking thread.
                 post_documents(b, f["agr_no"], f["customer"], TARGET_CHANNEL, ts)
+
+fix: merge booking bot buttons and documents
