@@ -10,83 +10,20 @@ APPIC_KEY          = os.environ["APPIC_KEY"]
 SLACK_BOT_TOKEN    = os.environ["SLACK_BOT_TOKEN"]
 
 CHANNEL_BOOKINGS   = "C0ABPC606F7"   # #mkv-bookings (live)
-CHANNEL_DELIVERY   = "C0ABLDUAZ0B"   # #mkv-delivery
+CHANNEL_DELIVERY   = "C0ACB9C8J01"   # #mkv-schedule-for-delivery (live)
 CHANNEL_TEST       = "C0B0TGBDCDU"   # #mkvtest
 
 TEST_MODE          = False
 TARGET_CHANNEL     = CHANNEL_TEST if TEST_MODE else CHANNEL_BOOKINGS
 TARGET_DELIVERY    = CHANNEL_TEST if TEST_MODE else CHANNEL_DELIVERY
 
-APPIC_BOOKINGS_URL  = "https://www.appicfleet.com/appiccar-apis-mkv/get-mkv-bookings.php"
-APPIC_CHECKINOUT_URL= "https://www.appicfleet.com/appiccar-apis-mkv/get-mkv-checkin-checkout.php"
-CHANNEL_SCHEDULE    = "C0ACB9C8J01"   # #mkv-schedule-for-delivery
-STORE_FILE          = "booking_thread_store.json"
-DUBAI_TZ            = timezone(timedelta(hours=4))
-SLACK_HEADERS       = {
+APPIC_BOOKINGS_URL = "https://www.appicfleet.com/appiccar-apis-mkv/get-mkv-bookings.php"
+STORE_FILE         = "booking_thread_store.json"
+DUBAI_TZ           = timezone(timedelta(hours=4))
+SLACK_HEADERS      = {
     "Authorization": f"Bearer {SLACK_BOT_TOKEN}",
     "Content-Type": "application/json"
 }
-
-# ─────────────────────────────────────────────
-#  DOCUMENT HELPERS
-# ─────────────────────────────────────────────
-DOC_FIELDS = [
-    ("passportFile",     "Passport"),
-    ("passportExpiry",   "Passport Expiry"),
-    ("licenseFile",      "Driving Licence"),
-    ("licenseExpiry",    "Licence Expiry"),
-    ("emiratesIdFile",   "Emirates ID"),
-    ("visaFile",         "Visa"),
-]
-
-def fetch_documents(agr_no, start_date, end_date):
-    try:
-        r = requests.post(APPIC_CHECKINOUT_URL,
-            data={"key": APPIC_KEY, "startDate": start_date, "endDate": end_date, "direction": "Out"},
-            timeout=15)
-        records = r.json().get("data", r.json().get("records", []))
-        for rec in records:
-            cid = str(rec.get("contractID") or rec.get("agrNo") or "").strip()
-            if cid == agr_no:
-                return [(label, str(rec.get(field) or "").strip())
-                        for field, label in DOC_FIELDS
-                        if str(rec.get(field) or "").strip().startswith("http")]
-        return []
-    except Exception as e:
-        print(f"  fetch_documents error: {e}")
-        return []
-
-def upload_file_to_slack(channel, thread_ts, filename, file_bytes):
-    try:
-        headers = {"Authorization": f"Bearer {SLACK_BOT_TOKEN}"}
-        r1 = requests.post("https://slack.com/api/files.getUploadURLExternal",
-            headers=headers, data={"filename": filename, "length": len(file_bytes)}, timeout=15)
-        d1 = r1.json()
-        if not d1.get("ok"): return False
-        requests.post(d1["upload_url"], data=file_bytes, timeout=30)
-        r3 = requests.post("https://slack.com/api/files.completeUploadExternal",
-            headers={**headers, "Content-Type": "application/json"},
-            json={"files": [{"id": d1["file_id"]}], "channel_id": channel, "thread_ts": thread_ts},
-            timeout=15)
-        return r3.json().get("ok", False)
-    except Exception as e:
-        print(f"  upload error: {e}")
-        return False
-
-def post_documents(channel, thread_ts, agr_no, customer, docs):
-    if not docs: return
-    post_message(channel, [
-        {"type": "section", "text": {"type": "mrkdwn",
-            "text": f"📎 *DOCUMENTS*\nAGR#: {agr_no} | {customer}"}}
-    ], f"Documents: {agr_no}", thread_ts=thread_ts)
-    for label, url in docs:
-        try:
-            r = requests.get(url, timeout=20)
-            if r.status_code != 200: continue
-            ext = ".pdf" if "pdf" in r.headers.get("Content-Type","") else ".jpg"
-            upload_file_to_slack(channel, thread_ts, f"{label.replace(' ','_')}{ext}", r.content)
-        except Exception as e:
-            print(f"  doc upload error {label}: {e}")
 
 def dubai_now():
     return datetime.now(DUBAI_TZ)
@@ -510,11 +447,20 @@ def build_contract_closed(f, now_str):
 #  MAIN
 # ─────────────────────────────────────────────
 def main():
+    # ── DEACTIVATED ──────────────────────────────
+    # This script is retired. Use mkv_booking_bot.py
+    print("=" * 56)
+    print("  mkv_booking_alert.py is DEACTIVATED")
+    print("  Use mkv_booking_bot.py instead")
+    print("=" * 56)
+    return
+    # ─────────────────────────────────────────────
+
     now      = dubai_now()
     now_str  = now.strftime("%d %b %Y | %I:%M %p Dubai Time")
     tomorrow = (now + timedelta(days=1)).strftime("%Y-%m-%d")
 
-    SEED_MODE = False
+    SEED_MODE = True
 
     print("=" * 56)
     print("  MKV BOOKING BOT")
@@ -560,6 +506,8 @@ def main():
             print(f"  NEW: {customer} | {plate} | {start} | {f['status_label']}")
             blocks, text = build_booking_card(f, now_str)
             ts = post_message(TARGET_CHANNEL, blocks, text)
+            # Also post to #mkv-schedule-for-delivery
+            post_message(TARGET_DELIVERY, blocks, text)
             if ts:
                 bookings[key] = {
                     "thread_ts":        ts,
@@ -573,17 +521,6 @@ def main():
                     "start_date":       start,
                 }
                 print(f"  Booking card posted — thread: {ts}")
-
-                # Post documents in thread
-                docs = fetch_documents(f["agr_no"], start, end)
-                post_documents(TARGET_CHANNEL, ts, f["agr_no"], f["customer"], docs)
-
-                # Same-day booking → also post to #mkv-schedule-for-delivery
-                today = now.strftime("%Y-%m-%d")
-                if start == today and not TEST_MODE:
-                    post_message(CHANNEL_SCHEDULE, blocks, text)
-                    print(f"  Same-day → posted to #mkv-schedule-for-delivery")
-
                 d_blocks, d_text = build_delivery_checklist(f, now_str)
                 d_ts = post_message(TARGET_CHANNEL, d_blocks, d_text, thread_ts=ts)
                 if d_ts:
