@@ -473,6 +473,15 @@ def build_booking_card(f, now_str):
 
 def build_schedule_delivery_notice(f, now_str, booking_channel, booking_ts):
     thread_link = f"https://slack.com/app_redirect?channel={booking_channel}&message_ts={booking_ts}"
+    booking_data = json.dumps({
+        "id": f["agr_no"],
+        "car": f"{f['vehicle']} [{f['plate']}]",
+        "date": fmt_date(f["start"]),
+        "time": f["s_time"],
+        "location": f["location"],
+        "driver": "",
+        "out_km": "",
+    })
     body = (
         f"```\n"
         f"{'AGR#':<14}: {f['agr_no']}\n"
@@ -494,6 +503,14 @@ def build_schedule_delivery_notice(f, now_str, booking_channel, booking_ts):
          "text": {"type": "mrkdwn", "text": body}},
         {"type": "section",
          "text": {"type": "mrkdwn", "text": f"<{thread_link}|Open full booking thread>"}},
+        {"type": "actions",
+         "elements": [
+             {"type": "button",
+              "text": {"type": "plain_text", "text": "Delivery"},
+              "style": "primary",
+              "action_id": "open_delivery",
+              "value": booking_data},
+         ]},
     ]
     return blocks, f"Schedule delivery: {f['customer']} | {f['vehicle']} ({f['plate']})"
 
