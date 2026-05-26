@@ -1,11 +1,6 @@
 name: Keep Alive
 
 on:
-  schedule:
-    # Daily ads report: 09:30 UTC = 1:30 PM Dubai time (Mon–Sun)
-    - cron: '30 9 * * *'
-    # Weekly optimizer: 04:00 UTC = 08:00 AM Dubai time (Monday only)
-    - cron: '0 4 * * 1'
   workflow_dispatch:
     inputs:
       job:
@@ -20,23 +15,9 @@ on:
           - website-snapshot
           - pickup-alert
           - booking-bot
-          - ads-snapshot
-          - weekly
-      test_mode:
-        description: 'TEST mode for weekly optimizer? (posts to #mkv-test-automation)'
-        required: false
-        default: 'false'
-        type: choice
-        options:
-          - 'false'
-          - 'true'
-
-permissions:
-  contents: write
 
 jobs:
 
-  # ══════════════════════════════════════════════════════════════════════════
   fleet-availability:
     if: github.event.inputs.job == 'fleet-availability' || github.event.inputs.job == 'all'
     runs-on: ubuntu-latest
@@ -47,7 +28,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - run: pip install requests pytz --break-system-packages
+      - run: pip install requests pytz Pillow --break-system-packages
       - name: Run Fleet Availability
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
@@ -61,7 +42,6 @@ jobs:
           git commit --allow-empty -m "chore: fleet availability ran $(date +'%Y-%m-%d')"
           git push
 
-  # ══════════════════════════════════════════════════════════════════════════
   daily-leads:
     if: github.event.inputs.job == 'daily-leads' || github.event.inputs.job == 'all'
     runs-on: ubuntu-latest
@@ -90,7 +70,6 @@ jobs:
           git diff --staged --quiet || git commit -m "chore: leads + MTD store updated $(date +'%Y-%m-%d')"
           git push || true
 
-  # ══════════════════════════════════════════════════════════════════════════
   website-snapshot:
     if: github.event.inputs.job == 'website-snapshot' || github.event.inputs.job == 'all'
     runs-on: ubuntu-latest
@@ -114,7 +93,6 @@ jobs:
           git commit --allow-empty -m "chore: website snapshot ran $(date +'%Y-%m-%d')"
           git push
 
-  # ══════════════════════════════════════════════════════════════════════════
   pickup-alert:
     if: github.event.inputs.job == 'pickup-alert' || github.event.inputs.job == 'all'
     runs-on: ubuntu-latest
@@ -139,7 +117,6 @@ jobs:
           git commit --allow-empty -m "chore: pickup alert ran $(date +'%Y-%m-%d')"
           git push
 
-  # ══════════════════════════════════════════════════════════════════════════
   booking-bot:
     if: github.event.inputs.job == 'booking-bot' || github.event.inputs.job == 'all'
     runs-on: ubuntu-latest
@@ -151,8 +128,6 @@ jobs:
         with:
           python-version: '3.11'
       - run: pip install requests pytz --break-system-packages
-      - name: Fix store
-        run: python3 fix_store.py
       - name: Run Booking Bot
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
@@ -162,93 +137,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add booking_thread_store.json || true
+          git add booking_thread_store.json booking_alert_store.json || true
           git pull --rebase origin main || true
           git commit -m "chore: booking bot store $(date +'%Y-%m-%d %H:%M')" || true
-          git push || git pull --rebase origin main && git push || true
-
-  # ══════════════════════════════════════════════════════════════════════════
-  # DAILY ADS REPORT — runs every day at 1:30 PM Dubai via cron
-  # or manually via 'ads-snapshot'
-  # ══════════════════════════════════════════════════════════════════════════
-  ads-snapshot:
-    name: Daily Ads Snapshot
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    if: |
-      (github.event_name == 'schedule' && github.event.schedule == '30 9 * * *') ||
-      (github.event_name == 'workflow_dispatch' && (github.event.inputs.job == 'ads-snapshot' || github.event.inputs.job == 'all'))
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-          cache: 'pip'
-      - run: pip install -r requirements.txt
-      - name: Run Daily Ads Report
-        env:
-          SLACK_BOT_TOKEN:              ${{ secrets.SLACK_BOT_TOKEN }}
-          GOOGLE_ADS_DEVELOPER_TOKEN:   ${{ secrets.GOOGLE_ADS_DEVELOPER_TOKEN }}
-          GOOGLE_ADS_CLIENT_ID:         ${{ secrets.GOOGLE_ADS_CLIENT_ID }}
-          GOOGLE_ADS_CLIENT_SECRET:     ${{ secrets.GOOGLE_ADS_CLIENT_SECRET }}
-          GOOGLE_ADS_REFRESH_TOKEN:     ${{ secrets.GOOGLE_ADS_REFRESH_TOKEN }}
-          GOOGLE_ADS_CUSTOMER_ID:       ${{ secrets.GOOGLE_ADS_CUSTOMER_ID }}
-          GOOGLE_ADS_LOGIN_CUSTOMER_ID: ${{ secrets.GOOGLE_ADS_LOGIN_CUSTOMER_ID }}
-          GMAIL_ADDRESS:                ${{ secrets.GMAIL_ADDRESS }}
-          GMAIL_APP_PASSWORD:           ${{ secrets.GMAIL_APP_PASSWORD }}
-          META_TOKEN:                   ${{ secrets.META_TOKEN }}
-        run: python mkv_ads_api_report.py
-
-  # ══════════════════════════════════════════════════════════════════════════
-  # WEEKLY OPTIMIZER — runs every Monday at 08:00 AM Dubai via cron
-  # or manually via 'weekly'
-  # ══════════════════════════════════════════════════════════════════════════
-  weekly-optimizer:
-    name: Weekly Optimizer
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-    if: |
-      (github.event_name == 'schedule' && github.event.schedule == '0 4 * * 1') ||
-      (github.event_name == 'workflow_dispatch' && github.event.inputs.job == 'weekly')
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-          cache: 'pip'
-      - run: pip install -r requirements.txt
-
-      - name: Restore weekly store (WoW delta)
-        uses: actions/cache@v4
-        with:
-          path: mkv_weekly_store.json
-          key: mkv-weekly-store-${{ github.run_id }}
-          restore-keys: |
-            mkv-weekly-store-
-
-      - name: Run Weekly Optimizer
-        env:
-          SLACK_BOT_TOKEN:              ${{ secrets.SLACK_BOT_TOKEN }}
-          GOOGLE_ADS_DEVELOPER_TOKEN:   ${{ secrets.GOOGLE_ADS_DEVELOPER_TOKEN }}
-          GOOGLE_ADS_CLIENT_ID:         ${{ secrets.GOOGLE_ADS_CLIENT_ID }}
-          GOOGLE_ADS_CLIENT_SECRET:     ${{ secrets.GOOGLE_ADS_CLIENT_SECRET }}
-          GOOGLE_ADS_REFRESH_TOKEN:     ${{ secrets.GOOGLE_ADS_REFRESH_TOKEN }}
-          GOOGLE_ADS_CUSTOMER_ID:       ${{ secrets.GOOGLE_ADS_CUSTOMER_ID }}
-          GOOGLE_ADS_LOGIN_CUSTOMER_ID: ${{ secrets.GOOGLE_ADS_LOGIN_CUSTOMER_ID }}
-          GALLABOX_ACCOUNT_ID:          ${{ secrets.GALLABOX_ACCOUNT_ID }}
-          GALLABOX_API_KEY:             ${{ secrets.GALLABOX_API_KEY }}
-          GALLABOX_API_SECRET:          ${{ secrets.GALLABOX_API_SECRET }}
-          META_TOKEN:                   ${{ secrets.META_TOKEN }}
-          TEST_MODE:                    ${{ github.event.inputs.test_mode || 'false' }}
-        run: python mkv_weekly_optimizer.py
-
-      - name: Save weekly store
-        if: always()
-        uses: actions/cache@v4
-        with:
-          path: mkv_weekly_store.json
-          key: mkv-weekly-store-${{ github.run_id }}
+          git push || true
