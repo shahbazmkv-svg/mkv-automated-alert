@@ -1965,7 +1965,7 @@
       "customer": "Amrinder Singh Sandhu",
       "vehicle": "Ford Mustang Convertible",
       "delivery_alerted": true,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-05-27"
     }
