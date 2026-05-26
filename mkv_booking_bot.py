@@ -3,9 +3,9 @@ import json
 import os
 from datetime import datetime, timezone, timedelta
 
-# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ---------------------------------------------
 #  CONFIG
-# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ---------------------------------------------
 APPIC_KEY          = os.environ["APPIC_KEY"]
 SLACK_BOT_TOKEN    = os.environ["SLACK_BOT_TOKEN"]
 
@@ -37,9 +37,9 @@ def fmt_date(d):
 def fmt_amount(v):
     try:
         f = float(v)
-        return f"AED {f:,.0f}" if f > 0 else "â€”"
+        return f"AED {f:,.0f}" if f > 0 else "-"
     except:
-        return "â€”"
+        return "-"
 
 def fmt_amount_zero(v):
     """Always show AED value including zero"""
@@ -271,7 +271,7 @@ def extract(b):
     except:
         dur_str = "N/A"
 
-    # â”€â”€ FINANCIALS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # FINANCIALS
     try:
         rental_val   = float(b.get("baseRental")       or b.get("amount")          or 0)
         zero_dep_val = float(b.get("cardooAmount")     or b.get("zeroDepositFee")  or 0)
@@ -280,7 +280,7 @@ def extract(b):
         babyseat_val = float(b.get("babySeatCharges")  or b.get("babyseatCharge")  or 0)
         addon_val    = float(b.get("addOnCharges")     or 0)
 
-        # Grand total and VAT â€” direct from Appic
+        # Grand total and VAT - direct from Appic
         grand_total  = float(b.get("total")            or b.get("grandTotal")      or b.get("amount") or 0)
         vat_val      = float(b.get("vatAmount")        or round(grand_total * 5 / 105, 0))
         wo_vat_val   = float(b.get("amountWithoutVat") or round(grand_total / 1.05, 0))
@@ -289,7 +289,7 @@ def extract(b):
         paid_val     = float(b.get("paidInTotal")      or 0)
         balance_val  = grand_total - paid_val if paid_val > 0 else grand_total - advance_val
 
-        def amt(v): return f"AED {v:,.0f}" if v > 0 else "â€”"
+        def amt(v): return f"AED {v:,.0f}" if v > 0 else "-"
 
         rental_str       = amt(rental_val)
         zero_dep_str     = amt(zero_dep_val)
@@ -298,25 +298,25 @@ def extract(b):
         babyseat_str     = amt(babyseat_val)
         addon_str        = amt(addon_val)
         wo_vat_str       = f"AED {wo_vat_val:,.0f}"   if wo_vat_val   > 0 else "TBC"
-        vat_str          = f"AED {vat_val:,.0f}"       if vat_val      > 0 else "â€”"
+        vat_str          = f"AED {vat_val:,.0f}"       if vat_val      > 0 else "-"
         grand_str        = f"AED {grand_total:,.0f}"   if grand_total  > 0 else "TBC"
         advance_str      = amt(advance_val)
         deposit_str      = amt(deposit_val)
-        balance_str      = f"AED {balance_val:,.0f}"   if balance_val  > 0 else "â€”"
+        balance_str      = f"AED {balance_val:,.0f}"   if balance_val  > 0 else "-"
     except:
-        rental_str = zero_dep_str = delivery_str = pickup_str = "â€”"
-        babyseat_str = addon_str = wo_vat_str = vat_str = "â€”"
+        rental_str = zero_dep_str = delivery_str = pickup_str = "-"
+        babyseat_str = addon_str = wo_vat_str = vat_str = "-"
         grand_str = advance_str = deposit_str = balance_str = "TBC"
 
-    # â”€â”€ LOCATION â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # LOCATION
     location = (
         b.get("deliveryLocation") or
         b.get("pickupLocation")   or
         b.get("dropoffLocation")  or
-        b.get("address")          or "â€”"
-    ).strip() or "â€”"
+        b.get("address")          or "-"
+    ).strip() or "-"
 
-    # â”€â”€ KM ALLOWED â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # KM ALLOWED
     import re as _re
     # Try Appic field first (dailyKmsLimit from UI)
     daily_km_api = str(b.get("dailyKmsLimit") or b.get("kmAllowed") or b.get("allowedKm") or "").strip()
@@ -335,22 +335,22 @@ def extract(b):
         except:
             km_allowed = f"{km_match.group(1)} KM/day"
     else:
-        km_allowed = "â€”"
+        km_allowed = "-"
 
-    # â”€â”€ EXTRA KM CHARGE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # EXTRA KM CHARGE
     extra_km_rate = str(b.get("extraKmCharge") or b.get("extraKmRate") or "").strip()
-    extra_km_str  = f"AED {float(extra_km_rate):,.0f}/KM" if extra_km_rate and extra_km_rate != "0" else "â€”"
+    extra_km_str  = f"AED {float(extra_km_rate):,.0f}/KM" if extra_km_rate and extra_km_rate != "0" else "-"
 
-    # â”€â”€ STATUS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # STATUS
     status = (b.get("status") or "confirmed").lower().strip()
 
     return {
-        "agr_no":        (b.get("contractID")     or "â€”").strip(),
+        "agr_no":        (b.get("contractID")     or "-").strip(),
         "customer":      (b.get("customerName")   or "N/A").strip().title(),
         "mobile":        (b.get("mobile")         or b.get("phone") or "N/A").strip(),
-        "email":         (b.get("clientEmail")    or b.get("email") or "â€”").strip(),
-        "lead_source":   (b.get("source")         or b.get("leadSource") or "â€”").strip(),
-        "agent":         (b.get("salesAgent")     or b.get("salesAgentName") or "â€”").strip(),
+        "email":         (b.get("clientEmail")    or b.get("email") or "-").strip(),
+        "lead_source":   (b.get("source")         or b.get("leadSource") or "-").strip(),
+        "agent":         (b.get("salesAgent")     or b.get("salesAgentName") or "-").strip(),
         "vehicle":       (b.get("vehicleName")    or "N/A").strip().title(),
         "plate":         (b.get("vehiclePlate")   or "N/A").strip(),
         "start":         start,
@@ -371,59 +371,59 @@ def extract(b):
         "advance":       advance_str,
         "deposit":       deposit_str,
         "balance":       balance_str,
-        "pay_mode":      (b.get("paymentMode")    or "â€”").strip(),
+        "pay_mode":      (b.get("paymentMode")    or "-").strip(),
         "km_allowed":    km_allowed,
         "extra_km_rate": extra_km_str,
-        "remarks":       (b.get("remarks")        or "â€”").strip() or "â€”",
+        "remarks":       (b.get("remarks")        or "-").strip() or "-",
         "status":        status,
         "status_label":  "DRAFT" if status == "draft" else "CONFIRMED",
     }
 
-# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ---------------------------------------------
 #  MESSAGE BUILDERS
-# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ---------------------------------------------
 def build_booking_card(f, now_str):
     body = (
         f"```\n"
         f"{'AGR#':<14}: {f['agr_no']}\n"
         f"{'Status':<14}: {f['status_label']}\n"
-        f"{'â”€' * 36}\n"
+        f"{'-' * 36}\n"
         f"{'Customer':<14}: {f['customer']}\n"
         f"{'Mobile':<14}: {f['mobile']}\n"
         f"{'Email':<14}: {f['email']}\n"
         f"{'Lead Source':<14}: {f['lead_source']}\n"
         f"{'Sales Agent':<14}: {f['agent']}\n"
-        f"{'â”€' * 36}\n"
+        f"{'-' * 36}\n"
         f"{'Vehicle':<14}: {f['vehicle']}\n"
         f"{'Plate':<14}: {f['plate']}\n"
         f"{'Start':<14}: {fmt_date(f['start'])}  {f['s_time']}\n"
         f"{'End':<14}: {fmt_date(f['end'])}  {f['e_time']}\n"
         f"{'Duration':<14}: {f['dur_str']}\n"
         f"{'Delivery To':<14}: {f['location']}\n"
-        f"{'â”€' * 36}\n"
-        + (f"{'Rental':<14}: {f['rental_amt']}\n"       if f['rental_amt']   != 'â€”' else "")
-        + (f"{'Zero Deposit':<14}: {f['zero_dep']}\n"   if f['zero_dep']     != 'â€”' else "")
-        + (f"{'Delivery':<14}: {f['delivery']}\n"       if f['delivery']     != 'â€”' else "")
-        + (f"{'Pickup Fee':<14}: {f['pickup_fee']}\n"   if f['pickup_fee']   != 'â€”' else "")
-        + (f"{'Baby Seat':<14}: {f['babyseat']}\n"      if f['babyseat']     != 'â€”' else "")
-        + (f"{'Add-ons':<14}: {f['addon']}\n"           if f['addon']        != 'â€”' else "")
+        f"{'-' * 36}\n"
+        + (f"{'Rental':<14}: {f['rental_amt']}\n"       if f['rental_amt']   != '-' else "")
+        + (f"{'Zero Deposit':<14}: {f['zero_dep']}\n"   if f['zero_dep']     != '-' else "")
+        + (f"{'Delivery':<14}: {f['delivery']}\n"       if f['delivery']     != '-' else "")
+        + (f"{'Pickup Fee':<14}: {f['pickup_fee']}\n"   if f['pickup_fee']   != '-' else "")
+        + (f"{'Baby Seat':<14}: {f['babyseat']}\n"      if f['babyseat']     != '-' else "")
+        + (f"{'Add-ons':<14}: {f['addon']}\n"           if f['addon']        != '-' else "")
         +
-        f"{'â”€' * 36}\n"
+        f"{'-' * 36}\n"
         f"{'Amt w/o VAT':<14}: {f['wo_vat']}\n"
         f"{'VAT 5%':<14}: {f['vat']}\n"
         f"{'Grand Total':<14}: {f['grand_total']}\n"
-        f"{'â”€' * 36}\n"
+        f"{'-' * 36}\n"
         f"{'Advance':<14}: {f['advance']}\n"
-        + (f"{'Deposit':<14}: {f['deposit']}\n"         if f['deposit']      != 'â€”' else "")
+        + (f"{'Deposit':<14}: {f['deposit']}\n"         if f['deposit']      != '-' else "")
         +
         f"{'Balance':<14}: {f['balance']}\n"
         f"{'Payment Mode':<14}: {f['pay_mode']}\n"
         f"{'KM Allowed':<14}: {f['km_allowed']}\n"
-        + (f"{'Extra KM Rate':<14}: {f['extra_km_rate']}\n" if f['extra_km_rate'] != 'â€”' else "")
+        + (f"{'Extra KM Rate':<14}: {f['extra_km_rate']}\n" if f['extra_km_rate'] != '-' else "")
         +
-        f"{'â”€' * 36}\n"
+        f"{'-' * 36}\n"
         f"{'Remarks':<14}: {f['remarks']}\n"
-        f"{'â”€' * 36}\n"
+        f"{'-' * 36}\n"
         f"{'Delivery':<14}: PENDING\n"
         f"{'Pickup':<14}: PENDING\n"
         f"```"
@@ -439,7 +439,7 @@ def build_booking_card(f, now_str):
     })
     blocks = [
         {"type": "header",
-         "text": {"type": "plain_text", "text": "NEW BOOKING â€” MKV CAR RENTAL"}},
+         "text": {"type": "plain_text", "text": "NEW BOOKING - MKV CAR RENTAL"}},
         {"type": "context",
          "elements": [{"type": "mrkdwn",
              "text": f"Detected: {now_str}  |  Auto-alert via GitHub Actions"}]},
@@ -449,12 +449,12 @@ def build_booking_card(f, now_str):
         {"type": "actions",
          "elements": [
              {"type": "button",
-              "text": {"type": "plain_text", "text": "ðŸš—  Delivery"},
+              "text": {"type": "plain_text", "text": "Delivery"},
               "style": "primary",
               "action_id": "open_delivery",
               "value": booking_data},
              {"type": "button",
-              "text": {"type": "plain_text", "text": "ðŸ”‘  Pickup"},
+              "text": {"type": "plain_text", "text": "Pickup"},
               "action_id": "open_pickup",
               "value": booking_data},
          ]},
@@ -577,7 +577,7 @@ def build_pickup_checklist(f, now_str):
     )
     blocks = [
         {"type": "header",
-         "text": {"type": "plain_text", "text": "PICKUP CHECKLIST â€” DUE TOMORROW"}},
+         "text": {"type": "plain_text", "text": "PICKUP CHECKLIST - DUE TOMORROW"}},
         {"type": "context",
          "elements": [{"type": "mrkdwn", "text": info}]},
         {"type": "divider"},
@@ -603,8 +603,8 @@ def build_contract_closed(f, now_str):
         f"{'End':<14}: {fmt_date(f['end'])}  {f['e_time']}\n"
         f"{'Duration':<14}: {f['dur_str']}\n"
         f"{'Total':<14}: {f['grand_total']}\n"
-        f"{'â”€' * 36}\n"
-        f"CONTRACT CLOSED â€” NO FURTHER ACTION REQUIRED\n"
+        f"{'-' * 36}\n"
+        f"CONTRACT CLOSED - NO FURTHER ACTION REQUIRED\n"
         f"```"
     )
     blocks = [
@@ -619,19 +619,19 @@ def build_contract_closed(f, now_str):
     return blocks, f"Closed: {f['customer']} | {f['vehicle']} ({f['plate']})"
 
 
-# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ---------------------------------------------
 #  MAIN
-# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ---------------------------------------------
 def main():
     now      = dubai_now()
     now_str  = now.strftime("%d %b %Y | %I:%M %p Dubai Time")
     tomorrow = (now + timedelta(days=1)).strftime("%Y-%m-%d")
 
-    # â”€â”€ SEED MODE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # SEED MODE
     # True  = stores all bookings silently (first run)
     # False = normal mode, posts new bookings
     SEED_MODE = False
-    # â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # -------------------------------------------
 
     print("=" * 56)
     print("  MKV BOOKING BOT")
@@ -691,7 +691,7 @@ def main():
                     "closed":           False,
                     "start_date":       start,
                 }
-                print(f"  Booking card posted â€” thread: {ts}")
+                print(f"  Booking card posted - thread: {ts}")
 
                 # Fetch and post Appic customer documents in the booking thread.
                 check_record = match_check_record(check_out_records + check_in_records, f)
@@ -752,7 +752,7 @@ def main():
     save_store(store)
 
     if SEED_MODE:
-        print(f"  SEED MODE ON â€” {len(bookings)} bookings stored silently")
+        print(f"  SEED MODE ON - {len(bookings)} bookings stored silently")
 
     print("=" * 56)
     print("  Done")
