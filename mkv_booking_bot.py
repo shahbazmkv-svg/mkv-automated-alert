@@ -17,6 +17,7 @@ TEST_MODE          = False
 TARGET_CHANNEL     = CHANNEL_TEST if TEST_MODE else CHANNEL_BOOKINGS
 
 APPIC_BOOKINGS_URL = "https://www.appicfleet.com/appiccar-apis-mkv/get-mkv-bookings.php"
+APPIC_CHECK_URL    = "https://www.appicfleet.com/appiccar-apis-mkv/get-mkv-checkin-checkout.php"
 STORE_FILE         = "booking_thread_store.json"
 DUBAI_TZ           = timezone(timedelta(hours=4))
 SLACK_HEADERS      = {
@@ -126,20 +127,37 @@ def upload_file_to_slack(channel, thread_ts, filename, content):
         print(f"  upload_file_to_slack error: {e}")
         return False
 
-def post_documents(b, agr_no, customer, channel, thread_ts):
+def find_first_url(item, names):
+    if not isinstance(item, dict):
+        return ""
+    wanted = {n.lower() for n in names}
+    for key, value in item.items():
+        key_norm = str(key).lower().replace("_", "").replace("-", "")
+        if key_norm in wanted:
+            url = str(value or "").strip()
+            if url.startswith("http"):
+                return url
+    for value in item.values():
+        if isinstance(value, dict):
+            url = find_first_url(value, names)
+            if url:
+                return url
+    return ""
+
+def post_documents(b, check_record, agr_no, customer, channel, thread_ts):
     doc_fields = [
-        ("passportImg", "Passport"),
-        ("passportExpImg", "Passport Expiry"),
-        ("licenseImg", "Driving Licence"),
-        ("licenseExpiryImg", "Licence Expiry"),
-        ("tradeLicenseImg", "Trade Licence"),
-        ("emiratesIdImg", "Emirates ID"),
-        ("visaImg", "Visa"),
+        ("Passport", ["passportimg", "passportimage", "passport", "passporturl"]),
+        ("Passport Expiry", ["passportexpimg", "passportexpiryimg", "passportexpiryimage", "passportexpiry"]),
+        ("Driving Licence", ["licenseimg", "licenceimg", "drivinglicenseimg", "drivinglicenceimg", "licenseimage"]),
+        ("Licence Expiry", ["licenseexpiryimg", "licenceexpiryimg", "licenseexpimg", "licenceexpimg"]),
+        ("Trade Licence", ["tradelicenseimg", "tradelicenceimg", "tradelicense"]),
+        ("Emirates ID", ["emiratesidimg", "emiratesidimage", "emiratesid"]),
+        ("Visa", ["visaimg", "visaimage", "visa"]),
     ]
     docs = []
-    for field, label in doc_fields:
-        url = str(b.get(field) or "").strip()
-        if url.startswith("http"):
+    for label, names in doc_fields:
+        url = find_first_url(check_record, names) or find_first_url(b, names)
+        if url:
             docs.append((label, url))
 
     if not docs:
@@ -188,6 +206,59 @@ def fetch_bookings():
     except Exception as e:
         print(f"  API error: {e}")
         return []
+
+def fetch_checkin_checkout(direction):
+    now = dubai_now()
+    start_date = (now - timedelta(days=30)).strftime("%Y-%m-%d")
+    end_date = (now + timedelta(days=60)).strftime("%Y-%m-%d")
+    try:
+        r = requests.post(
+            APPIC_CHECK_URL,
+            data={
+                "key": APPIC_KEY,
+                "startDate": start_date,
+                "endDate": end_date,
+                "direction": direction,
+            },
+            timeout=20
+        )
+        r.raise_for_status()
+        data = r.json()
+        if isinstance(data, dict):
+            records = (
+                data.get("data") or
+                data.get("bookings") or
+                data.get("records") or
+                data.get("checkinCheckout") or
+                data.get("checkins") or
+                data.get("checkouts") or
+                []
+            )
+        elif isinstance(data, list):
+            records = data
+        else:
+            records = []
+        print(f"  Appic {direction} returned {len(records)} records")
+        return records if isinstance(records, list) else []
+    except Exception as e:
+        print(f"  {direction} API error: {e}")
+        return []
+
+def match_check_record(records, f):
+    agr = str(f.get("agr_no") or "").strip().lower()
+    plate = str(f.get("plate") or "").strip().lower()
+    customer = str(f.get("customer") or "").strip().lower()
+    for item in records:
+        if not isinstance(item, dict):
+            continue
+        hay = " ".join(str(v or "") for v in item.values()).lower()
+        if agr and agr in hay:
+            return item
+        if plate and plate in hay:
+            return item
+        if customer and customer in hay:
+            return item
+    return {}
 
 def extract(b):
     start  = (b.get("startDate") or "").strip()
@@ -391,7 +462,7 @@ def build_booking_card(f, now_str):
          "elements": [{"type": "mrkdwn",
              "text": "All updates will appear in this thread"}]},
     ]
-    return blocks, f"New Booking: {f['customer']} | {f['vehicle']} ({f['plate']}) | {fmt_date(f['start'])} to {fmt_date(f['end'])} | {f['total_amt']}"
+    return blocks, f"New Booking: {f['customer']} | {f['vehicle']} ({f['plate']}) | {fmt_date(f['start'])} to {fmt_date(f['end'])} | {f['grand_total']}"
 
 
 def build_delivery_checklist(f, now_str):
@@ -401,7 +472,7 @@ def build_delivery_checklist(f, now_str):
         f"{'Customer'}: {f['customer']} | "
         f"{'Plate'}: {f['plate']} | "
         f"{'Date'}: {fmt_date(f['start'])} {f['s_time']} | "
-        f"{'Amount'}: {f['total_amt']}"
+        f"{'Amount'}: {f['grand_total']}"
     )
     # Message 2 - Driver reply template (prominent, easy to copy)
     reply = (
@@ -531,7 +602,7 @@ def build_contract_closed(f, now_str):
         f"{'Start':<14}: {fmt_date(f['start'])}  {f['s_time']}\n"
         f"{'End':<14}: {fmt_date(f['end'])}  {f['e_time']}\n"
         f"{'Duration':<14}: {f['dur_str']}\n"
-        f"{'Total':<14}: {f['total_amt']}\n"
+        f"{'Total':<14}: {f['grand_total']}\n"
         f"{'â”€' * 36}\n"
         f"CONTRACT CLOSED â€” NO FURTHER ACTION REQUIRED\n"
         f"```"
@@ -574,6 +645,8 @@ def main():
 
     print("  Fetching bookings from Appic...")
     all_bookings = fetch_bookings()
+    check_out_records = fetch_checkin_checkout("Out")
+    check_in_records = fetch_checkin_checkout("In")
 
     for b in all_bookings:
         key = booking_key(b)
@@ -621,7 +694,8 @@ def main():
                 print(f"  Booking card posted â€” thread: {ts}")
 
                 # Fetch and post Appic customer documents in the booking thread.
-                post_documents(b, f["agr_no"], f["customer"], TARGET_CHANNEL, ts)
+                check_record = match_check_record(check_out_records + check_in_records, f)
+                post_documents(b, check_record, f["agr_no"], f["customer"], TARGET_CHANNEL, ts)
 
                 # Same-day booking â†’ also post to #mkv-schedule-for-delivery
                 today = dubai_now().strftime("%Y-%m-%d")
