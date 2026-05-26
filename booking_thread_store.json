@@ -3329,6 +3329,28 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010092-ALI -Porsche": {
+      "thread_ts": "1779800427.228759",
+      "end_date": "2026-05-28",
+      "plate": "T / 1173",
+      "customer": "Ali Juma Ahmed Yousef Aljneibi",
+      "vehicle": "Porsche Gt3 Rs",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-05-26"
+    },
+    "0010091-RABI-Lotus": {
+      "thread_ts": "1779800427.893729",
+      "end_date": "2026-05-27",
+      "plate": "23652",
+      "customer": "Rabih Jamal El Sabaa",
+      "vehicle": "Lotus Lotus Emira",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-05-26"
     }
   }
 }
