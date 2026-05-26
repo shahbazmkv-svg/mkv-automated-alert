@@ -4,22 +4,10 @@ on:
   workflow_dispatch:
     inputs:
       job:
-        description: 'Which job to run'
+        description: 'Which job to run (all, fleet-availability, daily-leads, website-snapshot, pickup-alert, booking-bot)'
         required: false
         default: 'all'
-        type: choice
-        options:
-          - all
-          - fleet-availability
-          - daily-leads
-          - website-snapshot
-          - pickup-alert
-          - booking-bot
-          - ads-snapshot
-          - weekly-optimizer
-
-permissions:
-  contents: write
+        type: string
 
 jobs:
 
@@ -64,6 +52,7 @@ jobs:
           GALLABOX_API_KEY:    ${{ secrets.GALLABOX_API_KEY }}
           GALLABOX_API_SECRET: ${{ secrets.GALLABOX_API_SECRET }}
           GALLABOX_ACCOUNT_ID: ${{ secrets.GALLABOX_ACCOUNT_ID }}
+          WEBHOOK_LEADS:       ${{ secrets.WEBHOOK_LEADS }}
         run: python mkv_gallabox_snapshot.py
       - name: Save MTD store and keep repo active
         run: |
@@ -132,13 +121,11 @@ jobs:
         with:
           python-version: '3.11'
       - run: pip install requests pytz --break-system-packages
-      - name: Fix store
-        run: python3 fix_store.py
       - name: Run Booking Bot
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
           APPIC_KEY:       ${{ secrets.APPIC_KEY }}
-        run: python mkv_booking_alert.py
+        run: python mkv_booking_bot.py
       - name: Commit store updates
         run: |
           git config user.name "github-actions[bot]"
@@ -146,85 +133,4 @@ jobs:
           git add booking_thread_store.json || true
           git pull --rebase origin main || true
           git commit -m "chore: booking bot store $(date +'%Y-%m-%d %H:%M')" || true
-          git push || git pull --rebase origin main && git push || true
-
-  ads-snapshot:
-    if: github.event.inputs.job == 'ads-snapshot' || github.event.inputs.job == 'all'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-      - run: pip install requests pytz slack-sdk pandas openpyxl google-ads google-auth-oauthlib --break-system-packages
-      - name: Run Daily Ads Snapshot
-        env:
-          SLACK_BOT_TOKEN:                ${{ secrets.SLACK_BOT_TOKEN }}
-          GMAIL_ADDRESS:                  ${{ secrets.GMAIL_ADDRESS }}
-          GMAIL_APP_PASSWORD:             ${{ secrets.GMAIL_APP_PASSWORD }}
-          GOOGLE_ADS_DEVELOPER_TOKEN:     ${{ secrets.GOOGLE_ADS_DEVELOPER_TOKEN }}
-          GOOGLE_ADS_CLIENT_ID:           ${{ secrets.GOOGLE_ADS_CLIENT_ID }}
-          GOOGLE_ADS_CLIENT_SECRET:       ${{ secrets.GOOGLE_ADS_CLIENT_SECRET }}
-          GOOGLE_ADS_REFRESH_TOKEN:       ${{ secrets.GOOGLE_ADS_REFRESH_TOKEN }}
-          GOOGLE_ADS_CUSTOMER_ID:         ${{ secrets.GOOGLE_ADS_CUSTOMER_ID }}
-          GOOGLE_ADS_LOGIN_CUSTOMER_ID:   ${{ secrets.GOOGLE_ADS_LOGIN_CUSTOMER_ID }}
-          TEST_MODE:                      "false"
-          META_ACCESS_TOKEN:              ${{ secrets.META_ACCESS_TOKEN }}
-          META_AD_ACCOUNT_ID:             ${{ secrets.META_AD_ACCOUNT_ID }}
-        run: python "MKV Daily Ads Snapshot.py"
-      - name: Keep repo active
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git pull --rebase origin main || true
-          git commit --allow-empty -m "chore: ads snapshot ran $(date +'%Y-%m-%d')"
-          git push
-
-  weekly-optimizer:
-    if: github.event.inputs.job == 'weekly-optimizer' || github.event.inputs.job == 'all'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-      - run: pip install requests pytz slack-sdk pandas google-ads google-auth-oauthlib --break-system-packages
-      - name: Restore weekly store
-        uses: actions/cache@v4
-        with:
-          path: mkv_weekly_store.json
-          key: mkv-weekly-store-${{ github.run_id }}
-          restore-keys: |
-            mkv-weekly-store-
-      - name: Run Weekly Optimizer
-        env:
-          SLACK_BOT_TOKEN:                ${{ secrets.SLACK_BOT_TOKEN }}
-          GOOGLE_ADS_DEVELOPER_TOKEN:     ${{ secrets.GOOGLE_ADS_DEVELOPER_TOKEN }}
-          GOOGLE_ADS_CLIENT_ID:           ${{ secrets.GOOGLE_ADS_CLIENT_ID }}
-          GOOGLE_ADS_CLIENT_SECRET:       ${{ secrets.GOOGLE_ADS_CLIENT_SECRET }}
-          GOOGLE_ADS_REFRESH_TOKEN:       ${{ secrets.GOOGLE_ADS_REFRESH_TOKEN }}
-          GOOGLE_ADS_CUSTOMER_ID:         ${{ secrets.GOOGLE_ADS_CUSTOMER_ID }}
-          GOOGLE_ADS_LOGIN_CUSTOMER_ID:   ${{ secrets.GOOGLE_ADS_LOGIN_CUSTOMER_ID }}
-          META_ACCESS_TOKEN:              ${{ secrets.META_ACCESS_TOKEN }}
-          GALLABOX_API_KEY:               ${{ secrets.GALLABOX_API_KEY }}
-          GALLABOX_API_SECRET:            ${{ secrets.GALLABOX_API_SECRET }}
-          GALLABOX_ACCOUNT_ID:            ${{ secrets.GALLABOX_ACCOUNT_ID }}
-          TEST_MODE:                      "false"
-        run: python mkv_weekly_optimizer.py
-      - name: Save weekly store
-        if: always()
-        uses: actions/cache@v4
-        with:
-          path: mkv_weekly_store.json
-          key: mkv-weekly-store-${{ github.run_id }}
-      - name: Keep repo active
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git pull --rebase origin main || true
-          git commit --allow-empty -m "chore: weekly optimizer ran $(date +'%Y-%m-%d')"
-          git push
+          git push || true
