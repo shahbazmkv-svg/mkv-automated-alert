@@ -72,12 +72,12 @@ def save_store(store):
 
 def post_message(channel, blocks, text, thread_ts=None):
     payload = {
-    "channel": channel,
-    "text": text,
-    "blocks": blocks,
-    "unfurl_links": False,
-    "unfurl_media": False,
-}
+        "channel": channel,
+        "text": text,
+        "blocks": blocks,
+        "unfurl_links": False,
+        "unfurl_media": False,
+    }
     if thread_ts:
         payload["thread_ts"] = thread_ts
     try:
@@ -471,6 +471,33 @@ def build_booking_card(f, now_str):
     return blocks, f"New Booking: {f['customer']} | {f['vehicle']} ({f['plate']}) | {fmt_date(f['start'])} to {fmt_date(f['end'])} | {f['grand_total']}"
 
 
+def build_schedule_delivery_notice(f, now_str, booking_channel, booking_ts):
+    thread_link = f"https://slack.com/app_redirect?channel={booking_channel}&message_ts={booking_ts}"
+    body = (
+        f"```\n"
+        f"{'AGR#':<14}: {f['agr_no']}\n"
+        f"{'Customer':<14}: {f['customer']}\n"
+        f"{'Mobile':<14}: {f['mobile']}\n"
+        f"{'Vehicle':<14}: {f['vehicle']}\n"
+        f"{'Plate':<14}: {f['plate']}\n"
+        f"{'Delivery':<14}: {fmt_date(f['start'])} {f['s_time']}\n"
+        f"{'Location':<14}: {f['location']}\n"
+        f"```"
+    )
+    blocks = [
+        {"type": "header",
+         "text": {"type": "plain_text", "text": "SCHEDULE FOR DELIVERY"}},
+        {"type": "context",
+         "elements": [{"type": "mrkdwn",
+             "text": f"Same-day booking detected: {now_str}"}]},
+        {"type": "section",
+         "text": {"type": "mrkdwn", "text": body}},
+        {"type": "section",
+         "text": {"type": "mrkdwn", "text": f"<{thread_link}|Open full booking thread>"}},
+    ]
+    return blocks, f"Schedule delivery: {f['customer']} | {f['vehicle']} ({f['plate']})"
+
+
 def build_delivery_checklist(f, now_str):
     # Message 1 - Info block (collapsed via context)
     info = (
@@ -707,7 +734,8 @@ def main():
                 today = dubai_now().strftime("%Y-%m-%d")
                 if start == today and not TEST_MODE:
                     print(f"  Same-day booking â†’ posting to #mkv-schedule-for-delivery")
-                    post_message(CHANNEL_SCHEDULE, blocks, text)
+                    s_blocks, s_text = build_schedule_delivery_notice(f, now_str, TARGET_CHANNEL, ts)
+                    post_message(CHANNEL_SCHEDULE, s_blocks, s_text)
 
                 d_blocks, d_text = build_delivery_checklist(f, now_str)
                 d_ts = post_message(TARGET_CHANNEL, d_blocks, d_text, thread_ts=ts)
