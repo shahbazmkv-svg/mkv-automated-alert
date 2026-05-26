@@ -103,12 +103,19 @@ def fetch_bookings():
         )
         r.raise_for_status()
         data = r.json()
-        if data.get("issuccess"):
-            bookings = data.get("bookings", [])
+        # Appic API returns issuccess OR isSuccess depending on version
+        bookings = data.get("bookings", [])
+        success = (
+            data.get("issuccess") or
+            data.get("isSuccess") or
+            data.get("success") or
+            isinstance(bookings, list)
+        )
+        if success:
             print(f"  Appic returned {len(bookings)} bookings")
             return bookings
         else:
-            print(f"  Appic error: {data.get('message')}")
+            print(f"  Appic error: {data.get('message') or data.get('error') or 'unknown'}")
             return []
     except Exception as e:
         print(f"  API error: {e}")
