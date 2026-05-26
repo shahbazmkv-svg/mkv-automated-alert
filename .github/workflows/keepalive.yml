@@ -168,7 +168,7 @@ jobs:
           META_RTO_ACCOUNT_ID:          ${{ secrets.META_RTO_ACCOUNT_ID }}
           GMAIL_ADDRESS:                ${{ secrets.GMAIL_ADDRESS }}
           GMAIL_APP_PASSWORD:           ${{ secrets.GMAIL_APP_PASSWORD }}
-        run: python mkv_ads_snapshot.py
+        run: python mkv_ads_api_report.py
       - name: Keep repo active
         run: |
           git config user.name "github-actions[bot]"
