@@ -15,6 +15,7 @@ on:
           - website-snapshot
           - pickup-alert
           - booking-bot
+          - ads-snapshot
 
 jobs:
 
@@ -140,4 +141,38 @@ jobs:
           git add booking_thread_store.json || true
           git pull --rebase origin main || true
           git commit -m "chore: booking bot store $(date +'%Y-%m-%d %H:%M')" || true
+          git push || true
+
+  ads-snapshot:
+    if: github.event.inputs.job == 'ads-snapshot' || github.event.inputs.job == 'all'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install requests google-ads slack-sdk pandas pytz --break-system-packages
+      - name: Run Ads Snapshot
+        env:
+          SLACK_BOT_TOKEN:              ${{ secrets.SLACK_BOT_TOKEN }}
+          GOOGLE_ADS_DEVELOPER_TOKEN:   ${{ secrets.GOOGLE_ADS_DEVELOPER_TOKEN }}
+          GOOGLE_ADS_CLIENT_ID:         ${{ secrets.GOOGLE_ADS_CLIENT_ID }}
+          GOOGLE_ADS_CLIENT_SECRET:     ${{ secrets.GOOGLE_ADS_CLIENT_SECRET }}
+          GOOGLE_ADS_REFRESH_TOKEN:     ${{ secrets.GOOGLE_ADS_REFRESH_TOKEN }}
+          GOOGLE_ADS_CUSTOMER_ID:       ${{ secrets.GOOGLE_ADS_CUSTOMER_ID }}
+          GOOGLE_ADS_LOGIN_CUSTOMER_ID: ${{ secrets.GOOGLE_ADS_LOGIN_CUSTOMER_ID }}
+          META_ACCESS_TOKEN:            ${{ secrets.META_ACCESS_TOKEN }}
+          META_AD_ACCOUNT_ID:           ${{ secrets.META_AD_ACCOUNT_ID }}
+          META_RTO_ACCOUNT_ID:          ${{ secrets.META_RTO_ACCOUNT_ID }}
+          GMAIL_ADDRESS:                ${{ secrets.GMAIL_ADDRESS }}
+          GMAIL_APP_PASSWORD:           ${{ secrets.GMAIL_APP_PASSWORD }}
+        run: python mkv_ads_snapshot.py
+      - name: Keep repo active
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git pull --rebase origin main || true
+          git commit --allow-empty -m "chore: ads snapshot ran $(date +'%Y-%m-%d')"
           git push || true
