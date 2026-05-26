@@ -4,10 +4,17 @@ on:
   workflow_dispatch:
     inputs:
       job:
-        description: 'Which job to run (all, fleet-availability, daily-leads, website-snapshot, pickup-alert, booking-bot)'
+        description: 'Which job to run'
         required: false
         default: 'all'
-        type: string
+        type: choice
+        options:
+          - all
+          - fleet-availability
+          - daily-leads
+          - website-snapshot
+          - pickup-alert
+          - booking-bot
 
 jobs:
 
