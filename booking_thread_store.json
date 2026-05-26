@@ -3351,6 +3351,28 @@
       "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-05-26"
+    },
+    "0010094-ALI -Porsche": {
+      "thread_ts": "1779805686.424989",
+      "end_date": "2026-05-28",
+      "plate": "Y 51911",
+      "customer": "Ali Juma Ahmed Yousef Aljneibi",
+      "vehicle": "Porsche Gt3 Rs",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-05-26"
+    },
+    "0010093-MKV -Porsche": {
+      "thread_ts": "1779805701.369819",
+      "end_date": "2026-05-31",
+      "plate": "Y 51911",
+      "customer": "Mkv Luxury Car Rental",
+      "vehicle": "Porsche Gt3 Rs",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-05-26"
     }
   }
 }
