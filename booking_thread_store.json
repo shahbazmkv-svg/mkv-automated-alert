@@ -1979,6 +1979,17 @@
       "pickup_alerted": false,
       "closed": false,
       "start_date": "2026-05-27"
+    },
+    "0010099-ASIF-Land Rover": {
+      "thread_ts": "1779872432.323059",
+      "end_date": "2026-05-28",
+      "plate": "75037",
+      "customer": "Asif Rasheed Shansudeen",
+      "vehicle": "Land Rover Svr",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-05-27"
     }
   }
 }
