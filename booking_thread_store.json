@@ -2031,7 +2031,7 @@
       "customer": "Sahil Narang C/O Vishal",
       "vehicle": "Morgan Morgan Supersport",
       "delivery_alerted": true,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-05-27"
     }
