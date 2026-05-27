@@ -2032,7 +2032,7 @@
       "vehicle": "Morgan Morgan Supersport",
       "delivery_alerted": true,
       "pickup_alerted": true,
-      "closed": false,
+      "closed": true,
       "start_date": "2026-05-27"
     },
     "0010104-KHAL-Lotus": {
@@ -2045,6 +2045,17 @@
       "pickup_alerted": false,
       "closed": false,
       "start_date": "2026-05-28"
+    },
+    "0010105-SAHI-Morgan": {
+      "thread_ts": "1779906628.723319",
+      "end_date": "2026-05-28",
+      "plate": "I 47203",
+      "customer": "Sahil Narang Triloki Nath Narang",
+      "vehicle": "Morgan Morgan Supersport",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-05-27"
     }
   }
 }
