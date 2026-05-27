@@ -2053,9 +2053,20 @@
       "customer": "Sahil Narang Triloki Nath Narang",
       "vehicle": "Morgan Morgan Supersport",
       "delivery_alerted": true,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-05-27"
+    },
+    "0010106-HAIT-McLaren": {
+      "thread_ts": "1779908438.036329",
+      "end_date": "2026-05-31",
+      "plate": "47041",
+      "customer": "Haitham Adnan Shaban Al Far",
+      "vehicle": "Mclaren Spider Artura",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-05-28"
     }
   }
 }
