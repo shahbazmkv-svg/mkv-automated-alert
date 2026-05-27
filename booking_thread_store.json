@@ -1954,7 +1954,7 @@
       "customer": "Mykola Halius",
       "vehicle": "Ford Mustang Coupe",
       "delivery_alerted": true,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-05-27"
     },
