@@ -1990,6 +1990,28 @@
       "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-05-27"
+    },
+    "0010101-JOHN-Rolls Royce": {
+      "thread_ts": "1779885027.600419",
+      "end_date": "2026-05-28",
+      "plate": "O 4456",
+      "customer": "John Alex Githua Mwangi",
+      "vehicle": "Rolls Royce Cullinan",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-05-27"
+    },
+    "0010100-MKV -Rolls Royce": {
+      "thread_ts": "1779885035.741339",
+      "end_date": "2026-05-31",
+      "plate": "O 4456",
+      "customer": "Mkv Luxury Car Rental",
+      "vehicle": "Rolls Royce Cullinan",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-05-26"
     }
   }
 }
