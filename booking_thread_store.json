@@ -2042,7 +2042,7 @@
       "customer": "Khalifa Mohammad Juma Mohammad Alblooki",
       "vehicle": "Lotus Lotus Emira",
       "delivery_alerted": true,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-05-28"
     },
@@ -2108,7 +2108,7 @@
       "customer": "Aashray Talwar",
       "vehicle": "Ferrari Roma",
       "delivery_alerted": true,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-05-28"
     },
