@@ -2122,6 +2122,17 @@
       "pickup_alerted": false,
       "closed": false,
       "start_date": "2026-05-27"
+    },
+    "0010112-SAHI-Mercedes-Benz": {
+      "thread_ts": "1779989425.657739",
+      "end_date": "2026-05-29",
+      "plate": "24545",
+      "customer": "Sahil Narang Triloki Nath Narang",
+      "vehicle": "Mercedes-Benz G63 2025",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-05-28"
     }
   }
 }
