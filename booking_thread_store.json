@@ -2111,6 +2111,17 @@
       "pickup_alerted": false,
       "closed": false,
       "start_date": "2026-05-28"
+    },
+    "0010111-MUHA-Rolls Royce": {
+      "thread_ts": "1779966033.748879",
+      "end_date": "2026-05-28",
+      "plate": "O 4456",
+      "customer": "Muhammad Rizwan Muhammad Ramzan",
+      "vehicle": "Rolls Royce Cullinan",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-05-27"
     }
   }
 }
