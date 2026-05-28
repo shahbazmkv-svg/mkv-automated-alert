@@ -310,7 +310,7 @@
     },
     "0010066-BEYA-GMC": {
       "thread_ts": null,
-      "end_date": "2026-05-26",
+      "end_date": "2026-05-30",
       "plate": "69367",
       "customer": "Beyat Mohammed Abdulla Saeed Alfalasi",
       "vehicle": "Gmc Yukon",
@@ -2021,7 +2021,7 @@
       "vehicle": "Land Rover Svr",
       "delivery_alerted": true,
       "pickup_alerted": true,
-      "closed": false,
+      "closed": true,
       "start_date": "2026-05-27"
     },
     "0010103-SAHI-Morgan": {
@@ -2089,6 +2089,17 @@
       "pickup_alerted": false,
       "closed": false,
       "start_date": "2026-05-29"
+    },
+    "0010109-MKV -Ferrari": {
+      "thread_ts": "1779951629.088559",
+      "end_date": "2026-05-31",
+      "plate": "BB 92788",
+      "customer": "Mkv Car Rental Llc",
+      "vehicle": "Ferrari Roma",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-05-27"
     }
   }
 }
