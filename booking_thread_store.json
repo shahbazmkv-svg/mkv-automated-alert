@@ -2078,6 +2078,17 @@
       "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-05-28"
+    },
+    "0010108-JANI-Suzuki": {
+      "thread_ts": "1779949827.896339",
+      "end_date": "2026-05-31",
+      "plate": "26603",
+      "customer": "Janice  Cabardo",
+      "vehicle": "Suzuki Swift",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-05-29"
     }
   }
 }
