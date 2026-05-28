@@ -2100,6 +2100,17 @@
       "pickup_alerted": false,
       "closed": false,
       "start_date": "2026-05-27"
+    },
+    "0010110-AASH-Ferrari": {
+      "thread_ts": "1779953427.588109",
+      "end_date": "2026-05-30",
+      "plate": "BB 92788",
+      "customer": "Aashray Talwar",
+      "vehicle": "Ferrari Roma",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-05-28"
     }
   }
 }
