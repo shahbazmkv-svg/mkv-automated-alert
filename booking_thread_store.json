@@ -2067,6 +2067,17 @@
       "pickup_alerted": false,
       "closed": false,
       "start_date": "2026-05-28"
+    },
+    "0010107-KAII-BMW": {
+      "thread_ts": "1779928227.932419",
+      "end_date": "2026-05-29",
+      "plate": "70688",
+      "customer": "Kaiis Amjad El Tayah",
+      "vehicle": "Bmw 420I Convertible",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-05-28"
     }
   }
 }
