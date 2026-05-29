@@ -2174,7 +2174,7 @@
       "customer": "Usaamah Ali",
       "vehicle": "Land Rover Sport",
       "delivery_alerted": true,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-05-29"
     }
