@@ -2144,6 +2144,28 @@
       "pickup_alerted": false,
       "closed": false,
       "start_date": "2026-05-29"
+    },
+    "0010115-CHIR-McLaren": {
+      "thread_ts": "1780057826.287309",
+      "end_date": "2026-05-31",
+      "plate": "N 5590",
+      "customer": "Chirag Dua Rajesh Kumar Dua",
+      "vehicle": "Mclaren 720 S",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-05-29"
+    },
+    "0010114-MKV -McLaren": {
+      "thread_ts": "1780057834.328959",
+      "end_date": "2026-06-03",
+      "plate": "N 5590",
+      "customer": "Mkv Car Rental Llc",
+      "vehicle": "Mclaren 720 S",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-05-28"
     }
   }
 }
