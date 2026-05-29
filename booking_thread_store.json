@@ -2188,6 +2188,17 @@
       "pickup_alerted": false,
       "closed": false,
       "start_date": "2026-05-30"
+    },
+    "0010118-AMIN-Bentley": {
+      "thread_ts": "1780083029.023209",
+      "end_date": "2026-06-05",
+      "plate": "33789",
+      "customer": "Amine Adli",
+      "vehicle": "Bentley Bentayga",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-05-31"
     }
   }
 }
