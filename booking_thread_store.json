@@ -1976,7 +1976,7 @@
       "customer": "Hayder Salman",
       "vehicle": "Mercedes-Benz Mercedes  G63",
       "delivery_alerted": true,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-05-27"
     },
@@ -2009,7 +2009,7 @@
       "customer": "Mkv Luxury Car Rental",
       "vehicle": "Rolls Royce Cullinan",
       "delivery_alerted": true,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-05-26"
     },
@@ -2064,7 +2064,7 @@
       "customer": "Haitham Adnan Shaban Al Far",
       "vehicle": "Mclaren Spider Artura",
       "delivery_alerted": true,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-05-28"
     },
@@ -2086,7 +2086,7 @@
       "customer": "Janice  Cabardo",
       "vehicle": "Suzuki Swift",
       "delivery_alerted": true,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-05-29"
     },
@@ -2097,7 +2097,7 @@
       "customer": "Mkv Car Rental Llc",
       "vehicle": "Ferrari Roma",
       "delivery_alerted": true,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-05-27"
     },
@@ -2152,7 +2152,7 @@
       "customer": "Chirag Dua Rajesh Kumar Dua",
       "vehicle": "Mclaren 720 S",
       "delivery_alerted": true,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-05-29"
     },
@@ -2185,7 +2185,7 @@
       "customer": "Amir Khutaba",
       "vehicle": "Chevrolet Corvette",
       "delivery_alerted": true,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-05-30"
     },
