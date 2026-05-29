@@ -2177,6 +2177,17 @@
       "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-05-29"
+    },
+    "0010117-AMIR-Chevrolet": {
+      "thread_ts": "1780077633.122769",
+      "end_date": "2026-05-31",
+      "plate": "72712",
+      "customer": "Amir Khutaba",
+      "vehicle": "Chevrolet Corvette",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-05-30"
     }
   }
 }
