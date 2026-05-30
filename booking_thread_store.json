@@ -2153,7 +2153,7 @@
       "vehicle": "Mclaren 720 S",
       "delivery_alerted": true,
       "pickup_alerted": true,
-      "closed": false,
+      "closed": true,
       "start_date": "2026-05-29"
     },
     "0010114-MKV -McLaren": {
