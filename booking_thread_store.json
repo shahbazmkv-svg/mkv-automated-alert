@@ -2221,6 +2221,17 @@
       "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-05-30"
+    },
+    "0010121-GASP-Land Rover": {
+      "thread_ts": "1780142429.286509",
+      "end_date": "2026-05-31",
+      "plate": "77540",
+      "customer": "Gasper Rebernak",
+      "vehicle": "Land Rover Svr",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-05-30"
     }
   }
 }
