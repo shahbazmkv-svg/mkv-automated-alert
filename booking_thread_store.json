@@ -2199,6 +2199,17 @@
       "pickup_alerted": false,
       "closed": false,
       "start_date": "2026-05-31"
+    },
+    "0010119-AMIR-McLaren": {
+      "thread_ts": "1780129825.369609",
+      "end_date": "2026-06-08",
+      "plate": "47041",
+      "customer": "Amir Majid Sabah Jabur",
+      "vehicle": "Mclaren Spider Artura",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-06-06"
     }
   }
 }
