@@ -2240,7 +2240,7 @@
       "customer": "Muhammad Daiyaan Ahmed Muhammad Samiuddin Ahmed",
       "vehicle": "Chevrolet Corvette",
       "delivery_alerted": true,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-05-31"
     },
@@ -2262,7 +2262,7 @@
       "customer": "Abdulaziz Hasan Abboud Mohamed Al Jaeedi",
       "vehicle": "Ford Mustang Coupe",
       "delivery_alerted": true,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-05-30"
     }
