@@ -2265,6 +2265,17 @@
       "pickup_alerted": false,
       "closed": false,
       "start_date": "2026-05-30"
+    },
+    "0010125-SALM-Mercedes-Benz": {
+      "thread_ts": "1780182028.521829",
+      "end_date": "2026-06-06",
+      "plate": "66789",
+      "customer": "Salma Mezouari",
+      "vehicle": "Mercedes-Benz Mercedes G3 (Brabus)",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-05-31"
     }
   }
 }
