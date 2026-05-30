@@ -2254,6 +2254,17 @@
       "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-05-30"
+    },
+    "0010124-ABDU-Ford": {
+      "thread_ts": "1780164026.347899",
+      "end_date": "2026-06-01",
+      "plate": "15789",
+      "customer": "Abdulaziz Hasan Abboud Mohamed Al Jaeedi",
+      "vehicle": "Ford Mustang Coupe",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-05-30"
     }
   }
 }
