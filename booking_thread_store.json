@@ -2243,6 +2243,17 @@
       "pickup_alerted": false,
       "closed": false,
       "start_date": "2026-05-31"
+    },
+    "0010123-FARE-Lotus": {
+      "thread_ts": "1780160425.352939",
+      "end_date": "2026-05-31",
+      "plate": "23652",
+      "customer": "Fares Fares",
+      "vehicle": "Lotus Lotus Emira",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-05-30"
     }
   }
 }
