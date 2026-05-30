@@ -2175,7 +2175,7 @@
       "vehicle": "Land Rover Sport",
       "delivery_alerted": true,
       "pickup_alerted": true,
-      "closed": false,
+      "closed": true,
       "start_date": "2026-05-29"
     },
     "0010117-AMIR-Chevrolet": {
