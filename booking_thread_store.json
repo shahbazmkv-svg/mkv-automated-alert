@@ -2210,6 +2210,17 @@
       "pickup_alerted": false,
       "closed": false,
       "start_date": "2026-06-06"
+    },
+    "0010120-YAZA-Chevrolet": {
+      "thread_ts": "1780133426.187879",
+      "end_date": "2026-05-31",
+      "plate": "72712",
+      "customer": "Yazan Khatib",
+      "vehicle": "Chevrolet Corvette",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-05-30"
     }
   }
 }
