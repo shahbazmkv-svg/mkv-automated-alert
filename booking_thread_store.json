@@ -2043,7 +2043,7 @@
       "vehicle": "Lotus Lotus Emira",
       "delivery_alerted": true,
       "pickup_alerted": true,
-      "closed": false,
+      "closed": true,
       "start_date": "2026-05-28"
     },
     "0010105-SAHI-Morgan": {
@@ -2109,7 +2109,7 @@
       "vehicle": "Ferrari Roma",
       "delivery_alerted": true,
       "pickup_alerted": true,
-      "closed": false,
+      "closed": true,
       "start_date": "2026-05-28"
     },
     "0010111-MUHA-Rolls Royce": {
@@ -2232,6 +2232,17 @@
       "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-05-30"
+    },
+    "0010122-MUHA-Chevrolet": {
+      "thread_ts": "1780155024.657139",
+      "end_date": "2026-06-01",
+      "plate": "72712",
+      "customer": "Muhammad Daiyaan Ahmed Muhammad Samiuddin Ahmed",
+      "vehicle": "Chevrolet Corvette",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-05-31"
     }
   }
 }
