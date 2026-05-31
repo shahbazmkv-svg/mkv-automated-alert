@@ -17,9 +17,9 @@ CHANNEL_BOOKINGS = "C0ABPC606F7"   # #mkv-bookings
 CHANNEL_DELIVERY = "C0ABLDUAZ0B"   # #mkv-delivery
 CHANNEL_SCHEDULE = "C0ACB9C8J01"   # #mkv-schedule-for-delivery
 CHANNEL_PICKUP = "C0ABW979FML"     # #mkv-car-pickup
-CHANNEL_TEST = "C0AVCCCG0S0"       # #mkvtest
+CHANNEL_TEST = "C0B0TGBDCDU"       # #mkv-test-automation
 
-TEST_MODE = False
+TEST_MODE = os.environ.get("TEST_MODE", "false").lower() == "true"
 
 SLACK_HEADERS = {
     "Authorization": f"Bearer {SLACK_BOT_TOKEN}",
