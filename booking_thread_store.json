@@ -2722,6 +2722,21 @@
       "customer": "Anton Moiseev",
       "vehicle": "Land Rover Sport",
       "delivery_alerted": true,
+      "pickup_alerted": true,
+      "closed": false,
+      "start_date": "2026-05-31",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
+    },
+    "0010127-MUHA-Nissan": {
+      "thread_ts": "1780230972.763469",
+      "end_date": "2026-06-04",
+      "plate": "39810",
+      "customer": "Muhammad Asim  Muhammad Salim Khan",
+      "vehicle": "Nissan Nissan Patrol Le Platinum City",
+      "delivery_alerted": true,
       "pickup_alerted": false,
       "closed": false,
       "start_date": "2026-05-31"
