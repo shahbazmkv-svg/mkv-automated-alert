@@ -1,4 +1,4 @@
-name: Car Availability
+name: keepalive
 
 on:
   workflow_dispatch:
