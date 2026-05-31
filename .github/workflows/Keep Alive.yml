@@ -174,7 +174,7 @@ jobs:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
           APPIC_KEY: ${{ secrets.APPIC_KEY }}
           TEST_MODE: ${{ github.event.inputs.test_mode == 'yes' && 'true' || 'false' }}
-        run: python mkv_booking_alert.py
+        run: python mkv_booking_bot.py
 
       - name: Commit store updates
         run: |
