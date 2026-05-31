@@ -3105,20 +3105,5 @@
       "closed_ts": null,
       "extension_ts_list": []
     },
-    "0010126-ANTO-Land Rover": {
-      "thread_ts": null,
-      "end_date": "2026-06-01",
-      "plate": "55789",
-      "customer": "Anton Moiseev",
-      "vehicle": "Land Rover Sport",
-      "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-31",
-      "delivery_ts": null,
-      "pickup_ts": null,
-      "closed_ts": null,
-      "extension_ts_list": []
-    }
   }
 }
