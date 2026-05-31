@@ -9,7 +9,11 @@
       "delivery_alerted": true,
       "pickup_alerted": false,
       "closed": false,
-      "start_date": "2026-06-12"
+      "start_date": "2026-06-12",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010119-AMIR-McLaren": {
       "thread_ts": null,
@@ -20,7 +24,11 @@
       "delivery_alerted": true,
       "pickup_alerted": false,
       "closed": false,
-      "start_date": "2026-06-06"
+      "start_date": "2026-06-06",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010122-MUHA-Chevrolet": {
       "thread_ts": null,
@@ -31,7 +39,11 @@
       "delivery_alerted": true,
       "pickup_alerted": false,
       "closed": false,
-      "start_date": "2026-05-31"
+      "start_date": "2026-05-31",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010118-AMIN-Bentley": {
       "thread_ts": null,
@@ -42,7 +54,11 @@
       "delivery_alerted": true,
       "pickup_alerted": false,
       "closed": false,
-      "start_date": "2026-05-31"
+      "start_date": "2026-05-31",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010125-SALM-Mercedes-Benz": {
       "thread_ts": null,
@@ -53,7 +69,11 @@
       "delivery_alerted": true,
       "pickup_alerted": false,
       "closed": false,
-      "start_date": "2026-05-31"
+      "start_date": "2026-05-31",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010124-ABDU-Ford": {
       "thread_ts": null,
@@ -64,7 +84,11 @@
       "delivery_alerted": true,
       "pickup_alerted": false,
       "closed": false,
-      "start_date": "2026-05-31"
+      "start_date": "2026-05-31",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010123-FARE-Lotus": {
       "thread_ts": null,
@@ -75,7 +99,11 @@
       "delivery_alerted": true,
       "pickup_alerted": false,
       "closed": false,
-      "start_date": "2026-05-30"
+      "start_date": "2026-05-30",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010121-GASP-Land Rover": {
       "thread_ts": null,
@@ -86,7 +114,11 @@
       "delivery_alerted": true,
       "pickup_alerted": false,
       "closed": false,
-      "start_date": "2026-05-30"
+      "start_date": "2026-05-30",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010120-YAZA-Chevrolet": {
       "thread_ts": null,
@@ -97,7 +129,11 @@
       "delivery_alerted": true,
       "pickup_alerted": false,
       "closed": false,
-      "start_date": "2026-05-30"
+      "start_date": "2026-05-30",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010108-JANI-Suzuki": {
       "thread_ts": null,
@@ -108,7 +144,11 @@
       "delivery_alerted": true,
       "pickup_alerted": false,
       "closed": false,
-      "start_date": "2026-05-29"
+      "start_date": "2026-05-29",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010116-USAA-Land Rover": {
       "thread_ts": null,
@@ -117,9 +157,13 @@
       "customer": "Usaamah Ali",
       "vehicle": "Land Rover Sport",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-29"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-29",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010115-CHIR-McLaren": {
       "thread_ts": null,
@@ -128,9 +172,13 @@
       "customer": "Chirag Dua Rajesh Kumar Dua",
       "vehicle": "Mclaren 720 S",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-29"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-29",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010113-MUHA-Kia": {
       "thread_ts": null,
@@ -141,7 +189,11 @@
       "delivery_alerted": true,
       "pickup_alerted": false,
       "closed": false,
-      "start_date": "2026-05-29"
+      "start_date": "2026-05-29",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010112-SAHI-Mercedes-Benz": {
       "thread_ts": null,
@@ -150,9 +202,13 @@
       "customer": "Sahil Narang Triloki Nath Narang",
       "vehicle": "Mercedes-Benz G63 2025",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-28"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-28",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010114-MKV -McLaren": {
       "thread_ts": null,
@@ -163,7 +219,11 @@
       "delivery_alerted": true,
       "pickup_alerted": false,
       "closed": false,
-      "start_date": "2026-05-28"
+      "start_date": "2026-05-28",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010104-KHAL-Lotus": {
       "thread_ts": null,
@@ -172,9 +232,13 @@
       "customer": "Khalifa Mohammad Juma Mohammad Alblooki",
       "vehicle": "Lotus Lotus Emira",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-28"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-28",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010106-HAIT-McLaren": {
       "thread_ts": null,
@@ -185,7 +249,11 @@
       "delivery_alerted": true,
       "pickup_alerted": false,
       "closed": false,
-      "start_date": "2026-05-28"
+      "start_date": "2026-05-28",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010110-AASH-Ferrari": {
       "thread_ts": null,
@@ -194,9 +262,13 @@
       "customer": "Aashray Talwar",
       "vehicle": "Ferrari Roma",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-28"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-28",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010107-KAII-BMW": {
       "thread_ts": null,
@@ -205,9 +277,13 @@
       "customer": "Kaiis Amjad El Tayah",
       "vehicle": "Bmw 420I Convertible",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-28"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-28",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010105-SAHI-Morgan": {
       "thread_ts": null,
@@ -216,9 +292,13 @@
       "customer": "Sahil Narang Triloki Nath Narang",
       "vehicle": "Morgan Morgan Supersport",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-27"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-27",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010103-SAHI-Morgan": {
       "thread_ts": null,
@@ -227,9 +307,13 @@
       "customer": "Sahil Narang C/O Vishal",
       "vehicle": "Morgan Morgan Supersport",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-27"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-27",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010102-MUHA-Land Rover": {
       "thread_ts": null,
@@ -238,9 +322,13 @@
       "customer": "Muhammad Umar Farooq Yousaf Ali",
       "vehicle": "Land Rover Svr",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-27"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-27",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010101-JOHN-Rolls Royce": {
       "thread_ts": null,
@@ -249,9 +337,13 @@
       "customer": "John Alex Githua Mwangi",
       "vehicle": "Rolls Royce Cullinan",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-27"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-27",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010099-ASIF-Land Rover": {
       "thread_ts": null,
@@ -260,9 +352,13 @@
       "customer": "Asif Rasheed Shansudeen",
       "vehicle": "Land Rover Svr",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-27"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-27",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010111-MUHA-Rolls Royce": {
       "thread_ts": null,
@@ -271,9 +367,13 @@
       "customer": "Muhammad Rizwan Muhammad Ramzan",
       "vehicle": "Rolls Royce Cullinan",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-27"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-27",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010096-MYKO-Ford": {
       "thread_ts": null,
@@ -282,9 +382,13 @@
       "customer": "Mykola Halius",
       "vehicle": "Ford Mustang Coupe",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-27"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-27",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010098-HAYD-Mercedes-Benz": {
       "thread_ts": null,
@@ -295,7 +399,11 @@
       "delivery_alerted": true,
       "pickup_alerted": false,
       "closed": false,
-      "start_date": "2026-05-27"
+      "start_date": "2026-05-27",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010109-MKV -Ferrari": {
       "thread_ts": null,
@@ -306,7 +414,11 @@
       "delivery_alerted": true,
       "pickup_alerted": false,
       "closed": false,
-      "start_date": "2026-05-27"
+      "start_date": "2026-05-27",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010097-AMRI-Ford": {
       "thread_ts": null,
@@ -315,9 +427,13 @@
       "customer": "Amrinder Singh Sandhu",
       "vehicle": "Ford Mustang Convertible",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-27"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-27",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010095-HAIT-Porsche": {
       "thread_ts": null,
@@ -326,9 +442,13 @@
       "customer": "Haitham Adnan Shaban Al Far",
       "vehicle": "Porsche Cayman Gt4 Rs",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-26"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-26",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010094-ALI -Porsche": {
       "thread_ts": null,
@@ -337,9 +457,13 @@
       "customer": "Ali Juma Ahmed Yousef Aljneibi",
       "vehicle": "Porsche Gt3 Rs",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-26"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-26",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010093-MKV -Porsche": {
       "thread_ts": null,
@@ -350,7 +474,11 @@
       "delivery_alerted": true,
       "pickup_alerted": false,
       "closed": false,
-      "start_date": "2026-05-26"
+      "start_date": "2026-05-26",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010092-ALI -Porsche": {
       "thread_ts": null,
@@ -359,9 +487,13 @@
       "customer": "Ali Juma Ahmed Yousef Aljneibi",
       "vehicle": "Porsche Gt3 Rs",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-26"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-26",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010091-RABI-Lotus": {
       "thread_ts": null,
@@ -370,9 +502,13 @@
       "customer": "Rabih Jamal El Sabaa",
       "vehicle": "Lotus Lotus Emira",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-26"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-26",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010100-MKV -Rolls Royce": {
       "thread_ts": null,
@@ -383,7 +519,11 @@
       "delivery_alerted": true,
       "pickup_alerted": false,
       "closed": false,
-      "start_date": "2026-05-26"
+      "start_date": "2026-05-26",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010090-HAIT-Porsche": {
       "thread_ts": null,
@@ -392,9 +532,13 @@
       "customer": "Haitham Adnan Shaban Al Far",
       "vehicle": "Porsche 911 Turbo",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-26"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-26",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010089-PANK-Audi": {
       "thread_ts": null,
@@ -405,7 +549,11 @@
       "delivery_alerted": true,
       "pickup_alerted": false,
       "closed": false,
-      "start_date": "2026-05-25"
+      "start_date": "2026-05-25",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010087-DAVI-Land Rover": {
       "thread_ts": null,
@@ -414,9 +562,13 @@
       "customer": "David Leon Myers",
       "vehicle": "Land Rover Defender",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-25"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-25",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010084-ALHA-Ferrari": {
       "thread_ts": null,
@@ -427,7 +579,11 @@
       "delivery_alerted": true,
       "pickup_alerted": false,
       "closed": false,
-      "start_date": "2026-05-25"
+      "start_date": "2026-05-25",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010088-NAKU-Lamborghini": {
       "thread_ts": null,
@@ -436,9 +592,13 @@
       "customer": "Nakulan Siji Siji Mohanan",
       "vehicle": "Lamborghini Lamborghini Huracan",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-25"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-25",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010086-KARL-Chevrolet": {
       "thread_ts": null,
@@ -447,9 +607,13 @@
       "customer": "Karl Johan Larsson",
       "vehicle": "Chevrolet Corvette",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-25"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-25",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010083-ASIF-Land Rover": {
       "thread_ts": null,
@@ -458,9 +622,13 @@
       "customer": "Asif Rasheed Shansudeen",
       "vehicle": "Land Rover Svr",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-25"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-25",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010085-SAHI-Mercedes-Benz": {
       "thread_ts": null,
@@ -469,9 +637,13 @@
       "customer": "Sahil Narang Triloki Nath Narang",
       "vehicle": "Mercedes-Benz Mercedes G3 (Brabus)",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-25"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-25",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010081-ILAN-McLaren": {
       "thread_ts": null,
@@ -480,9 +652,13 @@
       "customer": "Ilan Eliaou Gabriel Dahan",
       "vehicle": "Mclaren Spider Artura",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-24"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-24",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010082-SAKA-Ford": {
       "thread_ts": null,
@@ -491,9 +667,13 @@
       "customer": "Sakar Ali Abdullah",
       "vehicle": "Ford Ford Bronco",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-24"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-24",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010053-SALM-Bentley": {
       "thread_ts": null,
@@ -504,7 +684,11 @@
       "delivery_alerted": true,
       "pickup_alerted": false,
       "closed": false,
-      "start_date": "2026-05-24"
+      "start_date": "2026-05-24",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010080-FAST-Mercedes-Benz": {
       "thread_ts": null,
@@ -513,9 +697,13 @@
       "customer": "Fastlane Luxury Car Rent Llc",
       "vehicle": "Mercedes-Benz G63 2025",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-24"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-24",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010073-DHRU-Nissan": {
       "thread_ts": null,
@@ -524,9 +712,13 @@
       "customer": "Dhruv Umesh Parmar",
       "vehicle": "Nissan Nissan Patrol Le Platinum City",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-23"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-23",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010079-ALDR-Lamborghini": {
       "thread_ts": null,
@@ -535,9 +727,13 @@
       "customer": "Aldrin Rigoberto Sharelton Martina",
       "vehicle": "Lamborghini Urus  Se",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-23"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-23",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010077-FARH-Land Rover": {
       "thread_ts": null,
@@ -548,7 +744,11 @@
       "delivery_alerted": true,
       "pickup_alerted": false,
       "closed": false,
-      "start_date": "2026-05-23"
+      "start_date": "2026-05-23",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010075-SAEE-Cadillac": {
       "thread_ts": null,
@@ -557,9 +757,13 @@
       "customer": "Saeed Abdallah Mohammad Abed Khier",
       "vehicle": "Cadillac Escalade",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-23"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-23",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010074-LUXI-Porsche": {
       "thread_ts": null,
@@ -568,9 +772,13 @@
       "customer": "Luxilo Car Rental L.L.C",
       "vehicle": "Porsche Cayman Gt4 Rs",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-23"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-23",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010068-MATH-Lotus": {
       "thread_ts": null,
@@ -579,9 +787,13 @@
       "customer": "Mathew Joseph Karimundackal Karimundackal  Joseph",
       "vehicle": "Lotus Lotus Emira",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-23"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-23",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010072-ABDU-Land Rover": {
       "thread_ts": null,
@@ -590,9 +802,13 @@
       "customer": "Abdulla Rashed Mohammed Khalfan Alhameli",
       "vehicle": "Land Rover Defender",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-22"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-22",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010071-SIDD-BMW": {
       "thread_ts": null,
@@ -601,9 +817,13 @@
       "customer": "Siddique Abdul Khader Abdul Khader Ahmed",
       "vehicle": "Bmw 735I",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-22"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-22",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010070-BARA-Porsche": {
       "thread_ts": null,
@@ -614,7 +834,11 @@
       "delivery_alerted": true,
       "pickup_alerted": false,
       "closed": false,
-      "start_date": "2026-05-22"
+      "start_date": "2026-05-22",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010069-MUNE-Audi": {
       "thread_ts": null,
@@ -623,9 +847,13 @@
       "customer": "Muneer Nazarudeen Nazarudeen",
       "vehicle": "Audi A6",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-22"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-22",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010067-SAHI-Bentley": {
       "thread_ts": null,
@@ -634,9 +862,13 @@
       "customer": "Sahil Narang Triloki Nath Narang",
       "vehicle": "Bentley Bentayga",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-22"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-22",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010066-BEYA-GMC": {
       "thread_ts": null,
@@ -647,7 +879,11 @@
       "delivery_alerted": true,
       "pickup_alerted": false,
       "closed": false,
-      "start_date": "2026-05-22"
+      "start_date": "2026-05-22",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010064-KARA-Land Rover": {
       "thread_ts": null,
@@ -656,9 +892,13 @@
       "customer": "Karan Anand Radia",
       "vehicle": "Land Rover Svr",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-22"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-22",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010065-AHME-Mercedes-Benz": {
       "thread_ts": null,
@@ -667,9 +907,13 @@
       "customer": "Ahmed Chami",
       "vehicle": "Mercedes-Benz Glb 250",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-22"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-22",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010063-FAST-Ferrari": {
       "thread_ts": null,
@@ -678,9 +922,13 @@
       "customer": "Fastlane Luxury Car Rent Llc",
       "vehicle": "Ferrari Purosangue",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-21"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-21",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "009522-PAPA-Land Rover": {
       "thread_ts": null,
@@ -689,9 +937,13 @@
       "customer": "Papa Momar",
       "vehicle": "Land Rover Defender",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-21"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-21",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010062-CASP-Porsche": {
       "thread_ts": null,
@@ -700,9 +952,13 @@
       "customer": "Casper Rebernak",
       "vehicle": "Porsche 911 Turbo",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-21"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-21",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010060-YASS-Morgan": {
       "thread_ts": null,
@@ -711,9 +967,13 @@
       "customer": "Yassin Nuur Sheekh",
       "vehicle": "Morgan Morgan Supersport",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-21"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-21",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010061-ALEX-McLaren": {
       "thread_ts": null,
@@ -722,9 +982,13 @@
       "customer": "Alexei Close",
       "vehicle": "Mclaren Spider Artura",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-21"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-21",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010078-ALSA-Lamborghini": {
       "thread_ts": null,
@@ -735,7 +999,11 @@
       "delivery_alerted": true,
       "pickup_alerted": false,
       "closed": false,
-      "start_date": "2026-05-21"
+      "start_date": "2026-05-21",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "009939-ALHA-Ferrari": {
       "thread_ts": null,
@@ -746,7 +1014,11 @@
       "delivery_alerted": true,
       "pickup_alerted": false,
       "closed": false,
-      "start_date": "2026-05-21"
+      "start_date": "2026-05-21",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010059-BARA-Kia": {
       "thread_ts": null,
@@ -757,7 +1029,11 @@
       "delivery_alerted": true,
       "pickup_alerted": false,
       "closed": false,
-      "start_date": "2026-05-21"
+      "start_date": "2026-05-21",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010058-SOUR-Audi": {
       "thread_ts": null,
@@ -766,9 +1042,13 @@
       "customer": "Sourabh Dwivedi Pramod Kumar Dwivedi",
       "vehicle": "Audi A6",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-21"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-21",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "009911-AARO-Ferrari": {
       "thread_ts": null,
@@ -777,9 +1057,13 @@
       "customer": "Aaron Gerard Bailey Healy",
       "vehicle": "Ferrari Ferrari F8 Tributo",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-21"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-21",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010056-PRIM-Mercedes-Benz": {
       "thread_ts": null,
@@ -788,9 +1072,13 @@
       "customer": "Prime Keys Car Rental Llc",
       "vehicle": "Mercedes-Benz Mercedes  G63",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-21"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-21",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010055-ANDE-Chevrolet": {
       "thread_ts": null,
@@ -799,9 +1087,13 @@
       "customer": "Anderson Paz De Souza",
       "vehicle": "Chevrolet Corvette",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-20"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-20",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010054-SYED-BMW": {
       "thread_ts": null,
@@ -810,9 +1102,13 @@
       "customer": "Syed Ibrahim Shah Syed Dilshad Hussain Shah",
       "vehicle": "Bmw 735I",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-20"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-20",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010052-FIDA-Mercedes-Benz": {
       "thread_ts": null,
@@ -821,9 +1117,13 @@
       "customer": "Fida Hussain Laghari  Nisar Ahmad Laghari",
       "vehicle": "Mercedes-Benz Mercedes G3 (Brabus)",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-20"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-20",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010044-MICH-McLaren": {
       "thread_ts": null,
@@ -832,9 +1132,13 @@
       "customer": "Michael Matthieu Thouvenot",
       "vehicle": "Mclaren Spider Artura",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-20"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-20",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010049-ANDR-Lotus": {
       "thread_ts": null,
@@ -843,9 +1147,13 @@
       "customer": "Andrey Nesterenko",
       "vehicle": "Lotus Lotus Emira",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-19"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-19",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010051-MUHA-Kia": {
       "thread_ts": null,
@@ -854,9 +1162,13 @@
       "customer": "Muhammad Umar Farooq Yousaf Ali",
       "vehicle": "Kia Cerato",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-19"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-19",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "008262-SQUT-Porsche": {
       "thread_ts": null,
@@ -867,7 +1179,11 @@
       "delivery_alerted": true,
       "pickup_alerted": false,
       "closed": false,
-      "start_date": "2026-05-19"
+      "start_date": "2026-05-19",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010050-MUNE-Chevrolet": {
       "thread_ts": null,
@@ -876,9 +1192,13 @@
       "customer": "Muneer Nazarudeen Nazarudeen",
       "vehicle": "Chevrolet Tahoe",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-19"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-19",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "009910-AARO-BMW": {
       "thread_ts": null,
@@ -887,9 +1207,13 @@
       "customer": "Aaron Gerard Bailey Healy",
       "vehicle": "Bmw 420I Convertible",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-19"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-19",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010048-AHMA-Audi": {
       "thread_ts": null,
@@ -898,9 +1222,13 @@
       "customer": "Ahmad Hamad Khalifa Abushahab Alnuaimi",
       "vehicle": "Audi A6",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-19"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-19",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010047-BARA-Range Rover": {
       "thread_ts": null,
@@ -909,9 +1237,13 @@
       "customer": "Barakath Ali Kibayathai",
       "vehicle": "Range Rover Hse",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-18"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-18",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010039-MUNE-Bentley": {
       "thread_ts": null,
@@ -920,9 +1252,13 @@
       "customer": "Muneer Nazarudeen Nazarudeen",
       "vehicle": "Bentley Bentayga",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-18"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-18",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010038-ASMA-Mercedes-Benz": {
       "thread_ts": null,
@@ -931,9 +1267,13 @@
       "customer": "Asmaa Hanine",
       "vehicle": "Mercedes-Benz G63 2025",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-18"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-18",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010005-JAIR-Kia": {
       "thread_ts": null,
@@ -942,9 +1282,13 @@
       "customer": "Jairam  Khemani",
       "vehicle": "Kia K5",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-18"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-18",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010046-SALU-Range Rover": {
       "thread_ts": null,
@@ -955,7 +1299,11 @@
       "delivery_alerted": true,
       "pickup_alerted": false,
       "closed": false,
-      "start_date": "2026-05-17"
+      "start_date": "2026-05-17",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010037-ALDR-Ferrari": {
       "thread_ts": null,
@@ -964,9 +1312,13 @@
       "customer": "Aldrin Rigoberto Sharelton Martina",
       "vehicle": "Ferrari Purosangue",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-17"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-17",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010034-ZAKA-BMW": {
       "thread_ts": null,
@@ -975,9 +1327,13 @@
       "customer": "Zakary Anthonys Hafidi",
       "vehicle": "Bmw 735I",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-17"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-17",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010033-JESS-Chevrolet": {
       "thread_ts": null,
@@ -986,9 +1342,13 @@
       "customer": "Jess Bardin",
       "vehicle": "Chevrolet Corvette",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-17"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-17",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010027-CASP-McLaren": {
       "thread_ts": null,
@@ -997,9 +1357,13 @@
       "customer": "Casper Rebernak",
       "vehicle": "Mclaren Spider Artura",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-16"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-16",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010032-YANN-Ferrari": {
       "thread_ts": null,
@@ -1008,9 +1372,13 @@
       "customer": "Yanni Allan Jadot",
       "vehicle": "Ferrari Purosangue",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-16"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-16",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010031-MUNE-Land Rover": {
       "thread_ts": null,
@@ -1019,9 +1387,13 @@
       "customer": "Muneer Nazarudeen Nazarudeen",
       "vehicle": "Land Rover Defender",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-16"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-16",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010018-MOHA-Lotus": {
       "thread_ts": null,
@@ -1030,9 +1402,13 @@
       "customer": "Mohammed Ahmad Humood Nasser Rashid",
       "vehicle": "Lotus Lotus Emira",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-16"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-16",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "009651-ABBI-Ford": {
       "thread_ts": null,
@@ -1041,9 +1417,13 @@
       "customer": "Abbid Majid Khan",
       "vehicle": "Ford Mustang Convertible",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-16"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-16",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010029-ABDU-Ford": {
       "thread_ts": null,
@@ -1052,9 +1432,13 @@
       "customer": "Abdulla Rashed Mohammed Khalfan Alhameli",
       "vehicle": "Ford Mustang Convertible",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-16"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-16",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010026-CASP-Bentley": {
       "thread_ts": null,
@@ -1063,9 +1447,13 @@
       "customer": "Casper Rebernak",
       "vehicle": "Bentley Bentayga",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-15"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-15",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010015-ARTE-Chevrolet": {
       "thread_ts": null,
@@ -1074,9 +1462,13 @@
       "customer": "Artem Gorbatov",
       "vehicle": "Chevrolet Corvette",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-15"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-15",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010025-MUNE-Morgan": {
       "thread_ts": null,
@@ -1085,9 +1477,13 @@
       "customer": "Muneer Nazarudeen Nazarudeen",
       "vehicle": "Morgan Morgan Supersport",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-15"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-15",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010023-ABDU-McLaren": {
       "thread_ts": null,
@@ -1096,9 +1492,13 @@
       "customer": "Abdulla Rashed Mohammed Khalfan Alhameli",
       "vehicle": "Mclaren Spider Artura",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-15"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-15",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010024-MUNE-Land Rover": {
       "thread_ts": null,
@@ -1107,9 +1507,13 @@
       "customer": "Muneer Nazarudeen Nazarudeen",
       "vehicle": "Land Rover Range Rover Velar",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-15"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-15",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010014-ARTE-Lotus": {
       "thread_ts": null,
@@ -1118,9 +1522,13 @@
       "customer": "Artem Gorbatov",
       "vehicle": "Lotus Lotus Emira",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-14"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-14",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010022-NAKU-Ford": {
       "thread_ts": null,
@@ -1129,9 +1537,13 @@
       "customer": "Nakulan Siji Siji Mohanan",
       "vehicle": "Ford Mustang Coupe",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-14"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-14",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010021-SOUR-Mercedes-Benz": {
       "thread_ts": null,
@@ -1140,9 +1552,13 @@
       "customer": "Sourabh Dwivedi Pramod Kumar Dwivedi",
       "vehicle": "Mercedes-Benz Glb 250",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-14"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-14",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010020-BARA-Range Rover": {
       "thread_ts": null,
@@ -1151,9 +1567,13 @@
       "customer": "Barakath Ali Kibayathai",
       "vehicle": "Range Rover Hse",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-14"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-14",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010019-JOHN-Mercedes-Benz": {
       "thread_ts": null,
@@ -1162,9 +1582,13 @@
       "customer": "John Alex Githua Mwangi",
       "vehicle": "Mercedes-Benz G63 2025",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-14"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-14",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010017-MUNE-Morgan": {
       "thread_ts": null,
@@ -1173,9 +1597,13 @@
       "customer": "Muneer Nazarudeen Nazarudeen",
       "vehicle": "Morgan Morgan Supersport",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-14"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-14",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010016-MUNE-BMW": {
       "thread_ts": null,
@@ -1184,9 +1612,13 @@
       "customer": "Muneer Nazarudeen Nazarudeen",
       "vehicle": "Bmw 735I",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-14"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-14",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010012-ZAKA-Lamborghini": {
       "thread_ts": null,
@@ -1195,9 +1627,13 @@
       "customer": "Zakary Anthonys Hafidi",
       "vehicle": "Lamborghini Lamborghini Urus",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-14"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-14",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010013-ZAKA-Lamborghini": {
       "thread_ts": null,
@@ -1206,9 +1642,13 @@
       "customer": "Zakary Anthonys Hafidi",
       "vehicle": "Lamborghini Lamborghini Urus",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-14"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-14",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010010-ZAKA-Mercedes-Benz": {
       "thread_ts": null,
@@ -1217,9 +1657,13 @@
       "customer": "Zakary Anthonys Hafidi",
       "vehicle": "Mercedes-Benz G63 2025",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-14"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-14",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010008-MAJI-LAND ROVER RANGE ROVER": {
       "thread_ts": null,
@@ -1228,9 +1672,13 @@
       "customer": "Majid Ahmed Abdalla",
       "vehicle": "Land Rover Range Rover Vouge",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-14"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-14",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "009992-MOHA-Mercedes-Benz": {
       "thread_ts": null,
@@ -1239,9 +1687,13 @@
       "customer": "Mohammed Laye Kamara",
       "vehicle": "Mercedes-Benz Mercedes G3 (Brabus)",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-14"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-14",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010009-PANK-Kia": {
       "thread_ts": null,
@@ -1250,9 +1702,13 @@
       "customer": "Pankaj Dubey",
       "vehicle": "Kia Cerato",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-13"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-13",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010004-CONT-GMC": {
       "thread_ts": null,
@@ -1261,9 +1717,13 @@
       "customer": "Continental Luxury Car Rental",
       "vehicle": "Gmc Yukon",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-13"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-13",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010011-ESTA-BMW": {
       "thread_ts": null,
@@ -1272,9 +1732,13 @@
       "customer": "Estafania Carbo Piedrahita",
       "vehicle": "Bmw 520I",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-13"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-13",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "009999-ANGE-Mercedes-Benz": {
       "thread_ts": null,
@@ -1283,9 +1747,13 @@
       "customer": "Angel Uriel Vizcaino Magana",
       "vehicle": "Mercedes-Benz G63 2025",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-13"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-13",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "009998-ANGE-Lamborghini": {
       "thread_ts": null,
@@ -1294,9 +1762,13 @@
       "customer": "Angel Uriel Vizcaino Magana",
       "vehicle": "Lamborghini Evo Spider",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-13"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-13",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010000-LUJO-Ferrari": {
       "thread_ts": null,
@@ -1305,9 +1777,13 @@
       "customer": "Lujo Car Rental Llc",
       "vehicle": "Ferrari Purosangue",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-13"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-13",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010007-FIVE-LAND ROVER RANGE ROVER": {
       "thread_ts": null,
@@ -1318,7 +1794,11 @@
       "delivery_alerted": true,
       "pickup_alerted": false,
       "closed": false,
-      "start_date": "2026-05-12"
+      "start_date": "2026-05-12",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "009995-AMED-Lotus": {
       "thread_ts": null,
@@ -1327,9 +1807,13 @@
       "customer": "Amedeo Capretta",
       "vehicle": "Lotus Lotus Emira",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-12"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-12",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "009994-JOHN-Suzuki": {
       "thread_ts": null,
@@ -1340,7 +1824,11 @@
       "delivery_alerted": true,
       "pickup_alerted": false,
       "closed": false,
-      "start_date": "2026-05-12"
+      "start_date": "2026-05-12",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "009993-MUNE-McLaren": {
       "thread_ts": null,
@@ -1349,9 +1837,13 @@
       "customer": "Muneer Nazarudeen Nazarudeen",
       "vehicle": "Mclaren Spider Artura",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-12"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-12",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "009991-SAHI-Mercedes-Benz": {
       "thread_ts": null,
@@ -1360,9 +1852,13 @@
       "customer": "Sahil Narang Triloki Nath Narang",
       "vehicle": "Mercedes-Benz Mercedes  G63",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-12"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-12",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "009249-MKV -Lamborghini": {
       "thread_ts": null,
@@ -1373,7 +1869,11 @@
       "delivery_alerted": true,
       "pickup_alerted": false,
       "closed": false,
-      "start_date": "2026-05-11"
+      "start_date": "2026-05-11",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "009990-MUNE-Porsche": {
       "thread_ts": null,
@@ -1382,9 +1882,13 @@
       "customer": "Muneer Nazarudeen Nazarudeen",
       "vehicle": "Porsche 911 Turbo",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-11"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-11",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "009989-JOHN-Chevrolet": {
       "thread_ts": null,
@@ -1393,9 +1897,13 @@
       "customer": "John Alex Githua Mwangi",
       "vehicle": "Chevrolet Corvette",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-11"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-11",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "009987-FIVE-Ford": {
       "thread_ts": null,
@@ -1404,9 +1912,13 @@
       "customer": "Five Bros Rent A Car Llc",
       "vehicle": "Ford Mustang Coupe",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-10"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-10",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "009986-AMNA-Audi": {
       "thread_ts": null,
@@ -1415,9 +1927,13 @@
       "customer": "Amna Hamad Almheiri",
       "vehicle": "Audi A6",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-10"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-10",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "009984-KANE-Porsche": {
       "thread_ts": null,
@@ -1426,9 +1942,13 @@
       "customer": "Kane Elliot Tambala",
       "vehicle": "Porsche Porsche 911 Carrera",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-10"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-10",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "009981-DENN-Lotus": {
       "thread_ts": null,
@@ -1437,9 +1957,13 @@
       "customer": "Dennis Huskic",
       "vehicle": "Lotus Lotus Emira",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-10"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-10",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "009979-REHA-Suzuki": {
       "thread_ts": null,
@@ -1448,9 +1972,13 @@
       "customer": "Reham Moustafa Elsayed Albably",
       "vehicle": "Suzuki Swift",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-09"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-09",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "009974-DAVI-Land Rover": {
       "thread_ts": null,
@@ -1459,9 +1987,13 @@
       "customer": "David Leon Myers",
       "vehicle": "Land Rover Sport",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-09"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-09",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "009973-MUNE-BMW": {
       "thread_ts": null,
@@ -1470,9 +2002,13 @@
       "customer": "Muneer Nazarudeen Nazarudeen",
       "vehicle": "Bmw 735I",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-09"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-09",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "009972-MUNE-GMC": {
       "thread_ts": null,
@@ -1481,9 +2017,13 @@
       "customer": "Muneer Nazarudeen Nazarudeen",
       "vehicle": "Gmc Yukon",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-09"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-09",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "009967-BIMA-McLaren": {
       "thread_ts": null,
@@ -1492,9 +2032,13 @@
       "customer": "Bimal Kumar Kunwar Pal Sharma",
       "vehicle": "Mclaren Spider Artura",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-09"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-09",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "009970-ANGE-Cadillac": {
       "thread_ts": null,
@@ -1503,9 +2047,13 @@
       "customer": "Angel Uriel Vizcaino Magana",
       "vehicle": "Cadillac Escalade",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-09"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-09",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "009969-DAVI-Porsche": {
       "thread_ts": null,
@@ -1514,9 +2062,13 @@
       "customer": "David Leon Myers",
       "vehicle": "Porsche 911 Turbo",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-08"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-08",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "009968-SAHI-Mercedes-Benz": {
       "thread_ts": null,
@@ -1525,9 +2077,13 @@
       "customer": "Sahil Narang Triloki Nath Narang",
       "vehicle": "Mercedes-Benz Mercedes G3 (Brabus)",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-08"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-08",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "009965-ASMA-Mercedes-Benz": {
       "thread_ts": null,
@@ -1536,9 +2092,13 @@
       "customer": "Asmaa Hanine",
       "vehicle": "Mercedes-Benz Mercedes  G63",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-08"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-08",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "009966-DREA-Ferrari": {
       "thread_ts": null,
@@ -1547,9 +2107,13 @@
       "customer": "Dreamrides Car Rental L.L.C",
       "vehicle": "Ferrari Purosangue",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-08"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-08",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "009964-LAWR-Lotus": {
       "thread_ts": null,
@@ -1558,9 +2122,13 @@
       "customer": "Lawrence Nkeyewo Titaanji",
       "vehicle": "Lotus Lotus Emira",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-08"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-08",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "009946-TOM -Land Rover": {
       "thread_ts": null,
@@ -1569,9 +2137,13 @@
       "customer": "Tom Hardstaff",
       "vehicle": "Land Rover Defender",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-07"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-07",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "009963-SAHI-Nissan": {
       "thread_ts": null,
@@ -1582,7 +2154,11 @@
       "delivery_alerted": true,
       "pickup_alerted": false,
       "closed": false,
-      "start_date": "2026-05-07"
+      "start_date": "2026-05-07",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "009962-ZENI-Audi": {
       "thread_ts": null,
@@ -1593,7 +2169,11 @@
       "delivery_alerted": true,
       "pickup_alerted": false,
       "closed": false,
-      "start_date": "2026-05-07"
+      "start_date": "2026-05-07",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "009961-JOHN-Porsche": {
       "thread_ts": null,
@@ -1602,9 +2182,13 @@
       "customer": "John Alex Githua Mwangi",
       "vehicle": "Porsche 911 Turbo",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-07"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-07",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "009960-MUNE-Morgan": {
       "thread_ts": null,
@@ -1613,9 +2197,13 @@
       "customer": "Muneer Nazarudeen Nazarudeen",
       "vehicle": "Morgan Morgan Supersport",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-07"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-07",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "009943-SAGI-McLaren": {
       "thread_ts": null,
@@ -1624,9 +2212,13 @@
       "customer": "Sagi Shaken",
       "vehicle": "Mclaren Spider Artura",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-07"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-07",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "009958-MUNE-McLaren": {
       "thread_ts": null,
@@ -1635,9 +2227,13 @@
       "customer": "Muneer Nazarudeen Nazarudeen",
       "vehicle": "Mclaren Spider Artura",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-07"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-07",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "009957-MAJI-Bentley": {
       "thread_ts": null,
@@ -1646,9 +2242,13 @@
       "customer": "Majid Ahmed Abdalla",
       "vehicle": "Bentley Bentayga",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-07"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-07",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "009955-ABDU-Land Rover": {
       "thread_ts": null,
@@ -1657,9 +2257,13 @@
       "customer": "Abdul Ghaffar Imdad Ali Kanwar",
       "vehicle": "Land Rover Sport",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-06"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-06",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "009953-HAYK-BMW": {
       "thread_ts": null,
@@ -1668,9 +2272,13 @@
       "customer": "Hayk Mkhitaryan",
       "vehicle": "Bmw 735I",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-06"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-06",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010030-FAST-Land Rover": {
       "thread_ts": null,
@@ -1681,7 +2289,11 @@
       "delivery_alerted": true,
       "pickup_alerted": false,
       "closed": false,
-      "start_date": "2026-05-06"
+      "start_date": "2026-05-06",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "009947-MANS-Ferrari": {
       "thread_ts": null,
@@ -1690,9 +2302,13 @@
       "customer": "Mansour Malick Jeng",
       "vehicle": "Ferrari Purosangue",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-06"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-06",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "009945-GUNA-Mercedes-Benz": {
       "thread_ts": null,
@@ -1701,9 +2317,13 @@
       "customer": "Gunarajan S/O Shanmugham",
       "vehicle": "Mercedes-Benz Mercedes  G63",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-06"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-06",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "009944-GUNA-Mercedes-Benz": {
       "thread_ts": null,
@@ -1712,9 +2332,13 @@
       "customer": "Gunarajan S/O Shanmugham",
       "vehicle": "Mercedes-Benz Mercedes G3 (Brabus)",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-06"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-06",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "009941-HAYK-Audi": {
       "thread_ts": null,
@@ -1723,9 +2347,13 @@
       "customer": "Hayk Mkhitaryan",
       "vehicle": "Audi A6",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-05"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-05",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "009942-OLIV-Suzuki": {
       "thread_ts": null,
@@ -1734,9 +2362,13 @@
       "customer": "Oliver  Dela Luna Maghirang",
       "vehicle": "Suzuki Swift",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-05"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-05",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "009934-NIKI-McLaren": {
       "thread_ts": null,
@@ -1745,9 +2377,13 @@
       "customer": "Nikita Fedotov",
       "vehicle": "Mclaren Spider Artura",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-05"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-05",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "009935-MUNE-Land Rover": {
       "thread_ts": null,
@@ -1756,9 +2392,13 @@
       "customer": "Muneer Nazarudeen Nazarudeen",
       "vehicle": "Land Rover Svr",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-04"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-04",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "009933-Reha-Suzuki": {
       "thread_ts": null,
@@ -1767,9 +2407,13 @@
       "customer": "Reham Mustafa",
       "vehicle": "Suzuki Swift",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-02"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-02",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "009930-WAQA-Mercedes-Benz": {
       "thread_ts": null,
@@ -1778,9 +2422,13 @@
       "customer": "Waqar Ahmad Mukhtiar Ahmad",
       "vehicle": "Mercedes-Benz S500",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-02"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-02",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "009932-OMAR-Ford": {
       "thread_ts": null,
@@ -1789,9 +2437,13 @@
       "customer": "Omar Mahmoud Fahmy Mahmoud Mostafa Eighayesh",
       "vehicle": "Ford Mustang Coupe",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-02"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-02",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "009929-SYED-McLaren": {
       "thread_ts": null,
@@ -1800,9 +2452,13 @@
       "customer": "Syed Nabeel Hussain Shah Syed Mehmood  Hussain Shah",
       "vehicle": "Mclaren Spider Artura",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-02"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-02",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "009931-D S -Ferrari": {
       "thread_ts": null,
@@ -1811,9 +2467,13 @@
       "customer": "D S S Black Rent A Car Llc",
       "vehicle": "Ferrari Purosangue",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-02"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-02",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "009928-ABDO-Audi": {
       "thread_ts": null,
@@ -1822,9 +2482,13 @@
       "customer": "Abdoulaye Njoya",
       "vehicle": "Audi A6",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-02"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-02",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "009927-MOHA-Chevrolet": {
       "thread_ts": null,
@@ -1833,9 +2497,13 @@
       "customer": "Mohammed Huzaifah Alyas",
       "vehicle": "Chevrolet Corvette",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-02"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-02",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "009926-DOMI-Land Rover": {
       "thread_ts": null,
@@ -1844,9 +2512,13 @@
       "customer": "Dominic Anthony Murphy",
       "vehicle": "Land Rover Defender",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-02"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-02",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "009922-GUNA-Lamborghini": {
       "thread_ts": null,
@@ -1855,9 +2527,13 @@
       "customer": "Gunarajan S/O Shanmugham",
       "vehicle": "Lamborghini Urus",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-02"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-02",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "009924-GUNA-Lamborghini": {
       "thread_ts": null,
@@ -1866,9 +2542,13 @@
       "customer": "Gunarajan S/O Shanmugham",
       "vehicle": "Lamborghini Urus",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-02"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-02",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "009835-GUNA-Lamborghini": {
       "thread_ts": null,
@@ -1877,9 +2557,13 @@
       "customer": "Gunarajan S/O Shanmugham",
       "vehicle": "Lamborghini Urus S",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-02"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-02",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "009918-LOGA-McLaren": {
       "thread_ts": null,
@@ -1888,9 +2572,13 @@
       "customer": "Logan James Merkle",
       "vehicle": "Mclaren Spider Artura",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-02"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-02",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "009916-SASA-Lotus": {
       "thread_ts": null,
@@ -1899,9 +2587,13 @@
       "customer": "Sasa Dujmovic",
       "vehicle": "Lotus Lotus Emira",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-02"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-02",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "009921-MKV -Lamborghini": {
       "thread_ts": null,
@@ -1910,9 +2602,13 @@
       "customer": "Mkv Car Rental Llc",
       "vehicle": "Lamborghini Urus",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-02"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-02",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "009923-GEOR-Porsche": {
       "thread_ts": null,
@@ -1921,9 +2617,13 @@
       "customer": "George Adrian Gavrila",
       "vehicle": "Porsche 911 Turbo",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-02"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-02",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "009920-GEOR-Porsche": {
       "thread_ts": null,
@@ -1932,9 +2632,13 @@
       "customer": "George Adrian Gavrila",
       "vehicle": "Porsche Cayman Gt4 Rs",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-01"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-01",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "009919-QEEM-Ford": {
       "thread_ts": null,
@@ -1943,9 +2647,13 @@
       "customer": "Qeemat Al Sama Rent A Car Llc",
       "vehicle": "Ford Mustang Coupe",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-01"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-01",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "009917-DAVI-Land Rover": {
       "thread_ts": null,
@@ -1954,9 +2662,13 @@
       "customer": "David Leon Myers",
       "vehicle": "Land Rover Sport",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-01"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-01",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "009915-MOHM-McLaren": {
       "thread_ts": null,
@@ -1965,9 +2677,13 @@
       "customer": "Mohmoud Hesham Noaman Ibrahim Etman",
       "vehicle": "Mclaren Spider Artura",
       "delivery_alerted": true,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-05-01"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-01",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "008925-NIAY-Mercedes-Benz": {
       "thread_ts": null,
@@ -1978,7 +2694,11 @@
       "delivery_alerted": true,
       "pickup_alerted": false,
       "closed": false,
-      "start_date": "2026-05-01"
+      "start_date": "2026-05-01",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "009914-DHUR-Land Rover": {
       "thread_ts": null,
@@ -1987,9 +2707,24 @@
       "customer": "Dhurgham Mohammed Sarhan Al Badri",
       "vehicle": "Land Rover Svr",
       "delivery_alerted": true,
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-05-01",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
+    },
+    "0010126-ANTO-Land Rover": {
+      "thread_ts": "1780224768.087249",
+      "end_date": "2026-06-01",
+      "plate": "55789",
+      "customer": "Anton Moiseev",
+      "vehicle": "Land Rover Sport",
+      "delivery_alerted": true,
       "pickup_alerted": false,
       "closed": false,
-      "start_date": "2026-05-01"
+      "start_date": "2026-05-31"
     }
   }
 }
