@@ -3,6 +3,9 @@ name: Keep Alive
 on:
   schedule:
     - cron: '30 9 * * *'
+    - cron: '0 4 * * *'
+    - cron: '0 6 * * *'
+    - cron: '0 7 * * *'
     - cron: '0 4 * * 1'
 
   workflow_dispatch:
@@ -11,16 +14,6 @@ on:
         description: 'Which job to run'
         required: false
         default: 'all'
-        type: choice
-        options:
-          - all
-          - fleet-availability
-          - daily-leads
-          - website-snapshot
-          - pickup-alert
-          - booking-bot
-          - ads-snapshot
-          - weekly
 
 permissions:
   contents: write
