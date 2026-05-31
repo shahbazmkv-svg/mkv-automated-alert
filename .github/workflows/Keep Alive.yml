@@ -21,17 +21,13 @@ on:
           - booking-bot
           - ads-snapshot
           - weekly
-      test_mode:
-        description: 'Post to test channel? yes/no'
-        required: false
-        default: 'no'
 
 permissions:
   contents: write
 
 jobs:
   fleet-availability:
-    if: github.event_name == 'schedule' || github.event.inputs.job == 'fleet-availability' || github.event.inputs.job == 'all'
+    if: github.event_name == 'workflow_dispatch' && (github.event.inputs.job == 'fleet-availability' || github.event.inputs.job == 'all')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -48,7 +44,7 @@ jobs:
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
           APPIC_KEY: ${{ secrets.APPIC_KEY }}
-          TEST_MODE: ${{ github.event.inputs.test_mode == 'yes' && 'true' || 'false' }}
+          TEST_MODE: "false"
         run: python mkv_fleet_availability.py
 
       - name: Keep repo active
@@ -80,7 +76,7 @@ jobs:
           GALLABOX_API_SECRET: ${{ secrets.GALLABOX_API_SECRET }}
           GALLABOX_ACCOUNT_ID: ${{ secrets.GALLABOX_ACCOUNT_ID }}
           WEBHOOK_LEADS: ${{ secrets.WEBHOOK_LEADS }}
-          TEST_MODE: ${{ github.event.inputs.test_mode == 'yes' && 'true' || 'false' }}
+          TEST_MODE: "false"
         run: python mkv_gallabox_snapshot.py
 
       - name: Save MTD store and keep repo active
@@ -109,7 +105,7 @@ jobs:
       - name: Run Website Snapshot
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
-          TEST_MODE: ${{ github.event.inputs.test_mode == 'yes' && 'true' || 'false' }}
+          TEST_MODE: "false"
         run: python mkv_website_monitor.py
 
       - name: Keep repo active
@@ -138,7 +134,7 @@ jobs:
         env:
           APPIC_KEY: ${{ secrets.APPIC_KEY }}
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
-          TEST_MODE: ${{ github.event.inputs.test_mode == 'yes' && 'true' || 'false' }}
+          TEST_MODE: "false"
         run: python mkv_pickup_alert.py
 
       - name: Keep repo active
@@ -170,7 +166,7 @@ jobs:
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
           APPIC_KEY: ${{ secrets.APPIC_KEY }}
-          TEST_MODE: ${{ github.event.inputs.test_mode == 'yes' && 'true' || 'false' }}
+          TEST_MODE: "false"
         run: python mkv_booking_bot.py
 
       - name: Commit store updates
@@ -213,7 +209,7 @@ jobs:
           GMAIL_ADDRESS: ${{ secrets.GMAIL_ADDRESS }}
           GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
           META_TOKEN: ${{ secrets.META_TOKEN }}
-          TEST_MODE: ${{ github.event.inputs.test_mode == 'yes' && 'true' || 'false' }}
+          TEST_MODE: "false"
         run: python mkv_ads_api_report.py
 
   weekly-optimizer:
@@ -256,7 +252,7 @@ jobs:
           GALLABOX_API_KEY: ${{ secrets.GALLABOX_API_KEY }}
           GALLABOX_API_SECRET: ${{ secrets.GALLABOX_API_SECRET }}
           META_TOKEN: ${{ secrets.META_TOKEN }}
-          TEST_MODE: ${{ github.event.inputs.test_mode == 'yes' && 'true' || 'false' }}
+          TEST_MODE: "false"
         run: python mkv_weekly_optimizer.py
 
       - name: Save weekly store
