@@ -1,178 +1,25 @@
-name: Keep Alive
+name: Car Availability
 
 on:
   workflow_dispatch:
-    inputs:
-      job:
-        description: 'Which job to run'
-        required: false
-        default: 'all'
-        type: choice
-        options:
-          - all
-          - fleet-availability
-          - daily-leads
-          - website-snapshot
-          - pickup-alert
-          - booking-bot
-          - ads-snapshot
+  schedule:
+    - cron: '15 6 * * *' # 10:15 AM Dubai
 
 jobs:
-
-  fleet-availability:
-    if: github.event.inputs.job == 'fleet-availability' || github.event.inputs.job == 'all'
+  car-availability:
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+
       - run: pip install requests pytz --break-system-packages
-      - name: Run Fleet Availability
+
+      - name: Run Car Availability
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
-          APPIC_KEY:       ${{ secrets.APPIC_KEY }}
-        run: python mkv_fleet_availability.py
-      - name: Keep repo active
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git pull --rebase origin main || true
-          git commit --allow-empty -m "chore: fleet availability ran $(date +'%Y-%m-%d')"
-          git push
-
-  daily-leads:
-    if: github.event.inputs.job == 'daily-leads' || github.event.inputs.job == 'all'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-      - run: pip install requests pytz --break-system-packages
-      - name: Run Daily Leads Report
-        env:
-          SLACK_BOT_TOKEN:     ${{ secrets.SLACK_BOT_TOKEN }}
-          GALLABOX_API_KEY:    ${{ secrets.GALLABOX_API_KEY }}
-          GALLABOX_API_SECRET: ${{ secrets.GALLABOX_API_SECRET }}
-          GALLABOX_ACCOUNT_ID: ${{ secrets.GALLABOX_ACCOUNT_ID }}
-          WEBHOOK_LEADS:       ${{ secrets.WEBHOOK_LEADS }}
-        run: python mkv_gallabox_snapshot.py
-      - name: Save MTD store and keep repo active
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git pull --rebase origin main || true
-          git add mtd_store.json
-          git diff --staged --quiet || git commit -m "chore: leads + MTD store updated $(date +'%Y-%m-%d')"
-          git push || true
-
-  website-snapshot:
-    if: github.event.inputs.job == 'website-snapshot' || github.event.inputs.job == 'all'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-      - run: pip install requests beautifulsoup4 lxml pytz --break-system-packages
-      - name: Run Website Snapshot
-        env:
-          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
-        run: python mkv_website_monitor.py
-      - name: Keep repo active
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git pull --rebase origin main || true
-          git commit --allow-empty -m "chore: website snapshot ran $(date +'%Y-%m-%d')"
-          git push
-
-  pickup-alert:
-    if: github.event.inputs.job == 'pickup-alert' || github.event.inputs.job == 'all'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-      - run: pip install requests pytz --break-system-packages
-      - name: Run Pickup & Delivery Alert
-        env:
-          APPIC_KEY:       ${{ secrets.APPIC_KEY }}
-          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
-        run: python mkv_pickup_alert.py
-      - name: Keep repo active
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git pull --rebase origin main || true
-          git commit --allow-empty -m "chore: pickup alert ran $(date +'%Y-%m-%d')"
-          git push
-
-  booking-bot:
-    if: github.event.inputs.job == 'booking-bot' || github.event.inputs.job == 'all'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-      - run: pip install requests pytz --break-system-packages
-      - name: Run Booking Bot
-        env:
-          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
-          APPIC_KEY:       ${{ secrets.APPIC_KEY }}
-        run: python mkv_booking_bot.py
-      - name: Commit store updates
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add booking_thread_store.json || true
-          git pull --rebase origin main || true
-          git commit -m "chore: booking bot store $(date +'%Y-%m-%d %H:%M')" || true
-          git push || true
-
-  ads-snapshot:
-    if: github.event.inputs.job == 'ads-snapshot' || github.event.inputs.job == 'all'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-      - run: pip install requests google-ads slack-sdk pandas pytz --break-system-packages
-      - name: Run Ads Snapshot
-        env:
-          SLACK_BOT_TOKEN:              ${{ secrets.SLACK_BOT_TOKEN }}
-          GOOGLE_ADS_DEVELOPER_TOKEN:   ${{ secrets.GOOGLE_ADS_DEVELOPER_TOKEN }}
-          GOOGLE_ADS_CLIENT_ID:         ${{ secrets.GOOGLE_ADS_CLIENT_ID }}
-          GOOGLE_ADS_CLIENT_SECRET:     ${{ secrets.GOOGLE_ADS_CLIENT_SECRET }}
-          GOOGLE_ADS_REFRESH_TOKEN:     ${{ secrets.GOOGLE_ADS_REFRESH_TOKEN }}
-          GOOGLE_ADS_CUSTOMER_ID:       ${{ secrets.GOOGLE_ADS_CUSTOMER_ID }}
-          GOOGLE_ADS_LOGIN_CUSTOMER_ID: ${{ secrets.GOOGLE_ADS_LOGIN_CUSTOMER_ID }}
-          META_ACCESS_TOKEN:            ${{ secrets.META_ACCESS_TOKEN }}
-          META_AD_ACCOUNT_ID:           ${{ secrets.META_AD_ACCOUNT_ID }}
-          META_RTO_ACCOUNT_ID:          ${{ secrets.META_RTO_ACCOUNT_ID }}
-          GMAIL_ADDRESS:                ${{ secrets.GMAIL_ADDRESS }}
-          GMAIL_APP_PASSWORD:           ${{ secrets.GMAIL_APP_PASSWORD }}
-        run: python mkv_ads_api_report.py
-      - name: Keep repo active
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git pull --rebase origin main || true
-          git commit --allow-empty -m "chore: ads snapshot ran $(date +'%Y-%m-%d')"
-          git push || true
+          APPIC_KEY: ${{ secrets.APPIC_KEY }}
+        run: python mkv_car_availbaility.py
