@@ -50,7 +50,7 @@ DATE_RANGE          = (datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d")
 META_SUBJECT_KEYWORD = "Your Daily Facebook ads report"
 
 # Meta Ads API
-META_ACCESS_TOKEN   = os.environ.get("META_ACCESS_TOKEN", "")
+META_ACCESS_TOKEN   = os.environ.get("META_ACCESS_TOKEN", os.environ.get("META_TOKEN", ""))
 META_AD_ACCOUNT_ID  = os.environ.get("META_AD_ACCOUNT_ID", "699611181993619")
 META_RTO_ACCOUNT_ID = os.environ.get("META_RTO_ACCOUNT_ID", "900731551390821")
 
@@ -1508,7 +1508,17 @@ def main():
     google_blocks = build_google_report(g_camp, g_mtd, g_mtd_split, g_conv, g_search, g_auction, g_landing, g_geo, g_device, yesterday, kw_recs, comp_kw)
     post_slack(google_blocks, "MKV Google Ads Report")
 
-    # Meta report posted separately by mkv_meta_local.py
+   print("\n📤 Posting Meta Ads report to Slack...")
+meta_blocks = build_meta_report(
+    meta,
+    meta_mtd,
+    meta_rto,
+    meta_rto_mtd,
+    meta_placement,
+    meta_age_gender,
+    yesterday
+)
+post_slack(meta_blocks, "MKV Meta Ads Report")
 
     print(f"\n  Google → AED {g_camp.get('cost',0):.2f} | {g_camp.get('clicks',0)} clicks | {g_camp.get('conversions',0)} conv")
     print(f"  Meta   → Running separately via local script")
