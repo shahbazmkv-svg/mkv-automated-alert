@@ -1,0 +1,243 @@
+name: Keep Alive
+
+on:
+  schedule:
+    - cron: '0 6 * * *'      # fleet-availability   â€” 10:00 AM Dubai (UTC+4)
+    - cron: '0 7 * * *'      # daily-leads          â€” 11:00 AM Dubai
+    - cron: '30 7 * * *'     # website-snapshot     â€” 11:30 AM Dubai
+    - cron: '0 15 * * *'     # pickup-alert         â€” 7:00 PM Dubai
+    - cron: '*/5 * * * *'    # booking-bot          â€” every 5 minutes
+  workflow_dispatch:
+    inputs:
+      job:
+        description: 'Which job to run'
+        required: false
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - fleet-availability
+          - daily-leads
+          - website-snapshot
+          - pickup-alert
+          - booking-bot
+          - debug-vehicles-api
+          - debug-full
+
+jobs:
+
+  fleet-availability:
+    if: >
+      (github.event_name == 'schedule' && github.event.schedule == '0 6 * * *') ||
+      github.event.inputs.job == 'fleet-availability' ||
+      github.event.inputs.job == 'all'
+    runs-on: ubuntu-latest
+    concurrency:
+      group: git-push
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install requests pytz --break-system-packages
+      - name: Run Fleet Availability
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+          APPIC_KEY:       ${{ secrets.APPIC_KEY }}
+        run: python mkv_fleet_availability.py
+      - name: Keep repo active
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git pull --rebase origin main || true
+          git commit --allow-empty -m "chore: fleet availability ran $(date +'%Y-%m-%d')"
+          git push || (git pull --rebase origin main && git push)
+
+  debug-vehicles-api:
+    if: github.event.inputs.job == 'debug-vehicles-api'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Test get-mkv-vehicles API
+        env:
+          APPIC_KEY: ${{ secrets.APPIC_KEY }}
+        run: |
+          echo "=== RAW RESPONSE ==="
+          curl -s -X POST \
+            -d "key=$APPIC_KEY" \
+            https://www.appicfleet.com/appiccar-apis-mkv/get-mkv-vehicles.php | python3 -m json.tool
+
+  debug-full:
+    if: github.event.inputs.job == 'debug-full'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Debug both APIs
+        env:
+          APPIC_KEY: ${{ secrets.APPIC_KEY }}
+        run: |
+          python3 - << 'EOF'
+          import requests, json, os
+          from datetime import datetime, timedelta
+
+          KEY      = os.environ["APPIC_KEY"]
+          today    = datetime.now().strftime("%Y-%m-%d")
+          tomorrow = (datetime.now() + timedelta(days=1)).strftime("%Y-%m-%d")
+
+          print("=" * 60)
+          print("1. GET-MKV-VEHICLES â€” first 3 STR vehicles")
+          print("=" * 60)
+          r = requests.post(
+              "https://www.appicfleet.com/appiccar-apis-mkv/get-mkv-vehicles.php",
+              data={"key": KEY}, timeout=20
+          )
+          resp = r.json()
+          vehicles = resp if isinstance(resp, list) else resp.get("data", resp.get("vehicles", []))
+          active = [v for v in vehicles if float(v.get("dailyrent", 0) or 0) > 0]
+          print(f"Total: {len(vehicles)} | STR (dailyrent>0): {len(active)}")
+          print(f"Keys: {list(active[0].keys()) if active else 'NONE'}")
+          for v in active[:3]:
+              print(json.dumps(v, indent=2))
+
+          print()
+          print("=" * 60)
+          print("2. GET-MKV-AVAILABLE-VEHICLE â€” first 3 STR vehicles")
+          print("=" * 60)
+          for v in active[:3]:
+              vid   = str(v.get("vehicleID") or v.get("id") or "")
+              plate = v.get("plate", "")
+              r2 = requests.post(
+                  "https://www.appicfleet.com/appiccar-apis-mkv/get-mkv-available-vehicle.php",
+                  data={"key": KEY, "startDate": today, "endDate": tomorrow, "vehicleID": vid},
+                  timeout=15
+              )
+              print(f"vehicleID={vid} | plate={plate}")
+              print(json.dumps(r2.json(), indent=2))
+              print()
+          EOF
+
+  daily-leads:
+    if: >
+      (github.event_name == 'schedule' && github.event.schedule == '0 7 * * *') ||
+      github.event.inputs.job == 'daily-leads' ||
+      github.event.inputs.job == 'all'
+    runs-on: ubuntu-latest
+    concurrency:
+      group: git-push
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install requests pytz --break-system-packages
+      - name: Run Daily Leads Report
+        env:
+          SLACK_BOT_TOKEN:     ${{ secrets.SLACK_BOT_TOKEN }}
+          GALLABOX_API_KEY:    ${{ secrets.GALLABOX_API_KEY }}
+          GALLABOX_API_SECRET: ${{ secrets.GALLABOX_API_SECRET }}
+          GALLABOX_ACCOUNT_ID: ${{ secrets.GALLABOX_ACCOUNT_ID }}
+          WEBHOOK_LEADS:       ${{ secrets.WEBHOOK_LEADS }}
+        run: python mkv_gallabox_snapshot.py
+      - name: Save MTD store and keep repo active
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git pull --rebase origin main || true
+          git add mtd_store.json
+          git diff --staged --quiet || git commit -m "chore: leads + MTD store updated $(date +'%Y-%m-%d')"
+          git push || (git pull --rebase origin main && git push) || true
+
+  website-snapshot:
+    if: >
+      (github.event_name == 'schedule' && github.event.schedule == '30 7 * * *') ||
+      github.event.inputs.job == 'website-snapshot' ||
+      github.event.inputs.job == 'all'
+    runs-on: ubuntu-latest
+    concurrency:
+      group: git-push
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install requests beautifulsoup4 lxml pytz --break-system-packages
+      - name: Run Website Snapshot
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+        run: python mkv_website_monitor.py
+      - name: Keep repo active
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git pull --rebase origin main || true
+          git commit --allow-empty -m "chore: website snapshot ran $(date +'%Y-%m-%d')"
+          git push || (git pull --rebase origin main && git push)
+
+  pickup-alert:
+    if: >
+      (github.event_name == 'schedule' && github.event.schedule == '0 15 * * *') ||
+      github.event.inputs.job == 'pickup-alert' ||
+      github.event.inputs.job == 'all'
+    runs-on: ubuntu-latest
+    concurrency:
+      group: git-push
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install requests pytz --break-system-packages
+      - name: Run Pickup & Delivery Alert
+        env:
+          APPIC_KEY:       ${{ secrets.APPIC_KEY }}
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+        run: python mkv_pickup_alert.py
+      - name: Keep repo active
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git pull --rebase origin main || true
+          git commit --allow-empty -m "chore: pickup alert ran $(date +'%Y-%m-%d')"
+          git push || (git pull --rebase origin main && git push)
+
+  booking-bot:
+    if: >
+      (github.event_name == 'schedule' && github.event.schedule == '*/5 * * * *') ||
+      github.event.inputs.job == 'booking-bot' ||
+      github.event.inputs.job == 'all'
+    runs-on: ubuntu-latest
+    concurrency:
+      group: git-push
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install requests pytz --break-system-packages
+      - name: Run Booking Bot
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+          APPIC_KEY:       ${{ secrets.APPIC_KEY }}
+        run: python mkv_booking_bot.py
+      - name: Commit store updates
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add booking_thread_store.json || true
+          git pull --rebase origin main || true
+          git commit -m "chore: booking bot store $(date +'%Y-%m-%d %H:%M')" || true
+          git push || (git pull --rebase origin main && git push) || true
+
