@@ -1,4 +1,4 @@
-name: Car Availability Test
+name: Car Availability
 
 on:
   workflow_dispatch:
@@ -22,4 +22,4 @@ jobs:
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
           APPIC_KEY: ${{ secrets.APPIC_KEY }}
-        run: python mkv_car_availbaility.py
+        run: python mkv_car_availability.py
