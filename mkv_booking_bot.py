@@ -680,7 +680,7 @@ def main():
     # SEED MODE
     # True  = stores all bookings silently (first run)
     # False = normal mode, posts new bookings
-    SEED_MODE = True
+    SEED_MODE = False
     # -------------------------------------------
 
     print("=" * 56)
