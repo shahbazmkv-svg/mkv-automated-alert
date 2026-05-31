@@ -4,6 +4,7 @@ on:
   schedule:
     - cron: '30 9 * * *'
     - cron: '0 4 * * 1'
+
   workflow_dispatch:
     inputs:
       job:
@@ -21,20 +22,16 @@ on:
           - ads-snapshot
           - weekly
       test_mode:
-        description: 'Post to test channel?'
+        description: 'Post to test channel? yes/no'
         required: false
         default: 'no'
-        type: choice
-        options:
-          - 'no'
-          - 'yes'
 
 permissions:
   contents: write
 
 jobs:
   fleet-availability:
-    if: github.event.inputs.job == 'fleet-availability' || github.event.inputs.job == 'all'
+    if: github.event_name == 'schedule' || github.event.inputs.job == 'fleet-availability' || github.event.inputs.job == 'all'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -63,7 +60,7 @@ jobs:
           git push || true
 
   daily-leads:
-    if: github.event.inputs.job == 'daily-leads' || github.event.inputs.job == 'all'
+    if: github.event_name == 'workflow_dispatch' && (github.event.inputs.job == 'daily-leads' || github.event.inputs.job == 'all')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -96,7 +93,7 @@ jobs:
           git push || true
 
   website-snapshot:
-    if: github.event.inputs.job == 'website-snapshot' || github.event.inputs.job == 'all'
+    if: github.event_name == 'workflow_dispatch' && (github.event.inputs.job == 'website-snapshot' || github.event.inputs.job == 'all')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -124,7 +121,7 @@ jobs:
           git push || true
 
   pickup-alert:
-    if: github.event.inputs.job == 'pickup-alert' || github.event.inputs.job == 'all'
+    if: github.event_name == 'workflow_dispatch' && (github.event.inputs.job == 'pickup-alert' || github.event.inputs.job == 'all')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -153,7 +150,7 @@ jobs:
           git push || true
 
   booking-bot:
-    if: github.event.inputs.job == 'booking-bot' || github.event.inputs.job == 'all'
+    if: github.event_name == 'workflow_dispatch' && (github.event.inputs.job == 'booking-bot' || github.event.inputs.job == 'all')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
