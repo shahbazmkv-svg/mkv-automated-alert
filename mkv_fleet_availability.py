@@ -22,7 +22,7 @@ from datetime import datetime, timezone, timedelta
 import requests
 
 
-TEST_MODE = True
+TEST_MODE = False
 
 SLACK_TOKEN = os.environ["SLACK_BOT_TOKEN"]
 APPIC_KEY = os.environ.get("APPIC_KEY", "")
