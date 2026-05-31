@@ -750,10 +750,10 @@ def main():
 
                 # Same-day booking â†’ also post to #mkv-schedule-for-delivery
                 today = dubai_now().strftime("%Y-%m-%d")
-                if start == today and not TEST_MODE:
+                if start == today:
                     print(f"  Same-day booking â†’ posting to #mkv-schedule-for-delivery")
                     s_blocks, s_text = build_schedule_delivery_notice(f, now_str, TARGET_CHANNEL, ts)
-                    post_message(CHANNEL_SCHEDULE, s_blocks, s_text)
+                    post_message(SCHEDULE_CHANNEL, s_blocks, s_text)
 
                 d_blocks, d_text = build_delivery_checklist(f, now_str)
                 d_ts = post_message(TARGET_CHANNEL, d_blocks, d_text, thread_ts=ts)
