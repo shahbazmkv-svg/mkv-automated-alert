@@ -2759,6 +2759,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010129-MANT-Porsche": {
+      "thread_ts": "1780255825.534319",
+      "end_date": "2026-06-02",
+      "plate": "64545",
+      "customer": "Mantavya Sharma",
+      "vehicle": "Porsche Cayman Gt4 Rs",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-06-01"
     }
   }
 }
