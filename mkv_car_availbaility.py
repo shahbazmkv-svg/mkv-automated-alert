@@ -22,7 +22,7 @@ from datetime import datetime, timezone, timedelta
 import requests
 
 
-TEST_MODE = True
+TEST_MODE = False
 
 SLACK_TOKEN = os.environ["SLACK_BOT_TOKEN"]
 APPIC_KEY = os.environ.get("APPIC_KEY", "")
@@ -295,12 +295,10 @@ def build_message(fleet, available_str, deliveries, returns, unmatched):
     fleet_available = sum(1 for car in fleet if car["status"] == "AVAILABLE")
     fleet_rented = sum(1 for car in fleet if car["status"] == "RENTED")
     service_count = sum(1 for car in fleet if car["status"] == "SERVICE/GARAGE")
-    unmarked_count = sum(1 for car in fleet if car["status"] == "-")
     available_count = len(available_str)
 
-    mode_label = "TEST" if TEST_MODE else "LIVE"
     summary = "\n".join([
-        f"{date_str} {day_str} - {mode_label}",
+        f"{date_str} {day_str}",
         "",
         f"Total Fleet       : {total}",
         f"STR               : {str_total}",
@@ -311,7 +309,6 @@ def build_message(fleet, available_str, deliveries, returns, unmatched):
         f"Fleet Available   : {fleet_available}",
         f"Fleet Rented      : {fleet_rented}",
         f"Service/Garage    : {service_count}",
-        f"Status Not Marked : {unmarked_count}",
         "",
         f"Live STR Available: {available_count}",
     ])
@@ -350,7 +347,7 @@ def build_message(fleet, available_str, deliveries, returns, unmatched):
     blocks.append({"type": "context", "elements": [{"type": "mrkdwn",
         "text": "MKV Active Fleet - Google Sheet master + Appic STR availability + check-in/out movement"}]})
 
-    return {"blocks": blocks, "text": f"MKV Car Availability - {date_str} {day_str} - {mode_label}"}
+    return {"blocks": blocks, "text": f"MKV Car Availability - {date_str} {day_str}"}
 
 
 def post_slack(message):
