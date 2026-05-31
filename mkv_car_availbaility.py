@@ -292,8 +292,8 @@ def build_message(fleet, available_str, deliveries, returns, unmatched):
     ltr_count = sum(1 for car in fleet if car["category"] == "LTR")
     nrv_count = sum(1 for car in fleet if car["category"] == "NRV")
     str_total = sum(1 for car in fleet if car["category"] == "STR")
-    sheet_available = sum(1 for car in fleet if car["status"] == "AVAILABLE")
-    sheet_rented = sum(1 for car in fleet if car["status"] == "RENTED")
+    fleet_available = sum(1 for car in fleet if car["status"] == "AVAILABLE")
+    fleet_rented = sum(1 for car in fleet if car["status"] == "RENTED")
     service_count = sum(1 for car in fleet if car["status"] == "SERVICE/GARAGE")
     unmarked_count = sum(1 for car in fleet if car["status"] == "-")
     available_count = len(available_str)
@@ -308,10 +308,10 @@ def build_message(fleet, available_str, deliveries, returns, unmatched):
         f"Long Term         : {ltr_count}",
         f"NRV               : {nrv_count}",
         "",
-        f"Sheet Available   : {sheet_available}",
-        f"Sheet Rented      : {sheet_rented}",
+        f"Fleet Available   : {fleet_available}",
+        f"Fleet Rented      : {fleet_rented}",
         f"Service/Garage    : {service_count}",
-        f"Unmarked          : {unmarked_count}",
+        f"Status Not Marked : {unmarked_count}",
         "",
         f"Live STR Available: {available_count}",
     ])
