@@ -11,7 +11,7 @@ SLACK_BOT_TOKEN    = os.environ["SLACK_BOT_TOKEN"]
 
 CHANNEL_BOOKINGS   = "C0ABPC606F7"   # #mkv-bookings (ROOT)
 CHANNEL_SCHEDULE   = "C0ACB9C8J01"   # #mkv-schedule-for-delivery
-CHANNEL_TEST       = "C0AVCCCG0S0"   # #mkvtest
+CHANNEL_TEST       = "C0B0TGBDCDU"   # #mkvtest
 
 TEST_MODE          = False
 TARGET_CHANNEL     = CHANNEL_TEST if TEST_MODE else CHANNEL_BOOKINGS
