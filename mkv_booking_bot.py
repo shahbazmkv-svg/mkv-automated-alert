@@ -11,10 +11,11 @@ SLACK_BOT_TOKEN    = os.environ["SLACK_BOT_TOKEN"]
 
 CHANNEL_BOOKINGS   = "C0ABPC606F7"   # #mkv-bookings (ROOT)
 CHANNEL_SCHEDULE   = "C0ACB9C8J01"   # #mkv-schedule-for-delivery
-CHANNEL_TEST       = "C0B0TGBDCDU"   # #mkvtest
+CHANNEL_TEST       = "C0B0TGBDCDU"   # #mkv-test-automation
 
-TEST_MODE          = False
+TEST_MODE          = os.environ.get("TEST_MODE", "false").lower() == "true"
 TARGET_CHANNEL     = CHANNEL_TEST if TEST_MODE else CHANNEL_BOOKINGS
+SCHEDULE_CHANNEL   = CHANNEL_TEST if TEST_MODE else CHANNEL_SCHEDULE
 
 APPIC_BOOKINGS_URL = "https://www.appicfleet.com/appiccar-apis-mkv/get-mkv-bookings.php"
 APPIC_CHECK_URL    = "https://www.appicfleet.com/appiccar-apis-mkv/get-mkv-checkin-checkout.php"
