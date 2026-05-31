@@ -51,6 +51,7 @@ META_SUBJECT_KEYWORD = "Your Daily Facebook ads report"
 
 # Meta Ads API
 META_ACCESS_TOKEN   = os.environ.get("META_ACCESS_TOKEN", os.environ.get("META_TOKEN", ""))
+print(f"  Meta token configured: {'YES' if META_ACCESS_TOKEN else 'NO'}")
 META_AD_ACCOUNT_ID  = os.environ.get("META_AD_ACCOUNT_ID", "699611181993619")
 META_RTO_ACCOUNT_ID = os.environ.get("META_RTO_ACCOUNT_ID", "900731551390821")
 
