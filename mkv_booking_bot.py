@@ -473,7 +473,7 @@ def build_booking_card(f, now_str):
 
 
 def build_schedule_delivery_notice(f, now_str, booking_channel, booking_ts):
-    thread_link = f"https://slack.com/app_redirect?channel={booking_channel}&message_ts={booking_ts}"
+    thread_link = f"https://slack.com/app_redirect?channel={CHANNEL_BOOKINGS}&message_ts={booking_ts}"
     booking_data = json.dumps({
         "id": f["agr_no"],
         "car": f"{f['vehicle']} [{f['plate']}]",
