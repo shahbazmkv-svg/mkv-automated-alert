@@ -2774,6 +2774,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010130-EMAD-Land Rover": {
+      "thread_ts": "1780295423.958059",
+      "end_date": "2026-06-02",
+      "plate": "75037",
+      "customer": "Emad Omar Faiq Al Atout",
+      "vehicle": "Land Rover Svr",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-06-01"
     }
   }
 }
