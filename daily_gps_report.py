@@ -4,9 +4,9 @@ Generates an Excel workbook with 5 report tabs for all 64 vehicles.
 Tabs: Mileage | Activity | Speed | Geofence | Trips & Parking
 
 Usage:
-    python mkv_daily_report.py
-    python mkv_daily_report.py --date 2025-05-31   # specific date
-    python mkv_daily_report.py --days 7            # last 7 days
+    python daily_gps_report.py
+    python daily_gps_report.py --date 2026-05-31   # specific date
+    python daily_gps_report.py --days 7            # last 7 days
 
 Requirements:
     pip install requests openpyxl python-dotenv
@@ -28,24 +28,22 @@ load_dotenv()
 # ──────────────────────────────────────────────
 # CONFIGURATION — set in .env or edit directly
 # ──────────────────────────────────────────────
-API_BASE   = os.getenv("PILOT_API_BASE", "https://pilot-gps.ru/api/api.php")
-API_USER   = os.getenv("PILOT_USER", "YOUR_USERNAME")
-API_PASS   = os.getenv("PILOT_PASS", "YOUR_PASSWORD")
-TIMEZONE   = "Asia/Dubai"
-REQUEST_DELAY = 0.3   # seconds between API calls (be polite to server)
+API_BASE      = os.getenv("PILOT_API_BASE", "https://pilot-gps.ru/api/api.php")
+API_TOKEN     = os.getenv("PILOT_TOKEN", "")
+API_USER      = os.getenv("PILOT_USER", "")
+API_PASS      = os.getenv("PILOT_PASS", "")
+TIMEZONE      = "Asia/Dubai"
+REQUEST_DELAY = 0.3
 
-# Dubai UTC offset = +4
 DUBAI_OFFSET = timezone(timedelta(hours=4))
 
 # ──────────────────────────────────────────────
 # STYLES
 # ──────────────────────────────────────────────
-DARK_GREEN  = "1A3C2E"
-MID_GREEN   = "2E6B4F"
-LIGHT_GREEN = "D6ECD6"
-WHITE       = "FFFFFF"
-LIGHT_GREY  = "F5F5F5"
-ACCENT      = "F0A500"
+DARK_GREEN = "1A3C2E"
+MID_GREEN  = "2E6B4F"
+WHITE      = "FFFFFF"
+LIGHT_GREY = "F5F5F5"
 
 def header_font(bold=True, color=WHITE, size=11):
     return Font(name="Arial", bold=bold, color=color, size=size)
@@ -107,9 +105,8 @@ def set_col_widths(ws, widths):
 
 def add_totals_row(ws, row, col_count, sum_cols, label_col=1):
     ws.cell(row, label_col).value = "TOTAL / AVERAGE"
-    ws.cell(row, label_col).font = Font(name="Arial", bold=True, size=10)
-    ws.cell(row, label_col).fill = header_fill(MID_GREEN)
     ws.cell(row, label_col).font = Font(name="Arial", bold=True, color=WHITE)
+    ws.cell(row, label_col).fill = header_fill(MID_GREEN)
     ws.cell(row, label_col).alignment = center()
     for col, formula in sum_cols.items():
         c = ws.cell(row, col)
@@ -128,8 +125,17 @@ def add_totals_row(ws, row, col_count, sum_cols, label_col=1):
 class PilotAPI:
     def __init__(self):
         self.session = requests.Session()
-        self.session.auth = (API_USER, API_PASS)
         self.base = API_BASE
+
+        # Token auth takes priority over Basic Auth
+        if API_TOKEN:
+            self.session.params = {"sid": API_TOKEN}
+            print(f"  Auth: using session token")
+        elif API_USER and API_PASS:
+            self.session.auth = (API_USER, API_PASS)
+            print(f"  Auth: using Basic Auth ({API_USER})")
+        else:
+            print("  [WARN] No credentials found in .env")
 
     def get(self, cmd, params=None):
         p = {"cmd": cmd}
@@ -167,9 +173,9 @@ class PilotAPI:
             return {}
         d = data.get("data", {})
         return {
-            "mileage_km":    round(float(d.get("mileage", 0)), 1),
-            "engine_hours":  round(float(d.get("engine_hours", 0)), 2),
-            "fuel_used_l":   round(float(d.get("fuel", 0)), 1),
+            "mileage_km":   round(float(d.get("mileage", 0)), 1),
+            "engine_hours": round(float(d.get("engine_hours", 0)), 2),
+            "fuel_used_l":  round(float(d.get("fuel", 0)), 1),
         }
 
     def get_trips(self, imei, ts, te):
@@ -230,15 +236,12 @@ def build_mileage_sheet(wb, vehicles, api, ts, te, date_str):
         row = [i, v["name"], v["plate"], v["imei"], km, hours, fuel, avg, status]
         ws.append(row)
         style_data_row(ws, data_start + i - 1, len(headers), alt=(i % 2 == 0))
-
-        # Color status
         s_cell = ws.cell(data_start + i - 1, 9)
         s_cell.font = Font(name="Arial", bold=True, size=10,
                            color="2E6B4F" if status == "Active" else "CC4400")
 
     total_row = data_start + len(vehicles)
-    r1 = data_start
-    r2 = total_row - 1
+    r1, r2 = data_start, total_row - 1
     add_totals_row(ws, total_row, len(headers), {
         5: f"=SUM(E{r1}:E{r2})",
         6: f"=SUM(F{r1}:F{r2})",
@@ -280,16 +283,10 @@ def build_activity_sheet(wb, vehicles, api, ts, te, date_str):
                 last_seen = str(status.get("last_time", ""))
 
         online = "Online" if status.get("online") == 1 else "Offline"
-        row = [
-            i, v["name"], v["plate"],
-            len(trips), len(parkings),
-            round(moving_secs / 3600, 2),
-            round(idle_secs / 3600, 2),
-            online, last_seen
-        ]
+        row = [i, v["name"], v["plate"], len(trips), len(parkings),
+               round(moving_secs / 3600, 2), round(idle_secs / 3600, 2), online, last_seen]
         ws.append(row)
         style_data_row(ws, data_start + i - 1, len(headers), alt=(i % 2 == 0))
-
         oc = ws.cell(data_start + i - 1, 8)
         oc.font = Font(name="Arial", bold=True, size=10,
                        color="2E6B4F" if online == "Online" else "999999")
@@ -327,17 +324,14 @@ def build_speed_sheet(wb, vehicles, api, ts, te, date_str):
         max_speed  = max((float(t.get("max_speed", 0)) for t in trips), default=0)
         avg_speeds = [float(t.get("avg_speed", 0)) for t in trips if float(t.get("avg_speed", 0)) > 0]
         avg_speed  = round(sum(avg_speeds) / len(avg_speeds), 1) if avg_speeds else 0
-
-        speed_events = len(events)
+        speed_events   = len(events)
         over_limit_min = round(sum(float(e.get("duration", 0)) for e in events) / 60, 1)
-        limit = 120  # default Dubai speed limit
+        limit = 120
 
         row = [i, v["name"], v["plate"], round(max_speed, 1), avg_speed,
                speed_events, over_limit_min, limit]
         ws.append(row)
         style_data_row(ws, data_start + i - 1, len(headers), alt=(i % 2 == 0))
-
-        # Highlight max speed violations
         if max_speed > limit:
             ws.cell(data_start + i - 1, 4).font = Font(name="Arial", bold=True, color="CC0000")
 
@@ -382,11 +376,9 @@ def build_geofence_sheet(wb, vehicles, api, ts, te, date_str):
             entry_str, exit_str, dur = "", "", 0
             try:
                 if entry_ts:
-                    entry_dt  = datetime.fromtimestamp(int(entry_ts), tz=DUBAI_OFFSET)
-                    entry_str = entry_dt.strftime("%Y-%m-%d %H:%M")
+                    entry_str = datetime.fromtimestamp(int(entry_ts), tz=DUBAI_OFFSET).strftime("%Y-%m-%d %H:%M")
                 if exit_ts:
-                    exit_dt  = datetime.fromtimestamp(int(exit_ts), tz=DUBAI_OFFSET)
-                    exit_str = exit_dt.strftime("%Y-%m-%d %H:%M")
+                    exit_str = datetime.fromtimestamp(int(exit_ts), tz=DUBAI_OFFSET).strftime("%Y-%m-%d %H:%M")
                 if entry_ts and exit_ts:
                     dur = round((int(exit_ts) - int(entry_ts)) / 60, 1)
             except Exception:
@@ -423,7 +415,6 @@ def build_trips_parking_sheet(wb, vehicles, api, ts, te, date_str):
         parkings = api.get_parkings(v["imei"], ts, te)
         time.sleep(REQUEST_DELAY)
 
-        # Merge and sort by start time
         events = []
         for t in trips:
             events.append({**t, "_type": "Trip"})
@@ -451,17 +442,14 @@ def build_trips_parking_sheet(wb, vehicles, api, ts, te, date_str):
             except Exception:
                 pass
 
-            dist  = round(float(ev.get("mileage", ev.get("distance", 0)) or 0), 1)
-            mspd  = round(float(ev.get("max_speed", 0) or 0), 1)
+            dist      = round(float(ev.get("mileage", ev.get("distance", 0)) or 0), 1)
+            mspd      = round(float(ev.get("max_speed", 0) or 0), 1)
             start_loc = ev.get("start_address", ev.get("begin_address", ""))
             end_loc   = ev.get("end_address",   ev.get("finish_address", ""))
-            etype = ev["_type"]
+            etype     = ev["_type"]
 
             ws.append([counter, v["name"], v["plate"], etype, st_str, et_str,
                        dur, dist, start_loc, end_loc, mspd])
-            r = ws.cell(row_num, 4)
-            r.font = Font(name="Arial", bold=True, size=10,
-                          color="1A3C2E" if etype == "Trip" else "CC7700")
             style_data_row(ws, row_num, len(headers), alt=(row_num % 2 == 0))
             ws.cell(row_num, 4).font = Font(name="Arial", bold=True, size=10,
                                             color="1A3C2E" if etype == "Trip" else "CC7700")
@@ -497,7 +485,6 @@ def build_summary_sheet(wb, date_str, vehicle_count):
 
     ws["B4"] = "Fleet Overview"
     ws["B4"].font = Font(name="Arial", bold=True, size=12, color=DARK_GREEN)
-    ws.row_dimensions[4].height = 20
 
     info = [
         ("Total Vehicles", vehicle_count),
@@ -509,7 +496,7 @@ def build_summary_sheet(wb, date_str, vehicle_count):
     for row_i, (label, val) in enumerate(info, 5):
         ws.cell(row_i, 2).value = label
         ws.cell(row_i, 2).font = Font(name="Arial", bold=True, size=10)
-        ws.cell(row_i, 2).fill = alt_fill()
+        ws.cell(row_i, 2).fill = PatternFill("solid", fgColor=LIGHT_GREY)
         ws.cell(row_i, 3).value = str(val)
         ws.cell(row_i, 3).font = Font(name="Arial", size=10)
         ws.row_dimensions[row_i].height = 18
@@ -518,11 +505,11 @@ def build_summary_sheet(wb, date_str, vehicle_count):
     ws["B11"].font = Font(name="Arial", bold=True, size=12, color=DARK_GREEN)
 
     tabs = [
-        ("Mileage Report",   "Daily km, engine hours, fuel per vehicle"),
-        ("Activity Report",  "Trips count, moving/idle time, online status"),
-        ("Speed Report",     "Max/avg speed, speeding events"),
-        ("Geofence Report",  "Geofence entries, exits, duration"),
-        ("Trips & Parking",  "Every trip and parking event with timestamps"),
+        ("Mileage Report",  "Daily km, engine hours, fuel per vehicle"),
+        ("Activity Report", "Trips count, moving/idle time, online status"),
+        ("Speed Report",    "Max/avg speed, speeding events"),
+        ("Geofence Report", "Geofence entries, exits, duration"),
+        ("Trips & Parking", "Every trip and parking event with timestamps"),
     ]
     for row_i, (tab, desc) in enumerate(tabs, 12):
         ws.cell(row_i, 2).value = tab
@@ -541,7 +528,6 @@ def main():
     parser.add_argument("--days", type=int, default=1, help="Number of days (default: 1)")
     args = parser.parse_args()
 
-    # Date range
     if args.date:
         report_date = datetime.strptime(args.date, "%Y-%m-%d").replace(tzinfo=DUBAI_OFFSET)
     else:
@@ -549,7 +535,6 @@ def main():
 
     report_date = report_date.replace(hour=0, minute=0, second=0, microsecond=0)
     end_date    = report_date + timedelta(days=args.days)
-
     ts = int(report_date.timestamp())
     te = int(end_date.timestamp())
     date_str = report_date.strftime("%Y-%m-%d") if args.days == 1 else \
@@ -570,28 +555,22 @@ def main():
     print(f"Found {len(vehicles)} vehicles.\n")
 
     wb = openpyxl.Workbook()
-    wb.remove(wb.active)  # remove default sheet
+    wb.remove(wb.active)
 
     build_summary_sheet(wb, date_str, len(vehicles))
-
     print("Building Mileage Report...")
     build_mileage_sheet(wb, vehicles, api, ts, te, date_str)
-
     print("\nBuilding Activity Report...")
     build_activity_sheet(wb, vehicles, api, ts, te, date_str)
-
     print("\nBuilding Speed Report...")
     build_speed_sheet(wb, vehicles, api, ts, te, date_str)
-
     print("\nBuilding Geofence Report...")
     build_geofence_sheet(wb, vehicles, api, ts, te, date_str)
-
     print("\nBuilding Trips & Parking Report...")
     build_trips_parking_sheet(wb, vehicles, api, ts, te, date_str)
 
-    # Save
     fname = f"MKV_GPS_Report_{report_date.strftime('%Y-%m-%d')}.xlsx"
-    out   = os.path.join(os.path.dirname(__file__), fname)
+    out   = os.path.join(os.path.dirname(os.path.abspath(__file__)), fname)
     wb.save(out)
     print(f"\n✓ Report saved: {fname}")
     print(f"  Vehicles processed: {len(vehicles)}")
