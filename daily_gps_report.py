@@ -2,11 +2,12 @@
 MKV CAR RENTAL — Pilot GPS Daily Report Generator
 Generates an Excel workbook with 5 report tabs for all 64 vehicles.
 Tabs: Mileage | Activity | Speed | Geofence | Trips & Parking
+Posts a summary to Slack #daily-gps-update on completion.
 
 Usage:
     python daily_gps_report.py
-    python daily_gps_report.py --date 2026-05-31   # specific date
-    python daily_gps_report.py --days 7            # last 7 days
+    python daily_gps_report.py --date 2026-05-31
+    python daily_gps_report.py --days 7
 
 Requirements:
     pip install requests openpyxl python-dotenv
@@ -26,12 +27,14 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # ──────────────────────────────────────────────
-# CONFIGURATION — set in .env or edit directly
+# CONFIGURATION
 # ──────────────────────────────────────────────
 API_BASE      = os.getenv("PILOT_API_BASE", "https://pilot-gps.ru/api/api.php")
 API_TOKEN     = os.getenv("PILOT_TOKEN", "")
 API_USER      = os.getenv("PILOT_USER", "")
 API_PASS      = os.getenv("PILOT_PASS", "")
+SLACK_TOKEN   = os.getenv("SLACK_TOKEN", "")
+SLACK_CHANNEL = os.getenv("SLACK_CHANNEL", "C0B6Y6EG85D")
 TIMEZONE      = "Asia/Dubai"
 REQUEST_DELAY = 0.3
 
@@ -120,6 +123,50 @@ def add_totals_row(ws, row, col_count, sum_cols, label_col=1):
 
 
 # ──────────────────────────────────────────────
+# SLACK NOTIFICATION
+# ──────────────────────────────────────────────
+def post_slack_summary(date_str, vehicle_count, report_stats, fname):
+    if not SLACK_TOKEN:
+        print("  [Slack] No SLACK_TOKEN in .env — skipping notification")
+        return
+
+    active     = report_stats.get("active_vehicles", 0)
+    total_km   = report_stats.get("total_km", 0)
+    total_trips= report_stats.get("total_trips", 0)
+    speeding   = report_stats.get("speeding_events", 0)
+    offline    = vehicle_count - active
+
+    msg = (
+        f":car: *MKV CAR RENTAL — Daily GPS Report*\n"
+        f"*Date:* {date_str}  |  *Timezone:* {TIMEZONE}\n"
+        f"─────────────────────────────\n"
+        f":white_check_mark: *Active Vehicles:* {active} / {vehicle_count}\n"
+        f":red_circle: *Offline Vehicles:* {offline}\n"
+        f":round_pushpin: *Total Distance:* {total_km:,.1f} km\n"
+        f":twisted_rightwards_arrows: *Total Trips:* {total_trips}\n"
+        f":rotating_light: *Speeding Events:* {speeding}\n"
+        f"─────────────────────────────\n"
+        f":page_facing_up: *Report file:* `{fname}`\n"
+        f"_Generated at {datetime.now(DUBAI_OFFSET).strftime('%Y-%m-%d %H:%M')} (Dubai time)_"
+    )
+
+    try:
+        r = requests.post(
+            "https://slack.com/api/chat.postMessage",
+            headers={"Authorization": f"Bearer {SLACK_TOKEN}", "Content-Type": "application/json"},
+            json={"channel": SLACK_CHANNEL, "text": msg},
+            timeout=10
+        )
+        result = r.json()
+        if result.get("ok"):
+            print(f"  [Slack] Posted to #daily-gps-update ✓")
+        else:
+            print(f"  [Slack] Failed: {result.get('error', 'unknown error')}")
+    except Exception as e:
+        print(f"  [Slack] Error: {e}")
+
+
+# ──────────────────────────────────────────────
 # PILOT GPS API CLIENT
 # ──────────────────────────────────────────────
 class PilotAPI:
@@ -127,7 +174,6 @@ class PilotAPI:
         self.session = requests.Session()
         self.base = API_BASE
 
-        # Token auth takes priority over Basic Auth
         if API_TOKEN:
             self.session.params = {"sid": API_TOKEN}
             print(f"  Auth: using session token")
@@ -211,7 +257,7 @@ class PilotAPI:
 # REPORT BUILDERS
 # ──────────────────────────────────────────────
 
-def build_mileage_sheet(wb, vehicles, api, ts, te, date_str):
+def build_mileage_sheet(wb, vehicles, api, ts, te, date_str, stats):
     ws = wb.create_sheet("Mileage Report")
     headers = ["#", "Vehicle Name", "Plate / ID", "IMEI", "Mileage (km)", "Engine Hours", "Fuel Used (L)", "Avg Speed (km/h)", "Status"]
     widths  = [5, 28, 18, 18, 15, 15, 14, 17, 12]
@@ -222,6 +268,8 @@ def build_mileage_sheet(wb, vehicles, api, ts, te, date_str):
     set_col_widths(ws, widths)
 
     data_start = 5
+    total_km = 0
+    active_count = 0
     for i, v in enumerate(vehicles, 1):
         print(f"  Mileage: {v['name']}")
         m = api.get_mileage(v["imei"], ts, te)
@@ -232,6 +280,9 @@ def build_mileage_sheet(wb, vehicles, api, ts, te, date_str):
         fuel  = m.get("fuel_used_l", 0)
         avg   = round(km / hours, 1) if hours > 0 else 0
         status = "Active" if km > 0 else "Idle/Off"
+        if km > 0:
+            active_count += 1
+        total_km += km
 
         row = [i, v["name"], v["plate"], v["imei"], km, hours, fuel, avg, status]
         ws.append(row)
@@ -239,6 +290,9 @@ def build_mileage_sheet(wb, vehicles, api, ts, te, date_str):
         s_cell = ws.cell(data_start + i - 1, 9)
         s_cell.font = Font(name="Arial", bold=True, size=10,
                            color="2E6B4F" if status == "Active" else "CC4400")
+
+    stats["total_km"] = round(total_km, 1)
+    stats["active_vehicles"] = active_count
 
     total_row = data_start + len(vehicles)
     r1, r2 = data_start, total_row - 1
@@ -251,7 +305,7 @@ def build_mileage_sheet(wb, vehicles, api, ts, te, date_str):
     ws.freeze_panes = "A5"
 
 
-def build_activity_sheet(wb, vehicles, api, ts, te, date_str):
+def build_activity_sheet(wb, vehicles, api, ts, te, date_str, stats):
     ws = wb.create_sheet("Activity Report")
     headers = ["#", "Vehicle Name", "Plate / ID", "Total Trips", "Total Parkings",
                "Moving Time (hrs)", "Idle Time (hrs)", "Online", "Last Seen"]
@@ -263,6 +317,7 @@ def build_activity_sheet(wb, vehicles, api, ts, te, date_str):
     set_col_widths(ws, widths)
 
     data_start = 5
+    total_trips = 0
     for i, v in enumerate(vehicles, 1):
         print(f"  Activity: {v['name']}")
         trips    = api.get_trips(v["imei"], ts, te)
@@ -274,6 +329,7 @@ def build_activity_sheet(wb, vehicles, api, ts, te, date_str):
 
         moving_secs = sum(float(t.get("duration", 0)) for t in trips)
         idle_secs   = sum(float(p.get("duration", 0)) for p in parkings)
+        total_trips += len(trips)
 
         last_seen = ""
         if status.get("last_time"):
@@ -291,6 +347,8 @@ def build_activity_sheet(wb, vehicles, api, ts, te, date_str):
         oc.font = Font(name="Arial", bold=True, size=10,
                        color="2E6B4F" if online == "Online" else "999999")
 
+    stats["total_trips"] = total_trips
+
     total_row = data_start + len(vehicles)
     r1, r2 = data_start, total_row - 1
     add_totals_row(ws, total_row, len(headers), {
@@ -302,7 +360,7 @@ def build_activity_sheet(wb, vehicles, api, ts, te, date_str):
     ws.freeze_panes = "A5"
 
 
-def build_speed_sheet(wb, vehicles, api, ts, te, date_str):
+def build_speed_sheet(wb, vehicles, api, ts, te, date_str, stats):
     ws = wb.create_sheet("Speed Report")
     headers = ["#", "Vehicle Name", "Plate / ID", "Max Speed (km/h)", "Avg Speed (km/h)",
                "Speeding Events", "Time Over Limit (min)", "Speed Limit (km/h)"]
@@ -314,6 +372,7 @@ def build_speed_sheet(wb, vehicles, api, ts, te, date_str):
     set_col_widths(ws, widths)
 
     data_start = 5
+    total_speeding = 0
     for i, v in enumerate(vehicles, 1):
         print(f"  Speed: {v['name']}")
         trips  = api.get_trips(v["imei"], ts, te)
@@ -327,6 +386,7 @@ def build_speed_sheet(wb, vehicles, api, ts, te, date_str):
         speed_events   = len(events)
         over_limit_min = round(sum(float(e.get("duration", 0)) for e in events) / 60, 1)
         limit = 120
+        total_speeding += speed_events
 
         row = [i, v["name"], v["plate"], round(max_speed, 1), avg_speed,
                speed_events, over_limit_min, limit]
@@ -334,6 +394,8 @@ def build_speed_sheet(wb, vehicles, api, ts, te, date_str):
         style_data_row(ws, data_start + i - 1, len(headers), alt=(i % 2 == 0))
         if max_speed > limit:
             ws.cell(data_start + i - 1, 4).font = Font(name="Arial", bold=True, color="CC0000")
+
+    stats["speeding_events"] = total_speeding
 
     total_row = data_start + len(vehicles)
     r1, r2 = data_start, total_row - 1
@@ -554,16 +616,17 @@ def main():
         sys.exit(1)
     print(f"Found {len(vehicles)} vehicles.\n")
 
+    stats = {}
     wb = openpyxl.Workbook()
     wb.remove(wb.active)
 
     build_summary_sheet(wb, date_str, len(vehicles))
     print("Building Mileage Report...")
-    build_mileage_sheet(wb, vehicles, api, ts, te, date_str)
+    build_mileage_sheet(wb, vehicles, api, ts, te, date_str, stats)
     print("\nBuilding Activity Report...")
-    build_activity_sheet(wb, vehicles, api, ts, te, date_str)
+    build_activity_sheet(wb, vehicles, api, ts, te, date_str, stats)
     print("\nBuilding Speed Report...")
-    build_speed_sheet(wb, vehicles, api, ts, te, date_str)
+    build_speed_sheet(wb, vehicles, api, ts, te, date_str, stats)
     print("\nBuilding Geofence Report...")
     build_geofence_sheet(wb, vehicles, api, ts, te, date_str)
     print("\nBuilding Trips & Parking Report...")
@@ -575,6 +638,9 @@ def main():
     print(f"\n✓ Report saved: {fname}")
     print(f"  Vehicles processed: {len(vehicles)}")
     print(f"  Tabs: Summary | Mileage | Activity | Speed | Geofence | Trips & Parking")
+
+    print("\nPosting to Slack...")
+    post_slack_summary(date_str, len(vehicles), stats, fname)
     print(f"{'='*55}\n")
 
 
