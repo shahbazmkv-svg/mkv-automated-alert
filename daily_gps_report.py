@@ -30,6 +30,7 @@ load_dotenv()
 # CONFIGURATION
 # ──────────────────────────────────────────────
 API_BASE      = os.getenv("PILOT_API_BASE", "https://pilot-gps.ru/api/api.php")
+API_LOGIN_URL = "https://pilot-gps.ru/backend/ax/user/login.php"
 API_TOKEN     = os.getenv("PILOT_TOKEN", "")
 API_USER      = os.getenv("PILOT_USER", "")
 API_PASS      = os.getenv("PILOT_PASS", "")
@@ -130,11 +131,11 @@ def post_slack_summary(date_str, vehicle_count, report_stats, fname):
         print("  [Slack] No SLACK_TOKEN in .env — skipping notification")
         return
 
-    active     = report_stats.get("active_vehicles", 0)
-    total_km   = report_stats.get("total_km", 0)
-    total_trips= report_stats.get("total_trips", 0)
-    speeding   = report_stats.get("speeding_events", 0)
-    offline    = vehicle_count - active
+    active      = report_stats.get("active_vehicles", 0)
+    total_km    = report_stats.get("total_km", 0)
+    total_trips = report_stats.get("total_trips", 0)
+    speeding    = report_stats.get("speeding_events", 0)
+    offline     = vehicle_count - active
 
     msg = (
         f":car: *MKV CAR RENTAL — Daily GPS Report*\n"
@@ -174,12 +175,28 @@ class PilotAPI:
         self.session = requests.Session()
         self.base = API_BASE
 
-        if API_TOKEN:
+        # Try session login first (most reliable)
+        if API_USER and API_PASS:
+            try:
+                print(f"  Auth: logging in as {API_USER}")
+                r = self.session.post(
+                    API_LOGIN_URL,
+                    data={"username": API_USER, "password": API_PASS},
+                    timeout=15
+                )
+                if r.status_code == 200 and r.json().get("success"):
+                    print(f"  Auth: login successful ✓")
+                else:
+                    print(f"  Auth: login failed — trying token fallback")
+                    if API_TOKEN:
+                        self.session.params = {"sid": API_TOKEN}
+            except Exception as e:
+                print(f"  Auth: login error ({e}) — trying token fallback")
+                if API_TOKEN:
+                    self.session.params = {"sid": API_TOKEN}
+        elif API_TOKEN:
             self.session.params = {"sid": API_TOKEN}
             print(f"  Auth: using session token")
-        elif API_USER and API_PASS:
-            self.session.auth = (API_USER, API_PASS)
-            print(f"  Auth: using Basic Auth ({API_USER})")
         else:
             print("  [WARN] No credentials found in .env")
 
@@ -204,12 +221,13 @@ class PilotAPI:
         if not data:
             return []
         vehicles = []
-        for obj in data.get("data", []):
+        items = data.get("data", data.get("list", []))
+        for obj in items:
             vehicles.append({
                 "imei":  str(obj.get("imei") or obj.get("id") or ""),
-                "name":  obj.get("name", "Unknown"),
-                "plate": obj.get("description", "") or obj.get("plate", ""),
-                "group": obj.get("group_name", "MKV CAR RENTAL"),
+                "name":  obj.get("name", obj.get("vehiclenumber", "Unknown")),
+                "plate": obj.get("description", "") or obj.get("plate", "") or obj.get("vehiclenumber", ""),
+                "group": obj.get("group_name", obj.get("folder", "MKV CAR RENTAL")),
             })
         return vehicles
 
