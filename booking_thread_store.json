@@ -2829,7 +2829,22 @@
       "delivery_alerted": true,
       "pickup_alerted": false,
       "closed": false,
-      "start_date": "2026-06-04"
+      "start_date": "2026-06-04",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
+    },
+    "0010134-AHME-Mercedes-Benz": {
+      "thread_ts": "1780336833.988429",
+      "end_date": "2026-06-08",
+      "plate": "19443",
+      "customer": "Ahmed Ibrahim Ahmed Mohammed Hassanein",
+      "vehicle": "Mercedes-Benz Glb 250",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-06-01"
     }
   }
 }
