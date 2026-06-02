@@ -1,9 +1,6 @@
 name: Keep Alive
 
 on:
-  schedule:
-    - cron: '30 9 * * *'    # ads-snapshot — 1:30 PM Dubai
-    - cron: '0 4 * * 1'     # weekly-optimizer — 8:00 AM Dubai Monday
   workflow_dispatch:
     inputs:
       job:
