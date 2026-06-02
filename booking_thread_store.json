@@ -2879,6 +2879,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010137-ANTW-Mercedes-Benz": {
+      "thread_ts": "1780401639.862399",
+      "end_date": "2026-06-04",
+      "plate": "55789",
+      "customer": "Antwan Subhi Deep",
+      "vehicle": "Mercedes-Benz S500",
+      "delivery_alerted": true,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-06-03"
     }
   }
 }
