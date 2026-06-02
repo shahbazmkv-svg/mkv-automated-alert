@@ -97,7 +97,8 @@ def find_store_entry(store, contract_id, plate, start_date):
 def app_redirect(channel, ts):
     if not channel or not ts:
         return ""
-    return f"https://slack.com/app_redirect?channel={channel}&thread_ts={ts}"
+    clean_ts = str(ts).replace(".", "")
+    return f"https://mkv-global.slack.com/archives/{channel}/p{clean_ts}"
 
 def booking_thread_link(entry):
     return app_redirect(CHANNEL_BOOKINGS, entry.get("thread_ts"))
