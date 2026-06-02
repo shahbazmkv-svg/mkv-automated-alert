@@ -97,8 +97,7 @@ def find_store_entry(store, contract_id, plate, start_date):
 def app_redirect(channel, ts):
     if not channel or not ts:
         return ""
-    return f"https://slack.com/app_redirect?channel={channel}&message_ts={ts}"
-
+    return f"https://slack.com/app_redirect?channel={channel}&thread_ts={ts}"
 
 def booking_thread_link(entry):
     return app_redirect(CHANNEL_BOOKINGS, entry.get("thread_ts"))
