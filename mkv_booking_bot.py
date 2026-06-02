@@ -757,10 +757,11 @@ def main():
                     post_message(SCHEDULE_CHANNEL, s_blocks, s_text)
 
                 d_blocks, d_text = build_delivery_checklist(f, now_str)
-                d_ts = post_message(TARGET_CHANNEL, d_blocks, d_text, thread_ts=ts)
+                d_ts = post_message(CHANNEL_DELIVERY, d_blocks, d_text)
                 if d_ts:
+                    bookings[key]["delivery_ts"] = d_ts
                     bookings[key]["delivery_alerted"] = True
-                    print(f"  Delivery checklist posted in thread")
+                    print(f"  Delivery checklist posted in delivery channel")
 
         else:
             stored    = bookings.get(key, {})
