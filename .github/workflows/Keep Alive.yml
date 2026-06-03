@@ -17,6 +17,7 @@ on:
           - booking-bot
           - ads-snapshot
           - weekly-optimizer
+          - gps-daily-report
 
 permissions:
   contents: write
@@ -159,7 +160,6 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     if: |
-      (github.event_name == 'schedule' && github.event.schedule == '30 9 * * *') ||
       (github.event_name == 'workflow_dispatch' && (github.event.inputs.job == 'ads-snapshot' || github.event.inputs.job == 'all'))
     steps:
       - uses: actions/checkout@v4
@@ -229,3 +229,31 @@ jobs:
         with:
           path: mkv_weekly_store.json
           key: mkv-weekly-store-${{ github.run_id }}
+
+  gps-daily-report:
+    name: GPS Daily Report
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    if: |
+      (github.event_name == 'workflow_dispatch' && (github.event.inputs.job == 'gps-daily-report' || github.event.inputs.job == 'all'))
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install requests openpyxl python-dotenv --break-system-packages
+      - name: Run GPS Daily Report
+        env:
+          PILOT_USER:      ${{ secrets.PILOT_USER }}
+          PILOT_PASS:      ${{ secrets.PILOT_PASS }}
+          SLACK_TOKEN:     ${{ secrets.SLACK_BOT_TOKEN }}
+        run: python daily_gps_report.py
+      - name: Keep repo active
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git pull --rebase origin main || true
+          git commit --allow-empty -m "chore: gps daily report ran $(date +'%Y-%m-%d')"
+          git push || true
