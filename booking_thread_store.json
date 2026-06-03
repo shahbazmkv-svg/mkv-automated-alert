@@ -2919,7 +2919,11 @@
       "delivery_alerted": false,
       "pickup_alerted": false,
       "closed": false,
-      "start_date": "2026-06-03"
+      "start_date": "2026-06-03",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010139-CONT-Ferrari": {
       "thread_ts": "1780486242.202929",
@@ -2928,9 +2932,13 @@
       "customer": "Continental Luxury Car Rental",
       "vehicle": "Ferrari Purosangue",
       "delivery_alerted": false,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
-      "start_date": "2026-06-03"
+      "start_date": "2026-06-03",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     }
   }
 }
