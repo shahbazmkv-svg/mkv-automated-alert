@@ -2909,6 +2909,28 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010140-AHME-BMW": {
+      "thread_ts": "1780486228.943389",
+      "end_date": "2026-06-08",
+      "plate": "70691",
+      "customer": "Ahmed Ibrahim Ahmed Mohammed Hassanein",
+      "vehicle": "Bmw 520I",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-06-03"
+    },
+    "0010139-CONT-Ferrari": {
+      "thread_ts": "1780486242.202929",
+      "end_date": "2026-06-04",
+      "plate": "97019",
+      "customer": "Continental Luxury Car Rental",
+      "vehicle": "Ferrari Purosangue",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-06-03"
     }
   }
 }
