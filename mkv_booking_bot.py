@@ -527,44 +527,17 @@ def build_delivery_checklist(f, now_str):
         f"{'Date'}: {fmt_date(f['start'])} {f['s_time']} | "
         f"{'Amount'}: {f['grand_total']}"
     )
-    # Message 2 - Driver reply template (prominent, easy to copy)
-    reply = (
-        f"```\n"
-        f"AGR#: {f['agr_no']}\n"
-        f"Out KM:\n"
-        f"Fuel Level:\n"
-        f"Driver Name:\n"
-        f"Remarks:\n"
-        f"```"
-    )
+    
     blocks = [
         {"type": "header",
          "text": {"type": "plain_text", "text": "DELIVERY CHECKLIST"}},
         {"type": "context",
          "elements": [{"type": "mrkdwn", "text": info}]},
-        {"type": "divider"},
-        {"type": "section",
-         "text": {"type": "mrkdwn",
-             "text": "*Copy and reply with delivery details:*\n" + reply}},
-        {"type": "section",
-         "text": {"type": "mrkdwn",
-             "text": "Attach: Contract PDF + Car Photos + Emirates ID"}},
         {"type": "context",
          "elements": [{"type": "mrkdwn",
              "text": f"Posted: {now_str}  |  Status: PENDING DELIVERY"}]},
     ]
     return blocks, f"Delivery: {f['customer']} | {f['vehicle']} ({f['plate']}) | {fmt_date(f['start'])} {f['s_time']}"
-    blocks = [
-        {"type": "header",
-         "text": {"type": "plain_text", "text": "DELIVERY CHECKLIST"}},
-        {"type": "section",
-         "text": {"type": "mrkdwn", "text": body}},
-        {"type": "context",
-         "elements": [{"type": "mrkdwn",
-             "text": f"Posted: {now_str}  |  Status: PENDING DELIVERY"}]},
-    ]
-    return blocks, f"Delivery: {f['customer']} | {f['vehicle']} ({f['plate']}) | {fmt_date(f['start'])} {f['s_time']}"
-
 
 def build_extension_checklist(f, now_str, old_end, new_end):
     try:
@@ -750,19 +723,12 @@ def main():
                 check_record = match_check_record(check_out_records + check_in_records, f)
                 post_documents(b, check_record, f["agr_no"], f["customer"], TARGET_CHANNEL, ts)
 
-                # Same-day booking â†’ also post to #mkv-schedule-for-delivery
+                # Same-day booking also posts to #mkv-schedule-for-delivery
                 today = dubai_now().strftime("%Y-%m-%d")
                 if start == today:
-                    print(f"  Same-day booking â†’ posting to #mkv-schedule-for-delivery")
+                    print("  Same-day booking posting to #mkv-schedule-for-delivery")
                     s_blocks, s_text = build_schedule_delivery_notice(f, now_str, TARGET_CHANNEL, ts)
                     post_message(SCHEDULE_CHANNEL, s_blocks, s_text)
-
-                d_blocks, d_text = build_delivery_checklist(f, now_str)
-                d_ts = post_message(CHANNEL_DELIVERY, d_blocks, d_text)
-                if d_ts:
-                    bookings[key]["delivery_ts"] = d_ts
-                    bookings[key]["delivery_alerted"] = True
-                    print(f"  Delivery checklist posted in delivery channel")
 
         else:
             stored    = bookings.get(key, {})
