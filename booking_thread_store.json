@@ -2954,6 +2954,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010142-EMAD-Chevrolet": {
+      "thread_ts": "1780511433.986459",
+      "end_date": "2026-06-04",
+      "plate": "72712",
+      "customer": "Emad Omar Faiq Al Atout",
+      "vehicle": "Chevrolet Corvette",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-06-03"
     }
   }
 }
