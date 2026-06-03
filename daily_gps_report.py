@@ -1,13 +1,11 @@
 """
 MKV CAR RENTAL — Pilot GPS Daily Report Generator
-Generates an Excel workbook with 5 report tabs for all 64 vehicles.
-Tabs: Mileage | Activity | Speed | Geofence | Trips & Parking
-Posts a summary to Slack #daily-gps-update on completion.
+Generates per-vehicle daily movement report for all 64 vehicles.
+Stores odometer snapshot daily to calculate km driven per vehicle.
 
 Usage:
     python daily_gps_report.py
-    python daily_gps_report.py --date 2026-05-31
-    python daily_gps_report.py --days 7
+    python daily_gps_report.py --date 2026-06-02
 
 Requirements:
     pip install requests openpyxl python-dotenv
@@ -15,565 +13,356 @@ Requirements:
 
 import requests
 import openpyxl
+import json
+import os
+import sys
+import argparse
 from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 from openpyxl.utils import get_column_letter
 from datetime import datetime, timedelta, timezone
-import time
-import argparse
-import os
-import sys
 from dotenv import load_dotenv
 
 load_dotenv()
 
-# ──────────────────────────────────────────────
-# CONFIGURATION
-# ──────────────────────────────────────────────
-API_BASE      = os.getenv("PILOT_API_BASE", "https://pilot-gps.ru/api/api.php")
-API_LOGIN_URL = "https://pilot-gps.ru/backend/ax/user/login.php"
-API_TOKEN     = os.getenv("PILOT_TOKEN", "")
-API_USER      = os.getenv("PILOT_USER", "")
-API_PASS      = os.getenv("PILOT_PASS", "")
-SLACK_TOKEN   = os.getenv("SLACK_TOKEN", "")
-SLACK_CHANNEL = os.getenv("SLACK_CHANNEL", "C0B6Y6EG85D")
-TIMEZONE      = "Asia/Dubai"
-REQUEST_DELAY = 0.3
+API_LOGIN_URL    = "https://pilot-gps.ru/backend/ax/user/login.php"
+API_CURRENT_DATA = "https://pilot-gps.ru/backend/ax/current_data.php"
+API_REPORTS_URL  = "https://pilot-gps.ru/backend/ax/reports.php"
+API_USER         = os.getenv("PILOT_USER", "")
+API_PASS         = os.getenv("PILOT_PASS", "")
+SLACK_TOKEN      = os.getenv("SLACK_TOKEN", "")
+SLACK_CHANNEL    = os.getenv("SLACK_CHANNEL", "C0B6Y6EG85D")
+TIMEZONE         = "Asia/Dubai"
+DUBAI_OFFSET     = timezone(timedelta(hours=4))
 
-DUBAI_OFFSET = timezone(timedelta(hours=4))
-
-# ──────────────────────────────────────────────
-# STYLES
-# ──────────────────────────────────────────────
 DARK_GREEN = "1A3C2E"
 MID_GREEN  = "2E6B4F"
 WHITE      = "FFFFFF"
 LIGHT_GREY = "F5F5F5"
+RED        = "CC0000"
+AMBER      = "CC7700"
+GREY       = "999999"
+GREEN      = "2E6B4F"
 
-def header_font(bold=True, color=WHITE, size=11):
+def hfont(bold=True, color=WHITE, size=11):
     return Font(name="Arial", bold=bold, color=color, size=size)
-
-def body_font(bold=False, size=10):
-    return Font(name="Arial", bold=bold, size=size)
-
-def header_fill(color=DARK_GREEN):
+def bfont(bold=False, color="000000", size=10):
+    return Font(name="Arial", bold=bold, color=color, size=size)
+def hfill(color=DARK_GREEN):
     return PatternFill("solid", fgColor=color)
-
-def alt_fill():
+def afill():
     return PatternFill("solid", fgColor=LIGHT_GREY)
-
-def thin_border():
+def bdr():
     s = Side(style="thin", color="CCCCCC")
     return Border(left=s, right=s, top=s, bottom=s)
-
 def center():
     return Alignment(horizontal="center", vertical="center", wrap_text=True)
-
 def left():
     return Alignment(horizontal="left", vertical="center", wrap_text=True)
 
-def style_header_row(ws, row, cols):
+def style_header(ws, row, cols):
     for col in range(1, cols + 1):
-        cell = ws.cell(row=row, column=col)
-        cell.font = header_font()
-        cell.fill = header_fill()
-        cell.alignment = center()
-        cell.border = thin_border()
+        c = ws.cell(row=row, column=col)
+        c.font = hfont(); c.fill = hfill(); c.alignment = center(); c.border = bdr()
 
-def style_data_row(ws, row, cols, alt=False):
+def style_row(ws, row, cols, alt=False):
     for col in range(1, cols + 1):
-        cell = ws.cell(row=row, column=col)
-        cell.font = body_font()
-        cell.border = thin_border()
-        cell.alignment = left()
-        if alt:
-            cell.fill = alt_fill()
+        c = ws.cell(row=row, column=col)
+        c.font = bfont(); c.border = bdr(); c.alignment = left()
+        if alt: c.fill = afill()
 
-def add_title_block(ws, title, date_str, col_span):
-    ws.merge_cells(start_row=1, start_column=1, end_row=1, end_column=col_span)
+def title_block(ws, title, date_str, span):
+    ws.merge_cells(start_row=1, start_column=1, end_row=1, end_column=span)
     t = ws.cell(1, 1, f"MKV CAR RENTAL — {title}")
     t.font = Font(name="Arial", bold=True, size=14, color=WHITE)
-    t.fill = header_fill(DARK_GREEN)
-    t.alignment = center()
+    t.fill = hfill(DARK_GREEN); t.alignment = center()
     ws.row_dimensions[1].height = 28
-
-    ws.merge_cells(start_row=2, start_column=1, end_row=2, end_column=col_span)
+    ws.merge_cells(start_row=2, start_column=1, end_row=2, end_column=span)
     d = ws.cell(2, 1, f"Report Date: {date_str}  |  Timezone: {TIMEZONE}  |  Generated: {datetime.now(DUBAI_OFFSET).strftime('%Y-%m-%d %H:%M')}")
     d.font = Font(name="Arial", size=9, color=WHITE)
-    d.fill = header_fill(MID_GREEN)
-    d.alignment = center()
+    d.fill = hfill(MID_GREEN); d.alignment = center()
     ws.row_dimensions[2].height = 18
 
-def set_col_widths(ws, widths):
+def set_widths(ws, widths):
     for i, w in enumerate(widths, 1):
         ws.column_dimensions[get_column_letter(i)].width = w
 
-def add_totals_row(ws, row, col_count, sum_cols, label_col=1):
+def totals_row(ws, row, ncols, formulas, label_col=1):
     ws.cell(row, label_col).value = "TOTAL / AVERAGE"
     ws.cell(row, label_col).font = Font(name="Arial", bold=True, color=WHITE)
-    ws.cell(row, label_col).fill = header_fill(MID_GREEN)
+    ws.cell(row, label_col).fill = hfill(MID_GREEN)
     ws.cell(row, label_col).alignment = center()
-    for col, formula in sum_cols.items():
+    for col, formula in formulas.items():
         c = ws.cell(row, col)
         c.value = formula
         c.font = Font(name="Arial", bold=True, color=WHITE)
-        c.fill = header_fill(MID_GREEN)
-        c.alignment = center()
-        c.border = thin_border()
-    for col in range(1, col_count + 1):
-        ws.cell(row, col).border = thin_border()
+        c.fill = hfill(MID_GREEN)
+        c.alignment = center(); c.border = bdr()
+    for col in range(1, ncols + 1):
+        ws.cell(row, col).border = bdr()
 
 
-# ──────────────────────────────────────────────
-# SLACK NOTIFICATION
-# ──────────────────────────────────────────────
-def post_slack_summary(date_str, vehicle_count, report_stats, fname):
-    if not SLACK_TOKEN:
-        print("  [Slack] No SLACK_TOKEN in .env — skipping notification")
-        return
-
-    active      = report_stats.get("active_vehicles", 0)
-    total_km    = report_stats.get("total_km", 0)
-    total_trips = report_stats.get("total_trips", 0)
-    speeding    = report_stats.get("speeding_events", 0)
-    offline     = vehicle_count - active
-
-    msg = (
-        f":car: *MKV CAR RENTAL — Daily GPS Report*\n"
-        f"*Date:* {date_str}  |  *Timezone:* {TIMEZONE}\n"
-        f"─────────────────────────────\n"
-        f":white_check_mark: *Active Vehicles:* {active} / {vehicle_count}\n"
-        f":red_circle: *Offline Vehicles:* {offline}\n"
-        f":round_pushpin: *Total Distance:* {total_km:,.1f} km\n"
-        f":twisted_rightwards_arrows: *Total Trips:* {total_trips}\n"
-        f":rotating_light: *Speeding Events:* {speeding}\n"
-        f"─────────────────────────────\n"
-        f":page_facing_up: *Report file:* `{fname}`\n"
-        f"_Generated at {datetime.now(DUBAI_OFFSET).strftime('%Y-%m-%d %H:%M')} (Dubai time)_"
-    )
-
+# ── SNAPSHOT (for daily km calculation) ──────────────────────────────────────
+def load_snapshot():
     try:
-        r = requests.post(
-            "https://slack.com/api/chat.postMessage",
-            headers={"Authorization": f"Bearer {SLACK_TOKEN}", "Content-Type": "application/json"},
-            json={"channel": SLACK_CHANNEL, "text": msg},
-            timeout=10
-        )
-        result = r.json()
-        if result.get("ok"):
-            print(f"  [Slack] Posted to #daily-gps-update ✓")
-        else:
-            print(f"  [Slack] Failed: {result.get('error', 'unknown error')}")
-    except Exception as e:
-        print(f"  [Slack] Error: {e}")
+        if os.path.exists(SNAPSHOT_FILE):
+            with open(SNAPSHOT_FILE) as f:
+                return json.load(f)
+    except: pass
+    return {}
+
+def save_snapshot(vehicles, date_str):
+    snap = {
+        "date": date_str,
+        "odometers": {str(v["id"]): v["total_km"] for v in vehicles}
+    }
+    with open(SNAPSHOT_FILE, "w") as f:
+        json.dump(snap, f)
+
+def calc_daily_km(vehicle, snapshot):
+    """Calculate km driven today using odometer delta."""
+    today = datetime.now(DUBAI_OFFSET).strftime("%Y-%m-%d")
+    snap_date = snapshot.get("date", "")
+    snap_odos = snapshot.get("odometers", {})
+    vid = str(vehicle["id"])
+
+    # Only use snapshot if it's from today or yesterday
+    if snap_date in [today, (datetime.now(DUBAI_OFFSET) - timedelta(days=1)).strftime("%Y-%m-%d")]:
+        prev_km = snap_odos.get(vid)
+        if prev_km is not None:
+            delta = round(vehicle["total_km"] - prev_km, 1)
+            return max(0, delta)  # no negative
+
+    # Fallback: estimate from last_move timestamp
+    last_move_ts = vehicle.get("last_move_ts")
+    if last_move_ts:
+        try:
+            today_start = int(datetime.now(DUBAI_OFFSET).replace(
+                hour=0, minute=0, second=0, microsecond=0).timestamp())
+            if int(last_move_ts) >= today_start:
+                return "Moved today"
+        except: pass
+    return "-"
 
 
-# ──────────────────────────────────────────────
-# PILOT GPS API CLIENT
-# ──────────────────────────────────────────────
+# ── API CLIENT ────────────────────────────────────────────────────────────────
 class PilotAPI:
     def __init__(self):
         self.session = requests.Session()
-        self.base = API_BASE
-
-        # Try session login first (most reliable)
-        if API_USER and API_PASS:
-            try:
-                print(f"  Auth: logging in as {API_USER}")
-                r = self.session.post(
-                    API_LOGIN_URL,
-                    data={"username": API_USER, "password": API_PASS},
-                    timeout=15
-                )
-                if r.status_code == 200 and r.json().get("success"):
-                    print(f"  Auth: login successful ✓")
-                else:
-                    print(f"  Auth: login failed — trying token fallback")
-                    if API_TOKEN:
-                        self.session.params = {"sid": API_TOKEN}
-            except Exception as e:
-                print(f"  Auth: login error ({e}) — trying token fallback")
-                if API_TOKEN:
-                    self.session.params = {"sid": API_TOKEN}
-        elif API_TOKEN:
-            self.session.params = {"sid": API_TOKEN}
-            print(f"  Auth: using session token")
+        print(f"  Auth: logging in as {API_USER}")
+        r = self.session.post(API_LOGIN_URL,
+                              data={"username": API_USER, "password": API_PASS}, timeout=15)
+        data = r.json()
+        if r.status_code == 200 and data.get("success"):
+            print("  Auth: login successful ✓")
         else:
-            print("  [WARN] No credentials found in .env")
+            print("  Auth: login failed"); sys.exit(1)
 
-    def get(self, cmd, params=None):
-        p = {"cmd": cmd}
-        if params:
-            p.update(params)
-        try:
-            r = self.session.get(self.base, params=p, timeout=30)
-            r.raise_for_status()
-            data = r.json()
-            if data.get("code") != 0:
-                print(f"  [WARN] cmd={cmd} → {data.get('msg','unknown error')}")
-                return None
-            return data
-        except Exception as e:
-            print(f"  [ERROR] cmd={cmd}: {e}")
-            return None
+    def get_daily_mileage(self, vehicle_ids, report_date):
+        """Fetch yesterday's km driven per vehicle using reports API."""
+        yesterday = report_date - timedelta(days=1)
+        start_date  = yesterday.strftime("%d.%m.%Y 00:00")
+        stop_date   = report_date.strftime("%d.%m.%Y 00:00")
+        start_month = yesterday.strftime("%m.%Y")
+        stop_month  = report_date.strftime("%m.%Y")
+
+        mileage = {}
+        for vid in vehicle_ids:
+            try:
+                data = {
+                    'download': 0, 'start_time': '00:00', 'stop_time': '00:00',
+                    'veh_id': vid, 'zones_id': '', 'lines_id': '',
+                    'stopping_points_id': '', 'drivers_id': '', 'groups_id': '',
+                    'holidays': '', 'lang': 'en', 'explode': 1,
+                    'start_month': start_month, 'stop_month': stop_month,
+                    'pre_start_date': (yesterday - timedelta(days=7)).strftime("%d.%m.%Y"),
+                    'pre_stop_date': yesterday.strftime("%d.%m.%Y"),
+                    'start_date': start_date, 'stop_date': stop_date,
+                    'report_type': 6,
+                }
+                r = self.session.post(API_REPORTS_URL, data=data, timeout=15)
+                resp = r.json()
+                km = 0
+                for vname_key, date_data in resp.get('data', {}).items():
+                    for date_key, arr in date_data.items():
+                        if isinstance(arr, list) and len(arr) > 6:
+                            km = float(arr[6] or 0)
+                mileage[vid] = round(km, 1)
+            except Exception as e:
+                mileage[vid] = 0
+        return mileage
+
+    def get_speed_violations(self, vehicles, report_date, speed_limit=120):
+        """Fetch speeding events per vehicle from yesterday's trips."""
+        yesterday = report_date - timedelta(days=1)
+        start_date  = yesterday.strftime("%d.%m.%Y 00:00")
+        stop_date   = report_date.strftime("%d.%m.%Y 00:00")
+        start_month = yesterday.strftime("%m.%Y")
+        stop_month  = report_date.strftime("%m.%Y")
+
+        violations = []
+        for v in vehicles:
+            vid = v["id"]
+            vname = v["name"]
+            try:
+                data = {
+                    'download': 0, 'start_time': '00:00', 'stop_time': '00:00',
+                    'veh_id': vid, 'zones_id': '', 'lines_id': '',
+                    'stopping_points_id': '', 'drivers_id': '', 'groups_id': '',
+                    'holidays': '', 'lang': 'en', 'explode': 1,
+                    'avg_max_speed': 1,
+                    'start_month': start_month, 'stop_month': stop_month,
+                    'pre_start_date': (yesterday - timedelta(days=7)).strftime("%d.%m.%Y"),
+                    'pre_stop_date': yesterday.strftime("%d.%m.%Y"),
+                    'start_date': start_date, 'stop_date': stop_date,
+                    'report_type': 1,
+                }
+                r = self.session.post(API_REPORTS_URL, data=data, timeout=15)
+                resp = r.json()
+                for vname_key, date_data in resp.get('data', {}).items():
+                    for date_range, events in date_data.items():
+                        for ts, event in events.items():
+                            if event.get('type') == 'Movement':
+                                max_spd = event.get('max_speed', 0) or 0
+                                if float(max_spd) > speed_limit:
+                                    violations.append({
+                                        'vehicle': vname,
+                                        'max_speed': float(max_spd),
+                                        'avg_speed': event.get('avg_speed', 0),
+                                        'mileage': event.get('mileage', 0),
+                                        'duration_min': round(event.get('duration', 0) / 60, 1),
+                                    })
+            except Exception:
+                pass
+        return violations
 
     def get_vehicles(self):
-        data = self.get("list")
-        if not data:
-            return []
+        r = self.session.get(API_CURRENT_DATA, timeout=30)
+        data = r.json()
         vehicles = []
-        items = data.get("data", data.get("list", []))
-        for obj in items:
+        today_start = int(datetime.now(DUBAI_OFFSET).replace(
+            hour=0, minute=0, second=0, microsecond=0).timestamp())
+
+        for obj in data.get("objects", []):
+            last_event = obj.get("last_event", {})
+            is_moving  = last_event.get("type") == "move"
+            speed      = float(last_event.get("speed", 0) or 0)
+            last_ts    = obj.get("unixtimestamp")
+            last_move  = last_event.get("last_move")
+            last_stop  = last_event.get("last_stop")
+
+            def fmt_ts(ts):
+                try: return datetime.fromtimestamp(int(ts), tz=DUBAI_OFFSET).strftime("%Y-%m-%d %H:%M") if ts else ""
+                except: return ""
+
+            # Did vehicle move today?
+            moved_today = False
+            if last_move:
+                try: moved_today = int(last_move) >= today_start
+                except: pass
+
+            # Parking duration
+            parking_secs = 0
+            event_text = last_event.get("text", "")
+            if "|" in event_text:
+                try: parking_secs = int(event_text.split("|")[1])
+                except: pass
+
+            # Battery & sensors
+            sensors = obj.get("sensors", {})
+            car_batt = ""
+            if "Car Batt" in sensors:
+                car_batt = sensors["Car Batt"].split("|")[0]
+
+            engine_blocked = any(
+                "Engine block" in k and "Blocked|" in v
+                for k, v in sensors.items()
+            )
+
+            ignition_on = any(
+                "Ignition" in k and "|1|" in v
+                for k, v in sensors.items()
+            )
+
+            total_km = round(float(obj.get("len", 0) or 0) / 1000, 1)
+
             vehicles.append({
-                "imei":  str(obj.get("imei") or obj.get("id") or ""),
-                "name":  obj.get("name", obj.get("vehiclenumber", "Unknown")),
-                "plate": obj.get("description", "") or obj.get("plate", "") or obj.get("vehiclenumber", ""),
-                "group": obj.get("group_name", obj.get("folder", "MKV CAR RENTAL")),
+                "id"            : obj.get("id"),
+                "name"          : obj.get("name", "Unknown").strip(),
+                "online"        : obj.get("is_server_online", False),
+                "is_moving"     : is_moving,
+                "moved_today"   : moved_today,
+                "speed"         : speed,
+                "last_seen"     : fmt_ts(last_ts),
+                "last_move"     : fmt_ts(last_move),
+                "last_stop"     : fmt_ts(last_stop),
+                "last_move_ts"  : last_move,
+                "parking_secs"  : parking_secs,
+                "parking_hrs"   : round(parking_secs / 3600, 1),
+                "zone"          : ", ".join(obj.get("zone", [])) if obj.get("zone") else "",
+                "total_km"      : total_km,
+                "car_batt"      : car_batt,
+                "engine_blocked": engine_blocked,
+                "ignition_on"   : ignition_on,
+                "event_type"    : last_event.get("type", ""),
+                "lat"           : obj.get("lat", ""),
+                "lon"           : obj.get("lon", ""),
             })
+
+        print(f"  Found {len(vehicles)} vehicles")
         return vehicles
 
-    def get_mileage(self, imei, ts, te):
-        data = self.get("mileage", {"imei": imei, "ts": ts, "te": te})
-        if not data:
-            return {}
-        d = data.get("data", {})
-        return {
-            "mileage_km":   round(float(d.get("mileage", 0)), 1),
-            "engine_hours": round(float(d.get("engine_hours", 0)), 2),
-            "fuel_used_l":  round(float(d.get("fuel", 0)), 1),
-        }
 
-    def get_trips(self, imei, ts, te):
-        data = self.get("trips", {"imei": imei, "ts": ts, "te": te})
-        if not data:
-            return []
-        return data.get("data", [])
+# ── REPORT BUILDERS ───────────────────────────────────────────────────────────
 
-    def get_parkings(self, imei, ts, te):
-        data = self.get("parkings", {"imei": imei, "ts": ts, "te": te})
-        if not data:
-            return []
-        return data.get("data", [])
-
-    def get_speed_events(self, imei, ts, te):
-        data = self.get("events", {"imei": imei, "ts": ts, "te": te, "type": "speed"})
-        if not data:
-            return []
-        return data.get("data", [])
-
-    def get_geofence_visits(self, imei, ts, te):
-        data = self.get("ag_geozones", {"imei": imei, "start": ts, "stop": te})
-        if not data:
-            return []
-        return data.get("data", [])
-
-    def get_activity(self, imei, ts, te):
-        data = self.get("istatus", {"imei": imei, "unixtimestamp": te})
-        return data.get("data", {}) if data else {}
-
-
-# ──────────────────────────────────────────────
-# REPORT BUILDERS
-# ──────────────────────────────────────────────
-
-def build_mileage_sheet(wb, vehicles, api, ts, te, date_str, stats):
-    ws = wb.create_sheet("Mileage Report")
-    headers = ["#", "Vehicle Name", "Plate / ID", "IMEI", "Mileage (km)", "Engine Hours", "Fuel Used (L)", "Avg Speed (km/h)", "Status"]
-    widths  = [5, 28, 18, 18, 15, 15, 14, 17, 12]
-    add_title_block(ws, "DAILY MILEAGE REPORT", date_str, len(headers))
-    ws.append([])
-    ws.append(headers)
-    style_header_row(ws, 4, len(headers))
-    set_col_widths(ws, widths)
-
-    data_start = 5
-    total_km = 0
-    active_count = 0
-    for i, v in enumerate(vehicles, 1):
-        print(f"  Mileage: {v['name']}")
-        m = api.get_mileage(v["imei"], ts, te)
-        time.sleep(REQUEST_DELAY)
-
-        km    = m.get("mileage_km", 0)
-        hours = m.get("engine_hours", 0)
-        fuel  = m.get("fuel_used_l", 0)
-        avg   = round(km / hours, 1) if hours > 0 else 0
-        status = "Active" if km > 0 else "Idle/Off"
-        if km > 0:
-            active_count += 1
-        total_km += km
-
-        row = [i, v["name"], v["plate"], v["imei"], km, hours, fuel, avg, status]
-        ws.append(row)
-        style_data_row(ws, data_start + i - 1, len(headers), alt=(i % 2 == 0))
-        s_cell = ws.cell(data_start + i - 1, 9)
-        s_cell.font = Font(name="Arial", bold=True, size=10,
-                           color="2E6B4F" if status == "Active" else "CC4400")
-
-    stats["total_km"] = round(total_km, 1)
-    stats["active_vehicles"] = active_count
-
-    total_row = data_start + len(vehicles)
-    r1, r2 = data_start, total_row - 1
-    add_totals_row(ws, total_row, len(headers), {
-        5: f"=SUM(E{r1}:E{r2})",
-        6: f"=SUM(F{r1}:F{r2})",
-        7: f"=SUM(G{r1}:G{r2})",
-        8: f"=AVERAGE(H{r1}:H{r2})",
-    })
-    ws.freeze_panes = "A5"
-
-
-def build_activity_sheet(wb, vehicles, api, ts, te, date_str, stats):
-    ws = wb.create_sheet("Activity Report")
-    headers = ["#", "Vehicle Name", "Plate / ID", "Total Trips", "Total Parkings",
-               "Moving Time (hrs)", "Idle Time (hrs)", "Online", "Last Seen"]
-    widths  = [5, 28, 18, 13, 15, 18, 16, 10, 22]
-    add_title_block(ws, "DAILY ACTIVITY REPORT", date_str, len(headers))
-    ws.append([])
-    ws.append(headers)
-    style_header_row(ws, 4, len(headers))
-    set_col_widths(ws, widths)
-
-    data_start = 5
-    total_trips = 0
-    for i, v in enumerate(vehicles, 1):
-        print(f"  Activity: {v['name']}")
-        trips    = api.get_trips(v["imei"], ts, te)
-        time.sleep(REQUEST_DELAY)
-        parkings = api.get_parkings(v["imei"], ts, te)
-        time.sleep(REQUEST_DELAY)
-        status   = api.get_activity(v["imei"], ts, te)
-        time.sleep(REQUEST_DELAY)
-
-        moving_secs = sum(float(t.get("duration", 0)) for t in trips)
-        idle_secs   = sum(float(p.get("duration", 0)) for p in parkings)
-        total_trips += len(trips)
-
-        last_seen = ""
-        if status.get("last_time"):
-            try:
-                last_seen = datetime.fromtimestamp(int(status["last_time"]), tz=DUBAI_OFFSET).strftime("%Y-%m-%d %H:%M")
-            except Exception:
-                last_seen = str(status.get("last_time", ""))
-
-        online = "Online" if status.get("online") == 1 else "Offline"
-        row = [i, v["name"], v["plate"], len(trips), len(parkings),
-               round(moving_secs / 3600, 2), round(idle_secs / 3600, 2), online, last_seen]
-        ws.append(row)
-        style_data_row(ws, data_start + i - 1, len(headers), alt=(i % 2 == 0))
-        oc = ws.cell(data_start + i - 1, 8)
-        oc.font = Font(name="Arial", bold=True, size=10,
-                       color="2E6B4F" if online == "Online" else "999999")
-
-    stats["total_trips"] = total_trips
-
-    total_row = data_start + len(vehicles)
-    r1, r2 = data_start, total_row - 1
-    add_totals_row(ws, total_row, len(headers), {
-        4: f"=SUM(D{r1}:D{r2})",
-        5: f"=SUM(E{r1}:E{r2})",
-        6: f"=SUM(F{r1}:F{r2})",
-        7: f"=SUM(G{r1}:G{r2})",
-    })
-    ws.freeze_panes = "A5"
-
-
-def build_speed_sheet(wb, vehicles, api, ts, te, date_str, stats):
-    ws = wb.create_sheet("Speed Report")
-    headers = ["#", "Vehicle Name", "Plate / ID", "Max Speed (km/h)", "Avg Speed (km/h)",
-               "Speeding Events", "Time Over Limit (min)", "Speed Limit (km/h)"]
-    widths  = [5, 28, 18, 17, 16, 16, 20, 18]
-    add_title_block(ws, "DAILY SPEED REPORT", date_str, len(headers))
-    ws.append([])
-    ws.append(headers)
-    style_header_row(ws, 4, len(headers))
-    set_col_widths(ws, widths)
-
-    data_start = 5
-    total_speeding = 0
-    for i, v in enumerate(vehicles, 1):
-        print(f"  Speed: {v['name']}")
-        trips  = api.get_trips(v["imei"], ts, te)
-        time.sleep(REQUEST_DELAY)
-        events = api.get_speed_events(v["imei"], ts, te)
-        time.sleep(REQUEST_DELAY)
-
-        max_speed  = max((float(t.get("max_speed", 0)) for t in trips), default=0)
-        avg_speeds = [float(t.get("avg_speed", 0)) for t in trips if float(t.get("avg_speed", 0)) > 0]
-        avg_speed  = round(sum(avg_speeds) / len(avg_speeds), 1) if avg_speeds else 0
-        speed_events   = len(events)
-        over_limit_min = round(sum(float(e.get("duration", 0)) for e in events) / 60, 1)
-        limit = 120
-        total_speeding += speed_events
-
-        row = [i, v["name"], v["plate"], round(max_speed, 1), avg_speed,
-               speed_events, over_limit_min, limit]
-        ws.append(row)
-        style_data_row(ws, data_start + i - 1, len(headers), alt=(i % 2 == 0))
-        if max_speed > limit:
-            ws.cell(data_start + i - 1, 4).font = Font(name="Arial", bold=True, color="CC0000")
-
-    stats["speeding_events"] = total_speeding
-
-    total_row = data_start + len(vehicles)
-    r1, r2 = data_start, total_row - 1
-    add_totals_row(ws, total_row, len(headers), {
-        4: f"=MAX(D{r1}:D{r2})",
-        5: f"=AVERAGE(E{r1}:E{r2})",
-        6: f"=SUM(F{r1}:F{r2})",
-        7: f"=SUM(G{r1}:G{r2})",
-    })
-    ws.freeze_panes = "A5"
-
-
-def build_geofence_sheet(wb, vehicles, api, ts, te, date_str):
-    ws = wb.create_sheet("Geofence Report")
-    headers = ["#", "Vehicle Name", "Plate / ID", "Geofence Name", "Entry Time",
-               "Exit Time", "Duration (min)", "Event Type"]
-    widths  = [5, 28, 18, 25, 20, 20, 15, 14]
-    add_title_block(ws, "DAILY GEOFENCE REPORT", date_str, len(headers))
-    ws.append([])
-    ws.append(headers)
-    style_header_row(ws, 4, len(headers))
-    set_col_widths(ws, widths)
-
-    data_start = 5
-    row_num = data_start
-    for v in vehicles:
-        print(f"  Geofence: {v['name']}")
-        visits = api.get_geofence_visits(v["imei"], ts, te)
-        time.sleep(REQUEST_DELAY)
-
-        if not visits:
-            ws.append(["", v["name"], v["plate"], "No geofence events", "", "", "", ""])
-            style_data_row(ws, row_num, len(headers))
-            row_num += 1
-            continue
-
-        for visit in visits:
-            entry_ts = visit.get("entry_time") or visit.get("start") or ""
-            exit_ts  = visit.get("exit_time")  or visit.get("stop")  or ""
-            entry_str, exit_str, dur = "", "", 0
-            try:
-                if entry_ts:
-                    entry_str = datetime.fromtimestamp(int(entry_ts), tz=DUBAI_OFFSET).strftime("%Y-%m-%d %H:%M")
-                if exit_ts:
-                    exit_str = datetime.fromtimestamp(int(exit_ts), tz=DUBAI_OFFSET).strftime("%Y-%m-%d %H:%M")
-                if entry_ts and exit_ts:
-                    dur = round((int(exit_ts) - int(entry_ts)) / 60, 1)
-            except Exception:
-                pass
-
-            etype = visit.get("event_type", visit.get("type", "Visit"))
-            ws.append(["", v["name"], v["plate"],
-                       visit.get("zone_name", visit.get("name", "")),
-                       entry_str, exit_str, dur, etype])
-            style_data_row(ws, row_num, len(headers), alt=(row_num % 2 == 0))
-            row_num += 1
-
-    ws.freeze_panes = "A5"
-
-
-def build_trips_parking_sheet(wb, vehicles, api, ts, te, date_str):
-    ws = wb.create_sheet("Trips & Parking")
-    headers = ["#", "Vehicle Name", "Plate / ID", "Type", "Start Time", "End Time",
-               "Duration (min)", "Distance (km)", "Start Location", "End Location", "Max Speed"]
-    widths  = [5, 26, 16, 10, 20, 20, 14, 14, 28, 28, 12]
-    add_title_block(ws, "TRIPS & PARKING REPORT", date_str, len(headers))
-    ws.append([])
-    ws.append(headers)
-    style_header_row(ws, 4, len(headers))
-    set_col_widths(ws, widths)
-
-    data_start = 5
-    row_num = data_start
-    counter = 1
-    for v in vehicles:
-        print(f"  Trips & Parking: {v['name']}")
-        trips    = api.get_trips(v["imei"], ts, te)
-        time.sleep(REQUEST_DELAY)
-        parkings = api.get_parkings(v["imei"], ts, te)
-        time.sleep(REQUEST_DELAY)
-
-        events = []
-        for t in trips:
-            events.append({**t, "_type": "Trip"})
-        for p in parkings:
-            events.append({**p, "_type": "Parking"})
-        events.sort(key=lambda x: int(x.get("start_time", x.get("ts", 0)) or 0))
-
-        if not events:
-            ws.append([counter, v["name"], v["plate"], "No data", "", "", "", "", "", "", ""])
-            style_data_row(ws, row_num, len(headers))
-            row_num += 1
-            counter += 1
-            continue
-
-        for ev in events:
-            st = ev.get("start_time") or ev.get("ts") or ""
-            et = ev.get("end_time")   or ev.get("te") or ""
-            st_str, et_str, dur = "", "", 0
-            try:
-                if st:
-                    st_str = datetime.fromtimestamp(int(st), tz=DUBAI_OFFSET).strftime("%Y-%m-%d %H:%M")
-                if et:
-                    et_str = datetime.fromtimestamp(int(et), tz=DUBAI_OFFSET).strftime("%Y-%m-%d %H:%M")
-                dur = round(float(ev.get("duration", 0)) / 60, 1)
-            except Exception:
-                pass
-
-            dist      = round(float(ev.get("mileage", ev.get("distance", 0)) or 0), 1)
-            mspd      = round(float(ev.get("max_speed", 0) or 0), 1)
-            start_loc = ev.get("start_address", ev.get("begin_address", ""))
-            end_loc   = ev.get("end_address",   ev.get("finish_address", ""))
-            etype     = ev["_type"]
-
-            ws.append([counter, v["name"], v["plate"], etype, st_str, et_str,
-                       dur, dist, start_loc, end_loc, mspd])
-            style_data_row(ws, row_num, len(headers), alt=(row_num % 2 == 0))
-            ws.cell(row_num, 4).font = Font(name="Arial", bold=True, size=10,
-                                            color="1A3C2E" if etype == "Trip" else "CC7700")
-            row_num += 1
-            counter += 1
-
-    ws.freeze_panes = "A5"
-
-
-def build_summary_sheet(wb, date_str, vehicle_count):
+def build_summary(wb, date_str, vehicles):
     ws = wb.create_sheet("Summary", 0)
     ws.sheet_view.showGridLines = False
     ws.column_dimensions["A"].width = 3
-    ws.column_dimensions["B"].width = 32
-    ws.column_dimensions["C"].width = 22
-    ws.column_dimensions["D"].width = 22
+    ws.column_dimensions["B"].width = 30
+    ws.column_dimensions["C"].width = 25
 
-    ws.merge_cells("B1:D1")
+    ws.merge_cells("B1:C1")
     t = ws["B1"]
-    t.value = "MKV CAR RENTAL"
-    t.font = Font(name="Arial", bold=True, size=18, color=WHITE)
-    t.fill = header_fill(DARK_GREEN)
-    t.alignment = center()
+    t.value = "MKV CAR RENTAL — Daily GPS Report"
+    t.font = Font(name="Arial", bold=True, size=16, color=WHITE)
+    t.fill = hfill(DARK_GREEN); t.alignment = center()
     ws.row_dimensions[1].height = 36
 
-    ws.merge_cells("B2:D2")
+    ws.merge_cells("B2:C2")
     s = ws["B2"]
-    s.value = f"Daily GPS Fleet Report  |  {date_str}  |  Timezone: {TIMEZONE}"
+    s.value = f"{date_str}  |  {TIMEZONE}  |  {datetime.now(DUBAI_OFFSET).strftime('%Y-%m-%d %H:%M')}"
     s.font = Font(name="Arial", size=10, color=WHITE)
-    s.fill = header_fill(MID_GREEN)
-    s.alignment = center()
+    s.fill = hfill(MID_GREEN); s.alignment = center()
     ws.row_dimensions[2].height = 20
 
-    ws["B4"] = "Fleet Overview"
+    online   = sum(1 for v in vehicles if v["online"])
+    offline  = len(vehicles) - online
+    moving   = sum(1 for v in vehicles if v["is_moving"])
+    moved    = sum(1 for v in vehicles if v["moved_today"])
+    parked   = sum(1 for v in vehicles if not v["is_moving"] and v["online"])
+    blocked  = sum(1 for v in vehicles if v["engine_blocked"])
+    ignition = sum(1 for v in vehicles if v["ignition_on"])
+    in_zone  = sum(1 for v in vehicles if v["zone"])
+    total_km     = sum(v["total_km"] for v in vehicles)
+    total_daily  = sum(v.get("daily_km", 0) for v in vehicles)
+
+    ws["B4"] = "Fleet Summary"
     ws["B4"].font = Font(name="Arial", bold=True, size=12, color=DARK_GREEN)
 
-    info = [
-        ("Total Vehicles", vehicle_count),
-        ("Report Date", date_str),
-        ("Generated At", datetime.now(DUBAI_OFFSET).strftime("%Y-%m-%d %H:%M")),
-        ("Timezone", TIMEZONE),
-        ("Data Source", "Pilot GPS (pilot-gps.ru)"),
+    stats = [
+        ("Total Vehicles",        len(vehicles)),
+        ("Online Now",            f"{online} ✓"),
+        ("Offline",               offline),
+        ("Currently Moving",      moving),
+        ("Moved Today",           f"{moved} vehicles"),
+        ("Parked (Online)",       parked),
+        ("Ignition On",           ignition),
+        ("Engine Blocked",        blocked),
+        ("In a Geofence Zone",    f"{in_zone} vehicles"),
+        ("Km Driven Yesterday",   f"{total_daily:,.1f} km"),
+        ("Total Fleet Odometer",  f"{total_km:,.1f} km"),
     ]
-    for row_i, (label, val) in enumerate(info, 5):
+    for row_i, (label, val) in enumerate(stats, 5):
         ws.cell(row_i, 2).value = label
         ws.cell(row_i, 2).font = Font(name="Arial", bold=True, size=10)
         ws.cell(row_i, 2).fill = PatternFill("solid", fgColor=LIGHT_GREY)
@@ -581,84 +370,330 @@ def build_summary_sheet(wb, date_str, vehicle_count):
         ws.cell(row_i, 3).font = Font(name="Arial", size=10)
         ws.row_dimensions[row_i].height = 18
 
-    ws["B11"] = "Report Tabs"
-    ws["B11"].font = Font(name="Arial", bold=True, size=12, color=DARK_GREEN)
-
+    ws["B17"] = "Report Tabs"
+    ws["B17"].font = Font(name="Arial", bold=True, size=12, color=DARK_GREEN)
     tabs = [
-        ("Mileage Report",  "Daily km, engine hours, fuel per vehicle"),
-        ("Activity Report", "Trips count, moving/idle time, online status"),
-        ("Speed Report",    "Max/avg speed, speeding events"),
-        ("Geofence Report", "Geofence entries, exits, duration"),
-        ("Trips & Parking", "Every trip and parking event with timestamps"),
+        ("Daily Movement",    "Km driven today, last move/stop, moved today flag"),
+        ("Activity Report",   "Status, ignition, parking duration, zone"),
+        ("Speed & Status",    "Speed, battery, engine block, online/offline"),
+        ("Geofence",          "Current zone per vehicle"),
     ]
-    for row_i, (tab, desc) in enumerate(tabs, 12):
+    for row_i, (tab, desc) in enumerate(tabs, 18):
         ws.cell(row_i, 2).value = tab
         ws.cell(row_i, 2).font = Font(name="Arial", bold=True, size=10, color=MID_GREEN)
         ws.cell(row_i, 3).value = desc
-        ws.cell(row_i, 3).font = Font(name="Arial", size=10)
         ws.row_dimensions[row_i].height = 18
 
 
-# ──────────────────────────────────────────────
-# MAIN
-# ──────────────────────────────────────────────
+def build_daily_movement(wb, vehicles, date_str):
+    ws = wb.create_sheet("Daily Movement")
+    headers = ["#", "Vehicle Name", "Moved Today", "Km Yesterday",
+               "Last Move Time", "Last Stop Time", "Current Status",
+               "Online", "Current Zone"]
+    widths  = [5, 32, 13, 14, 20, 20, 14, 10, 30]
+    title_block(ws, "DAILY MOVEMENT REPORT", date_str, len(headers))
+    ws.append([]); ws.append(headers)
+    style_header(ws, 4, len(headers))
+    set_widths(ws, widths)
+
+    data_start = 5
+    for i, v in enumerate(vehicles, 1):
+        daily_km = v.get("daily_km", 0)
+        moved    = "✓ Yes" if v["moved_today"] else "No"
+        status   = "Moving" if v["is_moving"] else "Parked" if v["online"] else "Offline"
+        online   = "Online" if v["online"] else "Offline"
+
+        ws.append([i, v["name"], moved, daily_km,
+                   v["last_move"], v["last_stop"],
+                   status, online, v["zone"]])
+        style_row(ws, data_start + i - 1, len(headers), alt=(i % 2 == 0))
+
+        # Color moved today
+        mc = ws.cell(data_start + i - 1, 3)
+        mc.font = Font(name="Arial", bold=True, size=10,
+                       color=GREEN if v["moved_today"] else GREY)
+
+        # Color km driven
+        kc = ws.cell(data_start + i - 1, 4)
+        if isinstance(daily_km, (int, float)) and daily_km > 0:
+            kc.font = Font(name="Arial", bold=True, size=10, color=GREEN)
+        # Color status
+        sc = ws.cell(data_start + i - 1, 7)
+        sc.font = Font(name="Arial", bold=True, size=10,
+                       color=GREEN if v["is_moving"] else (GREY if not v["online"] else AMBER))
+
+        # Color online
+        oc = ws.cell(data_start + i - 1, 8)
+        oc.font = Font(name="Arial", bold=True, size=10,
+                       color=GREEN if v["online"] else GREY)
+
+    # Totals
+    tr = data_start + len(vehicles)
+    moved_count = sum(1 for v in vehicles if v["moved_today"])
+    ws.cell(tr, 1).value = "TOTAL"
+    ws.cell(tr, 1).font = Font(name="Arial", bold=True, color=WHITE)
+    ws.cell(tr, 1).fill = hfill(MID_GREEN)
+    ws.cell(tr, 3).value = f"{moved_count} vehicles moved"
+    ws.cell(tr, 3).font = Font(name="Arial", bold=True, color=WHITE)
+    ws.cell(tr, 3).fill = hfill(MID_GREEN)
+    for col in range(1, len(headers) + 1):
+        ws.cell(tr, col).border = bdr()
+    ws.freeze_panes = "A5"
+
+
+def build_activity(wb, vehicles, date_str):
+    ws = wb.create_sheet("Activity Report")
+    headers = ["#", "Vehicle Name", "Status", "Ignition",
+               "Parking Duration (hrs)", "Last Seen", "Zone", "Online"]
+    widths  = [5, 32, 12, 10, 22, 20, 30, 10]
+    title_block(ws, "ACTIVITY REPORT", date_str, len(headers))
+    ws.append([]); ws.append(headers)
+    style_header(ws, 4, len(headers))
+    set_widths(ws, widths)
+
+    data_start = 5
+    for i, v in enumerate(vehicles, 1):
+        status   = "Moving" if v["is_moving"] else "Parked" if v["online"] else "Offline"
+        ignition = "ON" if v["ignition_on"] else "off"
+        p_hrs    = v["parking_hrs"] if not v["is_moving"] else "-"
+        online   = "Online" if v["online"] else "Offline"
+
+        ws.append([i, v["name"], status, ignition, p_hrs,
+                   v["last_seen"], v["zone"], online])
+        style_row(ws, data_start + i - 1, len(headers), alt=(i % 2 == 0))
+
+        sc = ws.cell(data_start + i - 1, 3)
+        sc.font = Font(name="Arial", bold=True, size=10,
+                       color=GREEN if v["is_moving"] else (GREY if not v["online"] else AMBER))
+
+        ic = ws.cell(data_start + i - 1, 4)
+        ic.font = Font(name="Arial", bold=True, size=10,
+                       color=GREEN if v["ignition_on"] else GREY)
+
+        oc = ws.cell(data_start + i - 1, 8)
+        oc.font = Font(name="Arial", bold=True, size=10,
+                       color=GREEN if v["online"] else GREY)
+    ws.freeze_panes = "A5"
+
+
+def build_speed_status(wb, vehicles, date_str):
+    ws = wb.create_sheet("Speed & Status")
+    headers = ["#", "Vehicle Name", "Online", "Speed (km/h)",
+               "Engine Block", "Battery", "Ignition", "Last Seen"]
+    widths  = [5, 32, 10, 14, 16, 16, 10, 20]
+    title_block(ws, "SPEED & STATUS REPORT", date_str, len(headers))
+    ws.append([]); ws.append(headers)
+    style_header(ws, 4, len(headers))
+    set_widths(ws, widths)
+
+    data_start = 5
+    for i, v in enumerate(vehicles, 1):
+        online  = "Online" if v["online"] else "Offline"
+        blocked = "BLOCKED" if v["engine_blocked"] else "OK"
+        ign     = "ON" if v["ignition_on"] else "off"
+
+        ws.append([i, v["name"], online, v["speed"],
+                   blocked, v["car_batt"], ign, v["last_seen"]])
+        style_row(ws, data_start + i - 1, len(headers), alt=(i % 2 == 0))
+
+        ws.cell(data_start+i-1, 3).font = Font(name="Arial", bold=True, size=10,
+                                                color=GREEN if v["online"] else GREY)
+        if v["speed"] > 120:
+            ws.cell(data_start+i-1, 4).font = Font(name="Arial", bold=True, color=RED)
+        ws.cell(data_start+i-1, 5).font = Font(name="Arial", bold=True, size=10,
+                                                color=RED if v["engine_blocked"] else GREEN)
+        ws.cell(data_start+i-1, 7).font = Font(name="Arial", bold=True, size=10,
+                                                color=GREEN if v["ignition_on"] else GREY)
+    ws.freeze_panes = "A5"
+
+
+def build_geofence(wb, vehicles, date_str):
+    ws = wb.create_sheet("Geofence")
+    headers = ["#", "Vehicle Name", "Current Zone", "Status", "Online", "Last Seen"]
+    widths  = [5, 32, 40, 12, 10, 20]
+    title_block(ws, "GEOFENCE REPORT", date_str, len(headers))
+    ws.append([]); ws.append(headers)
+    style_header(ws, 4, len(headers))
+    set_widths(ws, widths)
+
+    data_start = 5
+    for i, v in enumerate(vehicles, 1):
+        zone   = v["zone"] or "Outside all zones"
+        status = "Moving" if v["is_moving"] else "Parked"
+        online = "Online" if v["online"] else "Offline"
+
+        ws.append([i, v["name"], zone, status, online, v["last_seen"]])
+        style_row(ws, data_start + i - 1, len(headers), alt=(i % 2 == 0))
+
+        if not v["zone"]:
+            ws.cell(data_start+i-1, 3).font = Font(name="Arial", italic=True, color=GREY, size=10)
+        ws.cell(data_start+i-1, 5).font = Font(name="Arial", bold=True, size=10,
+                                                color=GREEN if v["online"] else GREY)
+
+    in_zone  = sum(1 for v in vehicles if v["zone"])
+    out_zone = len(vehicles) - in_zone
+    tr = data_start + len(vehicles) + 1
+    ws.cell(tr, 2).value = f"In a zone: {in_zone}  |  Outside all zones: {out_zone}"
+    ws.cell(tr, 2).font = Font(name="Arial", bold=True, size=10, color=MID_GREEN)
+    ws.freeze_panes = "A5"
+
+
+# ── SLACK ─────────────────────────────────────────────────────────────────────
+def post_slack(date_str, vehicles, speed_violations=None):
+    if not SLACK_TOKEN:
+        print("  [Slack] No token — skipping"); return
+
+    online   = sum(1 for v in vehicles if v["online"])
+    moving   = sum(1 for v in vehicles if v["is_moving"])
+    moved    = sum(1 for v in vehicles if v["moved_today"])
+    offline  = len(vehicles) - online
+    blocked  = sum(1 for v in vehicles if v["engine_blocked"])
+    ignition = sum(1 for v in vehicles if v["ignition_on"])
+    in_zone  = sum(1 for v in vehicles if v["zone"])
+    total_daily_km = sum(v.get("daily_km", 0) for v in vehicles)
+
+    # Moving vehicles table
+    moved_vehicles = [v for v in vehicles if v["moved_today"]]
+    moving_table = "```\n"
+    moving_table += f"{'Vehicle':<35} {'Km Today':>10} {'Zone':<25}\n"
+    moving_table += "─" * 72 + "\n"
+    for v in sorted(moved_vehicles, key=lambda x: x["name"]):
+        dk = v.get("daily_km", 0)
+        km_str = f"{dk:.1f} km" if dk > 0 else "—"
+        zone = v["zone"][:24] if v["zone"] else "—"
+        moving_table += f"{v['name'][:34]:<35} {km_str:>10} {zone:<25}\n"
+    moving_table += "```"
+
+    # Non-moving vehicles — online/parked only, exclude offline
+    stationary = [v for v in vehicles if not v["moved_today"] and v["online"]]
+    offline_vehicles = [v for v in vehicles if not v["online"]]
+    stationary_table = "```\n"
+    stationary_table += f"{'Vehicle':<35} {'Parked (hrs)':>12} {'Zone':<25}\n"
+    stationary_table += "─" * 72 + "\n"
+    for v in sorted(stationary, key=lambda x: x["parking_hrs"], reverse=True):
+        p_hrs = f"{v['parking_hrs']} hrs"
+        zone = v["zone"][:24] if v["zone"] else "—"
+        stationary_table += f"{v['name'][:34]:<35} {p_hrs:>12} {zone:<25}\n"
+    stationary_table += "```"
+
+    msg = (
+        f":car: *MKV CAR RENTAL — Daily GPS Report*\n"
+        f"*Date:* {date_str}  |  *Timezone:* {TIMEZONE}\n"
+        f"─────────────────────────────\n"
+        f":white_check_mark: *Online:* {online} / {len(vehicles)}\n"
+        f":red_circle: *Offline:* {offline}\n"
+        f":blue_car: *Moving Now:* {moving}\n"
+        f":chart_with_upwards_trend: *Moved Today:* {moved} vehicles\n"
+        f":round_pushpin: *Total Km Driven Today:* {total_daily_km:,.1f} km\n"
+        f":busts_in_silhouette: *In a Zone:* {in_zone}\n"
+        f":lock: *Engine Blocked:* {blocked}\n"
+        f"─────────────────────────────\n"
+        f"_Generated at {datetime.now(DUBAI_OFFSET).strftime('%Y-%m-%d %H:%M')} (Dubai time)_"
+    )
+
+    msg2 = (
+        f":blue_car: *Vehicles That Moved Today ({len(moved_vehicles)})*\n"
+        f"{moving_table}"
+    )
+
+    msg3 = (
+        f":parking: *Parked Vehicles — Online ({len(stationary)})*\n"
+        f"{stationary_table}\n"
+        f"_:red_circle: {len(offline_vehicles)} vehicles offline — excluded from list_"
+    )
+
+    # Speeding alert message
+    if speed_violations:
+        spd_table = "```\n"
+        spd_table += f"{'Vehicle':<35} {'Max Speed':>10} {'Avg Speed':>10} {'Trip km':>8}\n"
+        spd_table += "─" * 68 + "\n"
+        for sv in sorted(speed_violations, key=lambda x: x['max_speed'], reverse=True):
+            spd_table += f"{sv['vehicle'][:34]:<35} {sv['max_speed']:>8.0f} km {sv['avg_speed']:>8.0f} km {sv['mileage']:>6.1f}km\n"
+        spd_table += "```"
+        msg4 = (
+            f":rotating_light: *Speeding Alert — Yesterday ({len(speed_violations)} events over 120 km/h)*\n"
+            f"{spd_table}"
+        )
+    else:
+        msg4 = ":white_check_mark: *No speeding events recorded yesterday*"
+    try:
+        headers = {"Authorization": f"Bearer {SLACK_TOKEN}", "Content-Type": "application/json"}
+        for m in [msg, msg2, msg3, msg4]:
+            r = requests.post("https://slack.com/api/chat.postMessage",
+                              headers=headers,
+                              json={"channel": SLACK_CHANNEL, "text": m}, timeout=10)
+            result = r.json()
+            if not result.get("ok"):
+                print(f"  [Slack] Failed: {result.get('error')}")
+        print("  [Slack] Posted 4 messages to #daily-gps-update ✓")
+    except Exception as e:
+        print(f"  [Slack] Error: {e}")
+
+
+# ── MAIN ──────────────────────────────────────────────────────────────────────
 def main():
-    parser = argparse.ArgumentParser(description="MKV Car Rental — Pilot GPS Daily Report")
-    parser.add_argument("--date", help="Report date YYYY-MM-DD (default: yesterday)")
-    parser.add_argument("--days", type=int, default=1, help="Number of days (default: 1)")
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--date", help="Report date YYYY-MM-DD (default: today)")
     args = parser.parse_args()
 
+    report_date = datetime.now(DUBAI_OFFSET)
     if args.date:
         report_date = datetime.strptime(args.date, "%Y-%m-%d").replace(tzinfo=DUBAI_OFFSET)
-    else:
-        report_date = datetime.now(DUBAI_OFFSET) - timedelta(days=1)
-
-    report_date = report_date.replace(hour=0, minute=0, second=0, microsecond=0)
-    end_date    = report_date + timedelta(days=args.days)
-    ts = int(report_date.timestamp())
-    te = int(end_date.timestamp())
-    date_str = report_date.strftime("%Y-%m-%d") if args.days == 1 else \
-               f"{report_date.strftime('%Y-%m-%d')} to {(end_date - timedelta(days=1)).strftime('%Y-%m-%d')}"
+    date_str = report_date.strftime("%Y-%m-%d")
 
     print(f"\n{'='*55}")
     print(f"  MKV CAR RENTAL — Daily GPS Report")
-    print(f"  Period: {date_str}")
+    print(f"  Date: {date_str}")
     print(f"{'='*55}\n")
 
     api = PilotAPI()
 
-    print("Fetching vehicle list...")
+    print("Fetching vehicle data...")
     vehicles = api.get_vehicles()
     if not vehicles:
-        print("ERROR: Could not fetch vehicles. Check credentials in .env")
-        sys.exit(1)
-    print(f"Found {len(vehicles)} vehicles.\n")
+        print("ERROR: No vehicles returned."); sys.exit(1)
 
-    stats = {}
+    print(f"Fetching yesterday's mileage for {len(vehicles)} vehicles...")
+    vehicle_ids = [v["id"] for v in vehicles]
+    daily_mileage = api.get_daily_mileage(vehicle_ids, report_date)
+    for v in vehicles:
+        v["daily_km"] = daily_mileage.get(v["id"], 0)
+    total_daily_km = sum(v["daily_km"] for v in vehicles)
+    print(f"  Total km yesterday: {total_daily_km:,.1f} km")
+
+    print("Fetching speeding events...")
+    speed_violations = api.get_speed_violations(
+        [v for v in vehicles if v.get("daily_km", 0) > 0], report_date)
+    print(f"  Speeding events (>120 km/h): {len(speed_violations)}")
+
     wb = openpyxl.Workbook()
     wb.remove(wb.active)
 
-    build_summary_sheet(wb, date_str, len(vehicles))
-    print("Building Mileage Report...")
-    build_mileage_sheet(wb, vehicles, api, ts, te, date_str, stats)
-    print("\nBuilding Activity Report...")
-    build_activity_sheet(wb, vehicles, api, ts, te, date_str, stats)
-    print("\nBuilding Speed Report...")
-    build_speed_sheet(wb, vehicles, api, ts, te, date_str, stats)
-    print("\nBuilding Geofence Report...")
-    build_geofence_sheet(wb, vehicles, api, ts, te, date_str)
-    print("\nBuilding Trips & Parking Report...")
-    build_trips_parking_sheet(wb, vehicles, api, ts, te, date_str)
+    print("Building Summary...")
+    build_summary(wb, date_str, vehicles)
+    print("Building Daily Movement...")
+    build_daily_movement(wb, vehicles, date_str)
+    print("Building Activity Report...")
+    build_activity(wb, vehicles, date_str)
+    print("Building Speed & Status...")
+    build_speed_status(wb, vehicles, date_str)
+    print("Building Geofence...")
+    build_geofence(wb, vehicles, date_str)
 
-    fname = f"MKV_GPS_Report_{report_date.strftime('%Y-%m-%d')}.xlsx"
+    fname = f"MKV_GPS_Report_{date_str}.xlsx"
     out   = os.path.join(os.path.dirname(os.path.abspath(__file__)), fname)
     wb.save(out)
+
+    online = sum(1 for v in vehicles if v["online"])
+    moving = sum(1 for v in vehicles if v["is_moving"])
+    moved  = sum(1 for v in vehicles if v["moved_today"])
+
     print(f"\n✓ Report saved: {fname}")
-    print(f"  Vehicles processed: {len(vehicles)}")
-    print(f"  Tabs: Summary | Mileage | Activity | Speed | Geofence | Trips & Parking")
+    print(f"  Vehicles: {len(vehicles)} | Online: {online} | Moving: {moving} | Moved today: {moved}")
+    print(f"  Km driven yesterday: {total_daily_km:,.1f} km")
 
     print("\nPosting to Slack...")
-    post_slack_summary(date_str, len(vehicles), stats, fname)
+    post_slack(date_str, vehicles, speed_violations)
     print(f"{'='*55}\n")
 
 
