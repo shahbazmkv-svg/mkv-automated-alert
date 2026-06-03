@@ -872,7 +872,7 @@
     },
     "0010066-BEYA-GMC": {
       "thread_ts": null,
-      "end_date": "2026-06-04",
+      "end_date": "2026-06-05",
       "plate": "69367",
       "customer": "Beyat Mohammed Abdulla Saeed Alfalasi",
       "vehicle": "Gmc Yukon",
@@ -2939,6 +2939,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010141-JOHN-BMW": {
+      "thread_ts": "1780491637.210499",
+      "end_date": "2026-06-04",
+      "plate": "78051",
+      "customer": "John Alex Githua Mwangi",
+      "vehicle": "Bmw 735I",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-06-03"
     }
   }
 }
