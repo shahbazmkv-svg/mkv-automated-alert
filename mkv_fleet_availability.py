@@ -49,7 +49,7 @@ SKIP_STATUSES = {"cancelled", "canceled", "voided", "void", "deleted"}
 
 CONTACT_FOOTER = (
     "+971 56 279 4545\n"
-    "+971 4 238 8987\n"
+    "+971 4 221 3816\n"
     "https://www.mkvluxury.com/\n"
     "https://www.instagram.com/mkvluxurydubai/\n"
     "contact@mkvluxury.com\n"
