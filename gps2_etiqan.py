@@ -672,29 +672,28 @@ def post_to_slack(date_str, vehicles, fname):
         f"_Generated at {datetime.now(DUBAI_OFFSET).strftime('%Y-%m-%d %H:%M')} (Dubai time)_"
     )
 
-    # ── Message 2: Moving vehicles (matches GPS1: Vehicle | Km Today | Avg Speed)
+    # ── Message 2: Moving vehicles (matches GPS1: Vehicle | Km Today | Zone)
     mov_table = "```\n"
-    mov_table += f"{'Vehicle':<35} {'Km Today':>10} {'Avg Speed':>10}\n"
-    mov_table += "─" * 58 + "\n"
+    mov_table += f"{'Vehicle':<35} {'Km Today':>10} {'Zone':<20}\n"
+    mov_table += "─" * 68 + "\n"
     for v in sorted(moving_vehicles, key=lambda x: x["name"]):
-        dk  = v.get("daily_km", 0)
-        avg = v.get("avg_speed", 0)
-        km_str  = f"{dk:.1f} km"   if dk  > 0 else "—"
-        avg_str = f"{avg:.0f} kph" if avg > 0 else "—"
-        mov_table += f"{v['name'][:34]:<35} {km_str:>10} {avg_str:>10}\n"
+        dk     = v.get("daily_km", 0)
+        km_str = f"{dk:.1f} km" if dk > 0 else "—"
+        mov_table += f"{v['name'][:34]:<35} {km_str:>10} {'—':<20}\n"
     mov_table += "```"
     msg2 = (
         f":blue_car: *GPS2 — Vehicles That Moved Today ({len(moving_vehicles)})*\n"
         f"{mov_table}"
     )
 
-    # ── Message 3: Parked (matches GPS1: Vehicle | Parked hrs) ──
+    # ── Message 3: Parked (matches GPS1: Vehicle | Parked (hrs) | Zone)
     park_table = "```\n"
-    park_table += f"{'Vehicle':<35} {'Parked For':>14}\n"
-    park_table += "─" * 52 + "\n"
+    park_table += f"{'Vehicle':<35} {'Parked (hrs)':>12} {'Zone':<20}\n"
+    park_table += "─" * 70 + "\n"
     for v in sorted(stationary, key=lambda x: x.get("duration_mins", 0), reverse=True):
-        dur = fmt_duration(v.get("duration_mins", 0))
-        park_table += f"{v['name'][:34]:<35} {dur:>14}\n"
+        mins  = v.get("duration_mins", 0)
+        p_hrs = f"{mins/60:.1f} hrs" if mins >= 60 else f"{mins} min"
+        park_table += f"{v['name'][:34]:<35} {p_hrs:>12} {'—':<20}\n"
     park_table += "```"
     msg3 = (
         f":parking: *GPS2 — Parked Vehicles — Online ({len(stationary)})*\n"
@@ -702,15 +701,31 @@ def post_to_slack(date_str, vehicles, fname):
         f"_:red_circle: {len(offline_vehicles)} vehicle(s) offline — excluded from list_"
     )
 
+    # ── Message 4: Speeding alert (matches GPS1) ─────────────
+    speeding = [v for v in vehicles if float(str(v.get("speed_kmh","0")).replace("—","0") or 0) > 120]
+    if speeding:
+        spd_table = "```\n"
+        spd_table += f"{'Vehicle':<35} {'Speed (kph)':>12}\n"
+        spd_table += "─" * 50 + "\n"
+        for v in sorted(speeding, key=lambda x: float(str(x.get("speed_kmh","0")).replace("—","0") or 0), reverse=True):
+            spd_table += f"{v['name'][:34]:<35} {v.get('speed_kmh','—'):>12}\n"
+        spd_table += "```"
+        msg4 = (
+            f":rotating_light: *GPS2 — Speeding Alert ({len(speeding)} vehicle(s) over 120 kph)*\n"
+            f"{spd_table}"
+        )
+    else:
+        msg4 = ":white_check_mark: *GPS2 — No speeding events recorded*"
+
     try:
         hdrs = {"Authorization": f"Bearer {SLACK_TOKEN}", "Content-Type": "application/json"}
-        for m in [msg1, msg2, msg3]:
+        for m in [msg1, msg2, msg3, msg4]:
             r = requests.post("https://slack.com/api/chat.postMessage",
                               headers=hdrs,
                               json={"channel": SLACK_CHANNEL, "text": m}, timeout=15)
             if not r.json().get("ok"):
                 print(f"  [Slack] Error: {r.json().get('error')}")
-        print("  [Slack] Posted 3 messages to #daily-gps-update")
+        print("  [Slack] Posted 4 messages to #daily-gps-update")
     except Exception as e:
         print(f"  [Slack] Exception: {e}")
 
