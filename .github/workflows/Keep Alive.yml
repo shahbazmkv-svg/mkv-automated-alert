@@ -1,6 +1,8 @@
 name: Keep Alive
 
 on:
+  schedule:
+    - cron: '0 4 * * *'    # 08:00 Dubai (UTC+4) — GPS1 + GPS2 daily
   workflow_dispatch:
     inputs:
       job:
@@ -18,6 +20,7 @@ on:
           - ads-snapshot
           - weekly-optimizer
           - gps-daily-report
+          - gps2-etiqan
 
 permissions:
   contents: write
@@ -231,10 +234,11 @@ jobs:
           key: mkv-weekly-store-${{ github.run_id }}
 
   gps-daily-report:
-    name: GPS Daily Report
+    name: GPS1 Pilot Daily Report
     runs-on: ubuntu-latest
     timeout-minutes: 30
     if: |
+      (github.event_name == 'schedule' && github.event.schedule == '0 4 * * *') ||
       (github.event_name == 'workflow_dispatch' && (github.event.inputs.job == 'gps-daily-report' || github.event.inputs.job == 'all'))
     steps:
       - uses: actions/checkout@v4
@@ -244,16 +248,76 @@ jobs:
         with:
           python-version: '3.11'
       - run: pip install requests openpyxl python-dotenv --break-system-packages
-      - name: Run GPS Daily Report
+      - name: Run GPS1 Pilot Daily Report
         env:
           PILOT_USER:      ${{ secrets.PILOT_USER }}
           PILOT_PASS:      ${{ secrets.PILOT_PASS }}
           SLACK_TOKEN:     ${{ secrets.SLACK_BOT_TOKEN }}
-        run: python daily_gps_report.py
+          SLACK_CHANNEL:   ${{ secrets.SLACK_CHANNEL }}
+        run: python gps1_pilot.py
       - name: Keep repo active
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git pull --rebase origin main || true
-          git commit --allow-empty -m "chore: gps daily report ran $(date +'%Y-%m-%d')"
+          git commit --allow-empty -m "chore: gps1 pilot report ran $(date +'%Y-%m-%d')"
+          git push || true
+
+  gps2-etiqan:
+    name: GPS2 AL ETIQAN Daily Report
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    if: |
+      (github.event_name == 'schedule' && github.event.schedule == '0 4 * * *') ||
+      (github.event_name == 'workflow_dispatch' && (github.event.inputs.job == 'gps2-etiqan' || github.event.inputs.job == 'all'))
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      # Install Chrome + ChromeDriver for Selenium
+      - name: Install Chrome
+        run: |
+          wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
+          sudo sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list'
+          sudo apt-get update -q
+          sudo apt-get install -y google-chrome-stable
+
+      - name: Install Python deps
+        run: pip install requests openpyxl python-dotenv selenium webdriver-manager --break-system-packages
+
+      # Restore odometer snapshot from cache (carries over daily km)
+      - name: Restore odometer snapshot
+        uses: actions/cache@v4
+        with:
+          path: gps2_etiqan_snapshot.json
+          key: gps2-snapshot-${{ github.run_id }}
+          restore-keys: |
+            gps2-snapshot-
+
+      - name: Run GPS2 AL ETIQAN Report
+        env:
+          ETIQAN_USER:   ${{ secrets.ETIQAN_USER }}
+          ETIQAN_PASS:   ${{ secrets.ETIQAN_PASS }}
+          SLACK_TOKEN:   ${{ secrets.SLACK_BOT_TOKEN }}
+          SLACK_CHANNEL: ${{ secrets.SLACK_CHANNEL }}
+        run: python gps2_etiqan.py
+
+      # Save snapshot so tomorrow's run gets the odometer delta
+      - name: Save odometer snapshot
+        if: always()
+        uses: actions/cache@v4
+        with:
+          path: gps2_etiqan_snapshot.json
+          key: gps2-snapshot-${{ github.run_id }}
+
+      - name: Keep repo active
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git pull --rebase origin main || true
+          git commit --allow-empty -m "chore: gps2 etiqan report ran $(date +'%Y-%m-%d')"
           git push || true
