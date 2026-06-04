@@ -2,7 +2,7 @@ name: Keep Alive
 
 on:
   schedule:
-    - cron: '0 4 * * *'    # 08:00 Dubai (UTC+4) — GPS1 + GPS2 daily
+    - cron: '45 6 * * *'    # 10:45 AM Dubai (UTC+4) — GPS1 + GPS2 daily
   workflow_dispatch:
     inputs:
       job:
@@ -238,7 +238,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     if: |
-      (github.event_name == 'schedule' && github.event.schedule == '0 4 * * *') ||
+      (github.event_name == 'schedule' && github.event.schedule == '45 6 * * *') ||
       (github.event_name == 'workflow_dispatch' && (github.event.inputs.job == 'gps-daily-report' || github.event.inputs.job == 'all'))
     steps:
       - uses: actions/checkout@v4
@@ -253,7 +253,7 @@ jobs:
           PILOT_USER:      ${{ secrets.PILOT_USER }}
           PILOT_PASS:      ${{ secrets.PILOT_PASS }}
           SLACK_TOKEN:     ${{ secrets.SLACK_BOT_TOKEN }}
-          SLACK_CHANNEL:   ${{ secrets.SLACK_CHANNEL }}
+          SLACK_CHANNEL:   "C0B6Y6EG85D"
         run: python gps1_pilot.py
       - name: Keep repo active
         run: |
@@ -268,7 +268,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     if: |
-      (github.event_name == 'schedule' && github.event.schedule == '0 4 * * *') ||
+      (github.event_name == 'schedule' && github.event.schedule == '45 6 * * *') ||
       (github.event_name == 'workflow_dispatch' && (github.event.inputs.job == 'gps2-etiqan' || github.event.inputs.job == 'all'))
     steps:
       - uses: actions/checkout@v4
@@ -303,7 +303,7 @@ jobs:
           ETIQAN_USER:   ${{ secrets.ETIQAN_USER }}
           ETIQAN_PASS:   ${{ secrets.ETIQAN_PASS }}
           SLACK_TOKEN:   ${{ secrets.SLACK_BOT_TOKEN }}
-          SLACK_CHANNEL: ${{ secrets.SLACK_CHANNEL }}
+          SLACK_CHANNEL:   "C0B6Y6EG85D"
         run: python gps2_etiqan.py
 
       # Save snapshot so tomorrow's run gets the odometer delta
