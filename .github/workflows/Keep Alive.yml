@@ -161,8 +161,7 @@ jobs:
     name: Daily Ads Snapshot
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    if: |
-      (github.event_name == 'workflow_dispatch' && (github.event.inputs.job == 'ads-snapshot' || github.event.inputs.job == 'all'))
+    if: github.event_name == 'workflow_dispatch' && (github.event.inputs.job == 'ads-snapshot' || github.event.inputs.job == 'all')
     steps:
       - uses: actions/checkout@v4
         with:
@@ -191,9 +190,7 @@ jobs:
     name: Weekly Optimizer
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    if: |
-      (github.event_name == 'schedule' && github.event.schedule == '0 4 * * 1') ||
-      (github.event_name == 'workflow_dispatch' && (github.event.inputs.job == 'weekly-optimizer' || github.event.inputs.job == 'all'))
+    if: github.event_name == 'workflow_dispatch' && (github.event.inputs.job == 'weekly-optimizer' || github.event.inputs.job == 'all')
     steps:
       - uses: actions/checkout@v4
         with:
@@ -236,9 +233,7 @@ jobs:
     name: GPS1 Pilot Daily Report
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    if: |
-      github.event_name == 'schedule' ||
-      (github.event_name == 'workflow_dispatch' && (github.event.inputs.job == 'gps-daily-report' || github.event.inputs.job == 'all'))
+    if: github.event_name == 'workflow_dispatch' && (github.event.inputs.job == 'gps-daily-report' || github.event.inputs.job == 'all')
     steps:
       - uses: actions/checkout@v4
         with:
@@ -249,10 +244,10 @@ jobs:
       - run: pip install requests openpyxl python-dotenv --break-system-packages
       - name: Run GPS1 Pilot Daily Report
         env:
-          PILOT_USER:      ${{ secrets.PILOT_USER }}
-          PILOT_PASS:      ${{ secrets.PILOT_PASS }}
-          SLACK_TOKEN:     ${{ secrets.SLACK_BOT_TOKEN }}
-          SLACK_CHANNEL:   "C0B6Y6EG85D"
+          PILOT_USER:    ${{ secrets.PILOT_USER }}
+          PILOT_PASS:    ${{ secrets.PILOT_PASS }}
+          SLACK_TOKEN:   ${{ secrets.SLACK_BOT_TOKEN }}
+          SLACK_CHANNEL: "C0B6Y6EG85D"
         run: python gps1_pilot.py
       - name: Keep repo active
         run: |
@@ -266,9 +261,7 @@ jobs:
     name: GPS2 AL ETIQAN Daily Report
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    if: |
-      github.event_name == 'schedule' ||
-      (github.event_name == 'workflow_dispatch' && (github.event.inputs.job == 'gps2-etiqan' || github.event.inputs.job == 'all'))
+    if: github.event_name == 'workflow_dispatch' && (github.event.inputs.job == 'gps2-etiqan' || github.event.inputs.job == 'all')
     steps:
       - uses: actions/checkout@v4
         with:
@@ -276,19 +269,14 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-
-      # Install Chrome + ChromeDriver for Selenium
       - name: Install Chrome
         run: |
           wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
           sudo sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list'
           sudo apt-get update -q
           sudo apt-get install -y google-chrome-stable
-
       - name: Install Python deps
         run: pip install requests openpyxl python-dotenv selenium webdriver-manager --break-system-packages
-
-      # Restore odometer snapshot from cache (carries over daily km)
       - name: Restore odometer snapshot
         uses: actions/cache@v4
         with:
@@ -296,23 +284,19 @@ jobs:
           key: gps2-snapshot-${{ github.run_id }}
           restore-keys: |
             gps2-snapshot-
-
       - name: Run GPS2 AL ETIQAN Report
         env:
           ETIQAN_USER:   ${{ secrets.ETIQAN_USER }}
           ETIQAN_PASS:   ${{ secrets.ETIQAN_PASS }}
           SLACK_TOKEN:   ${{ secrets.SLACK_BOT_TOKEN }}
-          SLACK_CHANNEL:   "C0B6Y6EG85D"
+          SLACK_CHANNEL: "C0B6Y6EG85D"
         run: python gps2_etiqan.py
-
-      # Save snapshot so tomorrow's run gets the odometer delta
       - name: Save odometer snapshot
         if: always()
         uses: actions/cache@v4
         with:
           path: gps2_etiqan_snapshot.json
           key: gps2-snapshot-${{ github.run_id }}
-
       - name: Keep repo active
         run: |
           git config user.name "github-actions[bot]"
@@ -325,9 +309,7 @@ jobs:
     name: GPS3 AmberConnect Daily Report
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    if: |
-      github.event_name == 'schedule' ||
-      (github.event_name == 'workflow_dispatch' && (github.event.inputs.job == 'gps3-amber' || github.event.inputs.job == 'all'))
+    if: github.event_name == 'workflow_dispatch' && (github.event.inputs.job == 'gps3-amber' || github.event.inputs.job == 'all')
     steps:
       - uses: actions/checkout@v4
         with:
@@ -337,8 +319,6 @@ jobs:
           python-version: '3.11'
       - name: Install dependencies
         run: pip install requests openpyxl python-dotenv --break-system-packages
-
-      # Restore odometer snapshot
       - name: Restore odometer snapshot
         uses: actions/cache@v4
         with:
@@ -346,25 +326,21 @@ jobs:
           key: gps3-snapshot-${{ github.run_id }}
           restore-keys: |
             gps3-snapshot-
-
       - name: Run GPS3 AmberConnect Report
         env:
-          AMBER_FLEET_ID:  "0370168"
-          AMBER_USER:      "muneer-fleet@mkvluxury.com"
-          AMBER_PASS:      ${{ secrets.AMBER_PASS }}
-          AMBER_SESSION:   ${{ secrets.AMBER_SESSION }}
-          SLACK_TOKEN:     ${{ secrets.SLACK_BOT_TOKEN }}
-          SLACK_CHANNEL:   "C0B6Y6EG85D"
+          AMBER_FLEET_ID: "0370168"
+          AMBER_USER:     "muneer-fleet@mkvluxury.com"
+          AMBER_PASS:     ${{ secrets.AMBER_PASS }}
+          AMBER_SESSION:  ${{ secrets.AMBER_SESSION }}
+          SLACK_TOKEN:    ${{ secrets.SLACK_BOT_TOKEN }}
+          SLACK_CHANNEL:  "C0B6Y6EG85D"
         run: python gps3_amber.py
-
-      # Save snapshot
       - name: Save odometer snapshot
         if: always()
         uses: actions/cache@v4
         with:
           path: gps3_amber_snapshot.json
           key: gps3-snapshot-${{ github.run_id }}
-
       - name: Keep repo active
         run: |
           git config user.name "github-actions[bot]"
