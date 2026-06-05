@@ -21,6 +21,7 @@ on:
           - weekly-optimizer
           - gps-daily-report
           - gps2-etiqan
+          - gps3-amber
 
 permissions:
   contents: write
@@ -320,4 +321,56 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git pull --rebase origin main || true
           git commit --allow-empty -m "chore: gps2 etiqan report ran $(date +'%Y-%m-%d')"
+          git push || true
+
+  gps3-amber:
+    name: GPS3 AmberConnect Daily Report
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    if: |
+      github.event_name == 'schedule' ||
+      (github.event_name == 'workflow_dispatch' && (github.event.inputs.job == 'gps3-amber' || github.event.inputs.job == 'all'))
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: pip install requests openpyxl python-dotenv --break-system-packages
+
+      # Restore odometer snapshot
+      - name: Restore odometer snapshot
+        uses: actions/cache@v4
+        with:
+          path: gps3_amber_snapshot.json
+          key: gps3-snapshot-${{ github.run_id }}
+          restore-keys: |
+            gps3-snapshot-
+
+      - name: Run GPS3 AmberConnect Report
+        env:
+          AMBER_FLEET_ID:  "0370168"
+          AMBER_USER:      "muneer-fleet@mkvluxury.com"
+          AMBER_PASS:      ${{ secrets.AMBER_PASS }}
+          AMBER_SESSION:   ${{ secrets.AMBER_SESSION }}
+          SLACK_TOKEN:     ${{ secrets.SLACK_BOT_TOKEN }}
+          SLACK_CHANNEL:   "C0B6Y6EG85D"
+        run: python gps3_amber.py
+
+      # Save snapshot
+      - name: Save odometer snapshot
+        if: always()
+        uses: actions/cache@v4
+        with:
+          path: gps3_amber_snapshot.json
+          key: gps3-snapshot-${{ github.run_id }}
+
+      - name: Keep repo active
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git pull --rebase origin main || true
+          git commit --allow-empty -m "chore: gps3 amber report ran $(date +'%Y-%m-%d')"
           git push || true
