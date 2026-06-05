@@ -3044,6 +3044,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010148-PANK-Kia": {
+      "thread_ts": "1780669836.179639",
+      "end_date": "2026-07-05",
+      "plate": "97018",
+      "customer": "Pankaj Dubey",
+      "vehicle": "Kia Cerato",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-06-05"
     }
   }
 }
