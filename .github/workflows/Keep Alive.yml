@@ -1,8 +1,6 @@
 name: Keep Alive
 
 on:
-  schedule:
-    - cron: '45 6 * * *'    # 10:45 AM Dubai (UTC+4) — GPS1 + GPS2 daily
   workflow_dispatch:
     inputs:
       job:
