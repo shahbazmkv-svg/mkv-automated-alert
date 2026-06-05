@@ -238,7 +238,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     if: |
-      (github.event_name == 'schedule' && github.event.schedule == '45 6 * * *') ||
+      github.event_name == 'schedule' ||
       (github.event_name == 'workflow_dispatch' && (github.event.inputs.job == 'gps-daily-report' || github.event.inputs.job == 'all'))
     steps:
       - uses: actions/checkout@v4
@@ -268,7 +268,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     if: |
-      (github.event_name == 'schedule' && github.event.schedule == '45 6 * * *') ||
+      github.event_name == 'schedule' ||
       (github.event_name == 'workflow_dispatch' && (github.event.inputs.job == 'gps2-etiqan' || github.event.inputs.job == 'all'))
     steps:
       - uses: actions/checkout@v4
