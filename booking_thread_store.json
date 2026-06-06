@@ -2917,7 +2917,7 @@
       "customer": "Ahmed Ibrahim Ahmed Mohammed Hassanein",
       "vehicle": "Bmw 520I",
       "delivery_alerted": false,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-06-03",
       "delivery_ts": null,
@@ -3142,7 +3142,7 @@
       "customer": "Naveen Tuniki Gangaghar Tuniki",
       "vehicle": "Nissan Nissan Patrol Le Platinum City",
       "delivery_alerted": false,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-06-06",
       "delivery_ts": null,
@@ -3157,7 +3157,7 @@
       "customer": "Muhammad Umar Farooq Yousaf Ali",
       "vehicle": "Morgan Supersport",
       "delivery_alerted": false,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-06-06",
       "delivery_ts": null,
@@ -3204,7 +3204,22 @@
       "delivery_alerted": false,
       "pickup_alerted": false,
       "closed": false,
-      "start_date": "2026-06-06"
+      "start_date": "2026-06-06",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
+    },
+    "0010159-FRAN-Morgan": {
+      "thread_ts": "1780776028.783089",
+      "end_date": "2026-06-08",
+      "plate": "47203",
+      "customer": "Francois Fadl Farra",
+      "vehicle": "Morgan Supersport",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-06-07"
     }
   }
 }
