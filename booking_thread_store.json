@@ -3119,6 +3119,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010153-JOHN-Mercedes-Benz": {
+      "thread_ts": "1780749026.153919",
+      "end_date": "2026-06-07",
+      "plate": "55789",
+      "customer": "John Alex Githua Mwangi",
+      "vehicle": "Mercedes-Benz S500",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-06-06"
     }
   }
 }
