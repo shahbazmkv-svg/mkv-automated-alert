@@ -3194,6 +3194,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010158-ARJU-Porsche": {
+      "thread_ts": "1780774225.504919",
+      "end_date": "2026-06-09",
+      "plate": "64545",
+      "customer": "Arjun Singh Phull",
+      "vehicle": "Porsche Cayman Gt4 Rs",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-06-06"
     }
   }
 }
