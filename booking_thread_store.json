@@ -3134,6 +3134,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010154-NAVE-Nissan": {
+      "thread_ts": "1780752626.621689",
+      "end_date": "2026-06-08",
+      "plate": "39810",
+      "customer": "Naveen Tuniki Gangaghar Tuniki",
+      "vehicle": "Nissan Nissan Patrol Le Platinum City",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-06-06"
     }
   }
 }
