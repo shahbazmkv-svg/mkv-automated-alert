@@ -3159,7 +3159,11 @@
       "delivery_alerted": false,
       "pickup_alerted": false,
       "closed": false,
-      "start_date": "2026-06-06"
+      "start_date": "2026-06-06",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010155-MUNE-Bentley": {
       "thread_ts": "1780759833.745869",
@@ -3167,6 +3171,21 @@
       "plate": "33789",
       "customer": "Muneer Nazarudeen Nazarudeen",
       "vehicle": "Bentley Bentayga",
+      "delivery_alerted": false,
+      "pickup_alerted": true,
+      "closed": false,
+      "start_date": "2026-06-06",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
+    },
+    "0010157-EMMA-Lotus": {
+      "thread_ts": "1780761629.007479",
+      "end_date": "2026-06-10",
+      "plate": "23652",
+      "customer": "Emmanuel Wonder Oluwatosin Adewole",
+      "vehicle": "Lotus Lotus Emira",
       "delivery_alerted": false,
       "pickup_alerted": false,
       "closed": false,
