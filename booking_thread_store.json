@@ -3113,7 +3113,7 @@
       "vehicle": "Porsche Cayman Gt4 Rs",
       "delivery_alerted": false,
       "pickup_alerted": false,
-      "closed": false,
+      "closed": true,
       "start_date": "2026-06-06",
       "delivery_ts": null,
       "pickup_ts": null,
@@ -3128,7 +3128,7 @@
       "vehicle": "Mercedes-Benz S500",
       "delivery_alerted": false,
       "pickup_alerted": true,
-      "closed": false,
+      "closed": true,
       "start_date": "2026-06-06",
       "delivery_ts": null,
       "pickup_ts": null,
@@ -3149,6 +3149,28 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010156-MUHA-Morgan": {
+      "thread_ts": "1780759824.926719",
+      "end_date": "2026-06-08",
+      "plate": "47203",
+      "customer": "Muhammad Umar Farooq Yousaf Ali",
+      "vehicle": "Morgan Supersport",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-06-06"
+    },
+    "0010155-MUNE-Bentley": {
+      "thread_ts": "1780759833.745869",
+      "end_date": "2026-06-07",
+      "plate": "33789",
+      "customer": "Muneer Nazarudeen Nazarudeen",
+      "vehicle": "Bentley Bentayga",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-06-06"
     }
   }
 }
