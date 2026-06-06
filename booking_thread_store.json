@@ -3023,7 +3023,7 @@
       "vehicle": "Ferrari Purosangue",
       "delivery_alerted": false,
       "pickup_alerted": true,
-      "closed": false,
+      "closed": true,
       "start_date": "2026-06-05",
       "delivery_ts": null,
       "pickup_ts": null,
@@ -3104,6 +3104,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010152-MUNE-Porsche": {
+      "thread_ts": "1780740031.202049",
+      "end_date": "2026-06-06",
+      "plate": "64545",
+      "customer": "Muneer Nazarudeen Nazarudeen",
+      "vehicle": "Porsche Cayman Gt4 Rs",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-06-06"
     }
   }
 }
