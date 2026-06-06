@@ -3217,9 +3217,24 @@
       "customer": "Francois Fadl Farra",
       "vehicle": "Morgan Supersport",
       "delivery_alerted": false,
+      "pickup_alerted": true,
+      "closed": false,
+      "start_date": "2026-06-07",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
+    },
+    "0010160-HARR-Chevrolet": {
+      "thread_ts": "1780777826.654929",
+      "end_date": "2026-06-09",
+      "plate": "72712",
+      "customer": "Harry O Donoughue",
+      "vehicle": "Chevrolet Corvette",
+      "delivery_alerted": false,
       "pickup_alerted": false,
       "closed": false,
-      "start_date": "2026-06-07"
+      "start_date": "2026-06-08"
     }
   }
 }
