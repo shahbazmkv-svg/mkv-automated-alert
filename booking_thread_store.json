@@ -3254,6 +3254,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010162-ROMO-Bentley": {
+      "thread_ts": "1780819232.719699",
+      "end_date": "2026-06-08",
+      "plate": "33789",
+      "customer": "Romo Bordoy",
+      "vehicle": "Bentley Bentayga",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-06-07"
     }
   }
 }
