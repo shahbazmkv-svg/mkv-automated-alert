@@ -3239,6 +3239,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010161-KEVI-Porsche": {
+      "thread_ts": "1780813824.971139",
+      "end_date": "2026-06-08",
+      "plate": "V/25947",
+      "customer": "Kevin Ruairi Magee",
+      "vehicle": "Porsche Turbo",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-06-07"
     }
   }
 }
