@@ -3068,7 +3068,7 @@
       "vehicle": "Land Rover Defender",
       "delivery_alerted": false,
       "pickup_alerted": true,
-      "closed": false,
+      "closed": true,
       "start_date": "2026-06-06",
       "delivery_ts": null,
       "pickup_ts": null,
@@ -3299,6 +3299,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010165-MUHA-Chevrolet": {
+      "thread_ts": "1780848029.649299",
+      "end_date": "2026-06-08",
+      "plate": "72712",
+      "customer": "Muhammad Umar Farooq Yousaf Ali",
+      "vehicle": "Chevrolet Corvette",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-06-07"
     }
   }
 }
