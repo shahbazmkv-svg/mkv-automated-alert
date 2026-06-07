@@ -3269,6 +3269,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010163-ROMO-McLaren": {
+      "thread_ts": "1780828224.445469",
+      "end_date": "2026-06-09",
+      "plate": "47041",
+      "customer": "Romo Bordoy",
+      "vehicle": "Mclaren Spider Artura",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-06-08"
     }
   }
 }
