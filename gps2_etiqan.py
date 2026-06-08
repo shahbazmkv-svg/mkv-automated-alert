@@ -23,12 +23,9 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # ──────────────────────────────────────────────
-# DRY-RUN / TEST MODE
-# Set by --test flag. Skips Slack posting and
-# replaces live data with realistic mock vehicles
-# so you can verify all 4 message formats in CMD.
+# DRY-RUN / TEST MODE  (--test flag)
 # ──────────────────────────────────────────────
-DRY_RUN = False   # overridden by --test flag in main()
+DRY_RUN = False
 
 ETIQAN_BASE   = "http://track.etqanuae.com"
 ETIQAN_USER   = os.getenv("ETIQAN_USER", "mkv")
@@ -61,6 +58,42 @@ def center():
     return Alignment(horizontal="center", vertical="center", wrap_text=True)
 def left_align():
     return Alignment(horizontal="left", vertical="center", wrap_text=True)
+
+
+# ──────────────────────────────────────────────
+# MOCK DATA  (--test mode only)
+# ──────────────────────────────────────────────
+def get_mock_vehicles():
+    now = datetime.now(DUBAI_OFFSET).strftime("%Y-%m-%d %H:%M")
+    return [
+        {
+            "name": "V-1243**Rolls Royce Cullinan", "imei": "111111111111111",
+            "plate": "V-1243",
+            "status": "Blocked",    "status_full": "Engine Blocked",
+            "speed_kmh": "0",       "duration_mins": 31,
+            "daily_km": 0.0,        "avg_speed": 0.0,
+            "odometer_km": 47147.0, "last_update": now,
+            "engine_blocked": True,
+        },
+        {
+            "name": "*3764***Forthing S7",          "imei": "222222222222222",
+            "plate": "V-3764",
+            "status": "Moving",     "status_full": "Moving 8 min 12 s",
+            "speed_kmh": "134",     "duration_mins": 8,
+            "daily_km": 67.2,       "avg_speed": 98.0,
+            "odometer_km": 22100.0, "last_update": now,
+            "engine_blocked": False,
+        },
+        {
+            "name": "U-74545 Ferrari",              "imei": "333333333333333",
+            "plate": "U-74545",
+            "status": "Stopped",    "status_full": "Stopped 16 h 0 min",
+            "speed_kmh": "0",       "duration_mins": 960,
+            "daily_km": 0.0,        "avg_speed": 0.0,
+            "odometer_km": 8400.0,  "last_update": now,
+            "engine_blocked": False,
+        },
+    ]
 
 
 # ──────────────────────────────────────────────
@@ -140,59 +173,6 @@ def apply_snapshot_km(vehicles, snapshot):
         if prev is not None and curr > 0:
             delta = round(curr - prev, 1)
             v["daily_km"] = max(0.0, delta)
-
-
-# ──────────────────────────────────────────────
-# MOCK DATA  (--test mode only)
-# ──────────────────────────────────────────────
-def get_mock_vehicles():
-    """
-    Returns realistic fake vehicles so all 4 Slack messages
-    can be previewed locally without touching the live platform.
-    """
-    now = datetime.now(DUBAI_OFFSET).strftime("%Y-%m-%d %H:%M")
-    return [
-        {
-            "name": "V-1001 Range Rover Vogue",   "imei": "111111111111111",
-            "plate": "D-12345",
-            "status": "Moving",      "status_full": "Moving 12 min 30 s",
-            "speed_kmh": "87",       "duration_mins": 12,
-            "daily_km": 143.5,       "avg_speed": 74.0,
-            "odometer_km": 45320.5,  "last_update": now,
-        },
-        {
-            "name": "V-1243 Rolls Royce Cullinan", "imei": "222222222222222",
-            "plate": "D-67890",
-            "status": "Stopped",     "status_full": "Stopped 17 h 24 min",
-            "speed_kmh": "0",        "duration_mins": 1044,
-            "daily_km": 0.0,         "avg_speed": 0.0,
-            "odometer_km": 12800.0,  "last_update": now,
-        },
-        {
-            "name": "U-74545 Ferrari SF90",        "imei": "333333333333333",
-            "plate": "U-74545",
-            "status": "Stopped",     "status_full": "Stopped 16 h 0 min",
-            "speed_kmh": "0",        "duration_mins": 960,
-            "daily_km": 0.0,         "avg_speed": 0.0,
-            "odometer_km": 8400.0,   "last_update": now,
-        },
-        {
-            "name": "V-3764 Forthing S7",          "imei": "444444444444444",
-            "plate": "V-3764",
-            "status": "Moving",      "status_full": "Moving 3 min 5 s",
-            "speed_kmh": "134",      "duration_mins": 3,   # over 120 → triggers speeding
-            "daily_km": 67.2,        "avg_speed": 98.0,
-            "odometer_km": 22100.0,  "last_update": now,
-        },
-        {
-            "name": "T-9900 Bentley Bentayga",     "imei": "555555555555555",
-            "plate": "T-9900",
-            "status": "Offline",     "status_full": "Offline",
-            "speed_kmh": "0",        "duration_mins": 0,
-            "daily_km": 0.0,         "avg_speed": 0.0,
-            "odometer_km": 0.0,      "last_update": now,
-        },
-    ]
 
 
 # ──────────────────────────────────────────────
@@ -337,8 +317,8 @@ def enrich_with_live_status(vehicles):
                         v.update(ldata)
                         break
 
-        # ── Fetch odometer via object info list (io16 = odometer in meters) ──
-        print("  [GPS2] Fetching odometers via browser...")
+        # ── Fetch odometer + engine block status via object info list ──
+        print("  [GPS2] Fetching odometers and engine status via browser...")
         for v in vehicles:
             if not v.get("imei"):
                 continue
@@ -353,15 +333,33 @@ def enrich_with_live_status(vehicles):
                     data = _json.loads(result)
                     for row in data.get("rows", []):
                         cell = row.get("cell", [])
-                        if len(cell) >= 2 and str(cell[0]).lower() == "parameters":
-                            # io16 = odometer in meters (Teltonika standard)
-                            m = re.search(r'io16=(\d+)', str(cell[1]))
+                        if len(cell) < 2:
+                            continue
+                        label = str(cell[0]).lower().strip()
+                        value = str(cell[1]).strip()
+
+                        # ── Odometer from io16 (Teltonika standard, metres) ──
+                        if label == "parameters":
+                            m = re.search(r'io16=(\d+)', value)
                             if m:
                                 v["odometer_km"] = round(int(m.group(1)) / 1000, 1)
-                                print(f"    {v['name']}: odometer={v['odometer_km']} km (io16={m.group(1)})")
-                            break
+                                print(f"    {v['name']}: odometer={v['odometer_km']} km")
+
+                        # ── Engine block status ──────────────────────────────
+                        # AL ETIQAN shows "Engine" row with value "Block" or "Release"
+                        if label == "engine":
+                            engine_state = value.lower()
+                            if engine_state == "block":
+                                v["engine_blocked"] = True
+                                v["status"]         = "Blocked"
+                                v["status_full"]    = "Engine Blocked"
+                                print(f"    {v['name']}: 🔒 Engine BLOCKED")
+                            else:
+                                v["engine_blocked"] = False
+                                print(f"    {v['name']}: Engine {value} (not blocked)")
+
             except Exception as eo:
-                print(f"    {v['name']} odometer error: {eo}")
+                print(f"    {v['name']} info error: {eo}")
 
         # ── Try mileage_data directly ─────────────────────────────
         today_str     = datetime.now(DUBAI_OFFSET).strftime("%Y-%m-%d")
@@ -709,20 +707,19 @@ def post_to_slack(date_str, vehicles, fname):
     total    = len(vehicles)
     online   = sum(1 for v in vehicles if "offline" not in str(v["status"]).lower())
     offline  = total - online
-    moving   = sum(1 for v in vehicles if "moving" in str(v["status"]).lower())
-    parked   = sum(1 for v in vehicles if any(w in str(v["status"]).lower()
-                   for w in ("stop","park","idle")))
+    moving   = sum(1 for v in vehicles if "moving"  in str(v["status"]).lower())
+    blocked  = sum(1 for v in vehicles if v.get("engine_blocked", False))
     total_km = sum(v.get("daily_km", 0) for v in vehicles)
 
-    moving_vehicles  = [v for v in vehicles if "moving" in str(v["status"]).lower()]
+    moving_vehicles  = [v for v in vehicles if "moving"  in str(v["status"]).lower()]
     stationary       = [v for v in vehicles if any(w in str(v["status"]).lower()
-                        for w in ("stop","park","idle"))]
+                        for w in ("stop","park","idle","blocked"))]
     offline_vehicles = [v for v in vehicles if "offline" in str(v["status"]).lower()]
+    moved_count      = sum(1 for v in vehicles
+                           if v.get("daily_km", 0) > 0
+                           or "moving" in str(v.get("status","")).lower())
 
-    moved_count = sum(1 for v in vehicles if v.get("daily_km", 0) > 0
-                      or "moving" in str(v.get("status","")).lower())
-
-    # ── Message 1: Summary (matches GPS1 layout exactly) ────
+    # ── MSG 1: Summary (matches GPS1 layout exactly) ─────────
     msg1 = (
         f":car: *MKV CAR RENTAL — GPS2: AL ETIQAN Daily Report*\n"
         f"*Date:* {date_str}  |  *Timezone:* {TIMEZONE}\n"
@@ -733,13 +730,13 @@ def post_to_slack(date_str, vehicles, fname):
         f":chart_with_upwards_trend: *Moved Today:* {moved_count} vehicles\n"
         f":round_pushpin: *Total Km Driven Today:* {total_km:,.1f} km\n"
         f":busts_in_silhouette: *In a Zone:* —\n"
-        f":lock: *Engine Blocked:* —\n"
+        f":lock: *Engine Blocked:* {blocked}\n"
         f"─────────────────────────────\n"
         f":page_facing_up: *File:* `{fname}`\n"
         f"_Generated at {datetime.now(DUBAI_OFFSET).strftime('%Y-%m-%d %H:%M')} (Dubai time)_"
     )
 
-    # ── Message 2: Moving vehicles (matches GPS1: Vehicle | Km Today | Zone)
+    # ── MSG 2: Vehicles That Moved (GPS1: Vehicle | Km Today | Zone)
     mov_table = "```\n"
     mov_table += f"{'Vehicle':<35} {'Km Today':>10} {'Zone':<20}\n"
     mov_table += "─" * 68 + "\n"
@@ -747,20 +744,27 @@ def post_to_slack(date_str, vehicles, fname):
         dk     = v.get("daily_km", 0)
         km_str = f"{dk:.1f} km" if dk > 0 else "—"
         mov_table += f"{v['name'][:34]:<35} {km_str:>10} {'—':<20}\n"
+    if not moving_vehicles:
+        mov_table += f"{'No vehicles moving':<35}\n"
     mov_table += "```"
     msg2 = (
         f":blue_car: *GPS2 — Vehicles That Moved Today ({len(moving_vehicles)})*\n"
         f"{mov_table}"
     )
 
-    # ── Message 3: Parked (matches GPS1: Vehicle | Parked (hrs) | Zone)
+    # ── MSG 3: Parked Vehicles (GPS1: Vehicle | Parked (hrs) | Zone)
+    # Shows 🔒 for engine-blocked vehicles
     park_table = "```\n"
-    park_table += f"{'Vehicle':<35} {'Parked (hrs)':>12} {'Zone':<20}\n"
-    park_table += "─" * 70 + "\n"
+    park_table += f"{'Vehicle':<35} {'Parked (hrs)':>12} {'Zone':<10}\n"
+    park_table += "─" * 62 + "\n"
     for v in sorted(stationary, key=lambda x: x.get("duration_mins", 0), reverse=True):
-        mins  = v.get("duration_mins", 0)
-        p_hrs = f"{mins/60:.1f} hrs" if mins >= 60 else f"{mins} min"
-        park_table += f"{v['name'][:34]:<35} {p_hrs:>12} {'—':<20}\n"
+        mins    = v.get("duration_mins", 0)
+        p_str   = f"{mins/60:.1f} hrs" if mins >= 60 else f"{mins} min"
+        lock    = " 🔒" if v.get("engine_blocked", False) else ""
+        name    = f"{v['name'][:32]}{lock}"
+        park_table += f"{name:<35} {p_str:>12} {'—':<10}\n"
+    if not stationary:
+        park_table += f"{'No vehicles parked':<35}\n"
     park_table += "```"
     msg3 = (
         f":parking: *GPS2 — Parked Vehicles — Online ({len(stationary)})*\n"
@@ -768,16 +772,19 @@ def post_to_slack(date_str, vehicles, fname):
         f"_:red_circle: {len(offline_vehicles)} vehicle(s) offline — excluded from list_"
     )
 
-    # ── Message 4: Speeding alert (matches GPS1: Vehicle | Max Speed | Avg Speed | Trip km)
-    speeding = [v for v in vehicles if float(str(v.get("speed_kmh","0")).replace("—","0") or 0) > 120]
+    # ── MSG 4: Speeding Alert (GPS1: Vehicle | Max Speed | Avg Speed | Trip km)
+    speeding = [v for v in vehicles
+                if float(str(v.get("speed_kmh","0")).replace("—","0") or 0) > 120]
     if speeding:
         spd_table = "```\n"
         spd_table += f"{'Vehicle':<35} {'Max Speed':>10} {'Avg Speed':>10} {'Trip km':>8}\n"
         spd_table += "─" * 68 + "\n"
-        for v in sorted(speeding, key=lambda x: float(str(x.get("speed_kmh","0")).replace("—","0") or 0), reverse=True):
-            spd   = float(str(v.get("speed_kmh","0")).replace("—","0") or 0)
-            avg   = v.get("avg_speed", 0) or 0
-            km    = v.get("daily_km", 0) or 0
+        for v in sorted(speeding,
+                        key=lambda x: float(str(x.get("speed_kmh","0")).replace("—","0") or 0),
+                        reverse=True):
+            spd = float(str(v.get("speed_kmh","0")).replace("—","0") or 0)
+            avg = v.get("avg_speed", 0) or 0
+            km  = v.get("daily_km",  0) or 0
             spd_table += f"{v['name'][:34]:<35} {spd:>8.0f} km {avg:>8.0f} km {km:>6.1f}km\n"
         spd_table += "```"
         msg4 = (
@@ -787,7 +794,7 @@ def post_to_slack(date_str, vehicles, fname):
     else:
         msg4 = ":white_check_mark: *GPS2 — No speeding events recorded today*"
 
-    # ── Preview all 4 messages in terminal ──────────────────
+    # ── Terminal preview ─────────────────────────────────────
     print("\n" + "─"*60)
     print("  SLACK MESSAGE PREVIEW")
     print("─"*60)
@@ -808,7 +815,7 @@ def post_to_slack(date_str, vehicles, fname):
                               json={"channel": SLACK_CHANNEL, "text": m}, timeout=15)
             if not r.json().get("ok"):
                 print(f"  [Slack] Error: {r.json().get('error')}")
-        print("  [Slack] Posted 4 messages to #daily-gps-update")
+        print("  [Slack] Posted 4 messages to #daily-gps-update ✓")
     except Exception as e:
         print(f"  [Slack] Exception: {e}")
 
@@ -849,22 +856,21 @@ def main():
         if not vehicles:
             print("ERROR: Could not fetch vehicle list.")
             sys.exit(1)
-
-        # Load yesterday's odometer snapshot (same logic as GPS1)
         snapshot = load_snapshot()
         vehicles = enrich_with_live_status(vehicles)
         apply_snapshot_km(vehicles, snapshot)
         save_snapshot(vehicles, date_str)
 
-    moving = [v for v in vehicles if "moving" in str(v["status"]).lower()]
-    parked = [v for v in vehicles if any(w in str(v["status"]).lower() for w in ("stop","park","idle"))]
+    moving = [v for v in vehicles if "moving"  in str(v["status"]).lower()]
+    parked = [v for v in vehicles if any(w in str(v["status"]).lower()
+              for w in ("stop","park","idle","blocked"))]
 
-    print(f"\n  {'Vehicle':<35} {'Status':<12} {'km Today':>8} {'Duration':<12} {'Speed':>6}")
-    print(f"  {'-'*78}")
+    print(f"\n  {'Vehicle':<35} {'Status':<12} {'km Today':>8} {'Blocked':>8} {'Speed':>6}")
+    print(f"  {'-'*75}")
     for v in vehicles:
+        blocked_tag = "🔒 YES" if v.get("engine_blocked") else "—"
         print(f"  {v['name']:<35} {v['status']:<12} "
-              f"{v.get('daily_km', 0):>7.1f}  "
-              f"{fmt_duration(v.get('duration_mins',0)):<12} {v.get('speed_kmh','—'):>5} kph")
+              f"{v.get('daily_km', 0):>7.1f}  {blocked_tag:>8}  {v.get('speed_kmh','—'):>5} kph")
 
     print(f"\n  Moving : {len(moving)}  |  Parked/Stopped : {len(parked)}")
 
