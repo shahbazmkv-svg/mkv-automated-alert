@@ -3322,9 +3322,13 @@
       "customer": "Muneer Nazarudeen Nazarudeen",
       "vehicle": "Ford Mustang Convertible",
       "delivery_alerted": false,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
-      "start_date": "2026-06-08"
+      "start_date": "2026-06-08",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010167-BABU-Chevrolet": {
       "thread_ts": "1780903856.251079",
@@ -3335,7 +3339,11 @@
       "delivery_alerted": false,
       "pickup_alerted": false,
       "closed": false,
-      "start_date": "2026-06-08"
+      "start_date": "2026-06-08",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     }
   }
 }
