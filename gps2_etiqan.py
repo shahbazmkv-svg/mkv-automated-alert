@@ -732,7 +732,6 @@ def post_to_slack(date_str, vehicles, fname):
         f":busts_in_silhouette: *In a Zone:* —\n"
         f":lock: *Engine Blocked:* {blocked}\n"
         f"─────────────────────────────\n"
-        f":page_facing_up: *File:* `{fname}`\n"
         f"_Generated at {datetime.now(DUBAI_OFFSET).strftime('%Y-%m-%d %H:%M')} (Dubai time)_"
     )
 
