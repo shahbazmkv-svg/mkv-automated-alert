@@ -3344,6 +3344,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010168-BRAH-Bentley": {
+      "thread_ts": "1780923635.586389",
+      "end_date": "2026-06-10",
+      "plate": "33789",
+      "customer": "Brahim Zerrouk",
+      "vehicle": "Bentley Bentayga",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-06-08"
     }
   }
 }
