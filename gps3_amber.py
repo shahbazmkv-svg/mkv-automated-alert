@@ -274,13 +274,18 @@ def fetch_vehicles():
             timeout=30,
         )
 
-        # Detect session expiry — server redirects to login page
+        # Detect session expiry — AmberConnect returns HTTP 200 with HTML login
+        # page when session is invalid (common PHP behaviour, not 401/302)
+        content_type = r.headers.get("Content-Type", "")
+        is_html      = "text/html" in content_type or r.text.strip().startswith("<")
+        text_lower   = r.text.lower()[:500]
         expired = (
-            r.status_code == 401
-            or r.status_code == 302
-            or "login" in r.text.lower()[:300]
-            or "session" in r.text.lower()[:300]
-            or r.text.strip().startswith("<")   # HTML response = login page
+            r.status_code in (401, 302, 403)
+            or is_html
+            or "login" in text_lower
+            or "session expired" in text_lower
+            or "phpsessid" in text_lower
+            or "sign in" in text_lower
         )
         if expired:
             post_session_alert(
@@ -289,16 +294,43 @@ def fetch_vehicles():
             )
             return None
 
-        raw = r.json()
-        # birdsEye returns a list of arrays
+        # ── DEBUG: print raw response so we can diagnose ────
+        print(f"  [GPS3] HTTP {r.status_code} | Content-Type: {r.headers.get('Content-Type','?')}")
+        print(f"  [GPS3] Response (first 500 chars): {r.text[:500]}")
+        # ────────────────────────────────────────────────────
+
+        try:
+            raw = r.json()
+        except Exception:
+            print(f"  [GPS3] Response is not valid JSON — possible login page or error")
+            post_session_alert(
+                f"birdsEye returned non-JSON response (HTTP {r.status_code}) — "
+                f"session may be invalid or API endpoint changed"
+            )
+            return None
+
+        print(f"  [GPS3] JSON type: {type(raw).__name__} | "
+              f"length/keys: {len(raw) if isinstance(raw, (list,dict)) else 'n/a'}")
+
+        # birdsEye returns a list of arrays — handle dict wrapper too
+        if isinstance(raw, dict):
+            print(f"  [GPS3] Dict keys: {list(raw.keys())}")
+            raw = raw.get("data", raw.get("vehicles", raw.get("result", [])))
+
         if not isinstance(raw, list):
-            raw = raw.get("data", raw.get("vehicles", []))
+            print(f"  [GPS3] Unexpected response structure: {type(raw)}")
+            return []
+
+        # Print first row so we can verify array indices
+        if raw:
+            print(f"  [GPS3] First row ({len(raw[0])} fields): {raw[0]}")
 
         vehicles = []
         now_str  = datetime.now(DUBAI_OFFSET).strftime("%Y-%m-%d %H:%M")
         for row in raw:
             try:
                 if not isinstance(row, list) or len(row) <= IDX_ODOMETER:
+                    print(f"  [GPS3] Skipping row (len={len(row) if isinstance(row,list) else 'non-list'}): {row}")
                     continue
                 device_id  = str(row[IDX_DEVICE_ID])
                 name       = str(row[IDX_VEHICLE_NAME]).strip() or device_id
