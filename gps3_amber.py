@@ -40,7 +40,10 @@ AMBER_BASE     = "https://fleet.amberconnect.ai"
 AMBER_FLEET_ID = os.getenv("AMBER_FLEET_ID", "0370168")
 AMBER_USER     = os.getenv("AMBER_USER", "muneer-fleet@mkvluxury.com")
 AMBER_PASS     = os.getenv("AMBER_PASS", "")
-AMBER_SESSION  = os.getenv("AMBER_SESSION", "")   # PHPSESSID cookie value
+AMBER_SESSION  = os.getenv("AMBER_SESSION", "")   # PHPSESSID
+AMBER_F_COOK   = os.getenv("AMBER_F_COOK",   "")  # f_cook
+AMBER_P_COOK   = os.getenv("AMBER_P_COOK",   "")  # p_cook
+AMBER_TAB      = os.getenv("AMBER_TAB",      '{"guid":"18b9140b-3c7d-34f0-c048-ad46c3f3c451","timestamp":1780902109374}')
 
 SLACK_TOKEN    = os.getenv("SLACK_TOKEN", "")
 SLACK_CHANNEL  = os.getenv("SLACK_CHANNEL", "C0B6Y6EG85D")
@@ -255,11 +258,17 @@ def fetch_vehicles():
     []    = fetch ok but no vehicles returned
     """
     if not AMBER_SESSION:
-        post_session_alert("AMBER_SESSION secret is not set in GitHub Secrets")
+        post_session_alert("AMBER_SESSION (PHPSESSID) secret is not set in GitHub Secrets")
         return None
+    if not AMBER_F_COOK or not AMBER_P_COOK:
+        post_session_alert("AMBER_F_COOK or AMBER_P_COOK secrets are missing from GitHub Secrets")
 
     session = requests.Session()
-    session.cookies.set("PHPSESSID", AMBER_SESSION, domain="fleet.amberconnect.ai")
+    # Send all session cookies together — AmberConnect requires the full set
+    session.cookies.set("PHPSESSID",                AMBER_SESSION,   domain="fleet.amberconnect.ai")
+    session.cookies.set("f_cook",                   AMBER_F_COOK,    domain="fleet.amberconnect.ai")
+    session.cookies.set("p_cook",                   AMBER_P_COOK,    domain="fleet.amberconnect.ai")
+    session.cookies.set("my-application-browser-tab", AMBER_TAB,     domain="fleet.amberconnect.ai")
     session.headers.update({
         "User-Agent":       "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
         "X-Requested-With": "XMLHttpRequest",
@@ -694,7 +703,6 @@ def post_to_slack(date_str, vehicles, fname):
         f":busts_in_silhouette: *In a Zone:* —\n"
         f":lock: *Engine Blocked:* —\n"
         f"─────────────────────────────\n"
-        f":page_facing_up: *File:* `{fname}`\n"
         f"_Generated at {datetime.now(DUBAI_OFFSET).strftime('%Y-%m-%d %H:%M')} (Dubai time)_"
     )
 
