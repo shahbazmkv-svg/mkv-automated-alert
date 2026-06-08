@@ -3308,12 +3308,34 @@
       "vehicle": "Chevrolet Corvette",
       "delivery_alerted": false,
       "pickup_alerted": true,
-      "closed": false,
+      "closed": true,
       "start_date": "2026-06-07",
       "delivery_ts": null,
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010166-MUNE-Ford": {
+      "thread_ts": "1780903839.792309",
+      "end_date": "2026-06-09",
+      "plate": "77491",
+      "customer": "Muneer Nazarudeen Nazarudeen",
+      "vehicle": "Ford Mustang Convertible",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-06-08"
+    },
+    "0010167-BABU-Chevrolet": {
+      "thread_ts": "1780903856.251079",
+      "end_date": "2026-06-10",
+      "plate": "78042",
+      "customer": "Babu Kariyadan Cheriya",
+      "vehicle": "Chevrolet Tahoe",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-06-08"
     }
   }
 }
