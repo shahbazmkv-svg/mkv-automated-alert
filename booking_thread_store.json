@@ -3359,6 +3359,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010169-AHME-Land Rover": {
+      "thread_ts": "1780929033.906229",
+      "end_date": "2026-06-09",
+      "plate": "77540",
+      "customer": "Ahmed Abdelsalam Ibrahim Alnamar Alzarooni",
+      "vehicle": "Land Rover Svr",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-06-08"
     }
   }
 }
