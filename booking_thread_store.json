@@ -3444,7 +3444,11 @@
       "delivery_alerted": false,
       "pickup_alerted": false,
       "closed": false,
-      "start_date": "2026-06-12"
+      "start_date": "2026-06-12",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010174-NAEE-Mercedes-Benz": {
       "thread_ts": "1781015446.378169",
@@ -3455,7 +3459,11 @@
       "delivery_alerted": false,
       "pickup_alerted": false,
       "closed": false,
-      "start_date": "2026-06-12"
+      "start_date": "2026-06-12",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010176-ANAY-Ford": {
       "thread_ts": "1781015454.594399",
@@ -3466,7 +3474,22 @@
       "delivery_alerted": false,
       "pickup_alerted": false,
       "closed": false,
-      "start_date": "2026-06-09"
+      "start_date": "2026-06-09",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
+    },
+    "0010177-NAEE-Mercedes-Benz": {
+      "thread_ts": "1781019038.837489",
+      "end_date": "2026-06-15",
+      "plate": "55789",
+      "customer": "Naeem Ul Rehman",
+      "vehicle": "Mercedes-Benz S500",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-06-12"
     }
   }
 }
