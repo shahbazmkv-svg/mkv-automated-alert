@@ -3419,6 +3419,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010173-MUHA-Mercedes-Benz": {
+      "thread_ts": "1781010039.485269",
+      "end_date": "2026-06-09",
+      "plate": "60137",
+      "customer": "Muhammad Umar Farooq Yousaf Ali",
+      "vehicle": "Mercedes-Benz Mercedes  G63",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-06-09"
     }
   }
 }
