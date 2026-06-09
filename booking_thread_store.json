@@ -3278,7 +3278,7 @@
       "vehicle": "Mclaren Spider Artura",
       "delivery_alerted": false,
       "pickup_alerted": true,
-      "closed": false,
+      "closed": true,
       "start_date": "2026-06-08",
       "delivery_ts": null,
       "pickup_ts": null,
@@ -3374,6 +3374,39 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010172-JONA-Rolls Royce": {
+      "thread_ts": "1781002835.385839",
+      "end_date": "2026-06-12",
+      "plate": "V/7726",
+      "customer": "Jonathan Isaac Smadja",
+      "vehicle": "Rolls Royce Cullinan Black Badge",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-06-09"
+    },
+    "0010171-JOHN-Morgan": {
+      "thread_ts": "1781002844.261809",
+      "end_date": "2026-06-09",
+      "plate": "47203",
+      "customer": "John Alex Githua Mwangi",
+      "vehicle": "Morgan Supersport",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-06-09"
+    },
+    "0010170-MUNE-Mercedes-Benz": {
+      "thread_ts": "1781002848.854519",
+      "end_date": "2026-06-10",
+      "plate": "19443",
+      "customer": "Muneer Nazarudeen Nazarudeen",
+      "vehicle": "Mercedes-Benz Glb 250",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-06-09"
     }
   }
 }
