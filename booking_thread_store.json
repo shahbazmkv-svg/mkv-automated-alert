@@ -3534,7 +3534,33 @@
       "delivery_alerted": false,
       "pickup_alerted": false,
       "closed": false,
-      "start_date": "2026-06-03"
+      "start_date": "2026-06-03",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
+    },
+    "0010181-HARR-Ford": {
+      "thread_ts": "1781091032.515209",
+      "end_date": "2026-06-11",
+      "plate": "15789",
+      "customer": "Harry O Donoughue",
+      "vehicle": "Ford Mustang Coupe",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-06-10"
+    },
+    "0010180-ALBE-Lamborghini": {
+      "thread_ts": "1781091041.458439",
+      "end_date": "2026-06-11",
+      "plate": "T / 19689",
+      "customer": "Alberto Tauste Bachero",
+      "vehicle": "Lamborghini Evo Spider",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-06-10"
     }
   }
 }
