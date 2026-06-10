@@ -3524,6 +3524,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "009433-MKV -Lamborghini": {
+      "thread_ts": "1781089240.006969",
+      "end_date": "2026-06-30",
+      "plate": "T / 19689",
+      "customer": "Mkv Luxury Car Rental",
+      "vehicle": "Lamborghini Evo Spider",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-06-03"
     }
   }
 }
