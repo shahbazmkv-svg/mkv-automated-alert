@@ -3629,6 +3629,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010186-MUST-Nissan": {
+      "thread_ts": "1781112631.837599",
+      "end_date": "2026-06-12",
+      "plate": "39810",
+      "customer": "Mustafa Mohammad Salameh Khabour",
+      "vehicle": "Nissan Nissan Patrol Le Platinum City",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-06-10"
     }
   }
 }
