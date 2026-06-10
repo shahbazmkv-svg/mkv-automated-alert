@@ -3569,6 +3569,50 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010185-LUXI-McLaren": {
+      "thread_ts": "1781096440.259749",
+      "end_date": "2026-06-16",
+      "plate": "47041",
+      "customer": "Luxilo Car Rental L.L.C",
+      "vehicle": "Mclaren Spider Artura",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-06-13"
+    },
+    "0010184-MAYU-Mercedes-Benz": {
+      "thread_ts": "1781096448.413409",
+      "end_date": "2026-06-14",
+      "plate": "66789",
+      "customer": "Mayur Hamir Odedra",
+      "vehicle": "Mercedes-Benz Mercedes G3 (Brabus)",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-06-11"
+    },
+    "0010183-MAYU-Land Rover": {
+      "thread_ts": "1781096457.964869",
+      "end_date": "2026-06-11",
+      "plate": "83762",
+      "customer": "Mayur Hamir Odedra",
+      "vehicle": "Land Rover Defender",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-06-10"
+    },
+    "0010182-ALBE-Porsche": {
+      "thread_ts": "1781096467.681589",
+      "end_date": "2026-06-11",
+      "plate": "64545",
+      "customer": "Alberto Tauste Bachero",
+      "vehicle": "Porsche Cayman Gt4 Rs",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-06-10"
     }
   }
 }
