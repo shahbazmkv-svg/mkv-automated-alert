@@ -3382,7 +3382,7 @@
       "customer": "Jonathan Isaac Smadja",
       "vehicle": "Rolls Royce Cullinan Black Badge",
       "delivery_alerted": false,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-06-09",
       "delivery_ts": null,
@@ -3412,7 +3412,7 @@
       "customer": "Muneer Nazarudeen Nazarudeen",
       "vehicle": "Mercedes-Benz Glb 250",
       "delivery_alerted": false,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-06-09",
       "delivery_ts": null,
@@ -3457,7 +3457,7 @@
       "customer": "Naeem Ul Rehman",
       "vehicle": "Mercedes-Benz G63 2025",
       "delivery_alerted": false,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-06-12",
       "delivery_ts": null,
@@ -3637,7 +3637,7 @@
       "customer": "Mustafa Mohammad Salameh Khabour",
       "vehicle": "Nissan Nissan Patrol Le Platinum City",
       "delivery_alerted": false,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-06-10",
       "delivery_ts": null,
@@ -3654,7 +3654,11 @@
       "delivery_alerted": false,
       "pickup_alerted": false,
       "closed": false,
-      "start_date": "2026-06-10"
+      "start_date": "2026-06-10",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     }
   }
 }
