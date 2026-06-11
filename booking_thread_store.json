@@ -3704,6 +3704,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010191-ASHT-Chevrolet": {
+      "thread_ts": "1781179237.463699",
+      "end_date": "2026-06-15",
+      "plate": "72712",
+      "customer": "Ashton Alexander Nikzad",
+      "vehicle": "Chevrolet Corvette",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-06-12"
     }
   }
 }
