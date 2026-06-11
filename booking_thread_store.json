@@ -3623,7 +3623,7 @@
       "vehicle": "Porsche Cayman Gt4 Rs",
       "delivery_alerted": false,
       "pickup_alerted": true,
-      "closed": false,
+      "closed": true,
       "start_date": "2026-06-10",
       "delivery_ts": null,
       "pickup_ts": null,
@@ -3674,6 +3674,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010189-DENI-Lotus": {
+      "thread_ts": "1781170237.123979",
+      "end_date": "2026-06-12",
+      "plate": "23652",
+      "customer": "Denis Idam",
+      "vehicle": "Lotus Lotus Emira",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-06-11"
     }
   }
 }
