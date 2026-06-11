@@ -222,8 +222,9 @@ def fetch_vehicle_list():
 
     # Set defaults for mileage fields
     for v in vehicles:
-        v["daily_km"]  = 0.0
-        v["avg_speed"] = 0.0
+        v["daily_km"]    = 0.0
+        v["avg_speed"]   = 0.0
+        v["engine_blocked"] = False
 
     # Fetch mileage for each vehicle
     today     = datetime.now(DUBAI_OFFSET)
@@ -353,7 +354,7 @@ def enrich_with_live_status(vehicles):
                                 v["engine_blocked"] = True
                                 v["status"]         = "Blocked"
                                 v["status_full"]    = "Engine Blocked"
-                                print(f"    {v['name']}: 🔒 Engine BLOCKED")
+                                print(f"    {v['name']}: Engine BLOCKED")
                             else:
                                 v["engine_blocked"] = False
                                 print(f"    {v['name']}: Engine {value} (not blocked)")
@@ -470,6 +471,7 @@ def build_summary(wb, vehicles, date_str):
     moving  = [v for v in vehicles if "moving"  in str(v["status"]).lower()]
     parked  = [v for v in vehicles if any(w in str(v["status"]).lower() for w in ("stop","park","idle"))]
     offline = [v for v in vehicles if "offline" in str(v["status"]).lower()]
+    blocked = [v for v in vehicles if v.get("engine_blocked", False)]
     online  = total - len(offline)
 
     ws["B4"] = "Fleet Summary  —  GPS2: AL ETIQAN"
@@ -481,6 +483,7 @@ def build_summary(wb, vehicles, date_str):
         ("Offline",               len(offline)),
         ("Currently Moving",      f"{len(moving)} vehicles"),
         ("Parked / Stopped",      f"{len(parked)} vehicles"),
+        ("Engine Blocked",        f"{len(blocked)} vehicles"),
         ("Report Date",           date_str),
         ("Data Source",           "AL ETIQAN GPS  (track.etqanuae.com)"),
         ("Generated At",          datetime.now(DUBAI_OFFSET).strftime("%Y-%m-%d %H:%M")),
@@ -495,17 +498,17 @@ def build_summary(wb, vehicles, date_str):
         ws.row_dimensions[row_i].height = 20
 
     # Mini vehicle status table
-    ws.cell(15, 2).value = "Vehicle Status Breakdown"
-    ws.cell(15, 2).font  = Font(name="Arial", bold=True, size=11, color=NAVY)
+    ws.cell(16, 2).value = "Vehicle Status Breakdown"
+    ws.cell(16, 2).font  = Font(name="Arial", bold=True, size=11, color=NAVY)
 
     mini_hdrs = ["Vehicle Name", "Status", "Duration", "Speed (kph)"]
     for ci, h in enumerate(mini_hdrs, 2):
-        c = ws.cell(16, ci)
+        c = ws.cell(17, ci)
         c.value = h; c.font = fwhite(bold=True, sz=10)
         c.fill = fill(NAVY); c.alignment = center(); c.border = thin_border()
         ws.column_dimensions[get_column_letter(ci)].width = [30, 14, 16, 12][ci-2]
 
-    for ri, v in enumerate(vehicles, 17):
+    for ri, v in enumerate(vehicles, 18):
         status = str(v.get("status","—"))
         sl = status.lower()
         row_bg = LIGHT_GRN if "moving" in sl else LIGHT_GOLD if "stop" in sl or "park" in sl else None
@@ -524,11 +527,10 @@ def build_summary(wb, vehicles, date_str):
             sc.font = Font(name="Arial", bold=True, size=10, color=GOLD)
         elif "offline" in sl:
             sc.font = Font(name="Arial", bold=True, size=10, color=GREY)
+        elif "block" in sl:
+            sc.font = Font(name="Arial", bold=True, size=10, color="CC0000")
 
 
-# ──────────────────────────────────────────────
-# TAB 2 — Moving Vehicles
-# ──────────────────────────────────────────────
 # ──────────────────────────────────────────────
 # TAB 2 — Daily Movement  (matches GPS1 layout)
 # ──────────────────────────────────────────────
@@ -541,7 +543,8 @@ def build_moving(wb, vehicles, date_str):
     col_span = len(headers)
 
     _title_block(ws, "DAILY MOVEMENT REPORT", date_str, col_span, header_color=GREEN)
-    moved_count = sum(1 for v in vehicles if "moving" in str(v["status"]).lower())
+    moved_count = sum(1 for v in vehicles if v.get("daily_km", 0) > 0
+                      or "moving" in str(v["status"]).lower())
     _section_row(ws,
                  f"▌  GPS2: AL ETIQAN  —  {moved_count} vehicle(s) moved today  |  "
                  f"{len(vehicles) - moved_count} parked / stopped",
@@ -553,7 +556,7 @@ def build_moving(wb, vehicles, date_str):
         rn     = data_start + i - 1
         status = str(v.get("status", "—"))
         sl     = status.lower()
-        moved  = "moving" in sl
+        moved  = v.get("daily_km", 0) > 0 or "moving" in sl
         alt    = (i % 2 == 0)
 
         ws.cell(rn, 1).value = i
@@ -561,7 +564,7 @@ def build_moving(wb, vehicles, date_str):
         ws.cell(rn, 3).value = v.get("plate", "")
         ws.cell(rn, 4).value = "✓ Yes" if moved else "No"
         ws.cell(rn, 5).value = status
-        ws.cell(rn, 6).value = v.get("speed_kmh", "—") if moved else "0"
+        ws.cell(rn, 6).value = v.get("speed_kmh", "—") if "moving" in sl else "0"
         ws.cell(rn, 7).value = fmt_duration(v.get("duration_mins", 0))
         ws.cell(rn, 8).value = v.get("last_update", "")
         _style_row(ws, rn, col_span, alt=alt)
@@ -572,16 +575,18 @@ def build_moving(wb, vehicles, date_str):
                        color=GREEN if moved else GREY)
         # Status colour
         sc = ws.cell(rn, 5)
-        if moved:
+        if "moving" in sl:
             sc.font = Font(name="Arial", bold=True, size=10, color=GREEN)
         elif "offline" in sl:
             sc.font = Font(name="Arial", bold=True, size=10, color=GREY)
+        elif "block" in sl:
+            sc.font = Font(name="Arial", bold=True, size=10, color="CC0000")
         else:
             sc.font = Font(name="Arial", bold=True, size=10, color=GOLD)
         # Duration colour
         dc = ws.cell(rn, 7)
         dc.font = Font(name="Arial", bold=True, size=10,
-                       color=GREEN if moved else GOLD)
+                       color=GREEN if "moving" in sl else GOLD)
 
     ws.freeze_panes = "A5"
     _totals_row(ws, data_start + len(vehicles), col_span,
@@ -595,7 +600,7 @@ def build_moving(wb, vehicles, date_str):
 def build_parked(wb, vehicles, date_str):
     ws       = wb.create_sheet("GPS2 Parked Vehicles")
     parked   = [v for v in vehicles if any(
-                w in str(v["status"]).lower() for w in ("stop","park","idle","offline"))]
+                w in str(v["status"]).lower() for w in ("stop","park","idle","offline","block"))]
     headers  = ["#", "Vehicle Name", "Plate / ID", "IMEI",
                 "Status", "Parked / Stopped For", "Online", "Last Update"]
     widths   = [5, 32, 16, 20, 14, 22, 10, 22]
@@ -608,21 +613,21 @@ def build_parked(wb, vehicles, date_str):
     _write_headers(ws, headers, widths, row=4, hdr_color=NAVY)
 
     data_start = 5
-    # Sort by longest parked first
     for i, v in enumerate(sorted(parked,
                                   key=lambda x: x.get("duration_mins", 0),
                                   reverse=True), 1):
-        rn     = data_start + i - 1
-        status = str(v.get("status", "—"))
-        sl     = status.lower()
-        alt    = (i % 2 == 0)
+        rn      = data_start + i - 1
+        status  = str(v.get("status", "—"))
+        sl      = status.lower()
+        alt     = (i % 2 == 0)
         offline = "offline" in sl
+        blocked = v.get("engine_blocked", False)
 
         ws.cell(rn, 1).value = i
         ws.cell(rn, 2).value = v.get("name", "")
         ws.cell(rn, 3).value = v.get("plate", "")
         ws.cell(rn, 4).value = v.get("imei", "")
-        ws.cell(rn, 5).value = status
+        ws.cell(rn, 5).value = "🔒 Blocked" if blocked else status
         ws.cell(rn, 6).value = fmt_duration(v.get("duration_mins", 0))
         ws.cell(rn, 7).value = "Offline" if offline else "Online"
         ws.cell(rn, 8).value = v.get("last_update", "")
@@ -635,6 +640,10 @@ def build_parked(wb, vehicles, date_str):
             sc.font = Font(name="Arial", bold=True, size=10, color=GREY)
             dc.font = Font(name="Arial", bold=True, size=10, color=GREY)
             oc.font = Font(name="Arial", bold=True, size=10, color=GREY)
+        elif blocked:
+            sc.font = Font(name="Arial", bold=True, size=10, color="CC0000")
+            dc.font = Font(name="Arial", bold=True, size=10, color="CC0000")
+            oc.font = Font(name="Arial", bold=True, size=10, color=GREEN)
         else:
             sc.font = Font(name="Arial", bold=True, size=10, color=GOLD)
             dc.font = Font(name="Arial", bold=True, size=10, color=GOLD)
@@ -670,12 +679,13 @@ def build_fleet(wb, vehicles, date_str):
         status = str(v.get("status", "—"))
         sl     = status.lower()
         alt    = (i % 2 == 0)
+        blocked = v.get("engine_blocked", False)
 
         ws.cell(rn, 1).value = i
         ws.cell(rn, 2).value = v.get("name", "")
         ws.cell(rn, 3).value = v.get("plate", "")
         ws.cell(rn, 4).value = v.get("imei", "")
-        ws.cell(rn, 5).value = status
+        ws.cell(rn, 5).value = "🔒 Blocked" if blocked else status
         ws.cell(rn, 6).value = v.get("speed_kmh", "")
         ws.cell(rn, 7).value = fmt_duration(v.get("duration_mins", 0))
         ws.cell(rn, 8).value = v.get("last_update", "")
@@ -684,6 +694,8 @@ def build_fleet(wb, vehicles, date_str):
         sc = ws.cell(rn, 5)
         if "moving" in sl:
             sc.font = Font(name="Arial", bold=True, size=10, color=GREEN)
+        elif blocked:
+            sc.font = Font(name="Arial", bold=True, size=10, color="CC0000")
         elif any(w in sl for w in ("stop","park","idle")):
             sc.font = Font(name="Arial", bold=True, size=10, color=GOLD)
         elif "offline" in sl:
@@ -711,15 +723,17 @@ def post_to_slack(date_str, vehicles, fname):
     blocked  = sum(1 for v in vehicles if v.get("engine_blocked", False))
     total_km = sum(v.get("daily_km", 0) for v in vehicles)
 
-    moving_vehicles  = [v for v in vehicles if "moving"  in str(v["status"]).lower()]
+    moving_vehicles  = [v for v in vehicles
+                        if v.get("daily_km", 0) > 0
+                        or "moving" in str(v["status"]).lower()]
     stationary       = [v for v in vehicles if any(w in str(v["status"]).lower()
-                        for w in ("stop","park","idle","blocked"))]
+                        for w in ("stop","park","idle","block"))]
     offline_vehicles = [v for v in vehicles if "offline" in str(v["status"]).lower()]
     moved_count      = sum(1 for v in vehicles
                            if v.get("daily_km", 0) > 0
                            or "moving" in str(v.get("status","")).lower())
 
-    # ── MSG 1: Summary (matches GPS1 layout exactly) ─────────
+    # ── MSG 1: Summary ───────────────────────────────────────
     msg1 = (
         f":car: *MKV CAR RENTAL — GPS2: AL ETIQAN Daily Report*\n"
         f"*Date:* {date_str}  |  *Timezone:* {TIMEZONE}\n"
@@ -735,32 +749,31 @@ def post_to_slack(date_str, vehicles, fname):
         f"_Generated at {datetime.now(DUBAI_OFFSET).strftime('%Y-%m-%d %H:%M')} (Dubai time)_"
     )
 
-    # ── MSG 2: Vehicles That Moved (GPS1: Vehicle | Km Today | Zone)
+    # ── MSG 2: Vehicles That Moved (Vehicle | Km Today | Zone) ──
     mov_table = "```\n"
-    mov_table += f"{'Vehicle':<35} {'Km Today':>10} {'Zone':<20}\n"
-    mov_table += "─" * 68 + "\n"
+    mov_table += f"{'Vehicle':<35} {'Km Today':>10} {'Zone':<25}\n"
+    mov_table += "─" * 72 + "\n"
     for v in sorted(moving_vehicles, key=lambda x: x["name"]):
         dk     = v.get("daily_km", 0)
         km_str = f"{dk:.1f} km" if dk > 0 else "—"
-        mov_table += f"{v['name'][:34]:<35} {km_str:>10} {'—':<20}\n"
+        mov_table += f"{v['name'][:34]:<35} {km_str:>10} {'—':<25}\n"
     if not moving_vehicles:
-        mov_table += f"{'No vehicles moving':<35}\n"
+        mov_table += f"{'No vehicles moved today':<35}\n"
     mov_table += "```"
     msg2 = (
         f":blue_car: *GPS2 — Vehicles That Moved Today ({len(moving_vehicles)})*\n"
         f"{mov_table}"
     )
 
-    # ── MSG 3: Parked Vehicles (GPS1: Vehicle | Parked (hrs) | Zone)
-    # Shows 🔒 for engine-blocked vehicles
+    # ── MSG 3: Parked Vehicles (Vehicle | Parked (hrs) | Zone) ──
     park_table = "```\n"
     park_table += f"{'Vehicle':<35} {'Parked (hrs)':>12} {'Zone':<10}\n"
     park_table += "─" * 62 + "\n"
     for v in sorted(stationary, key=lambda x: x.get("duration_mins", 0), reverse=True):
-        mins    = v.get("duration_mins", 0)
-        p_str   = f"{mins/60:.1f} hrs" if mins >= 60 else f"{mins} min"
-        lock    = " 🔒" if v.get("engine_blocked", False) else ""
-        name    = f"{v['name'][:32]}{lock}"
+        mins   = v.get("duration_mins", 0)
+        p_str  = f"{mins/60:.1f} hrs" if mins >= 60 else f"{mins} min"
+        lock   = " 🔒" if v.get("engine_blocked", False) else ""
+        name   = f"{v['name'][:32]}{lock}"
         park_table += f"{name:<35} {p_str:>12} {'—':<10}\n"
     if not stationary:
         park_table += f"{'No vehicles parked':<35}\n"
@@ -771,7 +784,7 @@ def post_to_slack(date_str, vehicles, fname):
         f"_:red_circle: {len(offline_vehicles)} vehicle(s) offline — excluded from list_"
     )
 
-    # ── MSG 4: Speeding Alert (GPS1: Vehicle | Max Speed | Avg Speed | Trip km)
+    # ── MSG 4: Speeding Alert (Vehicle | Max Speed | Avg Speed | Trip km) ──
     speeding = [v for v in vehicles
                 if float(str(v.get("speed_kmh","0")).replace("—","0") or 0) > 120]
     if speeding:
@@ -862,12 +875,12 @@ def main():
 
     moving = [v for v in vehicles if "moving"  in str(v["status"]).lower()]
     parked = [v for v in vehicles if any(w in str(v["status"]).lower()
-              for w in ("stop","park","idle","blocked"))]
+              for w in ("stop","park","idle","block"))]
 
     print(f"\n  {'Vehicle':<35} {'Status':<12} {'km Today':>8} {'Blocked':>8} {'Speed':>6}")
     print(f"  {'-'*75}")
     for v in vehicles:
-        blocked_tag = "🔒 YES" if v.get("engine_blocked") else "—"
+        blocked_tag = "YES" if v.get("engine_blocked") else "—"
         print(f"  {v['name']:<35} {v['status']:<12} "
               f"{v.get('daily_km', 0):>7.1f}  {blocked_tag:>8}  {v.get('speed_kmh','—'):>5} kph")
 
