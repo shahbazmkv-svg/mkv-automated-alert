@@ -3737,7 +3737,7 @@
     },
     "0010193-JOHN-Audi": {
       "thread_ts": "1781188243.681519",
-      "end_date": "2026-06-14",
+      "end_date": "2026-06-27",
       "plate": "89438",
       "customer": "John Alex Githua Mwangi",
       "vehicle": "Audi A6",
@@ -3749,6 +3749,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010194-MYWH-Bentley": {
+      "thread_ts": "1781190926.390599",
+      "end_date": "2026-06-15",
+      "plate": "33789",
+      "customer": "Mywheels Car Rental L.L.C",
+      "vehicle": "Bentley Bentayga",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-06-11"
     }
   }
 }
