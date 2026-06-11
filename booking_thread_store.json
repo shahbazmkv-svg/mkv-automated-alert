@@ -3764,6 +3764,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010195-SAAD-Range Rover": {
+      "thread_ts": "1781208033.107739",
+      "end_date": "2026-06-14",
+      "plate": "M/71064",
+      "customer": "Saad Abid Abid Hussain Shah",
+      "vehicle": "Range Rover Vogue",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-06-12"
     }
   }
 }
