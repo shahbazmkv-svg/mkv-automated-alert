@@ -3659,6 +3659,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010188-MOHA-McLaren": {
+      "thread_ts": "1781163032.577729",
+      "end_date": "2026-06-12",
+      "plate": "47041",
+      "customer": "Mohamed Sherif Ashoor Khalffallaa",
+      "vehicle": "Mclaren Spider Artura",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-06-11"
     }
   }
 }
