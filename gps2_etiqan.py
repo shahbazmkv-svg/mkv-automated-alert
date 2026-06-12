@@ -238,11 +238,12 @@ def fetch_vehicle_list():
         v["engine_blocked"] = False
 
     # Fetch mileage for each vehicle
-    # Use midnight→now so active (mid-trip) vehicles are included
+    # Use yesterday midnight→today midnight — all trips fully completed
     now       = datetime.now(DUBAI_OFFSET)
-    midnight  = now.replace(hour=0, minute=0, second=0, microsecond=0)
-    d_from    = midnight.strftime("%Y-%m-%d %H:%M:%S")
-    d_to      = now.strftime("%Y-%m-%d %H:%M:%S")
+    today_mid = now.replace(hour=0, minute=0, second=0, microsecond=0)
+    yest_mid  = today_mid - timedelta(days=1)
+    d_from    = yest_mid.strftime("%Y-%m-%d %H:%M:%S")
+    d_to      = today_mid.strftime("%Y-%m-%d %H:%M:%S")
 
     for v in vehicles:
         try:
@@ -375,10 +376,10 @@ def enrich_with_live_status(vehicles):
                 print(f"    {v['name']} info error: {eo}")
 
         # ── Try mileage_data via browser for vehicles still at 0 km ──
-        # Use midnight→now to catch active (mid-trip) vehicles
-        now_str      = datetime.now(DUBAI_OFFSET).strftime("%Y-%m-%d %H:%M:%S")
-        midnight_str = datetime.now(DUBAI_OFFSET).replace(
-            hour=0, minute=0, second=0, microsecond=0).strftime("%Y-%m-%d %H:%M:%S")
+        # Use yesterday midnight→today midnight (completed trips only)
+        now_dt       = datetime.now(DUBAI_OFFSET)
+        today_mid_s  = now_dt.replace(hour=0, minute=0, second=0, microsecond=0).strftime("%Y-%m-%d %H:%M:%S")
+        yest_mid_s   = (now_dt.replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(days=1)).strftime("%Y-%m-%d %H:%M:%S")
         still_zero = [v for v in vehicles if v.get("daily_km", 0) == 0 and v.get("imei")]
         if still_zero:
             print(f"  [GPS2] Browser mileage fallback for {len(still_zero)} vehicles still at 0 km...")
@@ -388,7 +389,7 @@ def enrich_with_live_status(vehicles):
                     var xhr = new XMLHttpRequest();
                     xhr.open('POST', '/func/fn_objects.php', false);
                     xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-                    xhr.send('cmd=load_mileage_data&imei={v["imei"]}&date_from={midnight_str}&date_to={now_str}');
+                    xhr.send('cmd=load_mileage_data&imei={v["imei"]}&date_from={yest_mid_s}&date_to={today_mid_s}');
                     return xhr.responseText;
                 """)
                 if result and result.strip() and result.strip()[0] in ('{', '['):
@@ -864,7 +865,7 @@ def main():
     if args.date:
         report_date = datetime.strptime(args.date, "%Y-%m-%d").replace(tzinfo=DUBAI_OFFSET)
     else:
-        report_date = datetime.now(DUBAI_OFFSET)   # today — matches mileage window
+        report_date = datetime.now(DUBAI_OFFSET) - timedelta(days=1)  # yesterday — matches completed trip data
     report_date = report_date.replace(hour=0, minute=0, second=0, microsecond=0)
     date_str    = report_date.strftime("%Y-%m-%d")
 
