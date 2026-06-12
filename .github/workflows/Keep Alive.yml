@@ -119,6 +119,7 @@ jobs:
         env:
           APPIC_KEY:       ${{ secrets.APPIC_KEY }}
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+          SLACK_APP_URL:   ${{ secrets.SLACK_APP_URL }}
           TEST_MODE:       "false"
         run: python mkv_pickup_alert.py
       - name: Keep repo active
