@@ -3839,6 +3839,39 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010202-MUST-Chevrolet": {
+      "thread_ts": "1781273733.683249",
+      "end_date": "2026-06-12",
+      "plate": "78042",
+      "customer": "Mustafa Mohammad Salameh Khabour",
+      "vehicle": "Chevrolet Tahoe",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-06-12"
+    },
+    "0010201-RANI-Ford": {
+      "thread_ts": "1781273741.357169",
+      "end_date": "2026-06-14",
+      "plate": "15789",
+      "customer": "Rania Ahmef Hsddsn Hassan Alblooshi",
+      "vehicle": "Ford Mustang Coupe",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-06-12"
+    },
+    "0010200-DANI-GMC": {
+      "thread_ts": "1781273751.308179",
+      "end_date": "2026-06-14",
+      "plate": "69367",
+      "customer": "Danish Malik Malik Zafar Mehmood",
+      "vehicle": "Gmc Yukon",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-06-12"
     }
   }
 }
