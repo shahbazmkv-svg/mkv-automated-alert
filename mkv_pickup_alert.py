@@ -72,24 +72,32 @@ def post_message(channel, blocks, text):
 
 
 def load_thread_store():
-    if SLACK_APP_URL:                                          
-        try:                                                   
-            r = requests.get(f"{SLACK_APP_URL}/store", timeout=15)   
-            if r.status_code == 200:                           
-                return r.json().get("bookings", {})            
-        except Exception as exc:                               
-            print(f"  Server store failed: {exc}")             
-                                                               
-    if not os.path.exists(THREAD_STORE):          
-        return {}
-    try:
-        with open(THREAD_STORE, encoding="utf-8") as file:
-            data = json.load(file)
-        return data.get("bookings", {})
-    except Exception as exc:
-        print(f"  Store read failed: {exc}")
-        return {}
+    # Base: repo copy (has thread_ts from booking bot)
+    local = {}
+    if os.path.exists(THREAD_STORE):
+        try:
+            with open(THREAD_STORE, encoding="utf-8") as file:
+                local = json.load(file).get("bookings", {})
+        except Exception as exc:
+            print(f"  Store read failed: {exc}")
 
+    # Overlay: server copy (has delivery_ts from slack.py)
+    if SLACK_APP_URL:
+        try:
+            r = requests.get(f"{SLACK_APP_URL}/store", timeout=15)
+            if r.status_code == 200:
+                server = r.json().get("bookings", {})
+                for key, value in server.items():
+                    if key in local and isinstance(local[key], dict) and isinstance(value, dict):
+                        local[key].update(value)
+                    else:
+                        local[key] = value
+                print(f"  Store merged: {len(local)} bookings ({len(server)} from server)")
+        except Exception as exc:
+            print(f"  Server store failed: {exc}")
+
+    return local
+    
 def find_store_entry(store, contract_id, plate, start_date):
     if contract_id and contract_id in store:
         return store[contract_id]
