@@ -8,6 +8,7 @@ import requests
 
 APPIC_KEY = os.environ["APPIC_KEY"]
 SLACK_BOT_TOKEN = os.environ["SLACK_BOT_TOKEN"]
+SLACK_APP_URL = os.environ.get("SLACK_APP_URL", "")
 
 APPIC_BOOKINGS = "https://www.appicfleet.com/appiccar-apis-mkv/get-mkv-bookings.php"
 THREAD_STORE = "booking_thread_store.json"
@@ -71,7 +72,15 @@ def post_message(channel, blocks, text):
 
 
 def load_thread_store():
-    if not os.path.exists(THREAD_STORE):
+    if SLACK_APP_URL:                                          
+        try:                                                   
+            r = requests.get(f"{SLACK_APP_URL}/store", timeout=15)   
+            if r.status_code == 200:                           
+                return r.json().get("bookings", {})            
+        except Exception as exc:                               
+            print(f"  Server store failed: {exc}")             
+                                                               
+    if not os.path.exists(THREAD_STORE):          
         return {}
     try:
         with open(THREAD_STORE, encoding="utf-8") as file:
@@ -80,7 +89,6 @@ def load_thread_store():
     except Exception as exc:
         print(f"  Store read failed: {exc}")
         return {}
-
 
 def find_store_entry(store, contract_id, plate, start_date):
     if contract_id and contract_id in store:
