@@ -3849,7 +3849,11 @@
       "delivery_alerted": false,
       "pickup_alerted": false,
       "closed": false,
-      "start_date": "2026-06-12"
+      "start_date": "2026-06-12",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010201-RANI-Ford": {
       "thread_ts": "1781273741.357169",
@@ -3860,7 +3864,11 @@
       "delivery_alerted": false,
       "pickup_alerted": false,
       "closed": false,
-      "start_date": "2026-06-12"
+      "start_date": "2026-06-12",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010200-DANI-GMC": {
       "thread_ts": "1781273751.308179",
@@ -3871,7 +3879,11 @@
       "delivery_alerted": false,
       "pickup_alerted": false,
       "closed": false,
-      "start_date": "2026-06-12"
+      "start_date": "2026-06-12",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     }
   }
 }
