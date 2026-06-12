@@ -141,14 +141,19 @@ def load_snapshot():
     return {}
 
 def save_snapshot(vehicles, date_str):
-    snap = {
-        "date":      date_str,
-        "odometers": {v["imei"]: v.get("odometer_km", 0) for v in vehicles if v.get("imei")},
-    }
+    # Only save vehicles with a real odometer reading — never save zeros
+    # Saving zeros corrupts tomorrow's delta calculation
+    odos = {v["imei"]: v.get("odometer_km", 0)
+            for v in vehicles
+            if v.get("imei") and v.get("odometer_km", 0) > 0}
+    if not odos:
+        print("  [GPS2] Snapshot NOT saved — no valid odometer readings (Selenium may have failed)")
+        return
+    snap = {"date": date_str, "odometers": odos}
     try:
         with open(SNAPSHOT_FILE, "w") as f:
             _json.dump(snap, f)
-        print(f"  [GPS2] Snapshot saved ({len(snap['odometers'])} vehicles)")
+        print(f"  [GPS2] Snapshot saved ({len(odos)}/{len(vehicles)} vehicles with odometer)")
     except Exception as e:
         print(f"  [GPS2] Snapshot save error: {e}")
 
@@ -170,9 +175,15 @@ def apply_snapshot_km(vehicles, snapshot):
         imei = v.get("imei", "")
         curr = v.get("odometer_km", 0)
         prev = snap_odos.get(imei)
-        if prev is not None and curr > 0:
+        if prev is not None and curr > 0 and prev > 0:
             delta = round(curr - prev, 1)
-            v["daily_km"] = max(0.0, delta)
+            if delta > 0:
+                # Snapshot delta is more reliable than mileage API for active trips
+                v["daily_km"] = delta
+            elif delta < 0:
+                # Negative delta = bad odometer reading, keep mileage API value
+                print(f"  [GPS2] {v['name']}: negative odometer delta ({delta} km) — keeping API value")
+            # delta == 0 means no movement — keep whatever mileage API returned
 
 
 # ──────────────────────────────────────────────
@@ -227,10 +238,11 @@ def fetch_vehicle_list():
         v["engine_blocked"] = False
 
     # Fetch mileage for each vehicle
-    today     = datetime.now(DUBAI_OFFSET)
-    yesterday = today - timedelta(days=1)
-    d_from    = yesterday.strftime("%Y-%m-%d %H:%M:%S")
-    d_to      = today.strftime("%Y-%m-%d %H:%M:%S")
+    # Use midnight→now so active (mid-trip) vehicles are included
+    now       = datetime.now(DUBAI_OFFSET)
+    midnight  = now.replace(hour=0, minute=0, second=0, microsecond=0)
+    d_from    = midnight.strftime("%Y-%m-%d %H:%M:%S")
+    d_to      = now.strftime("%Y-%m-%d %H:%M:%S")
 
     for v in vehicles:
         try:
@@ -362,18 +374,21 @@ def enrich_with_live_status(vehicles):
             except Exception as eo:
                 print(f"    {v['name']} info error: {eo}")
 
-        # ── Try mileage_data directly ─────────────────────────────
-        today_str     = datetime.now(DUBAI_OFFSET).strftime("%Y-%m-%d")
-        yesterday_str = (datetime.now(DUBAI_OFFSET) - timedelta(days=1)).strftime("%Y-%m-%d")
-        for v in vehicles:
-            if v.get("daily_km", 0) > 0 or not v.get("imei"):
-                continue
+        # ── Try mileage_data via browser for vehicles still at 0 km ──
+        # Use midnight→now to catch active (mid-trip) vehicles
+        now_str      = datetime.now(DUBAI_OFFSET).strftime("%Y-%m-%d %H:%M:%S")
+        midnight_str = datetime.now(DUBAI_OFFSET).replace(
+            hour=0, minute=0, second=0, microsecond=0).strftime("%Y-%m-%d %H:%M:%S")
+        still_zero = [v for v in vehicles if v.get("daily_km", 0) == 0 and v.get("imei")]
+        if still_zero:
+            print(f"  [GPS2] Browser mileage fallback for {len(still_zero)} vehicles still at 0 km...")
+        for v in still_zero:
             try:
                 result = driver.execute_script(f"""
                     var xhr = new XMLHttpRequest();
                     xhr.open('POST', '/func/fn_objects.php', false);
                     xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-                    xhr.send('cmd=load_mileage_data&imei={v["imei"]}&date_from={yesterday_str}&date_to={today_str}');
+                    xhr.send('cmd=load_mileage_data&imei={v["imei"]}&date_from={midnight_str}&date_to={now_str}');
                     return xhr.responseText;
                 """)
                 if result and result.strip() and result.strip()[0] in ('{', '['):
@@ -849,7 +864,7 @@ def main():
     if args.date:
         report_date = datetime.strptime(args.date, "%Y-%m-%d").replace(tzinfo=DUBAI_OFFSET)
     else:
-        report_date = datetime.now(DUBAI_OFFSET) - timedelta(days=1)
+        report_date = datetime.now(DUBAI_OFFSET)   # today — matches mileage window
     report_date = report_date.replace(hour=0, minute=0, second=0, microsecond=0)
     date_str    = report_date.strftime("%Y-%m-%d")
 
