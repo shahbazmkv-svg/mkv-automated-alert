@@ -783,14 +783,14 @@ def post_to_slack(date_str, vehicles, fname):
 
     # ── MSG 3: Parked Vehicles (Vehicle | Parked (hrs) | Zone) ──
     park_table = "```\n"
-    park_table += f"{'Vehicle':<35} {'Parked (hrs)':>12} {'Zone':<10}\n"
-    park_table += "─" * 62 + "\n"
+    park_table += f"{'Vehicle':<35} {'Parked (hrs)':>12} {'Zone':<25}\n"
+    park_table += "─" * 72 + "\n"
     for v in sorted(stationary, key=lambda x: x.get("duration_mins", 0), reverse=True):
         mins   = v.get("duration_mins", 0)
         p_str  = f"{mins/60:.1f} hrs" if mins >= 60 else f"{mins} min"
         lock   = " 🔒" if v.get("engine_blocked", False) else ""
         name   = f"{v['name'][:32]}{lock}"
-        park_table += f"{name:<35} {p_str:>12} {'—':<10}\n"
+        park_table += f"{name:<35} {p_str:>12} {'—':<25}\n"
     if not stationary:
         park_table += f"{'No vehicles parked':<35}\n"
     park_table += "```"
