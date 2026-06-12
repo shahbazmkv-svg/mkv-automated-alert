@@ -3794,6 +3794,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010197-ASHI-Nissan": {
+      "thread_ts": "1781260230.573079",
+      "end_date": "2026-06-15",
+      "plate": "39810",
+      "customer": "Ashish Sharma Shyam Mohan Sharma",
+      "vehicle": "Nissan Nissan Patrol Le Platinum City",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-06-13"
     }
   }
 }
