@@ -3967,9 +3967,13 @@
       "customer": "Ajaypal Singh Mann",
       "vehicle": "Lamborghini Urus Mansory",
       "delivery_alerted": false,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
-      "start_date": "2026-06-13"
+      "start_date": "2026-06-13",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     }
   }
 }
