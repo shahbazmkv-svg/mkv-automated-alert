@@ -4019,6 +4019,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010214-MKV -Lamborghini": {
+      "thread_ts": "1781384442.197779",
+      "end_date": "2026-06-30",
+      "plate": "BB / 40828",
+      "customer": "Mkv Luxury Car Rental",
+      "vehicle": "Lamborghini Mansory",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-06-14"
     }
   }
 }
