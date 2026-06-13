@@ -3974,6 +3974,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010209-PRAT-Ford": {
+      "thread_ts": "1781355644.518799",
+      "end_date": "2026-06-14",
+      "plate": "77491",
+      "customer": "Prateek Sharma",
+      "vehicle": "Ford Mustang Convertible",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-06-13"
     }
   }
 }
