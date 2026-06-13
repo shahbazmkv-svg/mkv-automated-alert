@@ -3922,9 +3922,35 @@
       "customer": "Malcolm Amico",
       "vehicle": "Porsche Cayman Gt4 Rs",
       "delivery_alerted": false,
+      "pickup_alerted": true,
+      "closed": false,
+      "start_date": "2026-06-13",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
+    },
+    "0010207-MKV -Lamborghini": {
+      "thread_ts": "1781337640.504029",
+      "end_date": "2026-06-17",
+      "plate": "I / 44435",
+      "customer": "Mkv Luxury Car Rental",
+      "vehicle": "Lamborghini Urus Mansory",
+      "delivery_alerted": false,
       "pickup_alerted": false,
       "closed": false,
-      "start_date": "2026-06-13"
+      "start_date": "2026-06-12"
+    },
+    "0010206-MKV -Lamborghini": {
+      "thread_ts": "1781337640.774009",
+      "end_date": "2026-06-17",
+      "plate": "I / 44435",
+      "customer": "Mkv Luxury Car Rental",
+      "vehicle": "Lamborghini Urus Mansory",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-06-12"
     }
   }
 }
