@@ -4064,6 +4064,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010217-RODO-Lotus": {
+      "thread_ts": "1781434841.219889",
+      "end_date": "2026-06-15",
+      "plate": "23652",
+      "customer": "Rodolphe Farid El Haddad",
+      "vehicle": "Lotus Lotus Emira",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-06-14"
     }
   }
 }
