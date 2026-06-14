@@ -4049,6 +4049,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010216-FOTE-Land Rover": {
+      "thread_ts": "1781427639.409629",
+      "end_date": "2026-06-16",
+      "plate": "83762",
+      "customer": "Foteini Hadjidemetriou",
+      "vehicle": "Land Rover Defender",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-06-14"
     }
   }
 }
