@@ -4139,6 +4139,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010223-RODR-Chevrolet": {
+      "thread_ts": "1781545531.091939",
+      "end_date": "2026-06-17",
+      "plate": "72712",
+      "customer": "Rodrigo  Ralha Moreira",
+      "vehicle": "Chevrolet Corvette",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-06-16"
     }
   }
 }
