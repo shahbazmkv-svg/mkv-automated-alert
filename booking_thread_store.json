@@ -4154,6 +4154,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010224-ABDU-McLaren": {
+      "thread_ts": "1781604044.812869",
+      "end_date": "2026-06-17",
+      "plate": "47041",
+      "customer": "Abdul Ghaffar Imdad Ali Kanwar",
+      "vehicle": "Mclaren Spider Artura",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-06-16"
     }
   }
 }
