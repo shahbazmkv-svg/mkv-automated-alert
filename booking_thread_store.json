@@ -4194,7 +4194,33 @@
       "delivery_alerted": false,
       "pickup_alerted": false,
       "closed": false,
-      "start_date": "2026-06-15"
+      "start_date": "2026-06-15",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
+    },
+    "0010228-YELL-Mercedes-Benz": {
+      "thread_ts": "1781617539.211259",
+      "end_date": "2026-06-17",
+      "plate": "24545",
+      "customer": "Yellow Star Rent A Car L.L.C",
+      "vehicle": "Mercedes-Benz G63 2025",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-06-16"
+    },
+    "0010227-OLEH-Porsche": {
+      "thread_ts": "1781617545.792229",
+      "end_date": "2026-06-19",
+      "plate": "k / 19862",
+      "customer": "Oleh Branets",
+      "vehicle": "Porsche 911",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-06-16"
     }
   }
 }
