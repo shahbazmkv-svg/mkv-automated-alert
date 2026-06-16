@@ -4207,9 +4207,13 @@
       "customer": "Yellow Star Rent A Car L.L.C",
       "vehicle": "Mercedes-Benz G63 2025",
       "delivery_alerted": false,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
-      "start_date": "2026-06-16"
+      "start_date": "2026-06-16",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010227-OLEH-Porsche": {
       "thread_ts": "1781617545.792229",
@@ -4220,7 +4224,11 @@
       "delivery_alerted": false,
       "pickup_alerted": false,
       "closed": false,
-      "start_date": "2026-06-16"
+      "start_date": "2026-06-16",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     }
   }
 }
