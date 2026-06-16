@@ -4169,6 +4169,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010225-HAME-Audi": {
+      "thread_ts": "1781609440.441709",
+      "end_date": "2026-06-17",
+      "plate": "90158",
+      "customer": "Hamed Mohammed Hamed",
+      "vehicle": "Audi A3",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-06-16"
     }
   }
 }
