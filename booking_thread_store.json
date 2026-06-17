@@ -4259,6 +4259,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010232-Shah-BMW": {
+      "thread_ts": "1781680529.253689",
+      "end_date": "2026-06-18",
+      "plate": "78051",
+      "customer": "Shahbaz  Ashraf",
+      "vehicle": "Bmw 735I",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-06-17"
     }
   }
 }
