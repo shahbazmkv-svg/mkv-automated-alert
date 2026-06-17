@@ -4359,7 +4359,22 @@
       "delivery_alerted": false,
       "pickup_alerted": false,
       "closed": false,
-      "start_date": "2026-06-18"
+      "start_date": "2026-06-18",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
+    },
+    "0010239-MATE-Ford": {
+      "thread_ts": "1781709346.846979",
+      "end_date": "2026-06-19",
+      "plate": "77490",
+      "customer": "Matevz Ivanos",
+      "vehicle": "Ford Mustang Coupe",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-06-17"
     }
   }
 }
