@@ -2,6 +2,8 @@
 credentials.json
 slack_token.txt
 token.json
+gps1_pilot_token.json
+gps1_pilot_snapshot.json
 
 # Python cache
 __pycache__/
