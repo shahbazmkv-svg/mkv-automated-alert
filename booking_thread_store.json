@@ -4268,8 +4268,12 @@
       "vehicle": "Bmw 735I",
       "delivery_alerted": false,
       "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-06-17"
+      "closed": true,
+      "start_date": "2026-06-17",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     }
   }
 }
