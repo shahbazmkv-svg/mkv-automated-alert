@@ -4304,6 +4304,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010235-FAST-Audi": {
+      "thread_ts": "1781702141.367019",
+      "end_date": "2026-06-19",
+      "plate": "46015",
+      "customer": "Faster Rent A Car",
+      "vehicle": "Audi Rsq3",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-06-13"
     }
   }
 }
