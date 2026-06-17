@@ -4379,6 +4379,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010240-ALEX-McLaren": {
+      "thread_ts": "1781714733.460579",
+      "end_date": "2026-06-23",
+      "plate": "47041",
+      "customer": "Alex David Voce",
+      "vehicle": "Mclaren Spider Artura",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-06-22"
     }
   }
 }
