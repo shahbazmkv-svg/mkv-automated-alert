@@ -279,8 +279,12 @@ class PilotV3Client:
 
         token, node_id = load_cached_token()
         if token:
-            print(f"  Auth: using cached token (expires in ~"
-                  f"{int((json.loads(TOKEN_FILE.read_text(encoding="utf-8"))['expires_at'] - time.time()) / 3600)}h)")
+            try:
+                cached = json.loads(TOKEN_FILE.read_text(encoding="utf-8"))
+                hours_left = int((cached["expires_at"] - time.time()) / 3600)
+            except (OSError, KeyError, json.JSONDecodeError):
+                hours_left = "?"
+            print(f"  Auth: using cached token (expires in ~{hours_left}h)")
         else:
             token, node_id = self._login(username, password)
 
