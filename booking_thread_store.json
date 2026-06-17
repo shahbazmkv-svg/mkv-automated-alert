@@ -4329,6 +4329,21 @@
       "delivery_alerted": false,
       "pickup_alerted": false,
       "closed": false,
+      "start_date": "2026-06-18",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
+    },
+    "0010237-MATT-McLaren": {
+      "thread_ts": "1781706639.115339",
+      "end_date": "2026-06-19",
+      "plate": "47041",
+      "customer": "Matthew Nathan Zickert",
+      "vehicle": "Mclaren Spider Artura",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
       "start_date": "2026-06-18"
     }
   }
