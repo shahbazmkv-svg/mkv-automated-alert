@@ -4319,6 +4319,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010236-DMIT-Morgan": {
+      "thread_ts": "1781705744.332109",
+      "end_date": "2026-06-19",
+      "plate": "47203",
+      "customer": "Dmitriy Chuguevskiy",
+      "vehicle": "Morgan Supersport",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-06-18"
     }
   }
 }
