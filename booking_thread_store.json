@@ -4484,6 +4484,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010247-KURS-Porsche": {
+      "thread_ts": "1781816438.372709",
+      "end_date": "2026-06-20",
+      "plate": "42165",
+      "customer": "Kursat Sade",
+      "vehicle": "Porsche 911 Turbo",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-06-19"
     }
   }
 }
