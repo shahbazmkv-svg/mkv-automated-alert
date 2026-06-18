@@ -3472,7 +3472,7 @@
       "customer": "Anay Pritesh Patel",
       "vehicle": "Ford Mustang Coupe",
       "delivery_alerted": false,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": true,
       "start_date": "2026-06-09",
       "delivery_ts": null,
@@ -3938,7 +3938,7 @@
       "vehicle": "Lamborghini Urus Mansory",
       "delivery_alerted": false,
       "pickup_alerted": true,
-      "closed": false,
+      "closed": true,
       "start_date": "2026-06-12",
       "delivery_ts": null,
       "pickup_ts": null,
@@ -3953,7 +3953,7 @@
       "vehicle": "Lamborghini Urus Mansory",
       "delivery_alerted": false,
       "pickup_alerted": true,
-      "closed": false,
+      "closed": true,
       "start_date": "2026-06-12",
       "delivery_ts": null,
       "pickup_ts": null,
@@ -4043,7 +4043,7 @@
       "vehicle": "Lamborghini Mansory",
       "delivery_alerted": false,
       "pickup_alerted": true,
-      "closed": false,
+      "closed": true,
       "start_date": "2026-06-15",
       "delivery_ts": null,
       "pickup_ts": null,
@@ -4208,7 +4208,7 @@
       "vehicle": "Mercedes-Benz G63 2025",
       "delivery_alerted": false,
       "pickup_alerted": true,
-      "closed": false,
+      "closed": true,
       "start_date": "2026-06-16",
       "delivery_ts": null,
       "pickup_ts": null,
@@ -4394,6 +4394,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010241-KONS-Ford": {
+      "thread_ts": "1781740847.473369",
+      "end_date": "2026-06-19",
+      "plate": "77491",
+      "customer": "Konstanlin Bragin",
+      "vehicle": "Ford Mustang Convertible",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-06-18"
     }
   }
 }
