@@ -4507,9 +4507,24 @@
       "customer": "Faster Rent A Car",
       "vehicle": "Audi Rsq3",
       "delivery_alerted": false,
+      "pickup_alerted": true,
+      "closed": false,
+      "start_date": "2026-06-13",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
+    },
+    "0010249-JERO-Ford": {
+      "thread_ts": "1781818234.539799",
+      "end_date": "2026-06-23",
+      "plate": "15789",
+      "customer": "Jerome , Claudio Faggioli",
+      "vehicle": "Ford Mustang Coupe",
+      "delivery_alerted": false,
       "pickup_alerted": false,
       "closed": false,
-      "start_date": "2026-06-13"
+      "start_date": "2026-06-20"
     }
   }
 }
