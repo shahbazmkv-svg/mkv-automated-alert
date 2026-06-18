@@ -4492,9 +4492,24 @@
       "customer": "Kursat Sade",
       "vehicle": "Porsche 911 Turbo",
       "delivery_alerted": false,
+      "pickup_alerted": true,
+      "closed": false,
+      "start_date": "2026-06-19",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
+    },
+    "0010248-FAST-Audi": {
+      "thread_ts": "1781817327.646579",
+      "end_date": "2026-06-20",
+      "plate": "46015",
+      "customer": "Faster Rent A Car",
+      "vehicle": "Audi Rsq3",
+      "delivery_alerted": false,
       "pickup_alerted": false,
       "closed": false,
-      "start_date": "2026-06-19"
+      "start_date": "2026-06-13"
     }
   }
 }
