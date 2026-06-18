@@ -4357,7 +4357,7 @@
       "customer": "Gurman Singh Bhatia",
       "vehicle": "Chevrolet Corvette",
       "delivery_alerted": false,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-06-18",
       "delivery_ts": null,
@@ -4462,13 +4462,24 @@
       "customer": "Gt4 Rent A Car Llc",
       "vehicle": "Ferrari Purosangue",
       "delivery_alerted": false,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-06-18",
       "delivery_ts": null,
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010246-SEYE-Mercedes-Benz": {
+      "thread_ts": "1781812841.908469",
+      "end_date": "2026-06-20",
+      "plate": "24545",
+      "customer": "Seyed Mohammadhadi Seyed",
+      "vehicle": "Mercedes-Benz G63 2025",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-06-19"
     }
   }
 }
