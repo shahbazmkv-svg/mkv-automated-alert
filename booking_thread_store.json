@@ -4597,6 +4597,21 @@
       "customer": "Khaled Azem Omar Al Otaibi",
       "vehicle": "Lotus Lotus Emira",
       "delivery_alerted": false,
+      "pickup_alerted": true,
+      "closed": false,
+      "start_date": "2026-06-19",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
+    },
+    "0010255-SERG-Mercedes-Benz": {
+      "thread_ts": "1781882130.150349",
+      "end_date": "2026-06-20",
+      "plate": "66789",
+      "customer": "Sergey Yegorov",
+      "vehicle": "Mercedes-Benz Mercedes G3 (Brabus)",
+      "delivery_alerted": false,
       "pickup_alerted": false,
       "closed": false,
       "start_date": "2026-06-19"
