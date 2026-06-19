@@ -4589,6 +4589,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010254-KHAL-Lotus": {
+      "thread_ts": "1781880331.939269",
+      "end_date": "2026-06-20",
+      "plate": "23652",
+      "customer": "Khaled Azem Omar Al Otaibi",
+      "vehicle": "Lotus Lotus Emira",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-06-19"
     }
   }
 }
