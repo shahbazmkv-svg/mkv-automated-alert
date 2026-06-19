@@ -4559,6 +4559,28 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010253-SEYE-Lamborghini": {
+      "thread_ts": "1781853326.923599",
+      "end_date": "2026-06-21",
+      "plate": "94545",
+      "customer": "Seyed Mohammadhadi Seyed",
+      "vehicle": "Lamborghini Urus S",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-06-20"
+    },
+    "0010252-KURS-McLaren": {
+      "thread_ts": "1781853335.454799",
+      "end_date": "2026-06-20",
+      "plate": "47041",
+      "customer": "Kursat Sade",
+      "vehicle": "Mclaren Spider Artura",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-06-19"
     }
   }
 }
