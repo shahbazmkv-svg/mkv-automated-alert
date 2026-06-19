@@ -4619,6 +4619,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010256-HAMZ-Porsche": {
+      "thread_ts": "1781897436.733669",
+      "end_date": "2026-06-20",
+      "plate": "64545",
+      "customer": "Hamza El Ferjani",
+      "vehicle": "Porsche Cayman Gt4 Rs",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-06-19"
     }
   }
 }
