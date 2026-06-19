@@ -114,7 +114,7 @@ def app_redirect(channel, ts):
     if not channel or not ts:
         return ""
     clean_ts = str(ts).replace(".", "")
-    return f"https://mkv-global.slack.com/archives/{channel}/p{clean_ts}"
+    return f"https://mkv-luxury.slack.com/archives/{channel}/p{clean_ts}"
 
 def booking_thread_link(entry):
     return app_redirect(CHANNEL_BOOKINGS, entry.get("thread_ts"))
