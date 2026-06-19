@@ -4529,6 +4529,28 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010251-MAJI-Bentley": {
+      "thread_ts": "1781851527.270949",
+      "end_date": "2026-06-22",
+      "plate": "33789",
+      "customer": "Majid Ahmad Mohammed Yahya Mahyo",
+      "vehicle": "Bentley Bentayga",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-06-19"
+    },
+    "0010250-VIGH-Chevrolet": {
+      "thread_ts": "1781851531.191479",
+      "end_date": "2026-06-21",
+      "plate": "78042",
+      "customer": "Vighnesh Harinarayan Dobale",
+      "vehicle": "Chevrolet Tahoe",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-06-19"
     }
   }
 }
