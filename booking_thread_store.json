@@ -4649,6 +4649,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010258-DIAM-Chevrolet": {
+      "thread_ts": "1781958637.062469",
+      "end_date": "2026-06-21",
+      "plate": "72712",
+      "customer": "Diamond Elite Car Rental Llc",
+      "vehicle": "Chevrolet Corvette",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-06-20"
     }
   }
 }
