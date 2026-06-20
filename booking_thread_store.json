@@ -4674,7 +4674,22 @@
       "delivery_alerted": false,
       "pickup_alerted": false,
       "closed": false,
-      "start_date": "2026-06-21"
+      "start_date": "2026-06-21",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
+    },
+    "0010260-JOHN-Morgan": {
+      "thread_ts": "1781964929.191449",
+      "end_date": "2026-06-21",
+      "plate": "I 47203",
+      "customer": "John Alex Githua Mwangi",
+      "vehicle": "Morgan Morgan Supersport",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-06-20"
     }
   }
 }
