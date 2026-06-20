@@ -4642,9 +4642,13 @@
       "customer": "Muneer Nazarudeen Nazarudeen",
       "vehicle": "Mercedes-Benz G63 2025",
       "delivery_alerted": false,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
-      "start_date": "2026-06-20"
+      "start_date": "2026-06-20",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     }
   }
 }
