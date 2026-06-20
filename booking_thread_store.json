@@ -4634,6 +4634,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010257-MUNE-Mercedes-Benz": {
+      "thread_ts": "1781950526.310279",
+      "end_date": "2026-06-21",
+      "plate": "24545",
+      "customer": "Muneer Nazarudeen Nazarudeen",
+      "vehicle": "Mercedes-Benz G63 2025",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-06-20"
     }
   }
 }
