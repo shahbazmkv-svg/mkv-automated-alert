@@ -4694,6 +4694,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010261-LEWI-Lamborghini": {
+      "thread_ts": "1781975727.043119",
+      "end_date": "2026-06-22",
+      "plate": "94545",
+      "customer": "Lewis Reece Michael",
+      "vehicle": "Lamborghini Urus S",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-06-21"
     }
   }
 }
