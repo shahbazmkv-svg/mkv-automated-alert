@@ -4784,6 +4784,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010267-SAHI-McLaren": {
+      "thread_ts": "1782068439.900509",
+      "end_date": "2026-06-23",
+      "plate": "47041",
+      "customer": "Sahil Narang Triloki Nath Narang",
+      "vehicle": "Mclaren Spider Artura",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-06-22"
     }
   }
 }
