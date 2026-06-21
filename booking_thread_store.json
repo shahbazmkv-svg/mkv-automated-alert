@@ -4754,6 +4754,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010265-GOBI-Chevrolet": {
+      "thread_ts": "1782041436.850049",
+      "end_date": "2026-06-22",
+      "plate": "72712",
+      "customer": "Gobinda Sunar",
+      "vehicle": "Chevrolet Corvette",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-06-21"
     }
   }
 }
