@@ -4899,7 +4899,22 @@
       "delivery_alerted": false,
       "pickup_alerted": false,
       "closed": false,
-      "start_date": "2026-06-22"
+      "start_date": "2026-06-22",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
+    },
+    "0010275-ABDE-Lamborghini": {
+      "thread_ts": "1782150332.482149",
+      "end_date": "2026-06-26",
+      "plate": "94545",
+      "customer": "Abdeltif Tmimi El Asri",
+      "vehicle": "Lamborghini Urus S",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-06-23"
     }
   }
 }
