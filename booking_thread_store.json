@@ -4867,9 +4867,13 @@
       "customer": "Vadim Perederii",
       "vehicle": "Ford Mustang Convertible",
       "delivery_alerted": false,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
-      "start_date": "2026-06-22"
+      "start_date": "2026-06-22",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     }
   }
 }
