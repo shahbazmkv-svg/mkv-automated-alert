@@ -331,8 +331,7 @@ jobs:
         env:
           AMBER_FLEET_ID: "0370168"
           AMBER_USER:     "muneer-fleet@mkvluxury.com"
-          AMBER_PASS:     ${{ secrets.AMBER_PASS }}
-          AMBER_SESSION:  ${{ secrets.AMBER_SESSION }}
+          AMBER_API_KEY:  ${{ secrets.AMBER_API_KEY }}
           SLACK_TOKEN:    ${{ secrets.SLACK_BOT_TOKEN }}
           SLACK_CHANNEL:  "C0B6Y6EG85D"
         run: python gps3_amber.py
