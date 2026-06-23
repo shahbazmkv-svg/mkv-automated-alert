@@ -5024,6 +5024,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010283-Ashr-Audi": {
+      "thread_ts": "1782219647.685349",
+      "end_date": "2026-06-25",
+      "plate": "92156",
+      "customer": "Ashraf Shahbaz",
+      "vehicle": "Audi A6",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-06-24"
     }
   }
 }
