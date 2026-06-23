@@ -5034,7 +5034,33 @@
       "delivery_alerted": false,
       "pickup_alerted": false,
       "closed": false,
-      "start_date": "2026-06-24"
+      "start_date": "2026-06-24",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
+    },
+    "0010285-NIAY-Mercedes-Benz": {
+      "thread_ts": "1782220536.334969",
+      "end_date": "2026-06-25",
+      "plate": "19443",
+      "customer": "Niayesh Mojtahedzadeh",
+      "vehicle": "Mercedes-Benz Glb 250",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-06-23"
+    },
+    "0010284-Ashr-BMW": {
+      "thread_ts": "1782220553.637509",
+      "end_date": "2026-06-23",
+      "plate": "70688",
+      "customer": "Ashraf Shahbaz",
+      "vehicle": "Bmw 420I Convertible",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-06-23"
     }
   }
 }
