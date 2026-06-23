@@ -4989,7 +4989,22 @@
       "delivery_alerted": false,
       "pickup_alerted": false,
       "closed": false,
-      "start_date": "2026-06-25"
+      "start_date": "2026-06-25",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
+    },
+    "0010281-HASS-Lotus": {
+      "thread_ts": "1782214238.395529",
+      "end_date": "2026-06-27",
+      "plate": "23652",
+      "customer": "Hassan Fouroozesh",
+      "vehicle": "Lotus Lotus Emira",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-06-24"
     }
   }
 }
