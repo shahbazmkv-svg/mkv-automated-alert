@@ -4979,6 +4979,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010280-FERD-Land Rover": {
+      "thread_ts": "1782213330.179969",
+      "end_date": "2026-06-28",
+      "plate": "55789",
+      "customer": "Ferdous Iiyas Mohammad Iiyas Khan",
+      "vehicle": "Land Rover Sport",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-06-25"
     }
   }
 }
