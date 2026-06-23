@@ -4942,6 +4942,21 @@
       "customer": "Vighnesh Harinarayan Dobale",
       "vehicle": "Chevrolet Tahoe",
       "delivery_alerted": false,
+      "pickup_alerted": true,
+      "closed": false,
+      "start_date": "2026-06-23",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
+    },
+    "0010278-SULT-McLaren": {
+      "thread_ts": "1782205243.326519",
+      "end_date": "2026-06-24",
+      "plate": "47041",
+      "customer": "Sultan Saif Khamis Al Khawaldi",
+      "vehicle": "Mclaren Spider Artura",
+      "delivery_alerted": false,
       "pickup_alerted": false,
       "closed": false,
       "start_date": "2026-06-23"
