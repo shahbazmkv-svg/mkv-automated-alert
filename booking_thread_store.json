@@ -5084,6 +5084,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010287-JOHN-Ford": {
+      "thread_ts": "1782297930.927799",
+      "end_date": "2026-06-24",
+      "plate": "77491",
+      "customer": "John Alex Githua Mwangi",
+      "vehicle": "Ford Mustang Convertible",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-06-24"
     }
   }
 }
