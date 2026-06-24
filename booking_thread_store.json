@@ -5114,6 +5114,39 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010291-MUNE-Mercedes-Benz": {
+      "thread_ts": "1782314131.498019",
+      "end_date": "2026-06-25",
+      "plate": "66789",
+      "customer": "Muneer Nazarudeen Nazarudeen",
+      "vehicle": "Mercedes-Benz Mercedes G3 (Brabus)",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-06-24"
+    },
+    "0010290-MUNE-Mercedes-Benz": {
+      "thread_ts": "1782314143.911989",
+      "end_date": "2026-06-25",
+      "plate": "60137",
+      "customer": "Muneer Nazarudeen Nazarudeen",
+      "vehicle": "Mercedes-Benz Mercedes  G63",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-06-24"
+    },
+    "0010289-MUNE-Land Rover": {
+      "thread_ts": "1782314156.286029",
+      "end_date": "2026-06-25",
+      "plate": "83762",
+      "customer": "Muneer Nazarudeen Nazarudeen",
+      "vehicle": "Land Rover Defender",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-06-24"
     }
   }
 }
