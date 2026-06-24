@@ -5122,9 +5122,13 @@
       "customer": "Muneer Nazarudeen Nazarudeen",
       "vehicle": "Mercedes-Benz Mercedes G3 (Brabus)",
       "delivery_alerted": false,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
-      "start_date": "2026-06-24"
+      "start_date": "2026-06-24",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010290-MUNE-Mercedes-Benz": {
       "thread_ts": "1782314143.911989",
@@ -5133,9 +5137,13 @@
       "customer": "Muneer Nazarudeen Nazarudeen",
       "vehicle": "Mercedes-Benz Mercedes  G63",
       "delivery_alerted": false,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
-      "start_date": "2026-06-24"
+      "start_date": "2026-06-24",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010289-MUNE-Land Rover": {
       "thread_ts": "1782314156.286029",
@@ -5144,9 +5152,13 @@
       "customer": "Muneer Nazarudeen Nazarudeen",
       "vehicle": "Land Rover Defender",
       "delivery_alerted": false,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
-      "start_date": "2026-06-24"
+      "start_date": "2026-06-24",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     }
   }
 }
