@@ -40,7 +40,7 @@ LOGIN_CUSTOMER_ID   = os.environ.get("GOOGLE_ADS_LOGIN_CUSTOMER_ID", "")
 GMAIL_ADDRESS       = os.environ.get("GMAIL_ADDRESS", "")
 GMAIL_APP_PASSWORD  = os.environ.get("GMAIL_APP_PASSWORD", "")
 
-TEST_MODE           = os.environ.get("TEST_MODE", "false").lower() == "true"
+TEST_MODE           = os.environ.get("TEST_MODE", "false").lower() == "false"
 SLACK_CHANNEL       = "C0B0TGBDCDU" if TEST_MODE else "C0AASQKLY59"
 
 DELTA_FILE          = "mkv_yesterday_metrics.json"
