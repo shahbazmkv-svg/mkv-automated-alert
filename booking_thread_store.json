@@ -5099,6 +5099,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010288-ASHT-BMW": {
+      "thread_ts": "1782304236.752569",
+      "end_date": "2026-06-25",
+      "plate": "78051",
+      "customer": "Ashtarian Mohammed Reza Mohammed Hussain Ashtarian",
+      "vehicle": "Bmw 735I",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-06-24"
     }
   }
 }
