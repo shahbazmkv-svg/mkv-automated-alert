@@ -5214,7 +5214,22 @@
       "delivery_alerted": false,
       "pickup_alerted": false,
       "closed": false,
-      "start_date": "2026-06-25"
+      "start_date": "2026-06-25",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
+    },
+    "0010296-PRAN-Land Rover": {
+      "thread_ts": "1782398732.097129",
+      "end_date": "2026-06-29",
+      "plate": "68620",
+      "customer": "Pranav Puthan Veettil",
+      "vehicle": "Land Rover Range Rover Velar",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-06-26"
     }
   }
 }
