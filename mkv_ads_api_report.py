@@ -554,7 +554,7 @@ def build_blocks(g_camp, g_conv, g_search, g_auction, g_landing, meta, yesterday
 def post_slack(blocks, fallback="MKV Daily Ads Snapshot"):
     client = WebClient(token=SLACK_TOKEN)
     try:
-        client.chat_postMessage(channel=SLACK_CHANNEL, blocks=blocks, text=fallback)
+        client.chat_postMessage(channel=SLACK_CHANNEL, blocks=blocks, text=fallback, unfurl_links=False, unfurl_media=False)
         print(f"  ✅  Posted to Slack: {SLACK_CHANNEL}")
     except SlackApiError as e:
         print(f"  ❌  Slack error: {e.response['error']}")
