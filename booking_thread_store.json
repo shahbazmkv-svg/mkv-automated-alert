@@ -5189,6 +5189,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010294-MUHA-Lamborghini": {
+      "thread_ts": "1782394235.181219",
+      "end_date": "2026-06-30",
+      "plate": "94545",
+      "customer": "Muhammed Ahmad Akif",
+      "vehicle": "Lamborghini Urus S",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-06-26"
     }
   }
 }
