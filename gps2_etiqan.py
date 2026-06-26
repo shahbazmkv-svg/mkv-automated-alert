@@ -193,17 +193,24 @@ def fetch_vehicles():
         print(f"  [GPS2] API response status: {r.status_code}")
         r.raise_for_status()
         data = r.json()
-        print(f"  [GPS2] API response keys: {list(data.keys())}")
-        print(f"  [GPS2] API rows count: {len(data.get('rows', []))}")
+        
+        # Handle both response formats
+        if isinstance(data, list):
+            print(f"  [GPS2] API returned flat array with {len(data)} vehicles")
+        else:
+            print(f"  [GPS2] API response keys: {list(data.keys())}")
+            print(f"  [GPS2] API rows count: {len(data.get('rows', []))}")
     except Exception as e:
         print(f"  [GPS2] API error: {e}")
-        print(f"  [GPS2] API response text: {r.text if 'r' in locals() else 'N/A'}")
+        if 'r' in locals():
+            print(f"  [GPS2] API response text: {r.text}")
         return []
 
     vehicles = []
     try:
-        # API returns flat array of vehicle objects, not wrapped in {"rows": [...]}
-        for obj in data if isinstance(data, list) else data.get("rows", []):
+        # API returns flat array of vehicle objects
+        vehicle_list = data if isinstance(data, list) else data.get("rows", [])
+        for obj in vehicle_list:
             # Extract fields directly from object (ETIQAN REST API format)
             name = str(obj.get("name", "Unknown"))
             status_raw = str(obj.get("status", "Unknown")).lower()
