@@ -297,6 +297,7 @@ gps2-etiqan:
           git pull --rebase origin main || true
           git commit --allow-empty -m "chore: gps2 etiqan report ran $(date +'%Y-%m-%d')"
           git push || true
+          
   gps3-amber:
     name: GPS3 AmberConnect Daily Report
     runs-on: ubuntu-latest
