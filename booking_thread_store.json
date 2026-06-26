@@ -5234,6 +5234,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010297-SAEE-BMW": {
+      "thread_ts": "1782463530.346019",
+      "end_date": "2026-06-27",
+      "plate": "78051",
+      "customer": "Saeed Abdallah Mohammad Abed Khier",
+      "vehicle": "Bmw 735I",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-06-26"
     }
   }
 }
