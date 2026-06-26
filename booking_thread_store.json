@@ -5279,6 +5279,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010300-SAEE-Land Rover": {
+      "thread_ts": "1782475235.918989",
+      "end_date": "2026-06-27",
+      "plate": "94084",
+      "customer": "Saeed Abdallah Mohammad Abed Khier",
+      "vehicle": "Land Rover Range Rover Sport",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-06-26"
     }
   }
 }
