@@ -5257,9 +5257,13 @@
       "customer": "Eliran Beno",
       "vehicle": "Chevrolet Corvette",
       "delivery_alerted": false,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
-      "start_date": "2026-06-26"
+      "start_date": "2026-06-26",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010298-U L -McLaren": {
       "thread_ts": "1782472536.187479",
@@ -5268,9 +5272,13 @@
       "customer": "U L B Fine Car Rental Llc",
       "vehicle": "Mclaren Spider Artura",
       "delivery_alerted": false,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
-      "start_date": "2026-06-26"
+      "start_date": "2026-06-26",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     }
   }
 }
