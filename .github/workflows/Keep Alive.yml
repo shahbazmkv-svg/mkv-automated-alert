@@ -40,8 +40,8 @@ jobs:
       - name: Run Fleet Availability
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
-          APPIC_KEY:       ${{ secrets.APPIC_KEY }}
-          TEST_MODE:       "false"
+          APPIC_KEY: ${{ secrets.APPIC_KEY }}
+          TEST_MODE: "false"
         run: python mkv_fleet_availability.py
       - name: Keep repo active
         run: |
@@ -64,12 +64,12 @@ jobs:
       - run: pip install requests pytz --break-system-packages
       - name: Run Daily Leads Report
         env:
-          SLACK_BOT_TOKEN:     ${{ secrets.SLACK_BOT_TOKEN }}
-          GALLABOX_API_KEY:    ${{ secrets.GALLABOX_API_KEY }}
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+          GALLABOX_API_KEY: ${{ secrets.GALLABOX_API_KEY }}
           GALLABOX_API_SECRET: ${{ secrets.GALLABOX_API_SECRET }}
           GALLABOX_ACCOUNT_ID: ${{ secrets.GALLABOX_ACCOUNT_ID }}
-          WEBHOOK_LEADS:       ${{ secrets.WEBHOOK_LEADS }}
-          TEST_MODE:           "false"
+          WEBHOOK_LEADS: ${{ secrets.WEBHOOK_LEADS }}
+          TEST_MODE: "false"
         run: python mkv_gallabox_snapshot.py
       - name: Save MTD store and keep repo active
         run: |
@@ -94,7 +94,7 @@ jobs:
       - name: Run Website Snapshot
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
-          TEST_MODE:       "false"
+          TEST_MODE: "false"
         run: python mkv_website_monitor.py
       - name: Keep repo active
         run: |
@@ -117,10 +117,10 @@ jobs:
       - run: pip install requests pytz --break-system-packages
       - name: Run Pickup and Delivery Alert
         env:
-          APPIC_KEY:       ${{ secrets.APPIC_KEY }}
+          APPIC_KEY: ${{ secrets.APPIC_KEY }}
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
-          SLACK_APP_URL:   ${{ secrets.SLACK_APP_URL }}
-          TEST_MODE:       "false"
+          SLACK_APP_URL: ${{ secrets.SLACK_APP_URL }}
+          TEST_MODE: "false"
         run: python mkv_pickup_alert.py
       - name: Keep repo active
         run: |
@@ -146,8 +146,8 @@ jobs:
       - name: Run Booking Bot
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
-          APPIC_KEY:       ${{ secrets.APPIC_KEY }}
-          TEST_MODE:       "false"
+          APPIC_KEY: ${{ secrets.APPIC_KEY }}
+          TEST_MODE: "false"
         run: python mkv_booking_bot.py
       - name: Commit store updates
         run: |
@@ -174,17 +174,17 @@ jobs:
       - run: pip install -r requirements.txt
       - name: Run Daily Ads Report
         env:
-          SLACK_BOT_TOKEN:              ${{ secrets.SLACK_BOT_TOKEN }}
-          GOOGLE_ADS_DEVELOPER_TOKEN:   ${{ secrets.GOOGLE_ADS_DEVELOPER_TOKEN }}
-          GOOGLE_ADS_CLIENT_ID:         ${{ secrets.GOOGLE_ADS_CLIENT_ID }}
-          GOOGLE_ADS_CLIENT_SECRET:     ${{ secrets.GOOGLE_ADS_CLIENT_SECRET }}
-          GOOGLE_ADS_REFRESH_TOKEN:     ${{ secrets.GOOGLE_ADS_REFRESH_TOKEN }}
-          GOOGLE_ADS_CUSTOMER_ID:       ${{ secrets.GOOGLE_ADS_CUSTOMER_ID }}
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+          GOOGLE_ADS_DEVELOPER_TOKEN: ${{ secrets.GOOGLE_ADS_DEVELOPER_TOKEN }}
+          GOOGLE_ADS_CLIENT_ID: ${{ secrets.GOOGLE_ADS_CLIENT_ID }}
+          GOOGLE_ADS_CLIENT_SECRET: ${{ secrets.GOOGLE_ADS_CLIENT_SECRET }}
+          GOOGLE_ADS_REFRESH_TOKEN: ${{ secrets.GOOGLE_ADS_REFRESH_TOKEN }}
+          GOOGLE_ADS_CUSTOMER_ID: ${{ secrets.GOOGLE_ADS_CUSTOMER_ID }}
           GOOGLE_ADS_LOGIN_CUSTOMER_ID: ${{ secrets.GOOGLE_ADS_LOGIN_CUSTOMER_ID }}
-          GMAIL_ADDRESS:                ${{ secrets.GMAIL_ADDRESS }}
-          GMAIL_APP_PASSWORD:           ${{ secrets.GMAIL_APP_PASSWORD }}
-          META_TOKEN:                   ${{ secrets.META_TOKEN }}
-          TEST_MODE:                    "false"
+          GMAIL_ADDRESS: ${{ secrets.GMAIL_ADDRESS }}
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+          META_TOKEN: ${{ secrets.META_TOKEN }}
+          TEST_MODE: "false"
         run: python mkv_ads_api_report.py
 
   weekly-optimizer:
@@ -210,18 +210,18 @@ jobs:
             mkv-weekly-store-
       - name: Run Weekly Optimizer
         env:
-          SLACK_BOT_TOKEN:              ${{ secrets.SLACK_BOT_TOKEN }}
-          GOOGLE_ADS_DEVELOPER_TOKEN:   ${{ secrets.GOOGLE_ADS_DEVELOPER_TOKEN }}
-          GOOGLE_ADS_CLIENT_ID:         ${{ secrets.GOOGLE_ADS_CLIENT_ID }}
-          GOOGLE_ADS_CLIENT_SECRET:     ${{ secrets.GOOGLE_ADS_CLIENT_SECRET }}
-          GOOGLE_ADS_REFRESH_TOKEN:     ${{ secrets.GOOGLE_ADS_REFRESH_TOKEN }}
-          GOOGLE_ADS_CUSTOMER_ID:       ${{ secrets.GOOGLE_ADS_CUSTOMER_ID }}
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+          GOOGLE_ADS_DEVELOPER_TOKEN: ${{ secrets.GOOGLE_ADS_DEVELOPER_TOKEN }}
+          GOOGLE_ADS_CLIENT_ID: ${{ secrets.GOOGLE_ADS_CLIENT_ID }}
+          GOOGLE_ADS_CLIENT_SECRET: ${{ secrets.GOOGLE_ADS_CLIENT_SECRET }}
+          GOOGLE_ADS_REFRESH_TOKEN: ${{ secrets.GOOGLE_ADS_REFRESH_TOKEN }}
+          GOOGLE_ADS_CUSTOMER_ID: ${{ secrets.GOOGLE_ADS_CUSTOMER_ID }}
           GOOGLE_ADS_LOGIN_CUSTOMER_ID: ${{ secrets.GOOGLE_ADS_LOGIN_CUSTOMER_ID }}
-          GALLABOX_ACCOUNT_ID:          ${{ secrets.GALLABOX_ACCOUNT_ID }}
-          GALLABOX_API_KEY:             ${{ secrets.GALLABOX_API_KEY }}
-          GALLABOX_API_SECRET:          ${{ secrets.GALLABOX_API_SECRET }}
-          META_TOKEN:                   ${{ secrets.META_TOKEN }}
-          TEST_MODE:                    "false"
+          GALLABOX_ACCOUNT_ID: ${{ secrets.GALLABOX_ACCOUNT_ID }}
+          GALLABOX_API_KEY: ${{ secrets.GALLABOX_API_KEY }}
+          GALLABOX_API_SECRET: ${{ secrets.GALLABOX_API_SECRET }}
+          META_TOKEN: ${{ secrets.META_TOKEN }}
+          TEST_MODE: "false"
         run: python mkv_weekly_optimizer.py
       - name: Save weekly store
         if: always()
@@ -245,9 +245,9 @@ jobs:
       - run: pip install requests openpyxl python-dotenv --break-system-packages
       - name: Run GPS1 Pilot Daily Report
         env:
-          PILOT_USER:    ${{ secrets.PILOT_USER }}
-          PILOT_PASS:    ${{ secrets.PILOT_PASS }}
-          SLACK_TOKEN:   ${{ secrets.SLACK_BOT_TOKEN }}
+          PILOT_USER: ${{ secrets.PILOT_USER }}
+          PILOT_PASS: ${{ secrets.PILOT_PASS }}
+          SLACK_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
           SLACK_CHANNEL: "C0B6Y6EG85D"
         run: python gps1_pilot.py
       - name: Keep repo active
@@ -258,7 +258,7 @@ jobs:
           git commit --allow-empty -m "chore: gps1 pilot report ran $(date +'%Y-%m-%d')"
           git push || true
 
-gps2-etiqan:
+  gps2-etiqan:
     name: GPS2 AL ETIQAN Daily Report
     runs-on: ubuntu-latest
     timeout-minutes: 15
@@ -281,7 +281,7 @@ gps2-etiqan:
             gps2-snapshot-
       - name: Run GPS2 AL ETIQAN Report (REST API)
         env:
-          SLACK_TOKEN:   ${{ secrets.SLACK_BOT_TOKEN }}
+          SLACK_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
           SLACK_CHANNEL: "C0B6Y6EG85D"
         run: python gps2_etiqan.py
       - name: Save odometer snapshot
@@ -297,7 +297,7 @@ gps2-etiqan:
           git pull --rebase origin main || true
           git commit --allow-empty -m "chore: gps2 etiqan report ran $(date +'%Y-%m-%d')"
           git push || true
-          
+
   gps3-amber:
     name: GPS3 AmberConnect Daily Report
     runs-on: ubuntu-latest
@@ -322,10 +322,10 @@ gps2-etiqan:
       - name: Run GPS3 AmberConnect Report
         env:
           AMBER_FLEET_ID: "0370168"
-          AMBER_USER:     "muneer-fleet@mkvluxury.com"
-          AMBER_API_KEY:  ${{ secrets.AMBER_API_KEY }}
-          SLACK_TOKEN:    ${{ secrets.SLACK_BOT_TOKEN }}
-          SLACK_CHANNEL:  "C0B6Y6EG85D"
+          AMBER_USER: "muneer-fleet@mkvluxury.com"
+          AMBER_API_KEY: ${{ secrets.AMBER_API_KEY }}
+          SLACK_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+          SLACK_CHANNEL: "C0B6Y6EG85D"
         run: python gps3_amber.py
       - name: Save odometer snapshot
         if: always()
