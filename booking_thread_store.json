@@ -5347,6 +5347,21 @@
       "customer": "Bakhytzhan Khairaliyev",
       "vehicle": "Ford Mustang Coupe",
       "delivery_alerted": false,
+      "pickup_alerted": true,
+      "closed": false,
+      "start_date": "2026-06-27",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
+    },
+    "0010305-WAQA-Audi": {
+      "thread_ts": "1782549926.711779",
+      "end_date": "2026-06-30",
+      "plate": "89438",
+      "customer": "Waqar Ahmad Mukhtiar Ahmad",
+      "vehicle": "Audi A6",
+      "delivery_alerted": false,
       "pickup_alerted": false,
       "closed": false,
       "start_date": "2026-06-27"
