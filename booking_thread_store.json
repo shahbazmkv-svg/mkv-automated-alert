@@ -5102,7 +5102,7 @@
     },
     "0010288-ASHT-BMW": {
       "thread_ts": "1782304236.752569",
-      "end_date": "2026-06-29",
+      "end_date": "2026-06-30",
       "plate": "78051",
       "customer": "Ashtarian Mohammed Reza Mohammed Hussain Ashtarian",
       "vehicle": "Bmw 735I",
@@ -5273,7 +5273,7 @@
       "vehicle": "Mclaren Spider Artura",
       "delivery_alerted": false,
       "pickup_alerted": true,
-      "closed": false,
+      "closed": true,
       "start_date": "2026-06-26",
       "delivery_ts": null,
       "pickup_ts": null,
@@ -5459,6 +5459,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010312-DOMI-Porsche": {
+      "thread_ts": "1782573328.292889",
+      "end_date": "2026-06-28",
+      "plate": "64545",
+      "customer": "Dominic Anthony Murphy",
+      "vehicle": "Porsche Cayman Gt4 Rs",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-06-27"
     }
   }
 }
