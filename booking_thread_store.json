@@ -5018,7 +5018,7 @@
       "vehicle": "Bentley Bentayga",
       "delivery_alerted": false,
       "pickup_alerted": false,
-      "closed": false,
+      "closed": true,
       "start_date": "2026-06-24",
       "delivery_ts": null,
       "pickup_ts": null,
@@ -5324,6 +5324,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010303-NICO-Land Rover": {
+      "thread_ts": "1782544525.880429",
+      "end_date": "2026-06-30",
+      "plate": "77540",
+      "customer": "Nicolas Oilver Serge Michel Rousseau",
+      "vehicle": "Land Rover Svr",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-06-27"
     }
   }
 }
