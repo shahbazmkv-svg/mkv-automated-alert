@@ -5369,6 +5369,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010306-RAMI-Audi": {
+      "thread_ts": "1782558040.971369",
+      "end_date": "2026-07-01",
+      "plate": "89438",
+      "customer": "Rami Husam Masoud Alsrdi",
+      "vehicle": "Audi A6",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-06-27"
     }
   }
 }
