@@ -5394,6 +5394,21 @@
       "delivery_alerted": false,
       "pickup_alerted": false,
       "closed": false,
+      "start_date": "2026-06-27",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
+    },
+    "0010308-Ashr-Audi": {
+      "thread_ts": "1782560728.078389",
+      "end_date": "2026-07-01",
+      "plate": "90158",
+      "customer": "Ashraf Shahbaz",
+      "vehicle": "Audi A3",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
       "start_date": "2026-06-27"
     }
   }
