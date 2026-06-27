@@ -5339,6 +5339,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010304-BAKH-Ford": {
+      "thread_ts": "1782549033.739559",
+      "end_date": "2026-06-28",
+      "plate": "15789",
+      "customer": "Bakhytzhan Khairaliyev",
+      "vehicle": "Ford Mustang Coupe",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-06-27"
     }
   }
 }
