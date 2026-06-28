@@ -5489,6 +5489,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010314-FRAN-Chevrolet": {
+      "thread_ts": "1782651639.457329",
+      "end_date": "2026-06-29",
+      "plate": "72712",
+      "customer": "Francesco Maltese",
+      "vehicle": "Chevrolet Corvette",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-06-28"
     }
   }
 }
