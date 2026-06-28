@@ -5498,7 +5498,7 @@
       "vehicle": "Chevrolet Corvette",
       "delivery_alerted": false,
       "pickup_alerted": true,
-      "closed": false,
+      "closed": true,
       "start_date": "2026-06-28",
       "delivery_ts": null,
       "pickup_ts": null,
