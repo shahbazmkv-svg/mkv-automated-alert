@@ -5519,6 +5519,28 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010317-YAIR-McLaren": {
+      "thread_ts": "1782741649.435959",
+      "end_date": "2026-06-30",
+      "plate": "47041",
+      "customer": "Yair Nathanael  Kedir De Rooi",
+      "vehicle": "Mclaren Spider Artura",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-06-29"
+    },
+    "0010316-FAST-Land Rover": {
+      "thread_ts": "1782741661.953539",
+      "end_date": "2026-07-29",
+      "plate": "83762",
+      "customer": "Faster Rent A Car",
+      "vehicle": "Land Rover Defender",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-06-29"
     }
   }
 }
