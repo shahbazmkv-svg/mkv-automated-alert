@@ -5527,12 +5527,31 @@
       "customer": "Yair Nathanael  Kedir De Rooi",
       "vehicle": "Mclaren Spider Artura",
       "delivery_alerted": false,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
-      "start_date": "2026-06-29"
+      "start_date": "2026-06-29",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010316-FAST-Land Rover": {
       "thread_ts": "1782741661.953539",
+      "end_date": "2026-07-29",
+      "plate": "83762",
+      "customer": "Faster Rent A Car",
+      "vehicle": "Land Rover Defender",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-06-29",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
+    },
+    "0010321-FAST-Land Rover": {
+      "thread_ts": "1782742529.380039",
       "end_date": "2026-07-29",
       "plate": "83762",
       "customer": "Faster Rent A Car",
