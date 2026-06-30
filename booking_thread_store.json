@@ -5664,7 +5664,22 @@
       "delivery_alerted": false,
       "pickup_alerted": false,
       "closed": false,
-      "start_date": "2026-07-02"
+      "start_date": "2026-07-02",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
+    },
+    "0010344-NICO-Bentley": {
+      "thread_ts": "1782815445.623119",
+      "end_date": "2026-07-04",
+      "plate": "33789",
+      "customer": "Nicolas Olivier Serge Michel Rousseau",
+      "vehicle": "Bentley Bentayga",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-07-03"
     }
   }
 }
