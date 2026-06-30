@@ -5594,6 +5594,28 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010340-MUNE-Ford": {
+      "thread_ts": "1782803729.940389",
+      "end_date": "2026-07-02",
+      "plate": "77490",
+      "customer": "Muneer Nazarudeen Nazarudeen",
+      "vehicle": "Ford Mustang Coupe",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-06-30"
+    },
+    "0010339-MUNE-Chevrolet": {
+      "thread_ts": "1782803742.209779",
+      "end_date": "2026-07-01",
+      "plate": "72712",
+      "customer": "Muneer Nazarudeen Nazarudeen",
+      "vehicle": "Chevrolet Corvette",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-06-30"
     }
   }
 }
