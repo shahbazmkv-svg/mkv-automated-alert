@@ -233,7 +233,6 @@ def build_slack_messages(vehicles, date_str, overspeed_data):
         f":busts_in_silhouette: *In a Zone:* —\n"
         f":lock: *Engine Blocked:* —\n"
         f"─────────────────────────────\n"
-        f":page_facing_up: *File:* `MKV_GPS2_ETIQAN_{date_str}.xlsx`\n"
         f"_Generated at {now} (Dubai time)_"
     )
     
