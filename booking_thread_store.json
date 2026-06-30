@@ -5649,7 +5649,22 @@
       "delivery_alerted": false,
       "pickup_alerted": false,
       "closed": false,
-      "start_date": "2026-07-01"
+      "start_date": "2026-07-01",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
+    },
+    "0010343-NICO-McLaren": {
+      "thread_ts": "1782814529.571489",
+      "end_date": "2026-07-03",
+      "plate": "47041",
+      "customer": "Nicolas Olivier Serge Michel Rousseau",
+      "vehicle": "Mclaren Spider Artura",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-07-02"
     }
   }
 }
