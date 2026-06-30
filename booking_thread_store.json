@@ -5198,7 +5198,7 @@
       "vehicle": "Lamborghini Urus S",
       "delivery_alerted": false,
       "pickup_alerted": true,
-      "closed": false,
+      "closed": true,
       "start_date": "2026-06-26",
       "delivery_ts": null,
       "pickup_ts": null,
@@ -5679,7 +5679,33 @@
       "delivery_alerted": false,
       "pickup_alerted": false,
       "closed": false,
-      "start_date": "2026-07-03"
+      "start_date": "2026-07-03",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
+    },
+    "0010345-NICO-Land Rover": {
+      "thread_ts": "1782816326.983619",
+      "end_date": "2026-07-06",
+      "plate": "77540",
+      "customer": "Nicolas Olivier Serge Michel Rousseau",
+      "vehicle": "Land Rover Svr",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-07-04"
+    },
+    "0010346-JOHN-Chevrolet": {
+      "thread_ts": "1782816335.239389",
+      "end_date": "2026-07-04",
+      "plate": "78042",
+      "customer": "John Alex Githua Mwangi",
+      "vehicle": "Chevrolet Tahoe",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-06-30"
     }
   }
 }
