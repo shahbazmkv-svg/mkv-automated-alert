@@ -25,7 +25,7 @@ load_dotenv()
 # ─── CONFIG ─────────────────────────────────────────
 ETIQAN_BASE   = "http://track.etqanuae.com/api/api.php"
 ETIQAN_KEY    = os.getenv("ETIQAN_API_KEY", "8651C0D3A56F60178A09B3007B8BF32B")
-SLACK_TOKEN   = os.getenv("SLACK_BOT_TOKEN", "")
+SLACK_TOKEN   = os.getenv("SLACK_TOKEN", "")
 SLACK_CHANNEL = os.getenv("SLACK_CHANNEL", "C0B6Y6EG85D")
 SNAPSHOT_FILE = "gps2_etiqan_snapshot.json"
 DUBAI_OFFSET  = timezone(timedelta(hours=4))
