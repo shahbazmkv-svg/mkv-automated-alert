@@ -5714,6 +5714,28 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010347-MUHA-Lamborghini": {
+      "thread_ts": "1782900055.156379",
+      "end_date": "2026-07-02",
+      "plate": "94545",
+      "customer": "Muhammed Ahmad Akif",
+      "vehicle": "Lamborghini Urus S",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-07-01"
+    },
+    "0010348-PANK-Audi": {
+      "thread_ts": "1782900063.424079",
+      "end_date": "2026-07-04",
+      "plate": "90158",
+      "customer": "Pankaj Dubey",
+      "vehicle": "Audi A3",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-07-01"
     }
   }
 }
