@@ -5513,7 +5513,7 @@
       "vehicle": "Lamborghini Urus S",
       "delivery_alerted": false,
       "pickup_alerted": true,
-      "closed": false,
+      "closed": true,
       "start_date": "2026-06-30",
       "delivery_ts": null,
       "pickup_ts": null,
@@ -5618,7 +5618,7 @@
       "vehicle": "Chevrolet Corvette",
       "delivery_alerted": false,
       "pickup_alerted": true,
-      "closed": false,
+      "closed": true,
       "start_date": "2026-06-30",
       "delivery_ts": null,
       "pickup_ts": null,
@@ -5717,14 +5717,18 @@
     },
     "0010347-MUHA-Lamborghini": {
       "thread_ts": "1782900055.156379",
-      "end_date": "2026-07-02",
+      "end_date": "2026-07-03",
       "plate": "94545",
       "customer": "Muhammed Ahmad Akif",
       "vehicle": "Lamborghini Urus S",
       "delivery_alerted": false,
       "pickup_alerted": false,
       "closed": false,
-      "start_date": "2026-07-01"
+      "start_date": "2026-07-01",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010348-PANK-Audi": {
       "thread_ts": "1782900063.424079",
@@ -5735,7 +5739,11 @@
       "delivery_alerted": false,
       "pickup_alerted": false,
       "closed": false,
-      "start_date": "2026-07-01"
+      "start_date": "2026-07-01",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     }
   }
 }
