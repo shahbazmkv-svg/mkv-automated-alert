@@ -5774,6 +5774,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010352-HAWA-Ferrari": {
+      "thread_ts": "1782925249.241519",
+      "end_date": "2026-07-03",
+      "plate": "97019",
+      "customer": "Hawaii Rent A Car L.L.C",
+      "vehicle": "Ferrari Purosangue",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-07-02"
     }
   }
 }
