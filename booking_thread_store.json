@@ -5752,6 +5752,21 @@
       "customer": "Nicolas Olivier Serge Michel Rousseau",
       "vehicle": "Mercedes-Benz Mercedes G3 (Brabus)",
       "delivery_alerted": false,
+      "pickup_alerted": true,
+      "closed": false,
+      "start_date": "2026-07-01",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
+    },
+    "0010351-MUHA-Ferrari": {
+      "thread_ts": "1782905444.873959",
+      "end_date": "2026-07-01",
+      "plate": "97019",
+      "customer": "Muhammad Umar Farooq Yousaf Ali",
+      "vehicle": "Ferrari Purosangue",
+      "delivery_alerted": false,
       "pickup_alerted": false,
       "closed": false,
       "start_date": "2026-07-01"
