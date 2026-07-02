@@ -5804,6 +5804,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010354-AMEE-Land Rover": {
+      "thread_ts": "1782988247.528699",
+      "end_date": "2026-07-03",
+      "plate": "77540",
+      "customer": "Ameer Luxury Rent A Car Llc",
+      "vehicle": "Land Rover Svr",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-07-02"
     }
   }
 }
