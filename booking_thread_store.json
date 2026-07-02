@@ -5812,9 +5812,13 @@
       "customer": "Ameer Luxury Rent A Car Llc",
       "vehicle": "Land Rover Svr",
       "delivery_alerted": false,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
-      "start_date": "2026-07-02"
+      "start_date": "2026-07-02",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     }
   }
 }
