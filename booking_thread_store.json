@@ -5969,6 +5969,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010365-FAST-Land Rover": {
+      "thread_ts": "1783096250.219869",
+      "end_date": "2026-07-03",
+      "plate": "83762",
+      "customer": "Faster Rent A Car",
+      "vehicle": "Land Rover Defender",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-06-29"
     }
   }
 }
