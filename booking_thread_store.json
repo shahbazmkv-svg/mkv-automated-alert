@@ -6044,6 +6044,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010370-AHME-Mercedes-Benz": {
+      "thread_ts": "1783110654.404219",
+      "end_date": "2026-07-07",
+      "plate": "24545",
+      "customer": "Ahmed Chami",
+      "vehicle": "Mercedes-Benz G63 2025",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-07-04"
     }
   }
 }
