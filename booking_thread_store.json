@@ -6074,6 +6074,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010372-NICO-Land Rover": {
+      "thread_ts": "1783119654.145429",
+      "end_date": "2026-07-06",
+      "plate": "55789",
+      "customer": "Nicolas Olivier Serge Michel Rousseau",
+      "vehicle": "Land Rover Sport",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-07-04"
     }
   }
 }
