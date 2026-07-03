@@ -5738,7 +5738,7 @@
       "vehicle": "Audi A3",
       "delivery_alerted": false,
       "pickup_alerted": true,
-      "closed": false,
+      "closed": true,
       "start_date": "2026-07-01",
       "delivery_ts": null,
       "pickup_ts": null,
@@ -5894,6 +5894,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010360-MUNE-Audi": {
+      "thread_ts": "1783080928.395349",
+      "end_date": "2026-07-03",
+      "plate": "90158",
+      "customer": "Muneer Nazarudeen Nazarudeen",
+      "vehicle": "Audi A3",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-07-03"
     }
   }
 }
