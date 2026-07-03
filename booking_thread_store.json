@@ -5984,6 +5984,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010366-JOHN-Land Rover": {
+      "thread_ts": "1783100725.498899",
+      "end_date": "2026-07-05",
+      "plate": "78043",
+      "customer": "John Alex Githua Mwangi",
+      "vehicle": "Land Rover Defender",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-07-03"
     }
   }
 }
