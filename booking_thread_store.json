@@ -5924,6 +5924,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010362-ANTO-Chevrolet": {
+      "thread_ts": "1783093530.867009",
+      "end_date": "2026-07-05",
+      "plate": "78042",
+      "customer": "Anton Kim",
+      "vehicle": "Chevrolet Tahoe",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-07-03"
     }
   }
 }
