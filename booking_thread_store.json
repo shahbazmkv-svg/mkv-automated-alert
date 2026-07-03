@@ -5663,7 +5663,7 @@
       "vehicle": "Mclaren Spider Artura",
       "delivery_alerted": false,
       "pickup_alerted": true,
-      "closed": false,
+      "closed": true,
       "start_date": "2026-07-02",
       "delivery_ts": null,
       "pickup_ts": null,
@@ -5798,7 +5798,7 @@
       "vehicle": "Porsche Cayman Gt4 Rs",
       "delivery_alerted": false,
       "pickup_alerted": true,
-      "closed": false,
+      "closed": true,
       "start_date": "2026-07-02",
       "delivery_ts": null,
       "pickup_ts": null,
@@ -5889,7 +5889,11 @@
       "delivery_alerted": false,
       "pickup_alerted": false,
       "closed": false,
-      "start_date": "2026-07-05"
+      "start_date": "2026-07-05",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     }
   }
 }
