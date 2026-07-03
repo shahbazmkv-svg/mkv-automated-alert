@@ -5999,6 +5999,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010367-PRIY-Chevrolet": {
+      "thread_ts": "1783102528.975949",
+      "end_date": "2026-07-05",
+      "plate": "72712",
+      "customer": "Priyesh Prakash Sawant Prakash Shivaji Sawant",
+      "vehicle": "Chevrolet Corvette",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-07-04"
     }
   }
 }
