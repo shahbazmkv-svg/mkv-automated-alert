@@ -5909,6 +5909,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010361-GIAN-Lotus": {
+      "thread_ts": "1783082727.647209",
+      "end_date": "2026-07-10",
+      "plate": "23652",
+      "customer": "Gianpaolo Simonelli",
+      "vehicle": "Lotus Lotus Emira",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-07-03"
     }
   }
 }
