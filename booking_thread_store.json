@@ -6119,6 +6119,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010375-BRIC-Audi": {
+      "thread_ts": "1783270855.089559",
+      "end_date": "2026-07-19",
+      "plate": "90158",
+      "customer": "Brice Frederic Thierry Barc",
+      "vehicle": "Audi A3",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-07-04"
     }
   }
 }
