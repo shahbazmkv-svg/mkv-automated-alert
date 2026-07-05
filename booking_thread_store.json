@@ -6017,7 +6017,7 @@
     },
     "0010368-NIKI-Chevrolet": {
       "thread_ts": "1783104328.021189",
-      "end_date": "2026-07-08",
+      "end_date": "2026-07-09",
       "plate": "72712",
       "customer": "Nikita Nechaev",
       "vehicle": "Chevrolet Corvette",
@@ -6032,12 +6032,12 @@
     },
     "0010369-NIKI-McLaren": {
       "thread_ts": "1783104333.465559",
-      "end_date": "2026-07-06",
+      "end_date": "2026-07-07",
       "plate": "47041",
       "customer": "Nikita Nechaev",
       "vehicle": "Mclaren Spider Artura",
       "delivery_alerted": false,
-      "pickup_alerted": true,
+      "pickup_alerted": false,
       "closed": false,
       "start_date": "2026-07-05",
       "delivery_ts": null,
