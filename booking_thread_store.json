@@ -6149,6 +6149,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010377-BRAH-Lamborghini": {
+      "thread_ts": "1783319457.972469",
+      "end_date": "2026-07-09",
+      "plate": "94545",
+      "customer": "Brahim Zerrouk",
+      "vehicle": "Lamborghini Urus S",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-07-06"
     }
   }
 }
