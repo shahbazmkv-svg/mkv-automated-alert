@@ -6194,6 +6194,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010380-JAN -Mercedes-Benz": {
+      "thread_ts": "1783345531.062349",
+      "end_date": "2026-07-13",
+      "plate": "19443",
+      "customer": "Jan Kudrinski",
+      "vehicle": "Mercedes-Benz Glb 250",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-07-06"
     }
   }
 }
