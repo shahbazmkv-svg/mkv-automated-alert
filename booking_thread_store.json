@@ -5417,12 +5417,12 @@
     },
     "0010309-WAQA-BMW": {
       "thread_ts": "1782565242.210229",
-      "end_date": "2026-07-06",
+      "end_date": "2026-07-08",
       "plate": "70691",
       "customer": "Waqar Ahmad Mukhtiar Ahmad",
       "vehicle": "Bmw 520I",
       "delivery_alerted": false,
-      "pickup_alerted": true,
+      "pickup_alerted": false,
       "closed": false,
       "start_date": "2026-06-27",
       "delivery_ts": null,
@@ -6179,6 +6179,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010379-ROYA-Bentley": {
+      "thread_ts": "1783343736.483719",
+      "end_date": "2026-07-07",
+      "plate": "33789",
+      "customer": "Royal Elite Car Rental Llc",
+      "vehicle": "Bentley Bentayga",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-07-06"
     }
   }
 }
