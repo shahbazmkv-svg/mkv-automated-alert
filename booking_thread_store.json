@@ -5422,7 +5422,7 @@
       "customer": "Waqar Ahmad Mukhtiar Ahmad",
       "vehicle": "Bmw 520I",
       "delivery_alerted": false,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-06-27",
       "delivery_ts": null,
