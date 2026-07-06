@@ -6164,6 +6164,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010378-JERE-McLaren": {
+      "thread_ts": "1783323058.397259",
+      "end_date": "2026-07-12",
+      "plate": "47041",
+      "customer": "Jeremy Richter",
+      "vehicle": "Mclaren Spider Artura",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-07-07"
     }
   }
 }
