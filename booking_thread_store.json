@@ -6239,6 +6239,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010383-YANN-BMW": {
+      "thread_ts": "1783429271.565769",
+      "end_date": "2026-07-08",
+      "plate": "78051",
+      "customer": "Yannick Antonio Hylton",
+      "vehicle": "Bmw 735I",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-07-07"
     }
   }
 }
