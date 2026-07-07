@@ -6254,6 +6254,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010384-DOMI-Land Rover": {
+      "thread_ts": "1783452659.329489",
+      "end_date": "2026-07-09",
+      "plate": "83762",
+      "customer": "Dominic Anthony Murphy",
+      "vehicle": "Land Rover Defender",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-07-08"
     }
   }
 }
