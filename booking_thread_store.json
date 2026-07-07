@@ -6209,6 +6209,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010381-OUSS-Lotus": {
+      "thread_ts": "1783413926.669429",
+      "end_date": "2026-07-25",
+      "plate": "23652",
+      "customer": "Oussama  Laassis",
+      "vehicle": "Lotus Lotus Emira",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-07-24"
     }
   }
 }
