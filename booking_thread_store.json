@@ -6299,6 +6299,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010387-SAMS-Ford": {
+      "thread_ts": "1783521931.903459",
+      "end_date": "2026-07-09",
+      "plate": "77490",
+      "customer": "Samson George Jenkins Berman",
+      "vehicle": "Ford Mustang Coupe",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-07-08"
     }
   }
 }
