@@ -6322,6 +6322,21 @@
       "customer": "Jude Cesare Moses Moses",
       "vehicle": "Bentley Bentayga",
       "delivery_alerted": false,
+      "pickup_alerted": true,
+      "closed": false,
+      "start_date": "2026-07-08",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
+    },
+    "0010390-SHAF-Land Rover": {
+      "thread_ts": "1783524663.155289",
+      "end_date": "2026-07-14",
+      "plate": "78043",
+      "customer": "Shafqat Pervaiz Wahid Bakhsh",
+      "vehicle": "Land Rover Defender",
+      "delivery_alerted": false,
       "pickup_alerted": false,
       "closed": false,
       "start_date": "2026-07-08"
