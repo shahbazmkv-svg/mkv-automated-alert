@@ -96,6 +96,24 @@
       "a_t_Unassigned": 0,
       "a_r_MKV Luxury": 1,
       "a_t_MKV Luxury": 0
+    },
+    "2026-07-07": {
+      "a_r_Tapan-MKV": 9,
+      "a_t_Tapan-MKV": 3,
+      "s_Instagram DMs": 9,
+      "g_Unknown": 9,
+      "s_Google Ads": 7,
+      "g_Lead created": 7,
+      "a_r_Rafithath-MKV": 6,
+      "a_t_Rafithath-MKV": 3,
+      "g_Qualified lead": 2,
+      "s_Website": 2,
+      "a_r_MKV Luxury": 1,
+      "a_t_MKV Luxury": 0,
+      "s_Broadcast": 1,
+      "g_Converted": 1,
+      "a_r_Unassigned": 3,
+      "a_t_Unassigned": 0
     }
   }
 }
