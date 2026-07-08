@@ -5917,7 +5917,7 @@
       "customer": "Gianpaolo Simonelli",
       "vehicle": "Lotus Lotus Emira",
       "delivery_alerted": false,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-07-03",
       "delivery_ts": null,
