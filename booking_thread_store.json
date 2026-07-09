@@ -6389,6 +6389,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010394-MUNE-Porsche": {
+      "thread_ts": "1783581331.041859",
+      "end_date": "2026-07-10",
+      "plate": "64545",
+      "customer": "Muneer Nazarudeen Nazarudeen",
+      "vehicle": "Porsche Cayman Gt4 Rs",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-07-09"
     }
   }
 }
