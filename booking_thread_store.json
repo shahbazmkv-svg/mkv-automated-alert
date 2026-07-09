@@ -6434,6 +6434,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010397-ABDU-BMW": {
+      "thread_ts": "1783621854.414899",
+      "end_date": "2026-07-11",
+      "plate": "78051",
+      "customer": "Abdulla Rashed Mohammed Khalfan Alhameli",
+      "vehicle": "Bmw 735I",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-07-09"
     }
   }
 }
