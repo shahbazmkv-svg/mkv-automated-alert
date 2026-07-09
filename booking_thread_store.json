@@ -6157,7 +6157,7 @@
       "customer": "Brahim Zerrouk",
       "vehicle": "Lamborghini Urus S",
       "delivery_alerted": false,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-07-06",
       "delivery_ts": null,
@@ -6277,7 +6277,7 @@
       "customer": "Aaron Thomas Mcnamee",
       "vehicle": "Mercedes-Benz G63 2025",
       "delivery_alerted": false,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-07-08",
       "delivery_ts": null,
@@ -6292,7 +6292,7 @@
       "customer": "Muneer Nazarudeen Nazarudeen",
       "vehicle": "Toyota Land Cruiser",
       "delivery_alerted": false,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-07-08",
       "delivery_ts": null,
@@ -6442,7 +6442,7 @@
       "customer": "Abdulla Rashed Mohammed Khalfan Alhameli",
       "vehicle": "Bmw 735I",
       "delivery_alerted": false,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-07-09",
       "delivery_ts": null,
@@ -6459,7 +6459,11 @@
       "delivery_alerted": false,
       "pickup_alerted": false,
       "closed": false,
-      "start_date": "2026-07-10"
+      "start_date": "2026-07-10",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     }
   }
 }
