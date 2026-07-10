@@ -6464,6 +6464,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010400-GIAN-Ford": {
+      "thread_ts": "1783674059.825429",
+      "end_date": "2026-07-13",
+      "plate": "15789",
+      "customer": "Gianpaolo Simonelli",
+      "vehicle": "Ford Mustang Coupe",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-07-10"
     }
   }
 }
