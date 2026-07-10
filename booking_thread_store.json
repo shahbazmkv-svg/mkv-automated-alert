@@ -6482,14 +6482,29 @@
     },
     "0010401-MAHM-Audi": {
       "thread_ts": "1783692929.504129",
-      "end_date": "2026-07-10",
+      "end_date": "2026-07-11",
       "plate": "92156",
       "customer": "Mahmoud Ibrahim Mahmoud Elsheikh",
       "vehicle": "Audi A6",
       "delivery_alerted": false,
+      "pickup_alerted": true,
+      "closed": false,
+      "start_date": "2026-07-10",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
+    },
+    "0010402-AMED-Lotus": {
+      "thread_ts": "1783693858.868739",
+      "end_date": "2026-07-13",
+      "plate": "23652",
+      "customer": "Amedeo Capretta",
+      "vehicle": "Lotus Lotus Emira",
+      "delivery_alerted": false,
       "pickup_alerted": false,
       "closed": false,
-      "start_date": "2026-07-10"
+      "start_date": "2026-07-11"
     }
   }
 }
