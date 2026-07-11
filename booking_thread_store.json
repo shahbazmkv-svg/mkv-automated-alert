@@ -6554,6 +6554,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010408-GASP-Land Rover": {
+      "thread_ts": "1783795528.840539",
+      "end_date": "2026-07-12",
+      "plate": "55789",
+      "customer": "Gasper Rebernak",
+      "vehicle": "Land Rover Sport",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-07-11"
     }
   }
 }
