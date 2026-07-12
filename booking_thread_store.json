@@ -6592,9 +6592,13 @@
       "customer": "Gasper Rebernak",
       "vehicle": "Mercedes-Benz Mercedes G3 (Brabus)",
       "delivery_alerted": false,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
-      "start_date": "2026-07-12"
+      "start_date": "2026-07-12",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010411-MAJ -Porsche": {
       "thread_ts": "1783880138.142379",
@@ -6603,9 +6607,13 @@
       "customer": "Maj Udovc",
       "vehicle": "Porsche Cayman Gt4 Rs",
       "delivery_alerted": false,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
-      "start_date": "2026-07-12"
+      "start_date": "2026-07-12",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     }
   }
 }
