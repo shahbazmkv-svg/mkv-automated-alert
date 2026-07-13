@@ -6639,7 +6639,11 @@
       "delivery_alerted": false,
       "pickup_alerted": false,
       "closed": false,
-      "start_date": "2026-07-13"
+      "start_date": "2026-07-13",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010413-MUNE-Ferrari": {
       "thread_ts": "1783926941.865329",
@@ -6650,7 +6654,11 @@
       "delivery_alerted": false,
       "pickup_alerted": false,
       "closed": false,
-      "start_date": "2026-07-13"
+      "start_date": "2026-07-13",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     }
   }
 }
