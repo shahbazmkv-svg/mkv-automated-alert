@@ -6614,6 +6614,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010412-IURI-Mercedes-Benz": {
+      "thread_ts": "1783924262.076729",
+      "end_date": "2026-07-14",
+      "plate": "24545",
+      "customer": "Iuri Andre Godinho Cortez Dos Santos",
+      "vehicle": "Mercedes-Benz G63 2025",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-07-13"
     }
   }
 }
