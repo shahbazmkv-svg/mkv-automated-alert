@@ -6629,6 +6629,28 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010414-MUNE-Ford": {
+      "thread_ts": "1783926930.426599",
+      "end_date": "2026-07-15",
+      "plate": "77491",
+      "customer": "Muneer Nazarudeen Nazarudeen",
+      "vehicle": "Ford Mustang Convertible",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-07-13"
+    },
+    "0010413-MUNE-Ferrari": {
+      "thread_ts": "1783926941.865329",
+      "end_date": "2026-07-15",
+      "plate": "97019",
+      "customer": "Muneer Nazarudeen Nazarudeen",
+      "vehicle": "Ferrari Purosangue",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-07-13"
     }
   }
 }
