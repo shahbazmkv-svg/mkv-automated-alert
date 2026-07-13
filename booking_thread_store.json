@@ -6689,6 +6689,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010418-JOHN-Audi": {
+      "thread_ts": "1783961129.175829",
+      "end_date": "2026-07-16",
+      "plate": "92156",
+      "customer": "John Alex Githua Mwangi",
+      "vehicle": "Audi A6",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-07-13"
     }
   }
 }
