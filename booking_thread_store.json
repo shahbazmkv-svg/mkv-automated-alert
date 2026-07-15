@@ -6764,6 +6764,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010430-ALKA-Lotus": {
+      "thread_ts": "1784097061.670279",
+      "end_date": "2026-07-16",
+      "plate": "23652",
+      "customer": "Alkalefah Waled Tariq S",
+      "vehicle": "Lotus Lotus Emira",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-07-15"
     }
   }
 }
