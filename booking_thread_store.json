@@ -6682,7 +6682,7 @@
       "customer": "Mohamed Sayed Mohamed Ali Ibrahim",
       "vehicle": "Mclaren Spider Artura",
       "delivery_alerted": false,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-07-16",
       "delivery_ts": null,
@@ -6779,6 +6779,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010432-DANI-Ford": {
+      "thread_ts": "1784145665.049169",
+      "end_date": "2026-07-18",
+      "plate": "15789",
+      "customer": "Daniil Kulyabin",
+      "vehicle": "Ford Mustang Coupe",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-07-16"
     }
   }
 }
