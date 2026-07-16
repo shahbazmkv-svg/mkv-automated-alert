@@ -6834,6 +6834,21 @@
       "delivery_alerted": false,
       "pickup_alerted": false,
       "closed": false,
+      "start_date": "2026-07-16",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
+    },
+    "0010436-PEDR-Mercedes-Benz": {
+      "thread_ts": "1784200529.098939",
+      "end_date": "2026-07-17",
+      "plate": "66789",
+      "customer": "Pedro Henrique Sikansi De Jesus",
+      "vehicle": "Mercedes-Benz Mercedes G3 (Brabus)",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
       "start_date": "2026-07-16"
     }
   }
