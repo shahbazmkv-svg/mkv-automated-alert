@@ -6794,6 +6794,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010433-SACH-Lamborghini": {
+      "thread_ts": "1784182530.548239",
+      "end_date": "2026-07-31",
+      "plate": "94545",
+      "customer": "Sacha,Moise, Henri",
+      "vehicle": "Lamborghini Urus S",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-07-27"
     }
   }
 }
