@@ -6854,6 +6854,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010439-MUNE-Ford": {
+      "thread_ts": "1784213133.833049",
+      "end_date": "2026-07-18",
+      "plate": "77491",
+      "customer": "Muneer Nazarudeen Nazarudeen",
+      "vehicle": "Ford Mustang Convertible",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-07-16"
     }
   }
 }
