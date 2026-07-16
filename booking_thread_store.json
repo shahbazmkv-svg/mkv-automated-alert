@@ -6737,7 +6737,7 @@
     },
     "0010428-PRAN-BMW": {
       "thread_ts": "1784039458.236019",
-      "end_date": "2026-07-16",
+      "end_date": "2026-07-17",
       "plate": "70688",
       "customer": "Pranav Puthan Veettil",
       "vehicle": "Bmw 420I Convertible",
@@ -6842,12 +6842,12 @@
     },
     "0010436-PEDR-Mercedes-Benz": {
       "thread_ts": "1784200529.098939",
-      "end_date": "2026-07-17",
+      "end_date": "2026-07-18",
       "plate": "66789",
       "customer": "Pedro Henrique Sikansi De Jesus",
       "vehicle": "Mercedes-Benz Mercedes G3 (Brabus)",
       "delivery_alerted": false,
-      "pickup_alerted": true,
+      "pickup_alerted": false,
       "closed": false,
       "start_date": "2026-07-16",
       "delivery_ts": null,
