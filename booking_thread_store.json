@@ -6809,6 +6809,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010434-PRIM-McLaren": {
+      "thread_ts": "1784184330.970669",
+      "end_date": "2026-07-21",
+      "plate": "47041",
+      "customer": "Primus Car Rental Llc",
+      "vehicle": "Mclaren Spider Artura",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-07-20"
     }
   }
 }
