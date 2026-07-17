@@ -6959,6 +6959,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010448-CHRI-Lotus": {
+      "thread_ts": "1784327439.219959",
+      "end_date": "2026-07-25",
+      "plate": "23652",
+      "customer": "Christos Souroudakis",
+      "vehicle": "Lotus Lotus Emira",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-07-18"
     }
   }
 }
