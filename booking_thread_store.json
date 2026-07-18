@@ -7049,6 +7049,28 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010455-MUHA-Chevrolet": {
+      "thread_ts": "1784389532.045499",
+      "end_date": "2026-07-21",
+      "plate": "78042",
+      "customer": "Muhammad Umar Farooq Yousaf Ali",
+      "vehicle": "Chevrolet Tahoe",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-07-20"
+    },
+    "0010454-KIRA-Chevrolet": {
+      "thread_ts": "1784389542.918469",
+      "end_date": "2026-07-19",
+      "plate": "78042",
+      "customer": "Kiran Jayandra Mehta",
+      "vehicle": "Chevrolet Tahoe",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-07-18"
     }
   }
 }
