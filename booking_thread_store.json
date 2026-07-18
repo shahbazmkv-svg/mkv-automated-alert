@@ -7059,7 +7059,11 @@
       "delivery_alerted": false,
       "pickup_alerted": false,
       "closed": false,
-      "start_date": "2026-07-20"
+      "start_date": "2026-07-20",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010454-KIRA-Chevrolet": {
       "thread_ts": "1784389542.918469",
@@ -7068,9 +7072,13 @@
       "customer": "Kiran Jayandra Mehta",
       "vehicle": "Chevrolet Tahoe",
       "delivery_alerted": false,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
-      "start_date": "2026-07-18"
+      "start_date": "2026-07-18",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     }
   }
 }
