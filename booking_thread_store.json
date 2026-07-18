@@ -6989,6 +6989,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010450-KARL-Land Rover": {
+      "thread_ts": "1784359837.804409",
+      "end_date": "2026-07-19",
+      "plate": "83762",
+      "customer": "Karl Johan Larsson",
+      "vehicle": "Land Rover Defender",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-07-18"
     }
   }
 }
