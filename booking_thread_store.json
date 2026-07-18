@@ -6974,6 +6974,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010449-BLAK-Porsche": {
+      "thread_ts": "1784356233.214989",
+      "end_date": "2026-07-19",
+      "plate": "42165",
+      "customer": "Blake Crawford Sinclair",
+      "vehicle": "Porsche 911 Turbo",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-07-18"
     }
   }
 }
