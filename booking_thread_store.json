@@ -7094,6 +7094,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010457-OLEK-Mercedes-Benz": {
+      "thread_ts": "1784409328.173629",
+      "end_date": "2026-07-21",
+      "plate": "24545",
+      "customer": "Oleksandr Yahodka",
+      "vehicle": "Mercedes-Benz G63 2025",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-07-19"
     }
   }
 }
