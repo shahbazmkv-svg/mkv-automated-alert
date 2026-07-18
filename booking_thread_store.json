@@ -7079,6 +7079,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010456-MATI-McLaren": {
+      "thread_ts": "1784394931.498859",
+      "end_date": "2026-08-17",
+      "plate": "47041",
+      "customer": "Matias Cardozo",
+      "vehicle": "Mclaren Spider Artura",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-07-18"
     }
   }
 }
