@@ -7169,6 +7169,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010462-FLEX-Ferrari": {
+      "thread_ts": "1784489438.585889",
+      "end_date": "2026-07-20",
+      "plate": "97019",
+      "customer": "Flexi King Car Rentals Llc",
+      "vehicle": "Ferrari Purosangue",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-07-19"
     }
   }
 }
