@@ -7124,6 +7124,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010459-NIAY-Ford": {
+      "thread_ts": "1784457929.216219",
+      "end_date": "2026-07-20",
+      "plate": "77490",
+      "customer": "Niayesh Mojtahedzadeh",
+      "vehicle": "Ford Mustang Coupe",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-07-19"
     }
   }
 }
