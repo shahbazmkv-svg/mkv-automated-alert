@@ -7222,7 +7222,7 @@
       "customer": "Jude Cesare Moses Moses",
       "vehicle": "Bentley Bentayga",
       "delivery_alerted": false,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-07-22",
       "delivery_ts": null,
