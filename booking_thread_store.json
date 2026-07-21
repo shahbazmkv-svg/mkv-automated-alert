@@ -7274,6 +7274,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010470-VREZ-Lamborghini": {
+      "thread_ts": "1784632528.467679",
+      "end_date": "2026-07-22",
+      "plate": "94545",
+      "customer": "Vrezh Armenia",
+      "vehicle": "Lamborghini Urus S",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-07-21"
     }
   }
 }
