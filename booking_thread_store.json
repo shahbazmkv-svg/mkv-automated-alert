@@ -7259,6 +7259,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010469-CHIR-Porsche": {
+      "thread_ts": "1784627127.492119",
+      "end_date": "2026-07-22",
+      "plate": "64545",
+      "customer": "Chirag Mehra",
+      "vehicle": "Porsche Cayman Gt4 Rs",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-07-21"
     }
   }
 }
