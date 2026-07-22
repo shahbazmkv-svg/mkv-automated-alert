@@ -7334,6 +7334,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010488-NURT-Lamborghini": {
+      "thread_ts": "1784741438.982819",
+      "end_date": "2026-07-27",
+      "plate": "94545",
+      "customer": "Nurtay Yestay",
+      "vehicle": "Lamborghini Urus S",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-07-22"
     }
   }
 }
