@@ -7297,6 +7297,21 @@
       "customer": "Shafqat Percvlaz Wahid Bakhsh",
       "vehicle": "Land Rover Sport",
       "delivery_alerted": false,
+      "pickup_alerted": true,
+      "closed": false,
+      "start_date": "2026-07-22",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
+    },
+    "0010486-MUNE-Lotus": {
+      "thread_ts": "1784731529.942119",
+      "end_date": "2026-07-25",
+      "plate": "23652",
+      "customer": "Muneer Nazarudeen Nazarudeen",
+      "vehicle": "Lotus Lotus Emira",
+      "delivery_alerted": false,
       "pickup_alerted": false,
       "closed": false,
       "start_date": "2026-07-22"
