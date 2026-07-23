@@ -7394,6 +7394,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010504-JOHN-Land Rover": {
+      "thread_ts": "1784817038.906449",
+      "end_date": "2026-07-24",
+      "plate": "77540",
+      "customer": "John Alex Githua Mwangi",
+      "vehicle": "Land Rover Svr",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-07-23"
     }
   }
 }
