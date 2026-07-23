@@ -7379,6 +7379,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010499-JAN -Land Rover": {
+      "thread_ts": "1784809842.192749",
+      "end_date": "2026-07-31",
+      "plate": "68620",
+      "customer": "Jan Kudrinski",
+      "vehicle": "Land Rover Range Rover Velar",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-07-24"
     }
   }
 }
