@@ -7499,6 +7499,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010516-SAMS-Land Rover": {
+      "thread_ts": "1784911539.427119",
+      "end_date": "2026-07-25",
+      "plate": "83762",
+      "customer": "Samson George Jenkins Berman",
+      "vehicle": "Land Rover Defender",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-07-24"
     }
   }
 }
