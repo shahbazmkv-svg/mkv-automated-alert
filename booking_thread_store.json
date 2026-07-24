@@ -7297,7 +7297,7 @@
       "customer": "Shafqat Percvlaz Wahid Bakhsh",
       "vehicle": "Land Rover Sport",
       "delivery_alerted": false,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-07-22",
       "delivery_ts": null,
@@ -7327,7 +7327,7 @@
       "customer": "John Alex Githua Mwangi",
       "vehicle": "Chevrolet Tahoe",
       "delivery_alerted": false,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-07-22",
       "delivery_ts": null,
@@ -7417,7 +7417,7 @@
       "customer": "Madan Kumar Desingu",
       "vehicle": "Toyota Land Cruiser",
       "delivery_alerted": false,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-07-23",
       "delivery_ts": null,
@@ -7462,7 +7462,7 @@
       "customer": "Muneer Nazarudeen Nazarudeen",
       "vehicle": "Mercedes-Benz Glb 250",
       "delivery_alerted": false,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-07-25",
       "delivery_ts": null,
@@ -7517,7 +7517,7 @@
     },
     "0010517-FRED-Mercedes-Benz": {
       "thread_ts": "1784919636.649199",
-      "end_date": "2026-07-25",
+      "end_date": "2026-07-26",
       "plate": "66789",
       "customer": "Freddy,Exauce Mbani Mabba - Ilimbou",
       "vehicle": "Mercedes-Benz Mercedes G3 (Brabus)",
@@ -7532,7 +7532,7 @@
     },
     "0010519-FRED-Lamborghini": {
       "thread_ts": "1784920538.207209",
-      "end_date": "2026-07-25",
+      "end_date": "2026-07-26",
       "plate": "V 8797",
       "customer": "Freddy,Exauce Mbani Mabba - Ilimbou",
       "vehicle": "Lamborghini Evo Spider",
@@ -7559,6 +7559,28 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010521-FRED-Rolls Royce": {
+      "thread_ts": "1784923246.818229",
+      "end_date": "2026-07-26",
+      "plate": "G 61575",
+      "customer": "Freddy,Exauce Mbani Mabba - Ilimbou",
+      "vehicle": "Rolls Royce Cullinan",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-07-25"
+    },
+    "0010520-MKV -Rolls Royce": {
+      "thread_ts": "1784923256.369469",
+      "end_date": "2026-07-31",
+      "plate": "G 61575",
+      "customer": "Mkv Car Rental Llc",
+      "vehicle": "Rolls Royce Cullinan",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-07-23"
     }
   }
 }
