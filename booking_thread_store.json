@@ -7567,9 +7567,13 @@
       "customer": "Freddy,Exauce Mbani Mabba - Ilimbou",
       "vehicle": "Rolls Royce Cullinan",
       "delivery_alerted": false,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
-      "start_date": "2026-07-25"
+      "start_date": "2026-07-25",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010520-MKV -Rolls Royce": {
       "thread_ts": "1784923256.369469",
@@ -7580,7 +7584,11 @@
       "delivery_alerted": false,
       "pickup_alerted": false,
       "closed": false,
-      "start_date": "2026-07-23"
+      "start_date": "2026-07-23",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     }
   }
 }
