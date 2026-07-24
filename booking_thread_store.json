@@ -7403,7 +7403,7 @@
       "vehicle": "Land Rover Svr",
       "delivery_alerted": false,
       "pickup_alerted": true,
-      "closed": false,
+      "closed": true,
       "start_date": "2026-07-23",
       "delivery_ts": null,
       "pickup_ts": null,
@@ -7424,6 +7424,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010509-TRIP-Land Rover": {
+      "thread_ts": "1784889041.408709",
+      "end_date": "2026-07-26",
+      "plate": "77540",
+      "customer": "Triple D Rentals Llc",
+      "vehicle": "Land Rover Svr",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-07-24"
     }
   }
 }
