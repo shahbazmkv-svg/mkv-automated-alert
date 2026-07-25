@@ -7627,9 +7627,13 @@
       "customer": "Owen  Michel Bakua",
       "vehicle": "Rolls Royce Cullinan",
       "delivery_alerted": false,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
-      "start_date": "2026-07-25"
+      "start_date": "2026-07-25",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010524-OWEN-Mercedes-Benz": {
       "thread_ts": "1784966455.075839",
@@ -7637,6 +7641,21 @@
       "plate": "66789",
       "customer": "Owen  Michel Bakua",
       "vehicle": "Mercedes-Benz Mercedes G3 (Brabus)",
+      "delivery_alerted": false,
+      "pickup_alerted": true,
+      "closed": false,
+      "start_date": "2026-07-25",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
+    },
+    "0010526-OWEN-Lamborghini": {
+      "thread_ts": "1784967330.258859",
+      "end_date": "2026-07-26",
+      "plate": "V 8797",
+      "customer": "Owen  Michel Bakua",
+      "vehicle": "Lamborghini Evo Spider",
       "delivery_alerted": false,
       "pickup_alerted": false,
       "closed": false,
