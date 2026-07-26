@@ -7702,9 +7702,13 @@
       "customer": "Mahipal Sanga Ramesh Sanga",
       "vehicle": "Bmw 735I",
       "delivery_alerted": false,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
-      "start_date": "2026-07-26"
+      "start_date": "2026-07-26",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     }
   }
 }
