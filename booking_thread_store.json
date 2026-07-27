@@ -7764,6 +7764,32 @@
       "delivery_alerted": false,
       "pickup_alerted": false,
       "closed": false,
+      "start_date": "2026-07-27",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
+    },
+    "0010534-SACH-Lamborghini": {
+      "thread_ts": "1785146444.215889",
+      "end_date": "2026-07-31",
+      "plate": "94545",
+      "customer": "Sacha,Moise, Henri Uzan",
+      "vehicle": "Lamborghini Urus S",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-07-29"
+    },
+    "0010535-SACH-Mercedes-Benz": {
+      "thread_ts": "1785146452.859599",
+      "end_date": "2026-07-29",
+      "plate": "24545",
+      "customer": "Sacha,Moise, Henri Uzan",
+      "vehicle": "Mercedes-Benz G63 2025",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
       "start_date": "2026-07-27"
     }
   }
