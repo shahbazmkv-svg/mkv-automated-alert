@@ -7799,6 +7799,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010536-MUHA-Cadillac": {
+      "thread_ts": "1785150929.551569",
+      "end_date": "2026-07-28",
+      "plate": "44789",
+      "customer": "Muhammad Umar Farooq Yousaf Ali",
+      "vehicle": "Cadillac Escalade",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-07-27"
     }
   }
 }
