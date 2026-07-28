@@ -7874,6 +7874,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010544-JOHN-Audi": {
+      "thread_ts": "1785231041.844209",
+      "end_date": "2026-07-29",
+      "plate": "90158",
+      "customer": "John Alex Githua Mwangi",
+      "vehicle": "Audi A3",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-07-28"
     }
   }
 }
