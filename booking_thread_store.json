@@ -8009,6 +8009,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010555-WAQA-Toyota": {
+      "thread_ts": "1785418242.097559",
+      "end_date": "2026-08-01",
+      "plate": "31727",
+      "customer": "Waqar Ahmad Mukhtiar Ahmad",
+      "vehicle": "Toyota Land Cruiser",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-07-30"
     }
   }
 }
