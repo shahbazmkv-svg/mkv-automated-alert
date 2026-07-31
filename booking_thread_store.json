@@ -8062,7 +8062,7 @@
       "customer": "Dominic Anthony Murphy",
       "vehicle": "Land Rover Svr",
       "delivery_alerted": false,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-07-31",
       "delivery_ts": null,
@@ -8137,7 +8137,7 @@
       "customer": "Sahil Narang Triloki Nath Narang",
       "vehicle": "Mercedes-Benz Mercedes  G63",
       "delivery_alerted": false,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-07-31",
       "delivery_ts": null,
@@ -8182,13 +8182,35 @@
       "customer": "Waqar Ahmad Mukhtiar Ahmad",
       "vehicle": "Audi A6",
       "delivery_alerted": false,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-07-31",
       "delivery_ts": null,
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010569-TAYY-Cadillac": {
+      "thread_ts": "1785528046.142379",
+      "end_date": "2026-08-08",
+      "plate": "Y 58097",
+      "customer": "Tayyab Amaan Ul-Haq",
+      "vehicle": "Cadillac Escalade",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-08-01"
+    },
+    "0010568-MKV -Cadillac": {
+      "thread_ts": "1785528058.698699",
+      "end_date": "2026-08-10",
+      "plate": "Y 58097",
+      "customer": "Mkv Car Rental Llc",
+      "vehicle": "Cadillac Escalade",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-07-30"
     }
   }
 }
