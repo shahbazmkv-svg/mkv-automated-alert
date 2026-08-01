@@ -8294,6 +8294,28 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010578-SYED-Lotus": {
+      "thread_ts": "1785604533.332599",
+      "end_date": "2026-09-01",
+      "plate": "23652",
+      "customer": "Syed Hasnain Haider Syed Sajjad Haider",
+      "vehicle": "Lotus Lotus Emira",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-08-02"
+    },
+    "0010577-SYED-Land Rover": {
+      "thread_ts": "1785604545.686379",
+      "end_date": "2026-08-02",
+      "plate": "78043",
+      "customer": "Syed Hasnain Haider Syed Sajjad Haider",
+      "vehicle": "Land Rover Defender",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-08-01"
     }
   }
 }
