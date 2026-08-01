@@ -7013,7 +7013,7 @@
       "vehicle": "Land Rover Defender",
       "delivery_alerted": false,
       "pickup_alerted": true,
-      "closed": false,
+      "closed": true,
       "start_date": "2026-07-18",
       "delivery_ts": null,
       "pickup_ts": null,
@@ -8304,7 +8304,11 @@
       "delivery_alerted": false,
       "pickup_alerted": false,
       "closed": false,
-      "start_date": "2026-08-02"
+      "start_date": "2026-08-02",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010577-SYED-Land Rover": {
       "thread_ts": "1785604545.686379",
@@ -8313,9 +8317,13 @@
       "customer": "Syed Hasnain Haider Syed Sajjad Haider",
       "vehicle": "Land Rover Defender",
       "delivery_alerted": false,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
-      "start_date": "2026-08-01"
+      "start_date": "2026-08-01",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     }
   }
 }
