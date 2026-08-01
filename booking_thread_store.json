@@ -7972,7 +7972,7 @@
       "customer": "Marwan Mundher Abdulhameed Altekreeti",
       "vehicle": "Land Rover Defender",
       "delivery_alerted": false,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-07-29",
       "delivery_ts": null,
@@ -8227,7 +8227,7 @@
       "customer": "Ruslan Taraev",
       "vehicle": "Ford Mustang Coupe",
       "delivery_alerted": false,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-08-01",
       "delivery_ts": null,
@@ -8287,7 +8287,7 @@
       "customer": "John Alex Githua Mwangi",
       "vehicle": "Audi A6",
       "delivery_alerted": false,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-08-01",
       "delivery_ts": null,
@@ -8324,6 +8324,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010444-ZAIN-Ford": {
+      "thread_ts": "1785614438.402759",
+      "end_date": "2026-10-05",
+      "plate": "15789",
+      "customer": "Zain Koreja",
+      "vehicle": "Ford Mustang Coupe",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-10-01"
     }
   }
 }
