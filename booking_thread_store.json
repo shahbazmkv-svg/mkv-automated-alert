@@ -8167,7 +8167,7 @@
       "customer": "Moiud Mohamed Mobark Mostufa",
       "vehicle": "Mercedes-Benz Mercedes G3 (Brabus)",
       "delivery_alerted": false,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-07-31",
       "delivery_ts": null,
