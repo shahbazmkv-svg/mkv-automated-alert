@@ -8347,7 +8347,7 @@
       "customer": "Mohammed Rafi Alamparambil Mohammed Musthafa",
       "vehicle": "Land Rover Sport",
       "delivery_alerted": false,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-08-02",
       "delivery_ts": null,
