@@ -8384,6 +8384,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010582-MUNE-Lotus": {
+      "thread_ts": "1785745868.513249",
+      "end_date": "2026-08-07",
+      "plate": "23652",
+      "customer": "Muneer Nazarudeen Nazarudeen",
+      "vehicle": "Lotus Lotus Emira",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-08-03"
     }
   }
 }
