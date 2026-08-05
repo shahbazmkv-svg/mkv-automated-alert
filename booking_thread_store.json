@@ -8632,9 +8632,13 @@
       "customer": "Gurvinder Singh Narain Harcharan Singh Narain",
       "vehicle": "Ferrari Purosangue",
       "delivery_alerted": false,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
-      "start_date": "2026-08-05"
+      "start_date": "2026-08-05",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     }
   }
 }
