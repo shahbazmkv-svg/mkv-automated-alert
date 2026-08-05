@@ -8579,6 +8579,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010598-GT4 -Ferrari": {
+      "thread_ts": "1785924939.721439",
+      "end_date": "2026-08-07",
+      "plate": "97019",
+      "customer": "Gt4 Rent A Car Llc",
+      "vehicle": "Ferrari Purosangue",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-08-05"
     }
   }
 }
