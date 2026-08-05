@@ -8669,6 +8669,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010603-TAYY-Land Rover": {
+      "thread_ts": "1785971730.873879",
+      "end_date": "2026-08-08",
+      "plate": "78043",
+      "customer": "Tayyab Amaan Ul-Haq",
+      "vehicle": "Land Rover Defender",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-08-06"
     }
   }
 }
