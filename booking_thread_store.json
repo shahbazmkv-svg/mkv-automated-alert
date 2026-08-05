@@ -8624,6 +8624,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010600-GURV-Ferrari": {
+      "thread_ts": "1785938438.868309",
+      "end_date": "2026-08-06",
+      "plate": "36090",
+      "customer": "Gurvinder Singh Narain Harcharan Singh Narain",
+      "vehicle": "Ferrari Purosangue",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-08-05"
     }
   }
 }
