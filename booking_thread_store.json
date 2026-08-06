@@ -8684,6 +8684,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010604-MOHA-Ford": {
+      "thread_ts": "1786003238.695299",
+      "end_date": "2026-08-09",
+      "plate": "15789",
+      "customer": "Mohammed Ahmad Humood Nasser Rashid",
+      "vehicle": "Ford Mustang Coupe",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-08-08"
     }
   }
 }
