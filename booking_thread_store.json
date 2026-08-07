@@ -8557,7 +8557,7 @@
       "customer": "Saif Yousef Darwish Shahin Alharmi",
       "vehicle": "Chevrolet Corvette",
       "delivery_alerted": false,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-08-07",
       "delivery_ts": null,
@@ -8662,7 +8662,7 @@
       "customer": "Tayyab Amaan Ul-Haq",
       "vehicle": "Cadillac Escalade",
       "delivery_alerted": false,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-08-05",
       "delivery_ts": null,
@@ -8692,7 +8692,7 @@
       "customer": "Mohammed Ahmad Humood Nasser Rashid",
       "vehicle": "Ford Mustang Coupe",
       "delivery_alerted": false,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-08-08",
       "delivery_ts": null,
@@ -8737,7 +8737,7 @@
       "customer": "Pranav Puthan Veettil",
       "vehicle": "Bmw 420I Convertible",
       "delivery_alerted": false,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-08-07",
       "delivery_ts": null,
@@ -8784,7 +8784,11 @@
       "delivery_alerted": false,
       "pickup_alerted": false,
       "closed": false,
-      "start_date": "2026-08-08"
+      "start_date": "2026-08-08",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     }
   }
 }
