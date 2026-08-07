@@ -8588,7 +8588,7 @@
       "vehicle": "Ferrari Purosangue",
       "delivery_alerted": false,
       "pickup_alerted": true,
-      "closed": false,
+      "closed": true,
       "start_date": "2026-08-05",
       "delivery_ts": null,
       "pickup_ts": null,
