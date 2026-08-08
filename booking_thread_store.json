@@ -8849,6 +8849,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010615-D S -Ferrari": {
+      "thread_ts": "1786188635.102579",
+      "end_date": "2026-08-09",
+      "plate": "97019",
+      "customer": "D S S Black Rent A Car Llc",
+      "vehicle": "Ferrari Purosangue",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-08-08"
     }
   }
 }
