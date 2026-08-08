@@ -8879,6 +8879,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010617-ZAKA-Mercedes-Benz": {
+      "thread_ts": "1786206635.584989",
+      "end_date": "2026-08-11",
+      "plate": "66789",
+      "customer": "Zakary Anthonys Hafidi",
+      "vehicle": "Mercedes-Benz Mercedes G3 (Brabus)",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-08-08"
     }
   }
 }
