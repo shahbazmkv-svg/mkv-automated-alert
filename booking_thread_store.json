@@ -8954,6 +8954,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010622-MUHA-Lamborghini": {
+      "thread_ts": "1786365035.414899",
+      "end_date": "2026-08-12",
+      "plate": "94545",
+      "customer": "Muhammad Umar Farooq Yousaf Ali",
+      "vehicle": "Lamborghini Urus S",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-08-10"
     }
   }
 }
