@@ -8999,6 +8999,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010625-MUNE-Ferrari": {
+      "thread_ts": "1786439730.002159",
+      "end_date": "2026-08-11",
+      "plate": "97019",
+      "customer": "Muneer Nazarudeen Nazarudeen",
+      "vehicle": "Ferrari Purosangue",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-08-11"
     }
   }
 }
