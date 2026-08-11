@@ -8984,6 +8984,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010624-SMAR-Porsche": {
+      "thread_ts": "1786432528.536879",
+      "end_date": "2026-08-12",
+      "plate": "64545",
+      "customer": "Smart Bros Rent A Car Llc",
+      "vehicle": "Porsche Cayman Gt4 Rs",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-08-11"
     }
   }
 }
