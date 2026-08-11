@@ -9044,6 +9044,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010628-PINT-Audi": {
+      "thread_ts": "1786471244.778639",
+      "end_date": "2026-08-20",
+      "plate": "89438",
+      "customer": "Pintu Roy",
+      "vehicle": "Audi A6",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-08-12"
     }
   }
 }
