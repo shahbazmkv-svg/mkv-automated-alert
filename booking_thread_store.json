@@ -9014,6 +9014,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010626-WAEL-Bentley": {
+      "thread_ts": "1786447835.189419",
+      "end_date": "2026-08-13",
+      "plate": "33789",
+      "customer": "Wael Adnan Alhaddad",
+      "vehicle": "Bentley Bentayga",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-08-12"
     }
   }
 }
