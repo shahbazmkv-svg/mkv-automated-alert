@@ -9119,6 +9119,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010634-ADRI-Chevrolet": {
+      "thread_ts": "1786547730.672959",
+      "end_date": "2026-08-15",
+      "plate": "72712",
+      "customer": "Adrian Patrascu",
+      "vehicle": "Chevrolet Corvette",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-08-12"
     }
   }
 }
