@@ -9089,6 +9089,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010632-ALI -Porsche": {
+      "thread_ts": "1786523447.099479",
+      "end_date": "2026-08-13",
+      "plate": "42165",
+      "customer": "Ali Raffay Abid Jr",
+      "vehicle": "Porsche 911 Turbo",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-08-12"
     }
   }
 }
