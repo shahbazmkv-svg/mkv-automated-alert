@@ -9172,9 +9172,24 @@
       "customer": "Afsal - Test - Test",
       "vehicle": "Mercedes-Benz Mercedes G3 (Brabus)",
       "delivery_alerted": false,
+      "pickup_alerted": true,
+      "closed": false,
+      "start_date": "2026-08-13",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
+    },
+    "0010639-REON-Bentley": {
+      "thread_ts": "1786608041.544809",
+      "end_date": "2026-08-17",
+      "plate": "33789",
+      "customer": "Reon Donald Marcus Wilson",
+      "vehicle": "Bentley Bentayga",
+      "delivery_alerted": false,
       "pickup_alerted": false,
       "closed": false,
-      "start_date": "2026-08-13"
+      "start_date": "2026-08-14"
     }
   }
 }
