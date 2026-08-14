@@ -9314,6 +9314,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010649-FIRS-Ferrari": {
+      "thread_ts": "1786713326.080109",
+      "end_date": "2026-08-15",
+      "plate": "97019",
+      "customer": "First Super Car Rental Llc",
+      "vehicle": "Ferrari Purosangue",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-08-14"
     }
   }
 }
