@@ -9329,6 +9329,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010650-PRAT-Land Rover": {
+      "thread_ts": "1786723234.788279",
+      "end_date": "2026-08-16",
+      "plate": "78043",
+      "customer": "Prateek Sharma",
+      "vehicle": "Land Rover Defender",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-08-15"
     }
   }
 }
