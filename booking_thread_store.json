@@ -9473,7 +9473,7 @@
       "vehicle": "Morgan Morgan Supersport",
       "delivery_alerted": false,
       "pickup_alerted": true,
-      "closed": false,
+      "closed": true,
       "start_date": "2026-08-15",
       "delivery_ts": null,
       "pickup_ts": null,
