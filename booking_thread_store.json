@@ -9509,6 +9509,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010662-ARYA-Chevrolet": {
+      "thread_ts": "1786869033.187369",
+      "end_date": "2026-08-17",
+      "plate": "78042",
+      "customer": "Aryash Singh Chauhan",
+      "vehicle": "Chevrolet Tahoe",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-08-16"
     }
   }
 }
