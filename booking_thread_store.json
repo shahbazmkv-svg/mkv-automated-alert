@@ -9539,6 +9539,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010664-JERE-Mercedes-Benz": {
+      "thread_ts": "1786886125.559829",
+      "end_date": "2026-08-23",
+      "plate": "55789",
+      "customer": "Jeremy Richter",
+      "vehicle": "Mercedes-Benz S500",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-08-16"
     }
   }
 }
