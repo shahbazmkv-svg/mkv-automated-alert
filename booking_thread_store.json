@@ -9182,12 +9182,12 @@
     },
     "0010639-REON-Bentley": {
       "thread_ts": "1786608041.544809",
-      "end_date": "2026-08-18",
+      "end_date": "2026-08-19",
       "plate": "33789",
       "customer": "Reon Donald Marcus Wilson",
       "vehicle": "Bentley Bentayga",
       "delivery_alerted": false,
-      "pickup_alerted": true,
+      "pickup_alerted": false,
       "closed": false,
       "start_date": "2026-08-14",
       "delivery_ts": null,
@@ -9362,7 +9362,7 @@
     },
     "0010652-PRAN-BMW": {
       "thread_ts": "1786782627.475319",
-      "end_date": "2026-08-17",
+      "end_date": "2026-08-18",
       "plate": "70688",
       "customer": "Pranav Puthan Veettil",
       "vehicle": "Bmw 420I Convertible",
