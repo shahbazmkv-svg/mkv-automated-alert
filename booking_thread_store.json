@@ -9554,6 +9554,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010665-BABU-Land Rover": {
+      "thread_ts": "1786956326.613269",
+      "end_date": "2026-08-20",
+      "plate": "55789",
+      "customer": "Babu Kariyadan Cheriya",
+      "vehicle": "Land Rover Sport",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-08-17"
     }
   }
 }
