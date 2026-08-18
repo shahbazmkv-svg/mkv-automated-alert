@@ -9614,6 +9614,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010669-AL M-Ford": {
+      "thread_ts": "1787047233.353839",
+      "end_date": "2026-08-22",
+      "plate": "15789",
+      "customer": "Al Mobiedh Abdul Majeed Nahidhi",
+      "vehicle": "Ford Mustang Coupe",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-08-19"
     }
   }
 }
