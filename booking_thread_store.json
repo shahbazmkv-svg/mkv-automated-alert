@@ -9674,6 +9674,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010673-KING-Porsche": {
+      "thread_ts": "1787072442.953589",
+      "end_date": "2026-08-19",
+      "plate": "64545",
+      "customer": "Kings Auto Car Rental L.L.C",
+      "vehicle": "Porsche Cayman Gt4 Rs",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-08-18"
     }
   }
 }
