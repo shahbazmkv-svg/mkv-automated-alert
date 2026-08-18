@@ -9629,6 +9629,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010670-NIAY-Land Rover": {
+      "thread_ts": "1787055327.564989",
+      "end_date": "2026-08-19",
+      "plate": "77540",
+      "customer": "Niayesh Mojtahedzadeh",
+      "vehicle": "Land Rover Svr",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-08-18"
     }
   }
 }
