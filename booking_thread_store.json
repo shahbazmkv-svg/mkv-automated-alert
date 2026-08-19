@@ -9699,6 +9699,32 @@
       "delivery_alerted": false,
       "pickup_alerted": false,
       "closed": false,
+      "start_date": "2026-08-19",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
+    },
+    "0010676-JAN -Land Rover": {
+      "thread_ts": "1787123727.263429",
+      "end_date": "2026-08-24",
+      "plate": "78043",
+      "customer": "Jan Kudrinski",
+      "vehicle": "Land Rover Defender",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-08-19"
+    },
+    "0010677-MUHA-Chevrolet": {
+      "thread_ts": "1787123735.665659",
+      "end_date": "2026-08-20",
+      "plate": "72712",
+      "customer": "Muhammad Umar Farooq Yousaf Ali",
+      "vehicle": "Chevrolet Corvette",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
       "start_date": "2026-08-19"
     }
   }
