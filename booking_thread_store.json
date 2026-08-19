@@ -9689,6 +9689,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "000-JAN -Land Rover": {
+      "thread_ts": "1787122833.589049",
+      "end_date": "2026-08-24",
+      "plate": "78043",
+      "customer": "Jan Kudrinski",
+      "vehicle": "Land Rover Defender",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-08-19"
     }
   }
 }
