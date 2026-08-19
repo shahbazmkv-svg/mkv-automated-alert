@@ -9734,6 +9734,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010678-IURI-Chevrolet": {
+      "thread_ts": "1787133634.127399",
+      "end_date": "2026-08-24",
+      "plate": "72712",
+      "customer": "Iuri Vasques Mata",
+      "vehicle": "Chevrolet Corvette",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-08-20"
     }
   }
 }
