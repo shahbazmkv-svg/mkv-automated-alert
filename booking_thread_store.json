@@ -9749,6 +9749,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010679-ABDU-Land Rover": {
+      "thread_ts": "1787213727.119789",
+      "end_date": "2026-08-21",
+      "plate": "94545",
+      "customer": "Abdulrahman Yusuf Abdulrahman Mohamed Ali",
+      "vehicle": "Land Rover Sport",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-08-20"
     }
   }
 }
