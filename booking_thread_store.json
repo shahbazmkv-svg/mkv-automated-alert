@@ -9794,6 +9794,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010682-PRAN-BMW": {
+      "thread_ts": "1787303729.596609",
+      "end_date": "2026-08-23",
+      "plate": "70688",
+      "customer": "Pranav Puthan Veettil",
+      "vehicle": "Bmw 420I Convertible",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-08-21"
     }
   }
 }
