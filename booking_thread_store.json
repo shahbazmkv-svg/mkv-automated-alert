@@ -9884,6 +9884,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010689-SIMO-Porsche": {
+      "thread_ts": "1787397324.594029",
+      "end_date": "2026-08-23",
+      "plate": "64545",
+      "customer": "Simone Congiu",
+      "vehicle": "Porsche Cayman Gt4 Rs",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-08-22"
     }
   }
 }
