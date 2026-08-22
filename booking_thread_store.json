@@ -9907,6 +9907,21 @@
       "customer": "Maxime Ricardo Luc Civel",
       "vehicle": "Land Rover Defender",
       "delivery_alerted": false,
+      "pickup_alerted": true,
+      "closed": false,
+      "start_date": "2026-08-22",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
+    },
+    "0010691-SAHI-Land Rover": {
+      "thread_ts": "1787404524.431459",
+      "end_date": "2026-08-25",
+      "plate": "94545",
+      "customer": "Sahil Narang Triloki Nath Narang",
+      "vehicle": "Land Rover Sport",
+      "delivery_alerted": false,
       "pickup_alerted": false,
       "closed": false,
       "start_date": "2026-08-22"
