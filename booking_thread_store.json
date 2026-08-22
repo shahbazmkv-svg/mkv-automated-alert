@@ -9869,6 +9869,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010688-MUHA-Chevrolet": {
+      "thread_ts": "1787394631.676859",
+      "end_date": "2026-08-22",
+      "plate": "78042",
+      "customer": "Muhammad Umar Farooq Yousaf Ali",
+      "vehicle": "Chevrolet Tahoe",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-08-22"
     }
   }
 }
