@@ -9959,6 +9959,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010694-FIRS-BMW": {
+      "thread_ts": "1787508926.987929",
+      "end_date": "2026-09-22",
+      "plate": "78051",
+      "customer": "First Super Car Rental Llc",
+      "vehicle": "Bmw 735I",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-08-23"
     }
   }
 }
