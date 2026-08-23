@@ -9944,6 +9944,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010693-ANDR-Lamborghini": {
+      "thread_ts": "1787503523.783339",
+      "end_date": "2026-08-25",
+      "plate": "94545",
+      "customer": "Andre Filipe Nunes Ferreira",
+      "vehicle": "Lamborghini Urus S",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-08-24"
     }
   }
 }
