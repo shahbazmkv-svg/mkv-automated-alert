@@ -9848,7 +9848,7 @@
       "vehicle": "Land Rover Svr",
       "delivery_alerted": false,
       "pickup_alerted": true,
-      "closed": false,
+      "closed": true,
       "start_date": "2026-08-22",
       "delivery_ts": null,
       "pickup_ts": null,
@@ -9982,9 +9982,13 @@
       "customer": "Muneer Nazarudeen Nazarudeen",
       "vehicle": "Audi A3",
       "delivery_alerted": false,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
-      "start_date": "2026-08-24"
+      "start_date": "2026-08-24",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     }
   }
 }
