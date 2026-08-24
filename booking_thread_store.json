@@ -9989,6 +9989,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010698-SAND-Audi": {
+      "thread_ts": "1787576436.597219",
+      "end_date": "2026-08-31",
+      "plate": "92156",
+      "customer": "Sando Asenov Boshnakov",
+      "vehicle": "Audi A6",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-08-24"
     }
   }
 }
