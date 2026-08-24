@@ -10004,6 +10004,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010699-YASM-BMW": {
+      "thread_ts": "1787596232.609579",
+      "end_date": "2026-09-12",
+      "plate": "70691",
+      "customer": "Yasmin Khan",
+      "vehicle": "Bmw 520I",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-08-29"
     }
   }
 }
