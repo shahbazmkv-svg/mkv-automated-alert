@@ -10027,7 +10027,7 @@
       "customer": "Sahil Narang Triloki Nath Narang",
       "vehicle": "Gmc Gmc Hummer Ev",
       "delivery_alerted": false,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-08-25",
       "delivery_ts": null,
