@@ -10079,6 +10079,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010704-SAMS-BMW": {
+      "thread_ts": "1787685331.029889",
+      "end_date": "2026-08-26",
+      "plate": "70688",
+      "customer": "Samson George Jenkins Berman",
+      "vehicle": "Bmw 420I Convertible",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-08-25"
     }
   }
 }
