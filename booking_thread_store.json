@@ -10139,6 +10139,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010708-SAMS-Lamborghini": {
+      "thread_ts": "1787765431.825339",
+      "end_date": "2026-08-27",
+      "plate": "94545",
+      "customer": "Samson George Jenkins Berman",
+      "vehicle": "Lamborghini Urus S",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-08-26"
     }
   }
 }
