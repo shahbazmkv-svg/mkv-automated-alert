@@ -10094,6 +10094,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010705-MUHA-Chevrolet": {
+      "thread_ts": "1787734834.127869",
+      "end_date": "2026-08-27",
+      "plate": "72712",
+      "customer": "Muhammed Tariq Rao Rao Muhammad Younus",
+      "vehicle": "Chevrolet Corvette",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-08-26"
     }
   }
 }
