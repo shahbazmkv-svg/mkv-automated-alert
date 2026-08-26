@@ -10028,7 +10028,7 @@
       "vehicle": "Gmc Gmc Hummer Ev",
       "delivery_alerted": false,
       "pickup_alerted": true,
-      "closed": false,
+      "closed": true,
       "start_date": "2026-08-25",
       "delivery_ts": null,
       "pickup_ts": null,
