@@ -10072,7 +10072,7 @@
       "customer": "E Nd S Luxury Car Rental Llc",
       "vehicle": "Ferrari Purosangue",
       "delivery_alerted": false,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-08-26",
       "delivery_ts": null,
