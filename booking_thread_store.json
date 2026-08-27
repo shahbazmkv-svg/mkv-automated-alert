@@ -10154,6 +10154,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010709-ABDU-Land Rover": {
+      "thread_ts": "1787826632.678239",
+      "end_date": "2026-08-29",
+      "plate": "83762",
+      "customer": "Abdulwahad Hamed A F Alabdulla",
+      "vehicle": "Land Rover Defender",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-08-27"
     }
   }
 }
