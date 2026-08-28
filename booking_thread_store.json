@@ -10184,6 +10184,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010711-HAIT-Lamborghini": {
+      "thread_ts": "1787910326.204859",
+      "end_date": "2026-08-29",
+      "plate": "V 8797",
+      "customer": "Haitham Adnan Shaban Al Far",
+      "vehicle": "Lamborghini Evo Spider",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-08-28"
     }
   }
 }
