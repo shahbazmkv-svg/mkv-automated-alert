@@ -10229,6 +10229,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010714-YAQU-Porsche": {
+      "thread_ts": "1787940923.732999",
+      "end_date": "2026-08-30",
+      "plate": "64545",
+      "customer": "Yaqub Mammadov",
+      "vehicle": "Porsche Cayman Gt4 Rs",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-08-29"
     }
   }
 }
