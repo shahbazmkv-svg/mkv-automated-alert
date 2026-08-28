@@ -10214,6 +10214,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010713-KHAL-Chevrolet": {
+      "thread_ts": "1787931933.081759",
+      "end_date": "2026-08-30",
+      "plate": "72712",
+      "customer": "Khalifa Mohammad Juma Mohammad Alblooki",
+      "vehicle": "Chevrolet Corvette",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-08-28"
     }
   }
 }
