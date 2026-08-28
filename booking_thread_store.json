@@ -10199,6 +10199,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010712-WADI-Toyota": {
+      "thread_ts": "1787930127.917169",
+      "end_date": "2026-08-30",
+      "plate": "31727",
+      "customer": "Wadi Salsabeel Rent A Car Llc",
+      "vehicle": "Toyota Land Cruiser",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-08-28"
     }
   }
 }
