@@ -10274,6 +10274,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010717-WAQA-Audi": {
+      "thread_ts": "1788023732.098749",
+      "end_date": "2026-09-02",
+      "plate": "89438",
+      "customer": "Waqar Ahmad Mukhtiar Ahmad",
+      "vehicle": "Audi A6",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-08-30"
     }
   }
 }
