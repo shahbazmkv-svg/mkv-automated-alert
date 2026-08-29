@@ -9997,7 +9997,7 @@
       "customer": "Sando Asenov Boshnakov",
       "vehicle": "Audi A6",
       "delivery_alerted": false,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-08-24",
       "delivery_ts": null,
