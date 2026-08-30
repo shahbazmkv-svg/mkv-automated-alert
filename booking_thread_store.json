@@ -10304,6 +10304,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010719-DAVI-Land Rover": {
+      "thread_ts": "1788101126.381589",
+      "end_date": "2026-09-21",
+      "plate": "83762",
+      "customer": "David Ayomide Adeniran",
+      "vehicle": "Land Rover Defender",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-09-18"
     }
   }
 }
