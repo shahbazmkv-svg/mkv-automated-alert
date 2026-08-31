@@ -10409,6 +10409,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010726-URLA-Mercedes-Benz": {
+      "thread_ts": "1788174036.256379",
+      "end_date": "2026-09-30",
+      "plate": "66789",
+      "customer": "Urla Car Rental",
+      "vehicle": "Mercedes-Benz 2025",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-08-31"
     }
   }
 }
