@@ -10454,6 +10454,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010730-SAMI-Audi": {
+      "thread_ts": "1788249640.925849",
+      "end_date": "2026-09-08",
+      "plate": "90158",
+      "customer": "Samith Shamim",
+      "vehicle": "Audi A3",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-09-03"
     }
   }
 }
