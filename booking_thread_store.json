@@ -10514,6 +10514,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010734-CANE-Lotus": {
+      "thread_ts": "1788345035.281139",
+      "end_date": "2026-10-02",
+      "plate": "23652",
+      "customer": "Caner Demir",
+      "vehicle": "Lotus Lotus Emira",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-09-02"
     }
   }
 }
