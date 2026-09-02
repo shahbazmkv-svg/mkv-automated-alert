@@ -10493,7 +10493,7 @@
       "vehicle": "Porsche 911 Turbo",
       "delivery_alerted": false,
       "pickup_alerted": true,
-      "closed": false,
+      "closed": true,
       "start_date": "2026-09-02",
       "delivery_ts": null,
       "pickup_ts": null,
@@ -10599,7 +10599,11 @@
       "delivery_alerted": false,
       "pickup_alerted": false,
       "closed": false,
-      "start_date": "2026-09-02"
+      "start_date": "2026-09-02",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     }
   }
 }
