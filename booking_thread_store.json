@@ -10499,6 +10499,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010733-NIGE-Chevrolet": {
+      "thread_ts": "1788340527.555789",
+      "end_date": "2026-09-04",
+      "plate": "72712",
+      "customer": "Nigel Tafadzwa Chikamba",
+      "vehicle": "Chevrolet Corvette",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-09-02"
     }
   }
 }
