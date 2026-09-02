@@ -10507,7 +10507,7 @@
       "customer": "Nigel Tafadzwa Chikamba",
       "vehicle": "Chevrolet Corvette",
       "delivery_alerted": false,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-09-02",
       "delivery_ts": null,
