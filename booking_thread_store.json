@@ -10577,7 +10577,7 @@
     },
     "0010738-SAHI-Mercedes-Benz": {
       "thread_ts": "1788352236.368579",
-      "end_date": "2026-09-03",
+      "end_date": "2026-09-04",
       "plate": "60137",
       "customer": "Sahil Narang Triloki Nath Narang",
       "vehicle": "Mercedes-Benz Mercedes  G63",
@@ -10657,9 +10657,13 @@
       "customer": "Oliver Schmidt",
       "vehicle": "Ford Mustang Coupe",
       "delivery_alerted": false,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
-      "start_date": "2026-09-03"
+      "start_date": "2026-09-03",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     }
   }
 }
