@@ -10687,6 +10687,21 @@
       "customer": "Dominic Anthony Murphy",
       "vehicle": "Land Rover Sport",
       "delivery_alerted": false,
+      "pickup_alerted": true,
+      "closed": false,
+      "start_date": "2026-09-03",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
+    },
+    "0010748-WAQA-Cadillac": {
+      "thread_ts": "1788453929.129499",
+      "end_date": "2026-09-06",
+      "plate": "44789",
+      "customer": "Waqar Ahmad Mukhtiar Ahmad",
+      "vehicle": "Cadillac Escalade",
+      "delivery_alerted": false,
       "pickup_alerted": false,
       "closed": false,
       "start_date": "2026-09-03"
