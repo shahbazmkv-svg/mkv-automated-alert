@@ -10664,6 +10664,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010745-ABDU-Land Rover": {
+      "thread_ts": "1788448532.730079",
+      "end_date": "2026-09-05",
+      "plate": "83762",
+      "customer": "Abdulla Rashed Mohammed Khalfan Alhameli",
+      "vehicle": "Land Rover Defender",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-09-03"
     }
   }
 }
