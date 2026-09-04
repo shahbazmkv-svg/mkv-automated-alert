@@ -10658,7 +10658,7 @@
       "vehicle": "Ford Mustang Coupe",
       "delivery_alerted": false,
       "pickup_alerted": true,
-      "closed": false,
+      "closed": true,
       "start_date": "2026-09-03",
       "delivery_ts": null,
       "pickup_ts": null,
@@ -10807,9 +10807,13 @@
       "customer": "Mohammad Hassan Hossein Saeidi",
       "vehicle": "Mercedes-Benz S500",
       "delivery_alerted": false,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
-      "start_date": "2026-09-04"
+      "start_date": "2026-09-04",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     }
   }
 }
