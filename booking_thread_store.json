@@ -10814,6 +10814,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010756-FOTO-Land Rover": {
+      "thread_ts": "1788536726.897909",
+      "end_date": "2026-09-06",
+      "plate": "83209",
+      "customer": "Fotouh Kh A A Alawadhi",
+      "vehicle": "Land Rover Range Rover Sport",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-09-04"
     }
   }
 }
