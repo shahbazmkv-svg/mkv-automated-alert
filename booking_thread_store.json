@@ -10702,7 +10702,7 @@
       "customer": "Waqar Ahmad Mukhtiar Ahmad",
       "vehicle": "Cadillac Escalade",
       "delivery_alerted": false,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-09-03",
       "delivery_ts": null,
@@ -10822,7 +10822,7 @@
       "customer": "Fotouh Kh A A Alawadhi",
       "vehicle": "Land Rover Range Rover Sport",
       "delivery_alerted": false,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-09-04",
       "delivery_ts": null,
@@ -10859,6 +10859,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010575-ROUE-Mercedes-Benz": {
+      "thread_ts": "1788552032.200599",
+      "end_date": "2026-11-17",
+      "plate": "19443",
+      "customer": "Roueed Nuri",
+      "vehicle": "Mercedes-Benz Glb 250",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-11-04"
     }
   }
 }
