@@ -10607,12 +10607,12 @@
     },
     "0010740-FEDE-Land Rover": {
       "thread_ts": "1788368440.778769",
-      "end_date": "2026-09-04",
+      "end_date": "2026-09-08",
       "plate": "55789",
       "customer": "Federico Pineda Delgado",
       "vehicle": "Land Rover Sport",
       "delivery_alerted": false,
-      "pickup_alerted": true,
+      "pickup_alerted": false,
       "closed": false,
       "start_date": "2026-09-02",
       "delivery_ts": null,
@@ -10754,6 +10754,28 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010753-SAHI-Porsche": {
+      "thread_ts": "1788518726.274189",
+      "end_date": "2026-09-05",
+      "plate": "42165",
+      "customer": "Sahil Narang Triloki Nath Narang",
+      "vehicle": "Porsche 911 Turbo",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-09-04"
+    },
+    "0010752-ESTI-Lamborghini": {
+      "thread_ts": "1788518735.626799",
+      "end_date": "2026-09-05",
+      "plate": "94545",
+      "customer": "Estifanos Joseph Solomon",
+      "vehicle": "Lamborghini Urus S",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-09-04"
     }
   }
 }
