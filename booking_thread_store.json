@@ -10829,6 +10829,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010757-SAHI-AC": {
+      "thread_ts": "1788541235.282239",
+      "end_date": "2026-09-05",
+      "plate": "99380-T",
+      "customer": "Sahil Narang Triloki Nath Narang",
+      "vehicle": "Ac 2022",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-09-04"
     }
   }
 }
