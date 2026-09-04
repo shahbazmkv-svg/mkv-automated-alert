@@ -10844,6 +10844,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010758-HARR-Land Rover": {
+      "thread_ts": "1788545725.802659",
+      "end_date": "2026-09-08",
+      "plate": "77540",
+      "customer": "Harris Stephenson",
+      "vehicle": "Land Rover Svr",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-09-05"
     }
   }
 }
