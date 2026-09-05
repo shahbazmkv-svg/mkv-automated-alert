@@ -10874,6 +10874,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010759-EMMA-Land Rover": {
+      "thread_ts": "1788587123.845969",
+      "end_date": "2026-09-07",
+      "plate": "94545",
+      "customer": "Emmanuel Wonder Oluwatosin Adewole",
+      "vehicle": "Land Rover Sport",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-09-05"
     }
   }
 }
