@@ -10994,6 +10994,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010767-SUJA-Lamborghini": {
+      "thread_ts": "1788634832.994509",
+      "end_date": "2026-09-07",
+      "plate": "T / 19689",
+      "customer": "Sujal Kumar Singh",
+      "vehicle": "Lamborghini Evo Spider",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-09-06"
     }
   }
 }
