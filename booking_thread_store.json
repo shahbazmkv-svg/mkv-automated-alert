@@ -10919,6 +10919,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010762-ESTI-BMW": {
+      "thread_ts": "1788613232.798339",
+      "end_date": "2026-09-20",
+      "plate": "78051",
+      "customer": "Estifanos Joseph Solomon",
+      "vehicle": "Bmw 735I",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-09-05"
     }
   }
 }
