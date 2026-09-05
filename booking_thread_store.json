@@ -10937,14 +10937,18 @@
     },
     "0010764-TOBY-Porsche": {
       "thread_ts": "1788621324.646269",
-      "end_date": "2026-09-06",
+      "end_date": "2026-09-08",
       "plate": "64545",
       "customer": "Toby Declan Coutts",
       "vehicle": "Porsche Cayman Gt4 Rs",
       "delivery_alerted": false,
       "pickup_alerted": false,
       "closed": false,
-      "start_date": "2026-09-05"
+      "start_date": "2026-09-05",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010763-BABU-Jetour": {
       "thread_ts": "1788621331.423789",
@@ -10952,6 +10956,21 @@
       "plate": "81946",
       "customer": "Babu Kariyadan Cheriya",
       "vehicle": "Jetour T2",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-09-05",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
+    },
+    "0010765-NIKI-Chevrolet": {
+      "thread_ts": "1788622227.214359",
+      "end_date": "2026-09-06",
+      "plate": "78042",
+      "customer": "Nikita Obukhov",
+      "vehicle": "Chevrolet Tahoe",
       "delivery_alerted": false,
       "pickup_alerted": false,
       "closed": false,
