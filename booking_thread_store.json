@@ -11039,6 +11039,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010770-LIAN-Chevrolet": {
+      "thread_ts": "1788700524.877569",
+      "end_date": "2026-09-08",
+      "plate": "72712",
+      "customer": "Liang Zhiguo",
+      "vehicle": "Chevrolet Corvette",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-09-06"
     }
   }
 }
