@@ -11099,6 +11099,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010775-KANE-Mercedes-Benz": {
+      "thread_ts": "1788720324.648539",
+      "end_date": "2026-09-15",
+      "plate": "66789",
+      "customer": "Kane Richard Mckenzie",
+      "vehicle": "Mercedes-Benz Mercedes G3 (Brabus)",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-09-07"
     }
   }
 }
