@@ -10628,7 +10628,7 @@
       "vehicle": "Bmw 420I Convertible",
       "delivery_alerted": false,
       "pickup_alerted": true,
-      "closed": false,
+      "closed": true,
       "start_date": "2026-09-05",
       "delivery_ts": null,
       "pickup_ts": null,
@@ -11144,6 +11144,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010777-HARR-Mercedes-Benz": {
+      "thread_ts": "1788763524.302119",
+      "end_date": "2026-09-08",
+      "plate": "60137",
+      "customer": "Harris Stephenson",
+      "vehicle": "Mercedes-Benz Mercedes  G63",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-09-07"
     }
   }
 }
