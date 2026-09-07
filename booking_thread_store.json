@@ -10913,7 +10913,7 @@
       "vehicle": "Ford Mustang Coupe",
       "delivery_alerted": false,
       "pickup_alerted": true,
-      "closed": false,
+      "closed": true,
       "start_date": "2026-09-05",
       "delivery_ts": null,
       "pickup_ts": null,
@@ -11063,7 +11063,7 @@
       "vehicle": "Audi A6",
       "delivery_alerted": false,
       "pickup_alerted": true,
-      "closed": false,
+      "closed": true,
       "start_date": "2026-09-06",
       "delivery_ts": null,
       "pickup_ts": null,
@@ -11078,7 +11078,7 @@
       "vehicle": "Mercedes-Benz S500",
       "delivery_alerted": false,
       "pickup_alerted": true,
-      "closed": false,
+      "closed": true,
       "start_date": "2026-09-06",
       "delivery_ts": null,
       "pickup_ts": null,
@@ -11294,6 +11294,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010788-BADE-BMW": {
+      "thread_ts": "1788800437.923619",
+      "end_date": "2026-09-17",
+      "plate": "70688",
+      "customer": "Bader Hamad Ahmad Alzaabi",
+      "vehicle": "Bmw 420I Convertible",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-09-07"
     }
   }
 }
