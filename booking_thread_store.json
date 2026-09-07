@@ -11219,6 +11219,28 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010784-MOHA-Land Rover": {
+      "thread_ts": "1788780629.579269",
+      "end_date": "2026-09-17",
+      "plate": "83762",
+      "customer": "Mohamed Ahmed Abdi Farah",
+      "vehicle": "Land Rover Defender",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-09-07"
+    },
+    "0010783-ABDU-Ford": {
+      "thread_ts": "1788780639.616059",
+      "end_date": "2026-09-11",
+      "plate": "15789",
+      "customer": "Abdulla Khalifa Ali Alqaizi Alfalasi",
+      "vehicle": "Ford Mustang Coupe",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-09-07"
     }
   }
 }
