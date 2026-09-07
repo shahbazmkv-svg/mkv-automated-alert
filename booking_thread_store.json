@@ -11264,6 +11264,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010786-ALMA-Porsche": {
+      "thread_ts": "1788789641.983699",
+      "end_date": "2026-11-03",
+      "plate": "64545",
+      "customer": "Almatrouk, Nahar Essam A",
+      "vehicle": "Porsche Cayman Gt4 Rs",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-11-01"
     }
   }
 }
