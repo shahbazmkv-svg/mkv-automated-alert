@@ -11324,6 +11324,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010790-ABDU-Chevrolet": {
+      "thread_ts": "1788803125.251199",
+      "end_date": "2026-10-07",
+      "plate": "78042",
+      "customer": "Abdulbasset Khanfri",
+      "vehicle": "Chevrolet Tahoe",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-09-07"
     }
   }
 }
