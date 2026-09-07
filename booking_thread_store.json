@@ -11189,6 +11189,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010780-SIDD-Cadillac": {
+      "thread_ts": "1788774327.130959",
+      "end_date": "2026-09-10",
+      "plate": "44789",
+      "customer": "Siddique Abdul Khader Abdul Khader Ahmed",
+      "vehicle": "Cadillac Escalade",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-09-07"
     }
   }
 }
