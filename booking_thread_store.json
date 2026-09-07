@@ -11304,6 +11304,21 @@
       "delivery_alerted": false,
       "pickup_alerted": false,
       "closed": false,
+      "start_date": "2026-09-07",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
+    },
+    "0010789-BADE-Audi": {
+      "thread_ts": "1788801324.602429",
+      "end_date": "2026-09-17",
+      "plate": "89438",
+      "customer": "Bader Hamad Ahmad Alzaabi",
+      "vehicle": "Audi A6",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
       "start_date": "2026-09-07"
     }
   }
