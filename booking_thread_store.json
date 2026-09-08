@@ -11369,6 +11369,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010793-TIM -Land Rover": {
+      "thread_ts": "1788855326.221009",
+      "end_date": "2026-09-10",
+      "plate": "89351",
+      "customer": "Tim Riak Teny",
+      "vehicle": "Land Rover Range Rover Sport - Svr",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-09-08"
     }
   }
 }
