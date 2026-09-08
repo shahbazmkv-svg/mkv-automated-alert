@@ -11422,6 +11422,21 @@
       "customer": "Mohamed Yaseer Zaki Hussein",
       "vehicle": "Porsche 911 Turbo",
       "delivery_alerted": false,
+      "pickup_alerted": true,
+      "closed": false,
+      "start_date": "2026-09-08",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
+    },
+    "0010797-QURR-Audi": {
+      "thread_ts": "1788866130.177259",
+      "end_date": "2026-09-10",
+      "plate": "90158",
+      "customer": "Qurratul-Ayn Javed-Rashid",
+      "vehicle": "Audi A3",
+      "delivery_alerted": false,
       "pickup_alerted": false,
       "closed": false,
       "start_date": "2026-09-08"
