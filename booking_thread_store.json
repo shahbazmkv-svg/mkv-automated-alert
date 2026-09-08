@@ -11354,6 +11354,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010792-HARR-Ford": {
+      "thread_ts": "1788848139.023939",
+      "end_date": "2026-09-11",
+      "plate": "77491",
+      "customer": "Harris Stephenson",
+      "vehicle": "Ford Mustang Convertible",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-09-08"
     }
   }
 }
