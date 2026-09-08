@@ -11452,9 +11452,24 @@
       "customer": "Daniel Raileanu",
       "vehicle": "Porsche Cayman Gt4 Rs",
       "delivery_alerted": false,
+      "pickup_alerted": true,
+      "closed": false,
+      "start_date": "2026-09-08",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
+    },
+    "0010799-PRAN-BMW": {
+      "thread_ts": "1788868837.132849",
+      "end_date": "2026-09-13",
+      "plate": "70688",
+      "customer": "Pranav Puthan Veettil",
+      "vehicle": "Bmw 420I Convertible",
+      "delivery_alerted": false,
       "pickup_alerted": false,
       "closed": false,
-      "start_date": "2026-09-08"
+      "start_date": "2026-09-11"
     }
   }
 }
