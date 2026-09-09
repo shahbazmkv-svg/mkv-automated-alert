@@ -11632,9 +11632,13 @@
       "customer": "Danish Malik Malik Zafar Mehmood",
       "vehicle": "Land Rover Defender",
       "delivery_alerted": false,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
-      "start_date": "2026-09-09"
+      "start_date": "2026-09-09",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010811-ABDU-Mercedes-Benz": {
       "thread_ts": "1788966932.620079",
@@ -11643,9 +11647,13 @@
       "customer": "Abdulaziz Abdullah",
       "vehicle": "Mercedes-Benz S500",
       "delivery_alerted": false,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
-      "start_date": "2026-09-09"
+      "start_date": "2026-09-09",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010813-JOHN-BMW": {
       "thread_ts": "1788966939.829709",
@@ -11654,9 +11662,13 @@
       "customer": "John Alex Githua Mwangi",
       "vehicle": "Bmw 420I Convertible",
       "delivery_alerted": false,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
-      "start_date": "2026-09-09"
+      "start_date": "2026-09-09",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     }
   }
 }
