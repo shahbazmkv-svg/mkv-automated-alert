@@ -11604,7 +11604,11 @@
       "delivery_alerted": false,
       "pickup_alerted": false,
       "closed": false,
-      "start_date": "2026-09-11"
+      "start_date": "2026-09-11",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010809-JOHN-Land Rover": {
       "thread_ts": "1788965136.730199",
@@ -11612,6 +11616,43 @@
       "plate": "78043",
       "customer": "John Alex Githua Mwangi",
       "vehicle": "Land Rover Defender",
+      "delivery_alerted": false,
+      "pickup_alerted": true,
+      "closed": false,
+      "start_date": "2026-09-09",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
+    },
+    "0010812-DANI-Land Rover": {
+      "thread_ts": "1788966925.729709",
+      "end_date": "2026-09-10",
+      "plate": "78043",
+      "customer": "Danish Malik Malik Zafar Mehmood",
+      "vehicle": "Land Rover Defender",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-09-09"
+    },
+    "0010811-ABDU-Mercedes-Benz": {
+      "thread_ts": "1788966932.620079",
+      "end_date": "2026-09-10",
+      "plate": "55789",
+      "customer": "Abdulaziz Abdullah",
+      "vehicle": "Mercedes-Benz S500",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-09-09"
+    },
+    "0010813-JOHN-BMW": {
+      "thread_ts": "1788966939.829709",
+      "end_date": "2026-09-10",
+      "plate": "70688",
+      "customer": "John Alex Githua Mwangi",
+      "vehicle": "Bmw 420I Convertible",
       "delivery_alerted": false,
       "pickup_alerted": false,
       "closed": false,
