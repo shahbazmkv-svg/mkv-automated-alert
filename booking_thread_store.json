@@ -11669,6 +11669,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010814-NADE-Rolls Royce": {
+      "thread_ts": "1788980439.583229",
+      "end_date": "2026-09-11",
+      "plate": "41133",
+      "customer": "Nadeem Ahmed Muhammad Ismayil",
+      "vehicle": "Rolls Royce Rolls Royce Cullinan",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-09-09"
     }
   }
 }
