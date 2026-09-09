@@ -11594,6 +11594,28 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010810-MYKO-Land Rover": {
+      "thread_ts": "1788965129.339149",
+      "end_date": "2026-09-12",
+      "plate": "94545",
+      "customer": "Mykola Halius",
+      "vehicle": "Land Rover Sport",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-09-11"
+    },
+    "0010809-JOHN-Land Rover": {
+      "thread_ts": "1788965136.730199",
+      "end_date": "2026-09-10",
+      "plate": "78043",
+      "customer": "John Alex Githua Mwangi",
+      "vehicle": "Land Rover Defender",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-09-09"
     }
   }
 }
