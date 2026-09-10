@@ -11812,9 +11812,13 @@
       "customer": "Sahil Narang Triloki Nath Narang",
       "vehicle": "Lamborghini Urus S",
       "delivery_alerted": false,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
-      "start_date": "2026-09-10"
+      "start_date": "2026-09-10",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     }
   }
 }
