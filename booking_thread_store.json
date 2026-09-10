@@ -11774,6 +11774,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010821-MYKO-Land Rover": {
+      "thread_ts": "1789044327.310379",
+      "end_date": "2026-09-12",
+      "plate": "83209",
+      "customer": "Mykola Halius",
+      "vehicle": "Land Rover Range Rover Sport",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-09-11"
     }
   }
 }
