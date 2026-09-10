@@ -11498,7 +11498,7 @@
       "vehicle": "Chevrolet Corvette",
       "delivery_alerted": false,
       "pickup_alerted": true,
-      "closed": false,
+      "closed": true,
       "start_date": "2026-09-09",
       "delivery_ts": null,
       "pickup_ts": null,
@@ -11699,6 +11699,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010816-RAYE-Morgan": {
+      "thread_ts": "1789030837.378779",
+      "end_date": "2026-09-11",
+      "plate": "47203",
+      "customer": "Rayees  Kaniyarakkal Rasheed",
+      "vehicle": "Morgan Morgan Supersport",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-09-10"
     }
   }
 }
