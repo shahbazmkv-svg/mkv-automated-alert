@@ -11693,7 +11693,7 @@
       "vehicle": "Mercedes-Benz Mercedes G3 (Brabus)",
       "delivery_alerted": false,
       "pickup_alerted": true,
-      "closed": false,
+      "closed": true,
       "start_date": "2026-09-10",
       "delivery_ts": null,
       "pickup_ts": null,
@@ -11714,6 +11714,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010817-MOHA-Land Rover": {
+      "thread_ts": "1789035330.438479",
+      "end_date": "2026-09-18",
+      "plate": "94545",
+      "customer": "Mohamed Ahmed Abdi Farah",
+      "vehicle": "Land Rover Sport",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-09-10"
     }
   }
 }
