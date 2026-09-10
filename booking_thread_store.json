@@ -11819,6 +11819,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010824-MUHA-Chevrolet": {
+      "thread_ts": "1789067731.167049",
+      "end_date": "2026-09-12",
+      "plate": "72712",
+      "customer": "Muhammad Umar Farooq Yousaf Ali",
+      "vehicle": "Chevrolet Corvette",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-09-11"
     }
   }
 }
