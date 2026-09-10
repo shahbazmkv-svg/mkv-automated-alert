@@ -11739,6 +11739,21 @@
       "delivery_alerted": false,
       "pickup_alerted": false,
       "closed": false,
+      "start_date": "2026-09-10",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
+    },
+    "0010819-ESTI-Ferrari": {
+      "thread_ts": "1789039830.659309",
+      "end_date": "2026-09-11",
+      "plate": "97019",
+      "customer": "Estifanos Joseph Solomon",
+      "vehicle": "Ferrari Purosangue",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
       "start_date": "2026-09-10"
     }
   }
