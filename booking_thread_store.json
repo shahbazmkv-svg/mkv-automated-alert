@@ -11889,7 +11889,11 @@
       "delivery_alerted": false,
       "pickup_alerted": false,
       "closed": false,
-      "start_date": "2026-09-12"
+      "start_date": "2026-09-12",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010830-SUMB-BMW": {
       "thread_ts": "1789124482.522039",
@@ -11900,7 +11904,22 @@
       "delivery_alerted": false,
       "pickup_alerted": false,
       "closed": false,
-      "start_date": "2026-09-12"
+      "start_date": "2026-09-12",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
+    },
+    "0010832-JOHN-Toyota": {
+      "thread_ts": "1789125325.400409",
+      "end_date": "2026-09-12",
+      "plate": "31727",
+      "customer": "John Alex Githua Mwangi",
+      "vehicle": "Toyota Land Cruiser",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-09-11"
     }
   }
 }
