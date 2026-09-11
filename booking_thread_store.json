@@ -11813,7 +11813,7 @@
       "vehicle": "Lamborghini Urus S",
       "delivery_alerted": false,
       "pickup_alerted": true,
-      "closed": false,
+      "closed": true,
       "start_date": "2026-09-10",
       "delivery_ts": null,
       "pickup_ts": null,
@@ -11879,6 +11879,28 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010831-SUMB-Mercedes-Benz": {
+      "thread_ts": "1789124471.092189",
+      "end_date": "2026-09-13",
+      "plate": "66789",
+      "customer": "Sumbal Ahmed",
+      "vehicle": "Mercedes-Benz Mercedes G3 (Brabus)",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-09-12"
+    },
+    "0010830-SUMB-BMW": {
+      "thread_ts": "1789124482.522039",
+      "end_date": "2026-09-13",
+      "plate": "70688",
+      "customer": "Sumbal Ahmed",
+      "vehicle": "Bmw 420I Convertible",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-09-12"
     }
   }
 }
