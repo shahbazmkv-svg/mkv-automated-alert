@@ -11994,7 +11994,22 @@
       "delivery_alerted": false,
       "pickup_alerted": false,
       "closed": false,
-      "start_date": "2026-09-26"
+      "start_date": "2026-09-26",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
+    },
+    "0010839-PRAD-Cadillac": {
+      "thread_ts": "1789209030.556929",
+      "end_date": "2026-09-16",
+      "plate": "44789",
+      "customer": "Pradeep Nellivalappil Chindan Nellivalappil",
+      "vehicle": "Cadillac Escalade",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-09-14"
     }
   }
 }
