@@ -11182,7 +11182,7 @@
       "customer": "Master Key Rent A Car L.L.C",
       "vehicle": "Ferrari Purosangue",
       "delivery_alerted": false,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-09-07",
       "delivery_ts": null,
@@ -11767,7 +11767,7 @@
       "customer": "Jaiden John West",
       "vehicle": "Land Rover Defender",
       "delivery_alerted": false,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-09-10",
       "delivery_ts": null,
@@ -11887,7 +11887,7 @@
       "customer": "Sumbal Ahmed",
       "vehicle": "Mercedes-Benz Mercedes G3 (Brabus)",
       "delivery_alerted": false,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-09-12",
       "delivery_ts": null,
@@ -12074,6 +12074,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010845-KEVI-Mercedes-Benz": {
+      "thread_ts": "1789243234.843469",
+      "end_date": "2026-09-16",
+      "plate": "19443",
+      "customer": "Kevin Christian Zekarias",
+      "vehicle": "Mercedes-Benz Glb 250",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-09-13"
     }
   }
 }
