@@ -12009,7 +12009,22 @@
       "delivery_alerted": false,
       "pickup_alerted": false,
       "closed": false,
-      "start_date": "2026-09-14"
+      "start_date": "2026-09-14",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
+    },
+    "0010840-TEJA-Land Rover": {
+      "thread_ts": "1789209926.722649",
+      "end_date": "2026-10-12",
+      "plate": "78043",
+      "customer": "Tejasveersingh Praveesh Banee",
+      "vehicle": "Land Rover Defender",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-09-12"
     }
   }
 }
