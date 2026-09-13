@@ -11122,7 +11122,7 @@
       "customer": "Kane Richard Mckenzie",
       "vehicle": "Land Rover Svr",
       "delivery_alerted": false,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-09-07",
       "delivery_ts": null,
@@ -12112,7 +12112,7 @@
       "customer": "Zenith Super Car Rental Llc",
       "vehicle": "Ford Mustang Coupe",
       "delivery_alerted": false,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-09-13",
       "delivery_ts": null,
@@ -12202,9 +12202,13 @@
       "customer": "Jaiden John West",
       "vehicle": "Mercedes-Benz Mercedes G3 (Brabus)",
       "delivery_alerted": false,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
-      "start_date": "2026-09-14"
+      "start_date": "2026-09-14",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     }
   }
 }
