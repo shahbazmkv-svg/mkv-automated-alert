@@ -12092,7 +12092,7 @@
     },
     "0010846-JAMI-Chevrolet": {
       "thread_ts": "1789244125.006929",
-      "end_date": "2026-09-15",
+      "end_date": "2026-09-17",
       "plate": "72712",
       "customer": "Jamie O Driscoll",
       "vehicle": "Chevrolet Corvette",
@@ -12172,9 +12172,13 @@
       "customer": "John Alex Githua Mwangi",
       "vehicle": "Chevrolet Corvette",
       "delivery_alerted": false,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
-      "start_date": "2026-09-13"
+      "start_date": "2026-09-13",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     }
   }
 }
