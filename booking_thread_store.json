@@ -12104,6 +12104,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010847-ZENI-Ford": {
+      "thread_ts": "1789290955.163179",
+      "end_date": "2026-09-15",
+      "plate": "77490",
+      "customer": "Zenith Super Car Rental Llc",
+      "vehicle": "Ford Mustang Coupe",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-09-13"
     }
   }
 }
