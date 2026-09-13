@@ -12159,6 +12159,21 @@
       "delivery_alerted": false,
       "pickup_alerted": false,
       "closed": false,
+      "start_date": "2026-09-13",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
+    },
+    "0010852-JOHN-Chevrolet": {
+      "thread_ts": "1789309828.649049",
+      "end_date": "2026-09-14",
+      "plate": "72712",
+      "customer": "John Alex Githua Mwangi",
+      "vehicle": "Chevrolet Corvette",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
       "start_date": "2026-09-13"
     }
   }
