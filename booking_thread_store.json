@@ -12299,6 +12299,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010864-RAKS-Ford": {
+      "thread_ts": "1789405239.532639",
+      "end_date": "2026-09-17",
+      "plate": "77490",
+      "customer": "Rakshan Altaf Salah Altaf Salah Salaluddin",
+      "vehicle": "Ford Mustang Coupe",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-09-16"
     }
   }
 }
