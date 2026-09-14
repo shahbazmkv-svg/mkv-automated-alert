@@ -12314,6 +12314,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010865-MARC-Mercedes-Benz": {
+      "thread_ts": "1789411527.906709",
+      "end_date": "2026-09-18",
+      "plate": "55789",
+      "customer": "Marcus De Freitas Sadiq",
+      "vehicle": "Mercedes-Benz S500",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-09-14"
     }
   }
 }
