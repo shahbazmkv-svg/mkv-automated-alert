@@ -12239,6 +12239,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010860-MUHA-Kia": {
+      "thread_ts": "1789387241.263329",
+      "end_date": "2026-10-14",
+      "plate": "97018",
+      "customer": "Muhammad Umar Farooq Yousaf Ali",
+      "vehicle": "Kia Cerato",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-09-14"
     }
   }
 }
