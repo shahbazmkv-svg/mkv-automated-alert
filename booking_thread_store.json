@@ -12389,6 +12389,28 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010870-NIAY-Porsche": {
+      "thread_ts": "1789472728.182139",
+      "end_date": "2026-09-16",
+      "plate": "42165",
+      "customer": "Niayesh Bijan Matias Mojtahedzadeh",
+      "vehicle": "Porsche 911 Turbo",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-09-15"
+    },
+    "0010871-NIAY-Porsche": {
+      "thread_ts": "1789472735.834949",
+      "end_date": "2026-09-16",
+      "plate": "64545",
+      "customer": "Niayesh Bijan Matias Mojtahedzadeh",
+      "vehicle": "Porsche Cayman Gt4 Rs",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-09-15"
     }
   }
 }
