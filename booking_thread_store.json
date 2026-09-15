@@ -12419,6 +12419,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010872-NIAY-Lamborghini": {
+      "thread_ts": "1789477236.734039",
+      "end_date": "2026-09-16",
+      "plate": "94545",
+      "customer": "Niayesh Bijan Matias Mojtahedzadeh",
+      "vehicle": "Lamborghini Urus S",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-09-15"
     }
   }
 }
