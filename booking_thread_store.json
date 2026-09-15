@@ -12359,6 +12359,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010868-CACI-Ford": {
+      "thread_ts": "1789467331.644639",
+      "end_date": "2026-09-18",
+      "plate": "77491",
+      "customer": "Cacio Cesar Ferreira",
+      "vehicle": "Ford Mustang Convertible",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-09-15"
     }
   }
 }
