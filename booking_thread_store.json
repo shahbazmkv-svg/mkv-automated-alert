@@ -12524,6 +12524,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010879-BILA-Ford": {
+      "thread_ts": "1789547438.843499",
+      "end_date": "2026-09-20",
+      "plate": "33567",
+      "customer": "Bilal Adli Hamdan",
+      "vehicle": "Ford Bronco",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-09-16"
     }
   }
 }
