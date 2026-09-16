@@ -12554,6 +12554,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010881-MARC-Lamborghini": {
+      "thread_ts": "1789566328.046009",
+      "end_date": "2026-09-20",
+      "plate": "94545",
+      "customer": "Marchello Marinov Ivanov",
+      "vehicle": "Lamborghini Urus S",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-09-17"
     }
   }
 }
