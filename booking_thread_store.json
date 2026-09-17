@@ -12674,6 +12674,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010889-CANE-BMW": {
+      "thread_ts": "1789653640.259499",
+      "end_date": "2026-10-17",
+      "plate": "78051",
+      "customer": "Caner Demir",
+      "vehicle": "Bmw 735I",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-09-17"
     }
   }
 }
