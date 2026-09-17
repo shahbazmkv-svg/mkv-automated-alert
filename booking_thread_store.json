@@ -12287,12 +12287,12 @@
     },
     "0010863-REON-Bentley": {
       "thread_ts": "1789395331.775149",
-      "end_date": "2026-09-17",
+      "end_date": "2026-09-19",
       "plate": "33789",
       "customer": "Reon Donald Marcus Wilson",
       "vehicle": "Bentley Bentayga",
       "delivery_alerted": false,
-      "pickup_alerted": true,
+      "pickup_alerted": false,
       "closed": false,
       "start_date": "2026-09-15",
       "delivery_ts": null,
@@ -12518,7 +12518,7 @@
       "vehicle": "Land Rover Sport",
       "delivery_alerted": false,
       "pickup_alerted": false,
-      "closed": false,
+      "closed": true,
       "start_date": "2026-09-16",
       "delivery_ts": null,
       "pickup_ts": null,
@@ -12639,7 +12639,11 @@
       "delivery_alerted": false,
       "pickup_alerted": false,
       "closed": false,
-      "start_date": "2026-09-17"
+      "start_date": "2026-09-17",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     }
   }
 }
