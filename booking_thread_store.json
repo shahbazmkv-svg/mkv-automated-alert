@@ -12644,6 +12644,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010887-SAHI-Ford": {
+      "thread_ts": "1789637438.146429",
+      "end_date": "2026-10-17",
+      "plate": "77490",
+      "customer": "Sahil Narang Triloki Nath Narang",
+      "vehicle": "Ford Mustang Coupe",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-09-17"
     }
   }
 }
