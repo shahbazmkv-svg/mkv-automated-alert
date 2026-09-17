@@ -12719,6 +12719,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010892-JOHN-Toyota": {
+      "thread_ts": "1789661727.421249",
+      "end_date": "2026-09-19",
+      "plate": "31727",
+      "customer": "John Alex Githua Mwangi",
+      "vehicle": "Toyota Land Cruiser",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-09-18"
     }
   }
 }
