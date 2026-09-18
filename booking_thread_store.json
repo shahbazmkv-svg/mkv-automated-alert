@@ -12787,9 +12787,13 @@
       "customer": "Muhammad Saqib Sher Muhammad",
       "vehicle": "Nissan Nissan Patrol Le Platinum City",
       "delivery_alerted": false,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
-      "start_date": "2026-09-18"
+      "start_date": "2026-09-18",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     }
   }
 }
