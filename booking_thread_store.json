@@ -12794,6 +12794,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010897-MUHA-Porsche": {
+      "thread_ts": "1789727431.344569",
+      "end_date": "2026-09-20",
+      "plate": "42165",
+      "customer": "Muhammet Berat Akkoc",
+      "vehicle": "Porsche 911 Turbo",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-09-19"
     }
   }
 }
