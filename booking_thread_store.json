@@ -12698,7 +12698,7 @@
       "vehicle": "Mercedes-Benz Mercedes G3 (Brabus)",
       "delivery_alerted": false,
       "pickup_alerted": true,
-      "closed": false,
+      "closed": true,
       "start_date": "2026-09-17",
       "delivery_ts": null,
       "pickup_ts": null,
@@ -12818,7 +12818,7 @@
       "vehicle": "Ferrari Purosangue",
       "delivery_alerted": false,
       "pickup_alerted": true,
-      "closed": false,
+      "closed": true,
       "start_date": "2026-09-18",
       "delivery_ts": null,
       "pickup_ts": null,
@@ -12864,7 +12864,11 @@
       "delivery_alerted": false,
       "pickup_alerted": false,
       "closed": false,
-      "start_date": "2026-09-19"
+      "start_date": "2026-09-19",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010902-RICA-Mercedes-Benz": {
       "thread_ts": "1789750851.372159",
@@ -12875,7 +12879,11 @@
       "delivery_alerted": false,
       "pickup_alerted": false,
       "closed": false,
-      "start_date": "2026-09-18"
+      "start_date": "2026-09-18",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     }
   }
 }
