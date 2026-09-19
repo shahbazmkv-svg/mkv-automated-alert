@@ -12587,7 +12587,7 @@
     },
     "0010883-JOHN-AC": {
       "thread_ts": "1789568130.767719",
-      "end_date": "2026-09-24",
+      "end_date": "2026-09-25",
       "plate": "7934",
       "customer": "John Alex Githua Mwangi",
       "vehicle": "Ac 2024",
@@ -12713,7 +12713,7 @@
       "vehicle": "Land Rover Defender",
       "delivery_alerted": false,
       "pickup_alerted": true,
-      "closed": false,
+      "closed": true,
       "start_date": "2026-09-17",
       "delivery_ts": null,
       "pickup_ts": null,
