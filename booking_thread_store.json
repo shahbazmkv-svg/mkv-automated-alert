@@ -13049,6 +13049,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010914-JOHN-Land Rover": {
+      "thread_ts": "1789831829.752709",
+      "end_date": "2026-09-20",
+      "plate": "94545",
+      "customer": "John Alex Githua Mwangi",
+      "vehicle": "Land Rover Sport",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-09-19"
     }
   }
 }
