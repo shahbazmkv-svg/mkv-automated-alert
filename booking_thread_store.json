@@ -12944,6 +12944,28 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010908-TRIP-Porsche": {
+      "thread_ts": "1789817430.221989",
+      "end_date": "2026-09-23",
+      "plate": "64545",
+      "customer": "Triple D Rentals Llc",
+      "vehicle": "Porsche Cayman Gt4 Rs",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-09-21"
+    },
+    "0010907-SAHI-Ford": {
+      "thread_ts": "1789817435.303819",
+      "end_date": "2026-10-16",
+      "plate": "77491",
+      "customer": "Sahil Narang Triloki Nath Narang",
+      "vehicle": "Ford Mustang Convertible",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-09-19"
     }
   }
 }
