@@ -12263,7 +12263,7 @@
       "vehicle": "Bmw 420I Convertible",
       "delivery_alerted": false,
       "pickup_alerted": false,
-      "closed": false,
+      "closed": true,
       "start_date": "2026-09-14",
       "delivery_ts": null,
       "pickup_ts": null,
@@ -12984,7 +12984,22 @@
       "delivery_alerted": false,
       "pickup_alerted": false,
       "closed": false,
-      "start_date": "2026-09-19"
+      "start_date": "2026-09-19",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
+    },
+    "0010910-DANI-AC": {
+      "thread_ts": "1789820126.950079",
+      "end_date": "2026-09-25",
+      "plate": "14067",
+      "customer": "Danish Malik Malik Zafar Mehmood",
+      "vehicle": "Ac 2024",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-09-20"
     }
   }
 }
