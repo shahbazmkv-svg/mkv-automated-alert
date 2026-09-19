@@ -12899,6 +12899,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010904-CALV-Lamborghini": {
+      "thread_ts": "1789800326.423749",
+      "end_date": "2026-09-20",
+      "plate": "94545",
+      "customer": "Calvin Derek Alexander Wilkins",
+      "vehicle": "Lamborghini Urus S",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-09-19"
     }
   }
 }
