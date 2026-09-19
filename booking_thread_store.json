@@ -12922,6 +12922,21 @@
       "customer": "Luxilo Car Rental L.L.C",
       "vehicle": "Ford Mustang Coupe",
       "delivery_alerted": false,
+      "pickup_alerted": true,
+      "closed": false,
+      "start_date": "2026-09-19",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
+    },
+    "0010906-TOM,-Ford": {
+      "thread_ts": "1789812925.137929",
+      "end_date": "2026-09-21",
+      "plate": "77490",
+      "customer": "Tom,Jean-Pierre,Yannick Debat",
+      "vehicle": "Ford Mustang Coupe",
+      "delivery_alerted": false,
       "pickup_alerted": false,
       "closed": false,
       "start_date": "2026-09-19"
