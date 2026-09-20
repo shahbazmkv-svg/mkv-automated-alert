@@ -13079,6 +13079,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010916-SANT-Chevrolet": {
+      "thread_ts": "1789888525.160559",
+      "end_date": "2026-09-21",
+      "plate": "72712",
+      "customer": "Santiago Duarte Garcia",
+      "vehicle": "Chevrolet Corvette",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-09-20"
     }
   }
 }
