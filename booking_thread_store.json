@@ -12923,7 +12923,7 @@
       "vehicle": "Ford Mustang Coupe",
       "delivery_alerted": false,
       "pickup_alerted": true,
-      "closed": false,
+      "closed": true,
       "start_date": "2026-09-19",
       "delivery_ts": null,
       "pickup_ts": null,
@@ -13094,6 +13094,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010917-ABDU-Land Rover": {
+      "thread_ts": "1789909236.937999",
+      "end_date": "2026-09-21",
+      "plate": "94545",
+      "customer": "Abdulla Saeed Hamad Musleh Al Ahbabi",
+      "vehicle": "Land Rover Sport",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-09-20"
     }
   }
 }
