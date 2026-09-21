@@ -13134,7 +13134,11 @@
       "delivery_alerted": false,
       "pickup_alerted": false,
       "closed": false,
-      "start_date": "2026-09-22"
+      "start_date": "2026-09-22",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010919-KART-Porsche": {
       "thread_ts": "1789983050.150029",
@@ -13142,6 +13146,21 @@
       "plate": "42165",
       "customer": "Kartik Ranjan",
       "vehicle": "Porsche 911 Turbo",
+      "delivery_alerted": false,
+      "pickup_alerted": true,
+      "closed": false,
+      "start_date": "2026-09-21",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
+    },
+    "0010921-BABU-Land Rover": {
+      "thread_ts": "1789983929.072439",
+      "end_date": "2026-09-30",
+      "plate": "68620",
+      "customer": "Babu Kariyadan Cheriya",
+      "vehicle": "Land Rover Range Rover Velar",
       "delivery_alerted": false,
       "pickup_alerted": false,
       "closed": false,
