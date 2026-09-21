@@ -12578,7 +12578,7 @@
       "vehicle": "Land Rover Svr",
       "delivery_alerted": false,
       "pickup_alerted": true,
-      "closed": false,
+      "closed": true,
       "start_date": "2026-09-16",
       "delivery_ts": null,
       "pickup_ts": null,
@@ -13209,7 +13209,11 @@
       "delivery_alerted": false,
       "pickup_alerted": false,
       "closed": false,
-      "start_date": "2026-10-01"
+      "start_date": "2026-10-01",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010924-SAHI-Lamborghini": {
       "thread_ts": "1789997443.240839",
@@ -13220,7 +13224,11 @@
       "delivery_alerted": false,
       "pickup_alerted": false,
       "closed": false,
-      "start_date": "2026-09-21"
+      "start_date": "2026-09-21",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     }
   }
 }
