@@ -13359,7 +13359,11 @@
       "delivery_alerted": false,
       "pickup_alerted": false,
       "closed": false,
-      "start_date": "2026-09-24"
+      "start_date": "2026-09-24",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010934-TAHA-AC": {
       "thread_ts": "1790100045.242289",
@@ -13367,6 +13371,21 @@
       "plate": "9358",
       "customer": "Taha-Kashif Attique",
       "vehicle": "Ac 2024",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-09-23",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
+    },
+    "0010936-MARO-Lamborghini": {
+      "thread_ts": "1790100937.917139",
+      "end_date": "2026-09-25",
+      "plate": "B/14755",
+      "customer": "Marouane Bessami",
+      "vehicle": "Lamborghini Lamborghini Urus",
       "delivery_alerted": false,
       "pickup_alerted": false,
       "closed": false,
