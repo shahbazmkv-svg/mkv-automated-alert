@@ -13319,6 +13319,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010932-MARO-AC": {
+      "thread_ts": "1790093736.437639",
+      "end_date": "2026-09-25",
+      "plate": "2799",
+      "customer": "Marouane Bessami",
+      "vehicle": "Ac 2022",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-09-23"
     }
   }
 }
