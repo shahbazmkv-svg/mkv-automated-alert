@@ -12863,7 +12863,7 @@
       "vehicle": "Mercedes-Benz Glb 250",
       "delivery_alerted": false,
       "pickup_alerted": true,
-      "closed": false,
+      "closed": true,
       "start_date": "2026-09-19",
       "delivery_ts": null,
       "pickup_ts": null,
