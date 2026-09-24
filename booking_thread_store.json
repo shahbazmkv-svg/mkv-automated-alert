@@ -13687,9 +13687,13 @@
       "customer": "Roksolana Medvedko",
       "vehicle": "Porsche 911 Turbo",
       "delivery_alerted": false,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
-      "start_date": "2026-09-24"
+      "start_date": "2026-09-24",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     }
   }
 }
