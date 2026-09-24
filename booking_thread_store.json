@@ -13629,7 +13629,11 @@
       "delivery_alerted": false,
       "pickup_alerted": false,
       "closed": false,
-      "start_date": "2026-09-25"
+      "start_date": "2026-09-25",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010953-MATI-Lamborghini": {
       "thread_ts": "1790258447.266619",
@@ -13640,7 +13644,22 @@
       "delivery_alerted": false,
       "pickup_alerted": false,
       "closed": false,
-      "start_date": "2026-09-24"
+      "start_date": "2026-09-24",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
+    },
+    "0010954-BAYA-Ferrari": {
+      "thread_ts": "1790259331.348759",
+      "end_date": "2026-09-27",
+      "plate": "97019",
+      "customer": "Bayan A.M. Shatara",
+      "vehicle": "Ferrari Purosangue",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-09-26"
     }
   }
 }
