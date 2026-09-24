@@ -13552,9 +13552,13 @@
       "customer": "Jude Cesare Moses Moses",
       "vehicle": "Land Rover Svr",
       "delivery_alerted": false,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
-      "start_date": "2026-09-24"
+      "start_date": "2026-09-24",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010948-JUDE-Land Rover": {
       "thread_ts": "1790242246.399449",
@@ -13563,9 +13567,13 @@
       "customer": "Jude Cesare Moses Moses",
       "vehicle": "Land Rover Svr",
       "delivery_alerted": false,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
-      "start_date": "2026-09-24"
+      "start_date": "2026-09-24",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     }
   }
 }
