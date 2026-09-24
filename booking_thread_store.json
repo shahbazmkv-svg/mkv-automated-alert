@@ -13619,6 +13619,28 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010952-VIP -Land Rover": {
+      "thread_ts": "1790258439.844989",
+      "end_date": "2026-09-26",
+      "plate": "78043",
+      "customer": "Vip Rent  A Car L.L.C",
+      "vehicle": "Land Rover Defender",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-09-25"
+    },
+    "0010953-MATI-Lamborghini": {
+      "thread_ts": "1790258447.266619",
+      "end_date": "2026-09-27",
+      "plate": "94545",
+      "customer": "Matias Cardozo",
+      "vehicle": "Lamborghini Urus S",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-09-24"
     }
   }
 }
