@@ -13664,6 +13664,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010955-SAHI-Land Rover": {
+      "thread_ts": "1790266529.296759",
+      "end_date": "2026-09-25",
+      "plate": "78043",
+      "customer": "Sahil Narang Triloki Nath Narang",
+      "vehicle": "Land Rover Defender",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-09-24"
     }
   }
 }
