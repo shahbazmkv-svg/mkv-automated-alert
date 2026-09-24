@@ -13529,6 +13529,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010946-JUDE-Land Rover": {
+      "thread_ts": "1790240457.309079",
+      "end_date": "2026-09-25",
+      "plate": "75037",
+      "customer": "Jude Cesare Moses Moses",
+      "vehicle": "Land Rover Svr",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-09-24"
     }
   }
 }
