@@ -13613,7 +13613,7 @@
       "vehicle": "Mercedes-Benz Mercedes  G63",
       "delivery_alerted": false,
       "pickup_alerted": true,
-      "closed": false,
+      "closed": true,
       "start_date": "2026-09-24",
       "delivery_ts": null,
       "pickup_ts": null,
