@@ -13724,6 +13724,28 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010960-HAID-Chevrolet": {
+      "thread_ts": "1790325929.089019",
+      "end_date": "2026-09-26",
+      "plate": "72712",
+      "customer": "Haider Nazir Waqar Ahmed",
+      "vehicle": "Chevrolet Corvette",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-09-25"
+    },
+    "0010959-HAID-Morgan": {
+      "thread_ts": "1790325935.802819",
+      "end_date": "2026-09-26",
+      "plate": "SUPERSPORT",
+      "customer": "Haider Nazir Waqar Ahmed",
+      "vehicle": "Morgan Supersport",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-09-25"
     }
   }
 }
