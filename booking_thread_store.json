@@ -13904,6 +13904,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010972-Thab-Audi": {
+      "thread_ts": "1790368230.967389",
+      "end_date": "2026-09-27",
+      "plate": "89438",
+      "customer": "Thabo Mongalo Simelane",
+      "vehicle": "Audi A6",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-09-26"
     }
   }
 }
