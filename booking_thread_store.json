@@ -13732,9 +13732,13 @@
       "customer": "Haider Nazir Waqar Ahmed",
       "vehicle": "Chevrolet Corvette",
       "delivery_alerted": false,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
-      "start_date": "2026-09-25"
+      "start_date": "2026-09-25",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010959-HAID-Morgan": {
       "thread_ts": "1790325935.802819",
@@ -13743,9 +13747,13 @@
       "customer": "Haider Nazir Waqar Ahmed",
       "vehicle": "Morgan Supersport",
       "delivery_alerted": false,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
-      "start_date": "2026-09-25"
+      "start_date": "2026-09-25",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     }
   }
 }
