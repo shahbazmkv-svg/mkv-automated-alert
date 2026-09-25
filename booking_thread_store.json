@@ -13702,9 +13702,13 @@
       "customer": "Qudus Eyitoyosi Onajobi",
       "vehicle": "Land Rover Defender",
       "delivery_alerted": false,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
-      "start_date": "2026-09-25"
+      "start_date": "2026-09-25",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0010958-SAHI-Mercedes-Benz": {
       "thread_ts": "1790321442.825519",
@@ -13715,7 +13719,11 @@
       "delivery_alerted": false,
       "pickup_alerted": false,
       "closed": false,
-      "start_date": "2026-09-25"
+      "start_date": "2026-09-25",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     }
   }
 }
