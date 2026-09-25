@@ -13794,6 +13794,21 @@
       "delivery_alerted": false,
       "pickup_alerted": false,
       "closed": false,
+      "start_date": "2026-09-25",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
+    },
+    "0010965-FORT-Ford": {
+      "thread_ts": "1790335834.558929",
+      "end_date": "2026-09-26",
+      "plate": "15789",
+      "customer": "Fortador Luxury Car Rental Llc",
+      "vehicle": "Ford Mustang Coupe",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
       "start_date": "2026-09-25"
     }
   }
