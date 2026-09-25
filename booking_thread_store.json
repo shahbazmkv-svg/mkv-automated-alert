@@ -13844,6 +13844,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010967-MESO-Land Rover": {
+      "thread_ts": "1790345727.657029",
+      "end_date": "2026-09-26",
+      "plate": "77540",
+      "customer": "Mesonero Romanos Garcia Alegre",
+      "vehicle": "Land Rover Svr",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-09-25"
     }
   }
 }
