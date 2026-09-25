@@ -13762,9 +13762,24 @@
       "customer": "Taha-Kashif Attique",
       "vehicle": "Chevrolet Corvette",
       "delivery_alerted": false,
+      "pickup_alerted": true,
+      "closed": false,
+      "start_date": "2026-09-25",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
+    },
+    "0010963-Adri-Ford": {
+      "thread_ts": "1790328646.335389",
+      "end_date": "2026-11-23",
+      "plate": "15789",
+      "customer": "Adri\u00e1n P\u010dolinsk\u00fd",
+      "vehicle": "Ford Mustang Coupe",
+      "delivery_alerted": false,
       "pickup_alerted": false,
       "closed": false,
-      "start_date": "2026-09-25"
+      "start_date": "2026-11-22"
     }
   }
 }
