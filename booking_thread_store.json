@@ -13889,6 +13889,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010970-OLGA-Ferrari": {
+      "thread_ts": "1790362839.708059",
+      "end_date": "2026-09-27",
+      "plate": "97019",
+      "customer": "Olga Kuznelsova",
+      "vehicle": "Ferrari Purosangue",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-09-26"
     }
   }
 }
