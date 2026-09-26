@@ -13927,6 +13927,21 @@
       "customer": "Thabo Mongalo Simelane",
       "vehicle": "Ford Mustang Coupe",
       "delivery_alerted": false,
+      "pickup_alerted": true,
+      "closed": false,
+      "start_date": "2026-09-26",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
+    },
+    "0010974-Thab-Ford": {
+      "thread_ts": "1790407832.601869",
+      "end_date": "2026-09-27",
+      "plate": "15789",
+      "customer": "Thabo Mongalo Simelane",
+      "vehicle": "Ford Mustang Coupe",
+      "delivery_alerted": false,
       "pickup_alerted": false,
       "closed": false,
       "start_date": "2026-09-26"
