@@ -13979,6 +13979,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010977-AASH-Cadillac": {
+      "thread_ts": "1790438437.709459",
+      "end_date": "2026-10-03",
+      "plate": "44789",
+      "customer": "Aashish Lama",
+      "vehicle": "Cadillac Escalade",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-09-26"
     }
   }
 }
