@@ -13292,7 +13292,7 @@
     },
     "0010930-SHAH-Mercedes-Benz": {
       "thread_ts": "1790082042.088999",
-      "end_date": "2026-09-26",
+      "end_date": "2026-09-27",
       "plate": "19443",
       "customer": "Shahad Hussein Alaulddin Al Khattab",
       "vehicle": "Mercedes-Benz Glb 250",
@@ -13989,7 +13989,11 @@
       "delivery_alerted": false,
       "pickup_alerted": false,
       "closed": false,
-      "start_date": "2026-09-26"
+      "start_date": "2026-09-26",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     }
   }
 }
