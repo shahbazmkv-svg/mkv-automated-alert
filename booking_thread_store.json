@@ -14054,6 +14054,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010982-YOUS-Audi": {
+      "thread_ts": "1790586927.934559",
+      "end_date": "2026-10-14",
+      "plate": "92156",
+      "customer": "Yousif Ahmed Abbas Alkhateeb",
+      "vehicle": "Audi A6",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-09-28"
     }
   }
 }
