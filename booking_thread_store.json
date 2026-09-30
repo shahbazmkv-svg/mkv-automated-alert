@@ -14264,6 +14264,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0010997-FATI-Ford": {
+      "thread_ts": "1790764238.478759",
+      "end_date": "2026-10-05",
+      "plate": "33567",
+      "customer": "Fatima Mohy Eldin Mohamed Ahmed Gabari",
+      "vehicle": "Ford Bronco",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-09-30"
     }
   }
 }
