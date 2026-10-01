@@ -14332,9 +14332,13 @@
       "customer": "Subin Maharjan",
       "vehicle": "Lamborghini Huracan Spyder",
       "delivery_alerted": false,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
-      "start_date": "2026-10-01"
+      "start_date": "2026-10-01",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     }
   }
 }
