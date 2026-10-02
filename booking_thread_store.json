@@ -14369,6 +14369,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0011004-JOHN-Rolls Royce": {
+      "thread_ts": "1790964038.042339",
+      "end_date": "2026-10-04",
+      "plate": "AA/18211",
+      "customer": "John Alex Githua Mwangi",
+      "vehicle": "Rolls Royce Cullinan",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-10-03"
     }
   }
 }
