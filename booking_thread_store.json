@@ -14132,12 +14132,12 @@
     },
     "0010987-AHME-Land Rover": {
       "thread_ts": "1790682327.118269",
-      "end_date": "2026-10-02",
+      "end_date": "2026-10-05",
       "plate": "94545",
       "customer": "Ahmed Chami",
       "vehicle": "Land Rover Sport",
       "delivery_alerted": false,
-      "pickup_alerted": true,
+      "pickup_alerted": false,
       "closed": false,
       "start_date": "2026-09-29",
       "delivery_ts": null,
@@ -14252,7 +14252,7 @@
     },
     "0010995-MTN -Porsche": {
       "thread_ts": "1790762439.977099",
-      "end_date": "2026-10-02",
+      "end_date": "2026-10-03",
       "plate": "64545",
       "customer": "Mtn 1 Car Rental",
       "vehicle": "Porsche Cayman Gt4 Rs",
