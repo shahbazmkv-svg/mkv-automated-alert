@@ -14339,6 +14339,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0011002-MOHA-Porsche": {
+      "thread_ts": "1790955035.363939",
+      "end_date": "2026-10-03",
+      "plate": "42165",
+      "customer": "Mohammad Hassan Hossein Saeidi",
+      "vehicle": "Porsche 911 Turbo",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-10-02"
     }
   }
 }
