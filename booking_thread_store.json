@@ -14454,6 +14454,21 @@
       "delivery_alerted": false,
       "pickup_alerted": false,
       "closed": false,
+      "start_date": "2026-10-05",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
+    },
+    "0011010-REON-Lamborghini": {
+      "thread_ts": "1791120632.481439",
+      "end_date": "2026-10-06",
+      "plate": "94545",
+      "customer": "Reon Donald Marcus Wilson",
+      "vehicle": "Lamborghini Urus S",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
       "start_date": "2026-10-05"
     }
   }
