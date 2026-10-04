@@ -14474,6 +14474,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0011011-MUHA-Mercedes-Benz": {
+      "thread_ts": "1791123326.068089",
+      "end_date": "2026-10-05",
+      "plate": "19443",
+      "customer": "Muhammad Hamza Shabbir Ahmed",
+      "vehicle": "Mercedes-Benz Glb 250",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-10-04"
     }
   }
 }
