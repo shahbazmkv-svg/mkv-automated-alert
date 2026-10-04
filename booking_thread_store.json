@@ -14444,6 +14444,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0011009-MEHD-Bentley": {
+      "thread_ts": "1791119729.562839",
+      "end_date": "2026-10-19",
+      "plate": "33789",
+      "customer": "Mehdi Shams",
+      "vehicle": "Bentley Bentayga",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-10-05"
     }
   }
 }
