@@ -14482,9 +14482,13 @@
       "customer": "Muhammad Hamza Shabbir Ahmed",
       "vehicle": "Mercedes-Benz Glb 250",
       "delivery_alerted": false,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
-      "start_date": "2026-10-04"
+      "start_date": "2026-10-04",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     }
   }
 }
