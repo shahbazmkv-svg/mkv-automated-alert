@@ -14574,7 +14574,11 @@
       "delivery_alerted": false,
       "pickup_alerted": false,
       "closed": false,
-      "start_date": "2026-10-18"
+      "start_date": "2026-10-18",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0011018-AHME-Ferrari": {
       "thread_ts": "1791234971.213619",
@@ -14585,7 +14589,11 @@
       "delivery_alerted": false,
       "pickup_alerted": false,
       "closed": false,
-      "start_date": "2026-10-09"
+      "start_date": "2026-10-09",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0011020-MUHA-Porsche": {
       "thread_ts": "1791234979.064039",
@@ -14596,13 +14604,32 @@
       "delivery_alerted": false,
       "pickup_alerted": false,
       "closed": false,
-      "start_date": "2026-10-06"
+      "start_date": "2026-10-06",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0011017-MOHA-Land Rover": {
       "thread_ts": "1791234987.812549",
       "end_date": "2026-10-09",
       "plate": "77540",
       "customer": "Mohammed Manshah Ali",
+      "vehicle": "Land Rover Svr",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-10-06",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
+    },
+    "0011021-ZAHR-Land Rover": {
+      "thread_ts": "1791235839.078699",
+      "end_date": "2026-10-09",
+      "plate": "77540",
+      "customer": "Zahraa Mohamed",
       "vehicle": "Land Rover Svr",
       "delivery_alerted": false,
       "pickup_alerted": false,
