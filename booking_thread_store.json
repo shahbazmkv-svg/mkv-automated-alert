@@ -14047,7 +14047,7 @@
       "customer": "Denis Boldin",
       "vehicle": "Chevrolet Corvette",
       "delivery_alerted": false,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-09-30",
       "delivery_ts": null,
@@ -14527,7 +14527,7 @@
       "customer": "Uptown Rent A Car",
       "vehicle": "Ferrari Purosangue",
       "delivery_alerted": false,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-10-06",
       "delivery_ts": null,
@@ -14564,6 +14564,50 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0011019-REJA-Cadillac": {
+      "thread_ts": "1791234964.285099",
+      "end_date": "2026-10-25",
+      "plate": "44789",
+      "customer": "Rejan Ismaili",
+      "vehicle": "Cadillac Escalade",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-10-18"
+    },
+    "0011018-AHME-Ferrari": {
+      "thread_ts": "1791234971.213619",
+      "end_date": "2026-10-10",
+      "plate": "T/30933",
+      "customer": "Ahmed Mohamed Elsaied Hussien Badawy",
+      "vehicle": "Ferrari 2022",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-10-09"
+    },
+    "0011020-MUHA-Porsche": {
+      "thread_ts": "1791234979.064039",
+      "end_date": "2026-10-06",
+      "plate": "85925",
+      "customer": "Muhammed Afsal",
+      "vehicle": "Porsche 911 Gt3",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-10-06"
+    },
+    "0011017-MOHA-Land Rover": {
+      "thread_ts": "1791234987.812549",
+      "end_date": "2026-10-09",
+      "plate": "77540",
+      "customer": "Mohammed Manshah Ali",
+      "vehicle": "Land Rover Svr",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-10-06"
     }
   }
 }
