@@ -14534,6 +14534,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0011015-RIFA-Mercedes-Benz": {
+      "thread_ts": "1791219641.921339",
+      "end_date": "2026-11-04",
+      "plate": "19443",
+      "customer": "Rifa Ismael Fayez Ahayek",
+      "vehicle": "Mercedes-Benz Glb 250",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-10-05"
     }
   }
 }
