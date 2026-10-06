@@ -14729,6 +14729,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0011029-TAIS-Ford": {
+      "thread_ts": "1791302439.392059",
+      "end_date": "2026-10-09",
+      "plate": "77490",
+      "customer": "Taisiya Rybakina",
+      "vehicle": "Ford Mustang Coupe",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-10-07"
     }
   }
 }
