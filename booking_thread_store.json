@@ -14774,6 +14774,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0011032-ARTS-Ferrari": {
+      "thread_ts": "1791363639.872959",
+      "end_date": "2026-10-08",
+      "plate": "97019",
+      "customer": "Artsiom Rybakin",
+      "vehicle": "Ferrari Purosangue",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-10-07"
     }
   }
 }
