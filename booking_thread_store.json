@@ -14804,6 +14804,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0011035-HAMM-Ferrari": {
+      "thread_ts": "1791384329.779949",
+      "end_date": "2026-10-08",
+      "plate": "97019",
+      "customer": "Hammad Khan",
+      "vehicle": "Ferrari Purosangue",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-10-07"
     }
   }
 }
