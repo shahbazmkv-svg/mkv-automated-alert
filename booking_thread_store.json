@@ -13792,7 +13792,7 @@
       "customer": "Smart Bros Rent A Car Llc",
       "vehicle": "Audi A3",
       "delivery_alerted": false,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-09-25",
       "delivery_ts": null,
@@ -14287,7 +14287,7 @@
       "customer": "Mtn 1 Rent A Car Llc",
       "vehicle": "Porsche Cayman Gt4 Rs",
       "delivery_alerted": false,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-10-08",
       "delivery_ts": null,
@@ -14692,7 +14692,7 @@
       "customer": "Zahraa Mohamed",
       "vehicle": "Toyota Land Cruiser",
       "delivery_alerted": false,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-10-06",
       "delivery_ts": null,
@@ -14842,9 +14842,13 @@
       "customer": "Kaine Scott Samuels",
       "vehicle": "Mclaren Spider Artura",
       "delivery_alerted": false,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
-      "start_date": "2026-10-08"
+      "start_date": "2026-10-08",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     }
   }
 }
