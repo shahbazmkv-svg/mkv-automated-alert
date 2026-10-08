@@ -14939,6 +14939,28 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0011045-CARZ-Land Rover": {
+      "thread_ts": "1791475244.618929",
+      "end_date": "2026-11-07",
+      "plate": "78043",
+      "customer": "Carzou Ntumba",
+      "vehicle": "Land Rover Defender",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-10-08"
+    },
+    "0011044-JOHN-Chevrolet": {
+      "thread_ts": "1791475253.961869",
+      "end_date": "2026-10-09",
+      "plate": "78042",
+      "customer": "John Alex Githua Mwangi",
+      "vehicle": "Chevrolet Tahoe",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-10-08"
     }
   }
 }
