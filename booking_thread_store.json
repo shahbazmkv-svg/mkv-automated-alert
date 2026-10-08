@@ -14994,6 +14994,21 @@
       "delivery_alerted": false,
       "pickup_alerted": false,
       "closed": false,
+      "start_date": "2026-10-08",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
+    },
+    "0011048-CARZ-Land Rover": {
+      "thread_ts": "1791482441.095669",
+      "end_date": "2026-11-07",
+      "plate": "94545",
+      "customer": "Carzou Ntumba",
+      "vehicle": "Land Rover Sport",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
       "start_date": "2026-10-08"
     }
   }
