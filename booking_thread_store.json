@@ -14864,6 +14864,39 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0011040-ARTS-Porsche": {
+      "thread_ts": "1791446439.435639",
+      "end_date": "2026-10-09",
+      "plate": "64545",
+      "customer": "Artsiom Rybakin",
+      "vehicle": "Porsche Cayman Gt4 Rs",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-10-08"
+    },
+    "0011039-TURG-Ferrari": {
+      "thread_ts": "1791446448.586099",
+      "end_date": "2026-10-09",
+      "plate": "3404",
+      "customer": "Turgay Elikesik",
+      "vehicle": "Ferrari 2023",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-10-08"
+    },
+    "0011041-ARTS-Porsche": {
+      "thread_ts": "1791446456.964889",
+      "end_date": "2026-10-08",
+      "plate": "42165",
+      "customer": "Artsiom Rybakin",
+      "vehicle": "Porsche 911 Turbo",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-10-07"
     }
   }
 }
