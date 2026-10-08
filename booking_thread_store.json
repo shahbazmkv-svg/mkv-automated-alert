@@ -14858,7 +14858,7 @@
       "vehicle": "Land Rover Defender",
       "delivery_alerted": false,
       "pickup_alerted": true,
-      "closed": false,
+      "closed": true,
       "start_date": "2026-10-08",
       "delivery_ts": null,
       "pickup_ts": null,
@@ -14949,7 +14949,11 @@
       "delivery_alerted": false,
       "pickup_alerted": false,
       "closed": false,
-      "start_date": "2026-10-08"
+      "start_date": "2026-10-08",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0011044-JOHN-Chevrolet": {
       "thread_ts": "1791475253.961869",
@@ -14958,9 +14962,13 @@
       "customer": "John Alex Githua Mwangi",
       "vehicle": "Chevrolet Tahoe",
       "delivery_alerted": false,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
-      "start_date": "2026-10-08"
+      "start_date": "2026-10-08",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     }
   }
 }
