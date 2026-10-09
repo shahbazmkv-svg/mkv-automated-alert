@@ -15069,6 +15069,21 @@
       "delivery_alerted": false,
       "pickup_alerted": false,
       "closed": false,
+      "start_date": "2026-10-09",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
+    },
+    "0011055-TURG-Chevrolet": {
+      "thread_ts": "1791541844.145319",
+      "end_date": "2026-10-11",
+      "plate": "72712",
+      "customer": "Turgay Elikesik",
+      "vehicle": "Chevrolet Corvette",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
       "start_date": "2026-10-09"
     }
   }
