@@ -14888,7 +14888,7 @@
       "vehicle": "Ferrari 2023",
       "delivery_alerted": false,
       "pickup_alerted": true,
-      "closed": false,
+      "closed": true,
       "start_date": "2026-10-08",
       "delivery_ts": null,
       "pickup_ts": null,
@@ -15089,6 +15089,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0011056-MANZ-Bentley": {
+      "thread_ts": "1791543642.648959",
+      "end_date": "2026-10-12",
+      "plate": "33789",
+      "customer": "Manzoor Ahmad",
+      "vehicle": "Bentley Bentayga",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-10-09"
     }
   }
 }
