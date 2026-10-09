@@ -15014,6 +15014,28 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0011052-OWEN-Lamborghini": {
+      "thread_ts": "1791532838.204689",
+      "end_date": "2026-10-10",
+      "plate": "94545",
+      "customer": "Owen Mcleod",
+      "vehicle": "Lamborghini Urus S",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-10-09"
+    },
+    "0011051-OWEN-Lamborghini": {
+      "thread_ts": "1791532849.087349",
+      "end_date": "2026-10-10",
+      "plate": "94545",
+      "customer": "Owen Mcleod",
+      "vehicle": "Lamborghini Urus S",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-10-09"
     }
   }
 }
