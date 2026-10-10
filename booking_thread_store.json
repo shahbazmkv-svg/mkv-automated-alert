@@ -15239,6 +15239,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0011066-CARZ-Toyota": {
+      "thread_ts": "1791628233.530699",
+      "end_date": "2026-10-14",
+      "plate": "31727",
+      "customer": "Carzou Ntumba",
+      "vehicle": "Toyota Land Cruiser",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-10-10"
     }
   }
 }
