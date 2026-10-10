@@ -15194,6 +15194,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0011063-NHLA-Ford": {
+      "thread_ts": "1791621927.360569",
+      "end_date": "2026-10-11",
+      "plate": "15789",
+      "customer": "Nhlakanipho Mahlangu",
+      "vehicle": "Ford Mustang Coupe",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-10-10"
     }
   }
 }
