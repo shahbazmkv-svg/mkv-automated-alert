@@ -15299,6 +15299,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0011070-LUKA-Chevrolet": {
+      "thread_ts": "1791635434.778929",
+      "end_date": "2026-10-18",
+      "plate": "72712",
+      "customer": "Luka Kostanjski",
+      "vehicle": "Chevrolet Corvette",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-10-17"
     }
   }
 }
