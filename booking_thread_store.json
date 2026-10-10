@@ -15337,6 +15337,21 @@
       "customer": "Ahmad Abdolbari Gozal",
       "vehicle": "Ferrari Gtb 296",
       "delivery_alerted": false,
+      "pickup_alerted": true,
+      "closed": false,
+      "start_date": "2026-10-10",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
+    },
+    "0011073-ABDU-Land Rover": {
+      "thread_ts": "1791645327.094729",
+      "end_date": "2026-11-08",
+      "plate": "78043",
+      "customer": "Abdul Saud Abdul Bari",
+      "vehicle": "Land Rover Defender",
+      "delivery_alerted": false,
       "pickup_alerted": false,
       "closed": false,
       "start_date": "2026-10-10"
