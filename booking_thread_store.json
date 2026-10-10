@@ -15209,6 +15209,28 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0011065-WAQA-Land Rover": {
+      "thread_ts": "1791624634.244349",
+      "end_date": "2026-10-14",
+      "plate": "55789",
+      "customer": "Waqar Ahmad Mukhtiar Ahmad",
+      "vehicle": "Land Rover Sport",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-10-11"
+    },
+    "0011064-RICA-Lamborghini": {
+      "thread_ts": "1791624641.250599",
+      "end_date": "2026-10-13",
+      "plate": "94545",
+      "customer": "Ricardo Fitzgerald Weekes -Johnson",
+      "vehicle": "Lamborghini Urus S",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-10-10"
     }
   }
 }
