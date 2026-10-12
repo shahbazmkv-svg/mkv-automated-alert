@@ -15404,6 +15404,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0011077-ABDU-Ferrari": {
+      "thread_ts": "1791792929.158019",
+      "end_date": "2026-10-13",
+      "plate": "97019",
+      "customer": "Abdulrahman Yusuf Abdulrahman Mohamed Ali",
+      "vehicle": "Ferrari Purosangue",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-10-12"
     }
   }
 }
