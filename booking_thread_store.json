@@ -15464,6 +15464,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0011082-MAZI-Chevrolet": {
+      "thread_ts": "1791830731.354349",
+      "end_date": "2026-10-14",
+      "plate": "72712",
+      "customer": "Mazin Anwar Anwar Thayyullathil Meethal",
+      "vehicle": "Chevrolet Corvette",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-10-13"
     }
   }
 }
