@@ -15434,6 +15434,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0011080-WAQA-Chevrolet": {
+      "thread_ts": "1791808236.578279",
+      "end_date": "2026-10-15",
+      "plate": "78042",
+      "customer": "Waqar Ahmad Mukhtiar Ahmad",
+      "vehicle": "Chevrolet Tahoe",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-10-13"
     }
   }
 }
