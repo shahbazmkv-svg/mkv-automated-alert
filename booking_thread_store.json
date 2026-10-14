@@ -15554,6 +15554,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0011088-SAIF-Land Rover": {
+      "thread_ts": "1791999928.320309",
+      "end_date": "2026-10-16",
+      "plate": "68620",
+      "customer": "Saif Humaid Saif Al Jahwari",
+      "vehicle": "Land Rover Range Rover Velar",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-10-15"
     }
   }
 }
