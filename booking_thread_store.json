@@ -15562,7 +15562,7 @@
       "customer": "Saif Humaid Saif Al Jahwari",
       "vehicle": "Land Rover Range Rover Velar",
       "delivery_alerted": false,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-10-15",
       "delivery_ts": null,
@@ -15579,7 +15579,11 @@
       "delivery_alerted": false,
       "pickup_alerted": false,
       "closed": false,
-      "start_date": "2026-10-17"
+      "start_date": "2026-10-17",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     }
   }
 }
