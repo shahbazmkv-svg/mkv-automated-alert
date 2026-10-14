@@ -15569,6 +15569,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0011089-PRIM-Ferrari": {
+      "thread_ts": "1792007127.534159",
+      "end_date": "2026-10-19",
+      "plate": "97019",
+      "customer": "Prime Keys Car Rental Llc",
+      "vehicle": "Ferrari Purosangue",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-10-17"
     }
   }
 }
