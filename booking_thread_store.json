@@ -15494,6 +15494,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0011084-KING-Toyota": {
+      "thread_ts": "1791963036.253239",
+      "end_date": "2026-10-23",
+      "plate": "31727",
+      "customer": "Kings Auto Car Rental L.L.C",
+      "vehicle": "Toyota Land Cruiser",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-10-16"
     }
   }
 }
