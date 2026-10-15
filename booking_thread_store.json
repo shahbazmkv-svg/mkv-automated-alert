@@ -15667,9 +15667,13 @@
       "customer": "Ricardo Fitzgerald Weekes -Johnson",
       "vehicle": "Lamborghini Urus S",
       "delivery_alerted": false,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-10-15"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-10-15",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     }
   }
 }
