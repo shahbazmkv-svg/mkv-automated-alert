@@ -15629,6 +15629,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0011093-YURI-Morgan": {
+      "thread_ts": "1792073729.875639",
+      "end_date": "2026-10-17",
+      "plate": "47203",
+      "customer": "Yurik Shahbazyan",
+      "vehicle": "Morgan Morgan Supersport",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-10-16"
     }
   }
 }
