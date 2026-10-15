@@ -15584,6 +15584,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0011090-OFEK-Porsche": {
+      "thread_ts": "1792056635.239759",
+      "end_date": "2026-10-16",
+      "plate": "64545",
+      "customer": "Ofek Azulay",
+      "vehicle": "Porsche Cayman Gt4 Rs",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-10-15"
     }
   }
 }
