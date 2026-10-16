@@ -15689,6 +15689,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0011097-CONT-Mercedes-Benz": {
+      "thread_ts": "1792147531.910849",
+      "end_date": "2026-10-23",
+      "plate": "66789",
+      "customer": "Continental Luxury Car Rental Llc",
+      "vehicle": "Mercedes-Benz 2025",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-10-16"
     }
   }
 }
