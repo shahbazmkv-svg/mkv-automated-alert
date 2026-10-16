@@ -15734,6 +15734,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0011099-MOIU-Lamborghini": {
+      "thread_ts": "1792185326.205359",
+      "end_date": "2026-10-19",
+      "plate": "U/1662",
+      "customer": "Moiud Mohamed Mobark Mostufa",
+      "vehicle": "Lamborghini Urus My20",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-10-17"
     }
   }
 }
