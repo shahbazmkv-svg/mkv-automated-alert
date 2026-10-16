@@ -15714,6 +15714,21 @@
       "delivery_alerted": false,
       "pickup_alerted": false,
       "closed": false,
+      "start_date": "2026-10-16",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
+    },
+    "0011098-RICA-Lamborghini": {
+      "thread_ts": "1792166441.720819",
+      "end_date": "2026-10-18",
+      "plate": "94545",
+      "customer": "Ricardo Fitzgerald Weekes -Johnson",
+      "vehicle": "Lamborghini Urus S",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
       "start_date": "2026-10-16"
     }
   }
