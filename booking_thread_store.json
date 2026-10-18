@@ -15742,7 +15742,7 @@
       "customer": "Moiud Mohamed Mobark Mostufa",
       "vehicle": "Lamborghini Urus My20",
       "delivery_alerted": false,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-10-17",
       "delivery_ts": null,
