@@ -15854,6 +15854,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0011108-CANE-Porsche": {
+      "thread_ts": "1792403128.917129",
+      "end_date": "2026-10-20",
+      "plate": "42165",
+      "customer": "Caner Demir",
+      "vehicle": "Porsche 911 Turbo",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-10-19"
     }
   }
 }
