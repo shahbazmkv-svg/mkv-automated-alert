@@ -15974,6 +15974,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0011116-ESTI-McLaren": {
+      "thread_ts": "1792509329.690209",
+      "end_date": "2026-10-21",
+      "plate": "47041",
+      "customer": "Estifanos Joseph Solomon",
+      "vehicle": "Mclaren Spider Artura",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-10-20"
     }
   }
 }
