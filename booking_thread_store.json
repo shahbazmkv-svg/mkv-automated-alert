@@ -15924,7 +15924,11 @@
       "delivery_alerted": false,
       "pickup_alerted": false,
       "closed": false,
-      "start_date": "2026-10-20"
+      "start_date": "2026-10-20",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0011112-MOHA-McLaren": {
       "thread_ts": "1792485043.323149",
@@ -15935,7 +15939,11 @@
       "delivery_alerted": false,
       "pickup_alerted": false,
       "closed": false,
-      "start_date": "2026-10-20"
+      "start_date": "2026-10-20",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     }
   }
 }
