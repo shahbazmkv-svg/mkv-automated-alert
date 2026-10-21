@@ -16027,9 +16027,24 @@
       "customer": "Ricardo Fitzgerald Weekes -Johnson",
       "vehicle": "Bentley Bentayga",
       "delivery_alerted": false,
+      "pickup_alerted": true,
+      "closed": false,
+      "start_date": "2026-10-21",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
+    },
+    "0011120-ELIA-Lamborghini": {
+      "thread_ts": "1792593927.151109",
+      "end_date": "2026-10-23",
+      "plate": "94545",
+      "customer": "Elias Borji -Chergui",
+      "vehicle": "Lamborghini Urus S",
+      "delivery_alerted": false,
       "pickup_alerted": false,
       "closed": false,
-      "start_date": "2026-10-21"
+      "start_date": "2026-10-22"
     }
   }
 }
