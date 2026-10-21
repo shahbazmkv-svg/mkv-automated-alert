@@ -15923,7 +15923,7 @@
       "vehicle": "Ferrari Purosangue",
       "delivery_alerted": false,
       "pickup_alerted": false,
-      "closed": false,
+      "closed": true,
       "start_date": "2026-10-20",
       "delivery_ts": null,
       "pickup_ts": null,
@@ -16012,9 +16012,13 @@
       "customer": "Muhammad Umar Farooq Yousaf Ali",
       "vehicle": "Morgan Morgan Supersport",
       "delivery_alerted": false,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
-      "start_date": "2026-10-21"
+      "start_date": "2026-10-21",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     }
   }
 }
