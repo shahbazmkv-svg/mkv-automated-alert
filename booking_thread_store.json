@@ -16184,6 +16184,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0011132-AHMA-Ferrari": {
+      "thread_ts": "1792687532.811999",
+      "end_date": "2026-10-26",
+      "plate": "2245",
+      "customer": "Ahmad Abdolbari Gozal",
+      "vehicle": "Ferrari Ferrari 296 Gtb",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-10-25"
     }
   }
 }
