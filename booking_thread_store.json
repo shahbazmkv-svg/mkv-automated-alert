@@ -16079,6 +16079,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0011124-JAID-Mercedes-Benz": {
+      "thread_ts": "1792663243.393049",
+      "end_date": "2026-10-24",
+      "plate": "60137",
+      "customer": "Jaiden John West",
+      "vehicle": "Mercedes-Benz Mercedes  G63",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-10-22"
     }
   }
 }
