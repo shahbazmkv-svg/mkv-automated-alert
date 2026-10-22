@@ -16064,6 +16064,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0011123-Test-GMC": {
+      "thread_ts": "1792652440.555959",
+      "end_date": "2026-10-23",
+      "plate": "69367",
+      "customer": "Test Customer",
+      "vehicle": "Gmc Yukon",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-10-22"
     }
   }
 }
