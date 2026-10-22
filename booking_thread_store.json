@@ -16089,6 +16089,21 @@
       "delivery_alerted": false,
       "pickup_alerted": false,
       "closed": false,
+      "start_date": "2026-10-22",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
+    },
+    "0011126-VLAD-Ford": {
+      "thread_ts": "1792664135.679819",
+      "end_date": "2026-10-23",
+      "plate": "77490",
+      "customer": "Vlad Radu Vasilescu",
+      "vehicle": "Ford Mustang Coupe",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
       "start_date": "2026-10-22"
     }
   }
