@@ -16334,6 +16334,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0011143-TARE-Land Rover": {
+      "thread_ts": "1792840528.230149",
+      "end_date": "2026-10-31",
+      "plate": "77540",
+      "customer": "Tarek Makdessi",
+      "vehicle": "Land Rover Svr",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-10-29"
     }
   }
 }
