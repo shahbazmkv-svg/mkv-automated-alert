@@ -16402,7 +16402,7 @@
       "customer": "Arnold Adrian Peters",
       "vehicle": "Land Rover Defender",
       "delivery_alerted": false,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-10-25",
       "delivery_ts": null,
