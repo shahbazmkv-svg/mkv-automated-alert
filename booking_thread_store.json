@@ -16379,6 +16379,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0011146-ADRI-Porsche": {
+      "thread_ts": "1792915235.942349",
+      "end_date": "2026-10-26",
+      "plate": "42165",
+      "customer": "Adria Berenguera",
+      "vehicle": "Porsche 911 Turbo",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-10-25"
     }
   }
 }
