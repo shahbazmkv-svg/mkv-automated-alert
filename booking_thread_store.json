@@ -16364,6 +16364,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0011145-AHMA-Ferrari": {
+      "thread_ts": "1792908931.200389",
+      "end_date": "2026-10-26",
+      "plate": "U/2245",
+      "customer": "Ahmad Abdolbari Gozal",
+      "vehicle": "Ferrari F8",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-10-25"
     }
   }
 }
