@@ -16574,6 +16574,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0011159-Jhav-Cadillac": {
+      "thread_ts": "1793132128.560989",
+      "end_date": "2026-10-30",
+      "plate": "44789",
+      "customer": "Jhavon Delroy Fullerton",
+      "vehicle": "Cadillac Escalade",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-10-28"
     }
   }
 }
