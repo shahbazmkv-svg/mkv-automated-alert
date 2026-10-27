@@ -16529,6 +16529,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0011156-JOSE-Ford": {
+      "thread_ts": "1793106043.054869",
+      "end_date": "2026-10-30",
+      "plate": "77490",
+      "customer": "Jose Luis Marques Duarte",
+      "vehicle": "Ford Mustang Coupe",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-10-28"
     }
   }
 }
