@@ -16544,6 +16544,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0011157-S LI-Jetour": {
+      "thread_ts": "1793112331.246549",
+      "end_date": "2026-11-26",
+      "plate": "81946",
+      "customer": "S Line Edition Car Rental L.L.C",
+      "vehicle": "Jetour T2",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-10-27"
     }
   }
 }
