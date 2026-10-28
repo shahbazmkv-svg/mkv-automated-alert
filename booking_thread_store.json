@@ -16589,6 +16589,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0011160-ALIC-Ferrari": {
+      "thread_ts": "1793167241.823849",
+      "end_date": "2026-10-31",
+      "plate": "P/6315",
+      "customer": "Alican Aras",
+      "vehicle": "Ferrari F8",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-10-29"
     }
   }
 }
