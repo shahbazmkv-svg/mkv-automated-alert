@@ -16619,6 +16619,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0011162-PARA-Morgan": {
+      "thread_ts": "1793176235.763189",
+      "end_date": "2026-10-29",
+      "plate": "47203",
+      "customer": "Paradise Vip Car Rental  L.L.C",
+      "vehicle": "Morgan Morgan Supersport",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-10-28"
     }
   }
 }
