@@ -16649,6 +16649,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0011166-BERK-Ferrari": {
+      "thread_ts": "1793277036.658709",
+      "end_date": "2026-10-30",
+      "plate": "F8 F-7536",
+      "customer": "Berk Genc",
+      "vehicle": "Ferrari Ferrari F8 Spyder",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-10-29"
     }
   }
 }
