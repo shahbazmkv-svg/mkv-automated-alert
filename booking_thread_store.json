@@ -16702,13 +16702,35 @@
       "customer": "Kenan Dilber",
       "vehicle": "Mercedes-Benz Mercedes G3 (Brabus)",
       "delivery_alerted": false,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-10-29",
       "delivery_ts": null,
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0011172-ALIC-Cadillac": {
+      "thread_ts": "1793286928.094439",
+      "end_date": "2026-11-06",
+      "plate": "44789",
+      "customer": "Alican Aras",
+      "vehicle": "Cadillac Escalade",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-10-30"
+    },
+    "0011173-JEAN-Ferrari": {
+      "thread_ts": "1793286933.059789",
+      "end_date": "2026-10-30",
+      "plate": "84887",
+      "customer": "Jean Paul Mouawad",
+      "vehicle": "Ferrari 2024",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-10-29"
     }
   }
 }
