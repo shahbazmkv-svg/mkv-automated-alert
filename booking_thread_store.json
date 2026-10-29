@@ -16657,6 +16657,21 @@
       "customer": "Berk Genc",
       "vehicle": "Ferrari Ferrari F8 Spyder",
       "delivery_alerted": false,
+      "pickup_alerted": true,
+      "closed": false,
+      "start_date": "2026-10-29",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
+    },
+    "0011167-MURA-AC": {
+      "thread_ts": "1793277927.852019",
+      "end_date": "2026-10-31",
+      "plate": "R/47195",
+      "customer": "Murat Solmaz",
+      "vehicle": "Ac Lambirghini Huracan",
+      "delivery_alerted": false,
       "pickup_alerted": false,
       "closed": false,
       "start_date": "2026-10-29"
