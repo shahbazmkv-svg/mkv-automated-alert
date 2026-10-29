@@ -16739,6 +16739,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0011174-JEAN-Ferrari": {
+      "thread_ts": "1793294127.895069",
+      "end_date": "2026-10-30",
+      "plate": "3157",
+      "customer": "Jean Paul Mouawad",
+      "vehicle": "Ferrari 2021",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-10-29"
     }
   }
 }
