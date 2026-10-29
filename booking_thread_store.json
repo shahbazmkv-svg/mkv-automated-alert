@@ -16634,6 +16634,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0011165-J J -Mercedes-Benz": {
+      "thread_ts": "1793268933.742379",
+      "end_date": "2026-11-02",
+      "plate": "19503",
+      "customer": "J J S Car Rental Llc",
+      "vehicle": "Mercedes-Benz Glb 250",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-10-29"
     }
   }
 }
