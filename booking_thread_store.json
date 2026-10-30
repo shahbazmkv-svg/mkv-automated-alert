@@ -16794,6 +16794,21 @@
       "delivery_alerted": false,
       "pickup_alerted": false,
       "closed": false,
+      "start_date": "2026-10-30",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
+    },
+    "0011178-JEAN-Ferrari": {
+      "thread_ts": "1793352633.399909",
+      "end_date": "2026-10-31",
+      "plate": "46797",
+      "customer": "Jean Paul Mouawad",
+      "vehicle": "Ferrari F8 Tributo",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
       "start_date": "2026-10-30"
     }
   }
