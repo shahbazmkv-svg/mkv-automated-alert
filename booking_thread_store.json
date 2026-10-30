@@ -16889,6 +16889,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0011184-EMMA-Land Rover": {
+      "thread_ts": "1793377836.533509",
+      "end_date": "2026-11-01",
+      "plate": "83762",
+      "customer": "Emmanuel Wonder Oluwatosin Adewole",
+      "vehicle": "Land Rover Defender",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-10-30"
     }
   }
 }
