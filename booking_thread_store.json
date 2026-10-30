@@ -16844,6 +16844,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0011181-SMAR-Chevrolet": {
+      "thread_ts": "1793367033.956719",
+      "end_date": "2026-11-01",
+      "plate": "72712",
+      "customer": "Smart Bros Rent A Car Llc",
+      "vehicle": "Chevrolet Corvette",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-10-30"
     }
   }
 }
