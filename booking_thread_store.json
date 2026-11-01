@@ -17024,6 +17024,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0011196-RAMZ-Toyota": {
+      "thread_ts": "1793547030.071199",
+      "end_date": "2026-11-03",
+      "plate": "31727",
+      "customer": "Ramzan Khan Hassan Khan",
+      "vehicle": "Toyota Land Cruiser",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-11-01"
     }
   }
 }
