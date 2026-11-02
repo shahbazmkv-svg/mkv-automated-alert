@@ -17099,6 +17099,28 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0011203-ESTI-Bentley": {
+      "thread_ts": "1793629852.510899",
+      "end_date": "2026-11-03",
+      "plate": "33789",
+      "customer": "Estifanos Joseph Solomon",
+      "vehicle": "Bentley Bentayga",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-11-02"
+    },
+    "0011202-BERK-Lamborghini": {
+      "thread_ts": "1793629861.858309",
+      "end_date": "2026-11-05",
+      "plate": "94545",
+      "customer": "Berk Genc",
+      "vehicle": "Lamborghini Urus S",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-11-02"
     }
   }
 }
