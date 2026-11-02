@@ -17159,6 +17159,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0011206-JAN -Toyota": {
+      "thread_ts": "1793645128.110509",
+      "end_date": "2026-11-03",
+      "plate": "31727",
+      "customer": "Jan Kudrinski",
+      "vehicle": "Toyota Land Cruiser",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-11-02"
     }
   }
 }
