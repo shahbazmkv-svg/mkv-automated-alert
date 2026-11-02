@@ -17129,6 +17129,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0011204-MURA-Lamborghini": {
+      "thread_ts": "1793632527.657399",
+      "end_date": "2026-11-04",
+      "plate": "CC/44769",
+      "customer": "Murat Solmaz",
+      "vehicle": "Lamborghini Spider",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-11-02"
     }
   }
 }
