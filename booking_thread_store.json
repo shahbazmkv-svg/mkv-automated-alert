@@ -17189,6 +17189,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0011208-NELS-Lamborghini": {
+      "thread_ts": "1793687432.389659",
+      "end_date": "2026-11-05",
+      "plate": "C / 13587",
+      "customer": "Nelson Gomes Ribeiro",
+      "vehicle": "Lamborghini Huracan",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-11-03"
     }
   }
 }
