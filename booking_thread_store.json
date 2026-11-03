@@ -17222,14 +17222,18 @@
     },
     "0011211-J J -Land Rover": {
       "thread_ts": "1793708124.516999",
-      "end_date": "2026-11-06",
+      "end_date": "2026-11-07",
       "plate": "68620",
       "customer": "J J S Car Rental Llc",
       "vehicle": "Land Rover Range Rover Velar",
       "delivery_alerted": false,
       "pickup_alerted": false,
       "closed": false,
-      "start_date": "2026-11-03"
+      "start_date": "2026-11-03",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     }
   }
 }
