@@ -17264,6 +17264,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0011214-ROUE-Mercedes-Benz": {
+      "thread_ts": "1793714439.606789",
+      "end_date": "2026-11-17",
+      "plate": "19503",
+      "customer": "Roueed Nuri",
+      "vehicle": "Mercedes-Benz Glb 250",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-11-04"
     }
   }
 }
