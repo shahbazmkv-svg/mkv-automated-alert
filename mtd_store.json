@@ -1,59 +1,2926 @@
 {
-  "month": "2026-11",
-  "days": {
-    "2026-10-31": {
-      "a_r_Unassigned": 4,
-      "a_t_Unassigned": 0,
-      "s_Instagram DMs": 6,
-      "g_Unknown": 6,
-      "a_r_Rafithath-MKV": 1,
-      "a_t_Rafithath-MKV": 0,
-      "a_r_Reham-MKV": 2,
-      "a_t_Reham-MKV": 2,
-      "s_Google Ads": 2,
-      "g_Qualified lead": 2,
-      "a_r_Tapan-MKV": 1,
-      "a_t_Tapan-MKV": 0
-    },
-    "2026-11-01": {
-      "a_r_Rafithath-MKV": 3,
-      "a_t_Rafithath-MKV": 3,
-      "s_Google Ads": 3,
-      "g_Converted lead": 1,
-      "g_Qualified lead": 2,
-      "a_r_Tapan-MKV": 6,
-      "a_t_Tapan-MKV": 0,
-      "s_Instagram DMs": 10,
-      "g_Unknown": 10,
-      "a_r_Unassigned": 4,
-      "a_t_Unassigned": 0
-    },
-    "2026-11-03": {
-      "a_r_Rafithath-MKV": 4,
-      "a_t_Rafithath-MKV": 0,
-      "s_Instagram DMs": 11,
-      "g_Unknown": 11,
-      "a_r_Unassigned": 7,
-      "a_t_Unassigned": 3,
-      "a_r_Reham-MKV": 2,
-      "a_t_Reham-MKV": 1,
-      "s_Google Ads": 3,
-      "g_Qualified lead": 4,
-      "a_r_Tapan-MKV": 5,
-      "a_t_Tapan-MKV": 0,
-      "s_Website": 2,
-      "s_Facebook / Instagram": 2,
-      "g_Lead created": 3
-    },
-    "2026-11-04": {
-      "a_r_Unassigned": 2,
-      "a_t_Unassigned": 0,
-      "s_Instagram DMs": 10,
-      "g_Unknown": 10,
-      "a_r_Tapan-MKV": 7,
-      "a_t_Tapan-MKV": 0,
-      "a_r_MKV Luxury": 1,
-      "a_t_MKV Luxury": 0
-    }
+ "convs": {
+  "6ab0588c3be9a1a8628addf2": {
+   "agent": "Unassigned",
+   "channel": "Instagram",
+   "contact": "6ab0588c3be9a1a8628adde6",
+   "date": "2026-09-21",
+   "status": "OPEN"
+  },
+  "6ab0a5b232fb11232eaaa8eb": {
+   "agent": "Ali Azlan",
+   "channel": "Rent to Own",
+   "contact": "6ab0a5b232fb11232eaaa8e2",
+   "date": "2026-09-21",
+   "status": "OPEN"
+  },
+  "6ab0f2b47cbeb5cead0a4a71": {
+   "agent": "Tapan-MKV",
+   "channel": "Main",
+   "contact": "6ab0f2b47cbeb5cead0a4a68",
+   "date": "2026-09-21",
+   "status": "CLOSE"
+  },
+  "6ab11013a0085d1c80fd67b8": {
+   "agent": "Tapan-MKV",
+   "channel": "Instagram",
+   "contact": "6ab11013a0085d1c80fd6797",
+   "date": "2026-09-21",
+   "status": "CLOSE"
+  },
+  "6ab129fb90ae56ebc4c3ff77": {
+   "agent": "Tapan-MKV",
+   "channel": "Instagram",
+   "contact": "6a6f0c18e2810d3f1d35211d",
+   "date": "2026-09-21",
+   "status": "CLOSE"
+  },
+  "6ab1851505e7290de0667018": {
+   "agent": "Tapan-MKV",
+   "channel": "Car Rental",
+   "contact": "67ebd0b58a5af74ffb2faa36",
+   "date": "2026-09-21",
+   "status": "OPEN"
+  },
+  "6ab1930b7ebbb3a68a759a28": {
+   "agent": "Bot: RTO MKV",
+   "channel": "Rent to Own",
+   "contact": "6ab1930a7ebbb3a68a759a1f",
+   "date": "2026-09-22",
+   "status": "OPEN"
+  },
+  "6ab237baee1c2a20afd9038c": {
+   "agent": "Tapan-MKV",
+   "channel": "Main",
+   "contact": "6ab237baee1c2a20afd90383",
+   "date": "2026-09-22",
+   "status": "CLOSE"
+  },
+  "6ab245b61cdc03df92359b6f": {
+   "agent": "Unassigned",
+   "channel": "Instagram",
+   "contact": "6ab245b61cdc03df92359b59",
+   "date": "2026-09-22",
+   "status": "OPEN"
+  },
+  "6ab26a53063b02dd663a5f22": {
+   "agent": "Tapan-MKV",
+   "channel": "Main",
+   "contact": "6ab26a53063b02dd663a5f19",
+   "date": "2026-09-22",
+   "status": "CLOSE"
+  },
+  "6ab273382177c2ace71da5ac": {
+   "agent": "MKV Luxury",
+   "channel": "Main",
+   "contact": "6ab237baee1c2a20afd90383",
+   "date": "2026-09-22",
+   "status": "CLOSE"
+  },
+  "6ab277b1063b02dd663d1154": {
+   "agent": "MKV Luxury",
+   "channel": "Main",
+   "contact": "6ab277b1063b02dd663d114b",
+   "date": "2026-09-22",
+   "status": "CLOSE"
+  },
+  "6ab2d36c061dd500b1c28b94": {
+   "agent": "Rafithath-MKV",
+   "channel": "Instagram",
+   "contact": "6ab2d36c061dd500b1c28b7e",
+   "date": "2026-09-22",
+   "status": "OPEN"
+  },
+  "6ab35914804814ed3c225780": {
+   "agent": "Tapan-MKV",
+   "channel": "Main",
+   "contact": "6ab35914804814ed3c225777",
+   "date": "2026-09-23",
+   "status": "CLOSE"
+  },
+  "6ab36b72ae5628880ca9a462": {
+   "agent": "Tapan-MKV",
+   "channel": "Main",
+   "contact": "6ab36b72ae5628880ca9a455",
+   "date": "2026-09-23",
+   "status": "CLOSE"
+  },
+  "6ab3786f2aebe86c49eaa1ef": {
+   "agent": "Tapan-MKV",
+   "channel": "Main",
+   "contact": "6ab0f2b47cbeb5cead0a4a68",
+   "date": "2026-09-23",
+   "status": "CLOSE"
+  },
+  "6ab3934dae5628880cb0f254": {
+   "agent": "Reham-MKV",
+   "channel": "Instagram",
+   "contact": "6ab3934dae5628880cb0f248",
+   "date": "2026-09-23",
+   "status": "OPEN"
+  },
+  "6ab3a4f5804814ed3c2fd33a": {
+   "agent": "Unassigned",
+   "channel": "Instagram",
+   "contact": "6ab3a4f5804814ed3c2fd31a",
+   "date": "2026-09-23",
+   "status": "OPEN"
+  },
+  "6ab3a7ac813327db090a6e40": {
+   "agent": "Ali Azlan",
+   "channel": "Rent to Own",
+   "contact": "6ab3a7ac813327db090a6e37",
+   "date": "2026-09-23",
+   "status": "OPEN"
+  },
+  "6ab3ed9d31d6e9bf54287e44": {
+   "agent": "Unassigned",
+   "channel": "Instagram",
+   "contact": "6ab3ed9d31d6e9bf54287e36",
+   "date": "2026-09-23",
+   "status": "OPEN"
+  },
+  "6ab3fce9ae5628880cc4b401": {
+   "agent": "Tapan-MKV",
+   "channel": "Car Rental",
+   "contact": "6ab3fce9ae5628880cc4b3f8",
+   "date": "2026-09-23",
+   "status": "CLOSE"
+  },
+  "6ab403d05f33acb6d9f25522": {
+   "agent": "Unassigned",
+   "channel": "Rent to Own",
+   "contact": "6ab403d05f33acb6d9f25519",
+   "date": "2026-09-23",
+   "status": "OPEN"
+  },
+  "6ab4410aae5628880ccb99ed": {
+   "agent": "Tapan-MKV",
+   "channel": "Main",
+   "contact": "6ab4410aae5628880ccb99e4",
+   "date": "2026-09-24",
+   "status": "CLOSE"
+  },
+  "6ab524508bb9b1f51aa270c3": {
+   "agent": "Tapan-MKV",
+   "channel": "Main",
+   "contact": "6ab524508bb9b1f51aa270ba",
+   "date": "2026-09-24",
+   "status": "CLOSE"
+  },
+  "6ab55902c7d92993cf3c94f4": {
+   "agent": "Tapan-MKV",
+   "channel": "Instagram",
+   "contact": "6ab55901c7d92993cf3c94e8",
+   "date": "2026-09-24",
+   "status": "CLOSE"
+  },
+  "6ab60fc4506bc20943570a47": {
+   "agent": "Tapan-MKV",
+   "channel": "Main",
+   "contact": "6ab60fc4506bc20943570a3e",
+   "date": "2026-09-25",
+   "status": "CLOSE"
+  },
+  "6ab61089ec489970835723f9": {
+   "agent": "Tapan-MKV",
+   "channel": "Instagram",
+   "contact": "6ab61089ec489970835723ed",
+   "date": "2026-09-25",
+   "status": "CLOSE"
+  },
+  "6ab622ae506bc209435a4453": {
+   "agent": "Tapan-MKV",
+   "channel": "Main",
+   "contact": "6ab622ae506bc209435a444a",
+   "date": "2026-09-25",
+   "status": "CLOSE"
+  },
+  "6ab62319be5b770debbba26b": {
+   "agent": "Tapan-MKV",
+   "channel": "Main",
+   "contact": "6ab622ae506bc209435a444a",
+   "date": "2026-09-25",
+   "status": "CLOSE"
+  },
+  "6ab63b81be5b770debbfce39": {
+   "agent": "Ali Azlan",
+   "channel": "Rent to Own",
+   "contact": "66ed8e5db0a59f5c4d329a8b",
+   "date": "2026-09-25",
+   "status": "OPEN"
+  },
+  "6ab68f66fbcf94c7ecfa3a67": {
+   "agent": "Tapan-MKV",
+   "channel": "Car Rental",
+   "contact": "6ab3fce9ae5628880cc4b3f8",
+   "date": "2026-09-25",
+   "status": "CLOSE"
+  },
+  "6ab750e94cf6f59c15e27292": {
+   "agent": "Tapan-MKV",
+   "channel": "Main",
+   "contact": "6ab750e94cf6f59c15e27289",
+   "date": "2026-09-26",
+   "status": "CLOSE"
+  },
+  "6ab7ce3efbcf94c7ec1ea1be": {
+   "agent": "Tapan-MKV",
+   "channel": "Instagram",
+   "contact": "6ab7ce3efbcf94c7ec1ea1a4",
+   "date": "2026-09-26",
+   "status": "CLOSE"
+  },
+  "6ab7fec4fc0ba5880fa22301": {
+   "agent": "MKV Luxury",
+   "channel": "Rent to Own",
+   "contact": "6ab7fec4fc0ba5880fa222f3",
+   "date": "2026-09-26",
+   "status": "OPEN"
+  },
+  "6ab8bd11c9d9a658f4a997ce": {
+   "agent": "Tapan-MKV",
+   "channel": "Instagram",
+   "contact": "6ab7ce3efbcf94c7ec1ea1a4",
+   "date": "2026-09-26",
+   "status": "CLOSE"
+  },
+  "6ab8bd3a5def46eb704a835d": {
+   "agent": "Tapan-MKV",
+   "channel": "Main",
+   "contact": "6ab8bd3a5def46eb704a8354",
+   "date": "2026-09-27",
+   "status": "CLOSE"
+  },
+  "6ab8f912e7c244b728063ac2": {
+   "agent": "Tapan-MKV",
+   "channel": "Instagram",
+   "contact": "6ab7ce3efbcf94c7ec1ea1a4",
+   "date": "2026-09-27",
+   "status": "CLOSE"
+  },
+  "6ab8f9befc0ba5880fb777eb": {
+   "agent": "Tapan-MKV",
+   "channel": "Instagram",
+   "contact": "6ab8f9befc0ba5880fb777e1",
+   "date": "2026-09-27",
+   "status": "CLOSE"
+  },
+  "6ab8fa0520220d31de3c8325": {
+   "agent": "Tapan-MKV",
+   "channel": "Car Rental",
+   "contact": "6ab8fa0520220d31de3c8312",
+   "date": "2026-09-27",
+   "status": "CLOSE"
+  },
+  "6ab8fb7ef1644ec518d0b314": {
+   "agent": "Tapan-MKV",
+   "channel": "Instagram",
+   "contact": "6ab7ce3efbcf94c7ec1ea1a4",
+   "date": "2026-09-27",
+   "status": "CLOSE"
+  },
+  "6ab909fdfbcf94c7ec3d5b62": {
+   "agent": "MKV Luxury",
+   "channel": "Main",
+   "contact": "6ab909fdfbcf94c7ec3d5b59",
+   "date": "2026-09-27",
+   "status": "CLOSE"
+  },
+  "6ab944d420220d31de46a2c0": {
+   "agent": "Unassigned",
+   "channel": "Instagram",
+   "contact": "6ab944d420220d31de46a2ae",
+   "date": "2026-09-27",
+   "status": "OPEN"
+  },
+  "6ab970ee5def46eb7061184e": {
+   "agent": "Rafithath-MKV",
+   "channel": "Main",
+   "contact": "6ab970ee5def46eb70611845",
+   "date": "2026-09-27",
+   "status": "CLOSE"
+  },
+  "6ab984e6e7c244b728150bef": {
+   "agent": "Unassigned",
+   "channel": "Instagram",
+   "contact": "6ab11013a0085d1c80fd6797",
+   "date": "2026-09-28",
+   "status": "OPEN"
+  },
+  "6ab985bd20220d31de4b5100": {
+   "agent": "Unassigned",
+   "channel": "Instagram",
+   "contact": "6ab985bd20220d31de4b50f6",
+   "date": "2026-09-28",
+   "status": "OPEN"
+  },
+  "6aba30514226c8d93a104772": {
+   "agent": "Reham-MKV",
+   "channel": "Instagram",
+   "contact": "6aba30514226c8d93a104766",
+   "date": "2026-09-28",
+   "status": "OPEN"
+  },
+  "6abb612e8507ca711b1bb115": {
+   "agent": "MKV Luxury",
+   "channel": "Main",
+   "contact": "6abb612e8507ca711b1bb10c",
+   "date": "2026-09-29",
+   "status": "CLOSE"
+  },
+  "6abb84bcf0ac9a3565032c88": {
+   "agent": "Tapan-MKV",
+   "channel": "Instagram",
+   "contact": "6978cbc30a2183ba33a5c80a",
+   "date": "2026-09-29",
+   "status": "OPEN"
+  },
+  "6abba033f0ac9a3565085fc7": {
+   "agent": "Reham-MKV",
+   "channel": "Car Rental",
+   "contact": "6abba033f0ac9a3565085fbe",
+   "date": "2026-09-29",
+   "status": "CLOSE"
+  },
+  "6abbf6eef0ac9a356518ffac": {
+   "agent": "MKV Luxury",
+   "channel": "Main",
+   "contact": "6abbf6eef0ac9a356518ffa3",
+   "date": "2026-09-29",
+   "status": "CLOSE"
+  },
+  "6abc104427359e4ba5cbc1bd": {
+   "agent": "Unassigned",
+   "channel": "Instagram",
+   "contact": "68ccd6dd56cfc96911dfd095",
+   "date": "2026-09-29",
+   "status": "OPEN"
+  },
+  "6abc4c6793c1c81fb9abf543": {
+   "agent": "Unassigned",
+   "channel": "Instagram",
+   "contact": "6abc4c6793c1c81fb9abf537",
+   "date": "2026-09-30",
+   "status": "OPEN"
+  },
+  "6abc9c2022eef372a5449894": {
+   "agent": "Tapan-MKV",
+   "channel": "Main",
+   "contact": "69c3ec7d46d0746af3270864",
+   "date": "2026-09-30",
+   "status": "CLOSE"
+  },
+  "6abca20c26c404122dc50509": {
+   "agent": "Tapan-MKV",
+   "channel": "Main",
+   "contact": "69c3ec7d46d0746af3270864",
+   "date": "2026-09-30",
+   "status": "CLOSE"
+  },
+  "6abca6e33e5ee5f6f31cacb3": {
+   "agent": "Tapan-MKV",
+   "channel": "Main",
+   "contact": "6abca6e33e5ee5f6f31cacaa",
+   "date": "2026-09-30",
+   "status": "CLOSE"
+  },
+  "6abcc06629b2904d616fadc4": {
+   "agent": "Tapan-MKV",
+   "channel": "Main",
+   "contact": "6abcc06629b2904d616fadb5",
+   "date": "2026-09-30",
+   "status": "CLOSE"
+  },
+  "6abcdd3213da65350702bd3e": {
+   "agent": "Tapan-MKV",
+   "channel": "Main",
+   "contact": "6abcc06629b2904d616fadb5",
+   "date": "2026-09-30",
+   "status": "CLOSE"
+  },
+  "6abd12d0ce71f13ae0e9db76": {
+   "agent": "Tapan-MKV",
+   "channel": "Main",
+   "contact": "6abd12d0ce71f13ae0e9db68",
+   "date": "2026-09-30",
+   "status": "CLOSE"
+  },
+  "6abd293230593479ec6e6352": {
+   "agent": "Bot: RTO MKV",
+   "channel": "Rent to Own",
+   "contact": "6abd293230593479ec6e6349",
+   "date": "2026-09-30",
+   "status": "OPEN"
+  },
+  "6abd6d8e214ebd6094f906cd": {
+   "agent": "Tapan-MKV",
+   "channel": "Main",
+   "contact": "6abd6d8e214ebd6094f906c4",
+   "date": "2026-10-01",
+   "status": "OPEN"
+  },
+  "6abdb591214ebd6094fcb2c1": {
+   "agent": "Unassigned",
+   "channel": "Instagram",
+   "contact": "6abdb591214ebd6094fcb2af",
+   "date": "2026-10-01",
+   "status": "OPEN"
+  },
+  "6abddb7aa0cfd9e7351ecb10": {
+   "agent": "Unassigned",
+   "channel": "Instagram",
+   "contact": "6abddb7aa0cfd9e7351ecb04",
+   "date": "2026-10-01",
+   "status": "OPEN"
+  },
+  "6abe1887214ebd609408efec": {
+   "agent": "Tapan-MKV",
+   "channel": "Instagram",
+   "contact": "6aac9d0b1ba546e60cd7edab",
+   "date": "2026-10-01",
+   "status": "CLOSE"
+  },
+  "6abe189b49eeed84eaaed8c5": {
+   "agent": "Unassigned",
+   "channel": "Instagram",
+   "contact": "6aac9d0b1ba546e60cd7edab",
+   "date": "2026-10-01",
+   "status": "OPEN"
+  },
+  "6abe1d4d214ebd609409d164": {
+   "agent": "Tapan-MKV",
+   "channel": "Main",
+   "contact": "6abe1d4d214ebd609409d15b",
+   "date": "2026-10-01",
+   "status": "CLOSE"
+  },
+  "6abecece222666122681408e": {
+   "agent": "Unassigned",
+   "channel": "Instagram",
+   "contact": "6abecece2226661226814082",
+   "date": "2026-10-02",
+   "status": "OPEN"
+  },
+  "6abf19a90f722435f85f8122": {
+   "agent": "Unassigned",
+   "channel": "Instagram",
+   "contact": "6abf19a90f722435f85f8106",
+   "date": "2026-10-02",
+   "status": "OPEN"
+  },
+  "6abf1f4c0f722435f85fecb4": {
+   "agent": "Unassigned",
+   "channel": "Car Rental",
+   "contact": "6abf1f4c0f722435f85fecab",
+   "date": "2026-10-02",
+   "status": "OPEN"
+  },
+  "6abf9afb623a27d84574e633": {
+   "agent": "MKV Luxury",
+   "channel": "Main",
+   "contact": "6abf9afb623a27d84574e62a",
+   "date": "2026-10-02",
+   "status": "CLOSE"
+  },
+  "6abfc93a22266612269d51f5": {
+   "agent": "Unassigned",
+   "channel": "Instagram",
+   "contact": "6abfc93922266612269d51dd",
+   "date": "2026-10-02",
+   "status": "OPEN"
+  },
+  "6abfe4012226661226a0fcaf": {
+   "agent": "Tapan-MKV",
+   "channel": "Instagram",
+   "contact": "6abfe4012226661226a0fca5",
+   "date": "2026-10-02",
+   "status": "CLOSE"
+  },
+  "6ac0971d623a27d8458acb33": {
+   "agent": "Tapan-MKV",
+   "channel": "Main",
+   "contact": "699cb66be693ae3be7b8947c",
+   "date": "2026-10-03",
+   "status": "CLOSE"
+  },
+  "6ac0a004623a27d8458c40b5": {
+   "agent": "Tapan-MKV",
+   "channel": "Main",
+   "contact": "6ac0a004623a27d8458c40aa",
+   "date": "2026-10-03",
+   "status": "CLOSE"
+  },
+  "6ac0c8beca2ce61de0e9b1be": {
+   "agent": "Tapan-MKV",
+   "channel": "Instagram",
+   "contact": "6abfe4012226661226a0fca5",
+   "date": "2026-10-03",
+   "status": "CLOSE"
+  },
+  "6ac0cbd40f722435f89018a3": {
+   "agent": "Tapan-MKV",
+   "channel": "Main",
+   "contact": "6ac0cbd40f722435f8901895",
+   "date": "2026-10-03",
+   "status": "CLOSE"
+  },
+  "6ac0f5ec0f722435f896cde8": {
+   "agent": "Unassigned",
+   "channel": "Rent to Own",
+   "contact": "6ac0f5ec0f722435f896cddf",
+   "date": "2026-10-03",
+   "status": "OPEN"
+  },
+  "6ac12db50f722435f89e6576": {
+   "agent": "Tapan-MKV",
+   "channel": "Main",
+   "contact": "6ac12db50f722435f89e6569",
+   "date": "2026-10-03",
+   "status": "CLOSE"
+  },
+  "6ac1c6c70f722435f8a51f63": {
+   "agent": "Bot: RTO MKV",
+   "channel": "Rent to Own",
+   "contact": "6ac1c6c70f722435f8a51f5a",
+   "date": "2026-10-04",
+   "status": "OPEN"
+  },
+  "6ac22c16a7171a7fdf6c94f6": {
+   "agent": "Unassigned",
+   "channel": "Rent to Own",
+   "contact": "6ac22c16a7171a7fdf6c94ed",
+   "date": "2026-10-04",
+   "status": "OPEN"
+  },
+  "6ac352c70f722435f8cb7545": {
+   "agent": "Tapan-MKV",
+   "channel": "Main",
+   "contact": "6ac0a004623a27d8458c40aa",
+   "date": "2026-10-05",
+   "status": "CLOSE"
+  },
+  "6ac3d5f60f722435f8e3451b": {
+   "agent": "Rafithath-MKV",
+   "channel": "Car Rental",
+   "contact": "6731c809836eedbf2e157741",
+   "date": "2026-10-05",
+   "status": "OPEN"
+  },
+  "6ac3d97da7171a7fdf9f7f70": {
+   "agent": "Tapan-MKV",
+   "channel": "Car Rental",
+   "contact": "6ac3d97da7171a7fdf9f7f67",
+   "date": "2026-10-05",
+   "status": "CLOSE"
+  },
+  "6ac3dc8e8953c96cf8e3b40d": {
+   "agent": "Unassigned",
+   "channel": "Rent to Own",
+   "contact": "6ac3dc8e8953c96cf8e3b404",
+   "date": "2026-10-05",
+   "status": "OPEN"
+  },
+  "6ac47c188e9dfda840c0bd65": {
+   "agent": "Tapan-MKV",
+   "channel": "Main",
+   "contact": "6ac47c188e9dfda840c0bd5c",
+   "date": "2026-10-06",
+   "status": "CLOSE"
+  },
+  "6ac48d4a9e3bfbf1d1b2eb97": {
+   "agent": "Tapan-MKV",
+   "channel": "Car Rental",
+   "contact": "6ac48d4a9e3bfbf1d1b2eb8e",
+   "date": "2026-10-06",
+   "status": "CLOSE"
+  },
+  "6ac49cdfad4a57dd0baaa736": {
+   "agent": "Unassigned",
+   "channel": "Instagram",
+   "contact": "6ac49cdfad4a57dd0baaa72a",
+   "date": "2026-10-06",
+   "status": "OPEN"
+  },
+  "6ac4d4019e3bfbf1d1bf9ad0": {
+   "agent": "Tapan-MKV",
+   "channel": "Main",
+   "contact": "6ac4d4019e3bfbf1d1bf9ac5",
+   "date": "2026-10-06",
+   "status": "CLOSE"
+  },
+  "6ac4d8b02c7608a1dc5b0891": {
+   "agent": "Unassigned",
+   "channel": "Instagram",
+   "contact": "6ac4d8b02c7608a1dc5b0875",
+   "date": "2026-10-06",
+   "status": "OPEN"
+  },
+  "6ac4f253f975d5b1d19d3434": {
+   "agent": "Unassigned",
+   "channel": "Instagram",
+   "contact": "6ac4f253f975d5b1d19d342a",
+   "date": "2026-10-06",
+   "status": "OPEN"
+  },
+  "6ac4f92ff975d5b1d19e63fd": {
+   "agent": "Unassigned",
+   "channel": "Rent to Own",
+   "contact": "696f6e9e9b846097ceb052c1",
+   "date": "2026-10-06",
+   "status": "OPEN"
+  },
+  "6ac523819e3bfbf1d1cd2aac": {
+   "agent": "Unassigned",
+   "channel": "Instagram",
+   "contact": "6ac523819e3bfbf1d1cd2a9b",
+   "date": "2026-10-06",
+   "status": "OPEN"
+  },
+  "6ac54d60f975d5b1d1a90f21": {
+   "agent": "Unassigned",
+   "channel": "Instagram",
+   "contact": "6ac54d5ff975d5b1d1a90f15",
+   "date": "2026-10-06",
+   "status": "OPEN"
+  },
+  "6ac5e2ed5cd8abfd918a9827": {
+   "agent": "Tapan-MKV",
+   "channel": "Main",
+   "contact": "6ac0a004623a27d8458c40aa",
+   "date": "2026-10-07",
+   "status": "CLOSE"
+  },
+  "6ac64dcbe2a2d655929db45a": {
+   "agent": "Unassigned",
+   "channel": "Instagram",
+   "contact": "6ac64dcbe2a2d655929db44e",
+   "date": "2026-10-07",
+   "status": "OPEN"
+  },
+  "6ac6b20633974eada0b49618": {
+   "agent": "MKV Luxury",
+   "channel": "Main",
+   "contact": "6ac6b20633974eada0b4960d",
+   "date": "2026-10-08",
+   "status": "CLOSE"
+  },
+  "6ac7249e9c9a1d4594d629d3": {
+   "agent": "Unassigned",
+   "channel": "Instagram",
+   "contact": "693050c90dc1a835c2f5a2da",
+   "date": "2026-10-08",
+   "status": "OPEN"
+  },
+  "6ac764ce656da268c6f99cf0": {
+   "agent": "MKV Luxury",
+   "channel": "Main",
+   "contact": "6ac0a004623a27d8458c40aa",
+   "date": "2026-10-08",
+   "status": "CLOSE"
+  },
+  "6ac77c1e656da268c6fdf3d0": {
+   "agent": "Unassigned",
+   "channel": "Instagram",
+   "contact": "6ac77c1e656da268c6fdf3bf",
+   "date": "2026-10-08",
+   "status": "OPEN"
+  },
+  "6ac78e57a5f459156eb3ddcc": {
+   "agent": "Reham-MKV",
+   "channel": "Car Rental",
+   "contact": "6ac78e57a5f459156eb3dda0",
+   "date": "2026-10-08",
+   "status": "CLOSE"
+  },
+  "6ac7a207cbe1d1205d82261d": {
+   "agent": "Reham-MKV",
+   "channel": "Main",
+   "contact": "6ac7a207cbe1d1205d822614",
+   "date": "2026-10-08",
+   "status": "OPEN"
+  },
+  "6ac7dac4055cb5717fb235ea": {
+   "agent": "Rafithath-MKV",
+   "channel": "Car Rental",
+   "contact": "6ac7dac4055cb5717fb235e1",
+   "date": "2026-10-08",
+   "status": "OPEN"
+  },
+  "6ac84faab83576689046f883": {
+   "agent": "Bot: RTO MKV",
+   "channel": "Rent to Own",
+   "contact": "6ac84faab83576689046f87a",
+   "date": "2026-10-09",
+   "status": "OPEN"
+  },
+  "6ac8ff75656da268c62f7844": {
+   "agent": "Reham-MKV",
+   "channel": "Rent to Own",
+   "contact": "6745b10bdd627a550a1d2656",
+   "date": "2026-10-09",
+   "status": "OPEN"
+  },
+  "6ac92b2aa5f459156ee7029a": {
+   "agent": "Unassigned",
+   "channel": "Car Rental",
+   "contact": "6ac92b2aa5f459156ee70291",
+   "date": "2026-10-09",
+   "status": "OPEN"
+  },
+  "6ac93abba5f459156ee85d94": {
+   "agent": "Unassigned",
+   "channel": "Car Rental",
+   "contact": "6ac93abba5f459156ee85d8b",
+   "date": "2026-10-09",
+   "status": "OPEN"
+  },
+  "6aca38f0055cb5717ff45c0f": {
+   "agent": "Tapan-MKV",
+   "channel": "Main",
+   "contact": "6aca38f0055cb5717ff45c06",
+   "date": "2026-10-10",
+   "status": "CLOSE"
+  },
+  "6acb2885b8357668909697da": {
+   "agent": "Ali Azlan",
+   "channel": "Rent to Own",
+   "contact": "69353adf4f94e48b1a407aa4",
+   "date": "2026-10-11",
+   "status": "OPEN"
+  },
+  "6acb3679055cb5717f08d5f6": {
+   "agent": "MKV Luxury",
+   "channel": "Main",
+   "contact": "6acb3679055cb5717f08d5ed",
+   "date": "2026-10-11",
+   "status": "CLOSE"
+  },
+  "6acb4fce055cb5717f0c377d": {
+   "agent": "Unassigned",
+   "channel": "Rent to Own",
+   "contact": "6acb4fce055cb5717f0c3774",
+   "date": "2026-10-11",
+   "status": "OPEN"
+  },
+  "6acb7c93a5f459156e1f92e2": {
+   "agent": "Tapan-MKV",
+   "channel": "Car Rental",
+   "contact": "6acb7c92a5f459156e1f92d4",
+   "date": "2026-10-11",
+   "status": "CLOSE"
+  },
+  "6acb985e656da268c672f4eb": {
+   "agent": "Unassigned",
+   "channel": "Car Rental",
+   "contact": "6acb985e656da268c672f4e1",
+   "date": "2026-10-11",
+   "status": "OPEN"
+  },
+  "6acc8f247d87ffeabf316c6a": {
+   "agent": "Reham-MKV",
+   "channel": "Car Rental",
+   "contact": "68380aa98aba056e4a4b1420",
+   "date": "2026-10-12",
+   "status": "OPEN"
+  },
+  "6accaa95ac3afa9cf6ab52e5": {
+   "agent": "Reham-MKV",
+   "channel": "Car Rental",
+   "contact": "69405a21bb51354f3237e8bd",
+   "date": "2026-10-12",
+   "status": "OPEN"
+  },
+  "6accea36ccf1992506563abf": {
+   "agent": "Unassigned",
+   "channel": "Car Rental",
+   "contact": "6accea36ccf1992506563ab6",
+   "date": "2026-10-12",
+   "status": "OPEN"
+  },
+  "6accf65e6bac40debf64eb61": {
+   "agent": "Rafithath-MKV",
+   "channel": "Car Rental",
+   "contact": "6accf65e6bac40debf64eb58",
+   "date": "2026-10-12",
+   "status": "OPEN"
+  },
+  "6accfeef6bac40debf661f61": {
+   "agent": "Ali Azlan",
+   "channel": "Rent to Own",
+   "contact": "6accfeef6bac40debf661f58",
+   "date": "2026-10-12",
+   "status": "OPEN"
+  },
+  "6acd5a7fbeb19481facae851": {
+   "agent": "Tapan-MKV",
+   "channel": "Instagram",
+   "contact": "6acd5a7fbeb19481facae845",
+   "date": "2026-10-13",
+   "status": "CLOSE"
+  },
+  "6acdac20daee0fdd2a05e490": {
+   "agent": "MKV Luxury",
+   "channel": "Rent to Own",
+   "contact": "6acdac20daee0fdd2a05e487",
+   "date": "2026-10-13",
+   "status": "OPEN"
+  },
+  "6acdc0486bac40debf736c34": {
+   "agent": "Ali Azlan",
+   "channel": "Rent to Own",
+   "contact": "6acdc0486bac40debf736c2b",
+   "date": "2026-10-13",
+   "status": "OPEN"
+  },
+  "6acdca0d78cc0ee7e752f171": {
+   "agent": "Tapan-MKV",
+   "channel": "Main",
+   "contact": "6acdca0c78cc0ee7e752f168",
+   "date": "2026-10-13",
+   "status": "CLOSE"
+  },
+  "6acdd276beb19481fad464f5": {
+   "agent": "Tapan-MKV",
+   "channel": "Main",
+   "contact": "6acdd276beb19481fad464ec",
+   "date": "2026-10-13",
+   "status": "CLOSE"
+  },
+  "6ace371b6bac40debf88bcbe": {
+   "agent": "Tapan-MKV",
+   "channel": "Car Rental",
+   "contact": "6ace371b6bac40debf88bcaa",
+   "date": "2026-10-13",
+   "status": "CLOSE"
+  },
+  "6ace7ec778cc0ee7e7702e17": {
+   "agent": "Tapan-MKV",
+   "channel": "Car Rental",
+   "contact": "6ace7ec778cc0ee7e7702e0d",
+   "date": "2026-10-13",
+   "status": "CLOSE"
+  },
+  "6acf1521d253bf08e36a113a": {
+   "agent": "Tapan-MKV",
+   "channel": "Car Rental",
+   "contact": "6813dd57de90d7f787cd6500",
+   "date": "2026-10-14",
+   "status": "OPEN"
+  },
+  "6acf3bfa77b3ec9d106188b4": {
+   "agent": "Unassigned",
+   "channel": "Car Rental",
+   "contact": "6acf3bfa77b3ec9d106188ab",
+   "date": "2026-10-14",
+   "status": "OPEN"
+  },
+  "6acf487477b3ec9d106466f5": {
+   "agent": "Tapan-MKV",
+   "channel": "Rent to Own",
+   "contact": "6acf487477b3ec9d106466ec",
+   "date": "2026-10-14",
+   "status": "OPEN"
+  },
+  "6acf4c944ca3c483b9041a28": {
+   "agent": "Ali Azlan",
+   "channel": "Rent to Own",
+   "contact": "6acf4c944ca3c483b9041a1f",
+   "date": "2026-10-14",
+   "status": "OPEN"
+  },
+  "6acf53ab23cc9dd5dae42d00": {
+   "agent": "Tapan-MKV",
+   "channel": "Car Rental",
+   "contact": "6ace7ec778cc0ee7e7702e0d",
+   "date": "2026-10-13",
+   "status": "CLOSE"
+  },
+  "6acf8d8f14af3cce879c3d32": {
+   "agent": "Unassigned",
+   "channel": "Car Rental",
+   "contact": "66ed8e3e117232b7ca1553e3",
+   "date": "2026-10-14",
+   "status": "OPEN"
+  },
+  "6acf933777b3ec9d10753556": {
+   "agent": "Reham-MKV",
+   "channel": "Car Rental",
+   "contact": "68b18a942a2093304608f335",
+   "date": "2026-10-14",
+   "status": "OPEN"
+  },
+  "6acfa86777b3ec9d10796486": {
+   "agent": "Unassigned",
+   "channel": "Car Rental",
+   "contact": "6acfa86777b3ec9d1079647d",
+   "date": "2026-10-14",
+   "status": "OPEN"
+  },
+  "6acfb9134ca3c483b918ec93": {
+   "agent": "Tapan-MKV",
+   "channel": "Car Rental",
+   "contact": "6acfb9134ca3c483b918ec8a",
+   "date": "2026-10-14",
+   "status": "CLOSE"
+  },
+  "6ad07b210ee312eea298ae90": {
+   "agent": "Unassigned",
+   "channel": "Rent to Own",
+   "contact": "6ad07b210ee312eea298ae87",
+   "date": "2026-10-15",
+   "status": "OPEN"
+  },
+  "6ad0a9b09d14d3e9ec50d158": {
+   "agent": "MKV Luxury",
+   "channel": "Rent to Own",
+   "contact": "6ad0a9b09d14d3e9ec50d14f",
+   "date": "2026-10-15",
+   "status": "CLOSE"
+  },
+  "6ad0b024ee223b875391e343": {
+   "agent": "MKV Luxury",
+   "channel": "Rent to Own",
+   "contact": "6a233720a7cc53869ee77d4d",
+   "date": "2026-10-15",
+   "status": "CLOSE"
+  },
+  "6ad0b41b0ee312eea2a542ad": {
+   "agent": "Reham-MKV",
+   "channel": "Car Rental",
+   "contact": "6ad0b41b0ee312eea2a542a3",
+   "date": "2026-10-15",
+   "status": "OPEN"
+  },
+  "6ad0c711e2f46c3173713894": {
+   "agent": "Reham-MKV",
+   "channel": "Car Rental",
+   "contact": "6731bd514e4082285f1a8c01",
+   "date": "2026-10-15",
+   "status": "OPEN"
+  },
+  "6ad0efedf4d05a9daf6d091c": {
+   "agent": "Unassigned",
+   "channel": "Car Rental",
+   "contact": "6ad0efedf4d05a9daf6d0913",
+   "date": "2026-10-15",
+   "status": "OPEN"
+  },
+  "6ad0fe71618bb23656867845": {
+   "agent": "Rafithath-MKV",
+   "channel": "Car Rental",
+   "contact": "67adc6cd4881b83da90db8b8",
+   "date": "2026-10-15",
+   "status": "OPEN"
+  },
+  "6ad1196ae7f57e2399e953c6": {
+   "agent": "Unassigned",
+   "channel": "Rent to Own",
+   "contact": "6ad1196ae7f57e2399e953bd",
+   "date": "2026-10-15",
+   "status": "OPEN"
+  },
+  "6ad14e9cf4d05a9daf776a07": {
+   "agent": "Rafithath-MKV",
+   "channel": "Main",
+   "contact": "6ad14e9cf4d05a9daf7769fe",
+   "date": "2026-10-16",
+   "status": "OPEN"
+  },
+  "6ad15eb480326ea23b75aef1": {
+   "agent": "Unassigned",
+   "channel": "Car Rental",
+   "contact": "6ad15eb480326ea23b75aee8",
+   "date": "2026-10-16",
+   "status": "OPEN"
+  },
+  "6ad16f9680326ea23b7618ef": {
+   "agent": "Tapan-MKV",
+   "channel": "Car Rental",
+   "contact": "6ad16f9680326ea23b7618e4",
+   "date": "2026-10-16",
+   "status": "CLOSE"
+  },
+  "6ad1b7ffcb95a22db8d83d25": {
+   "agent": "Tapan-MKV",
+   "channel": "Main",
+   "contact": "6ad1b7ffcb95a22db8d83d1c",
+   "date": "2026-10-16",
+   "status": "CLOSE"
+  },
+  "6ad1c572cc2d5a693717f66a": {
+   "agent": "Tapan-MKV",
+   "channel": "Main",
+   "contact": "6ad1c572cc2d5a693717f661",
+   "date": "2026-10-16",
+   "status": "CLOSE"
+  },
+  "6ad1c8c59f5277aee0833976": {
+   "agent": "Tapan-MKV",
+   "channel": "Main",
+   "contact": "6ad1c8c59f5277aee083396d",
+   "date": "2026-10-16",
+   "status": "CLOSE"
+  },
+  "6ad1e9bdcc2d5a69372014fc": {
+   "agent": "Bot: RTO MKV",
+   "channel": "Rent to Own",
+   "contact": "6ad1e9bdcc2d5a69372014ef",
+   "date": "2026-10-16",
+   "status": "OPEN"
+  },
+  "6ad1ecfa9f5277aee08a40de": {
+   "agent": "Unassigned",
+   "channel": "Instagram",
+   "contact": "6ad1ecfa9f5277aee08a40d2",
+   "date": "2026-10-16",
+   "status": "OPEN"
+  },
+  "6ad24f087918bf7ef3638f69": {
+   "agent": "Bot: RTO MKV",
+   "channel": "Rent to Own",
+   "contact": "6ad24f087918bf7ef3638f60",
+   "date": "2026-10-16",
+   "status": "OPEN"
+  },
+  "6ad34d7bdbe72b12286bc54f": {
+   "agent": "Unassigned",
+   "channel": "Car Rental",
+   "contact": "6ad34d7bdbe72b12286bc546",
+   "date": "2026-10-17",
+   "status": "OPEN"
+  },
+  "6ad3503edbe72b12286c5d87": {
+   "agent": "Reham-MKV",
+   "channel": "Car Rental",
+   "contact": "6ad3503edbe72b12286c5d7e",
+   "date": "2026-10-17",
+   "status": "OPEN"
+  },
+  "6ad3e38d6de89489ac6d45d1": {
+   "agent": "Rafithath-MKV",
+   "channel": "Car Rental",
+   "contact": "676bb76c422f0f1e6157836b",
+   "date": "2026-10-18",
+   "status": "OPEN"
+  },
+  "6ad479f7f7c7282c23d89b79": {
+   "agent": "Reham-MKV",
+   "channel": "Car Rental",
+   "contact": "6ad479f7f7c7282c23d89b70",
+   "date": "2026-10-18",
+   "status": "OPEN"
+  },
+  "6ad495ade73fa3a6d971f95e": {
+   "agent": "Reham-MKV",
+   "channel": "Car Rental",
+   "contact": "6ad495ade73fa3a6d971f955",
+   "date": "2026-10-18",
+   "status": "OPEN"
+  },
+  "6ad4a257dbe72b122893ceb5": {
+   "agent": "Reham-MKV",
+   "channel": "Car Rental",
+   "contact": "6ad4a0b36def496426cf8786",
+   "date": "2026-10-18",
+   "status": "OPEN"
+  },
+  "6ad4acd96de89489ac77bf0d": {
+   "agent": "Rafithath-MKV",
+   "channel": "Car Rental",
+   "contact": "6ad4acd96de89489ac77bf04",
+   "date": "2026-10-18",
+   "status": "OPEN"
+  },
+  "6ad4c476dbe72b122899a04e": {
+   "agent": "Rafithath-MKV",
+   "channel": "Car Rental",
+   "contact": "6ad4c476dbe72b122899a045",
+   "date": "2026-10-18",
+   "status": "OPEN"
+  },
+  "6ad4c5396de89489ac79c1b4": {
+   "agent": "Tapan-MKV",
+   "channel": "Car Rental",
+   "contact": "6ad4c5396de89489ac79c1ab",
+   "date": "2026-10-18",
+   "status": "CLOSE"
+  },
+  "6ad4f2b1f7c7282c23eb373c": {
+   "agent": "MKV Luxury",
+   "channel": "Car Rental",
+   "contact": "6ad4f2b1f7c7282c23eb3733",
+   "date": "2026-10-18",
+   "status": "CLOSE"
+  },
+  "6ad51f19dbe72b1228a6024f": {
+   "agent": "Tapan-MKV",
+   "channel": "Car Rental",
+   "contact": "6ad51f19dbe72b1228a60246",
+   "date": "2026-10-18",
+   "status": "CLOSE"
+  },
+  "6ad52273f7c7282c23efacf2": {
+   "agent": "Tapan-MKV",
+   "channel": "Main",
+   "contact": "6ad52273f7c7282c23eface9",
+   "date": "2026-10-18",
+   "status": "CLOSE"
+  },
+  "6ad572e8dbe72b1228a9660c": {
+   "agent": "Unassigned",
+   "channel": "Rent to Own",
+   "contact": "6ad572e7dbe72b1228a96603",
+   "date": "2026-10-19",
+   "status": "OPEN"
+  },
+  "6ad5a2d86de89489ac82fe5e": {
+   "agent": "Tapan-MKV",
+   "channel": "Car Rental",
+   "contact": "6ad5a2d86de89489ac82fe55",
+   "date": "2026-10-19",
+   "status": "OPEN"
+  },
+  "6ad5d85fe73fa3a6d991ceca": {
+   "agent": "Tapan-MKV",
+   "channel": "Instagram",
+   "contact": "6ad5d85fe73fa3a6d991cebe",
+   "date": "2026-10-19",
+   "status": "CLOSE"
+  },
+  "6ad5ea6e6de89489ac8c4c36": {
+   "agent": "Bot: RTO MKV",
+   "channel": "Rent to Own",
+   "contact": "6ad5ea6e6de89489ac8c4c2d",
+   "date": "2026-10-19",
+   "status": "OPEN"
+  },
+  "6ad5fb35e73fa3a6d9983d24": {
+   "agent": "Tapan-MKV",
+   "channel": "Car Rental",
+   "contact": "6ad5fb35e73fa3a6d9983d1b",
+   "date": "2026-10-19",
+   "status": "CLOSE"
+  },
+  "6ad5fdc9dbe72b1228c224d4": {
+   "agent": "Tapan-MKV",
+   "channel": "Main",
+   "contact": "6ad5fdc9dbe72b1228c224cb",
+   "date": "2026-10-19",
+   "status": "CLOSE"
+  },
+  "6ad6000df7c7282c2309b571": {
+   "agent": "Tapan-MKV",
+   "channel": "Main",
+   "contact": "6ad5fdc9dbe72b1228c224cb",
+   "date": "2026-10-19",
+   "status": "CLOSE"
+  },
+  "6ad605b12c4ef9f17ef63a77": {
+   "agent": "Rafithath-MKV",
+   "channel": "Car Rental",
+   "contact": "6ad605b12c4ef9f17ef63a6e",
+   "date": "2026-10-19",
+   "status": "OPEN"
+  },
+  "6ad6174be73fa3a6d99da141": {
+   "agent": "Rafithath-MKV",
+   "channel": "Main",
+   "contact": "6ad6174be73fa3a6d99da12e",
+   "date": "2026-10-19",
+   "status": "OPEN"
+  },
+  "6ad623666de89489ac93a1fa": {
+   "agent": "Unassigned",
+   "channel": "Instagram",
+   "contact": "69a7ff5e160ca9415dfdc0b8",
+   "date": "2026-10-19",
+   "status": "OPEN"
+  },
+  "6ad642dbe73fa3a6d9a4c122": {
+   "agent": "Unassigned",
+   "channel": "Car Rental",
+   "contact": "6ad642dbe73fa3a6d9a4c119",
+   "date": "2026-10-19",
+   "status": "OPEN"
+  },
+  "6ad64e15dbe72b1228d1d6e1": {
+   "agent": "Unassigned",
+   "channel": "Instagram",
+   "contact": "6ad64e15dbe72b1228d1d6d5",
+   "date": "2026-10-19",
+   "status": "OPEN"
+  },
+  "6ad67479dbe72b1228d64e79": {
+   "agent": "Tapan-MKV",
+   "channel": "Car Rental",
+   "contact": "6ad67478dbe72b1228d64e70",
+   "date": "2026-10-19",
+   "status": "CLOSE"
+  },
+  "6ad736be6de89489aca58cb5": {
+   "agent": "Tapan-MKV",
+   "channel": "Main",
+   "contact": "6ad736be6de89489aca58cac",
+   "date": "2026-10-20",
+   "status": "CLOSE"
+  },
+  "6ad749940168b2df9ca1742d": {
+   "agent": "Tapan-MKV",
+   "channel": "Main",
+   "contact": "6ad5fdc9dbe72b1228c224cb",
+   "date": "2026-10-20",
+   "status": "CLOSE"
+  },
+  "6ad754241ad8c1067c287a6e": {
+   "agent": "Tapan-MKV",
+   "channel": "Car Rental",
+   "contact": "6ad754241ad8c1067c287a65",
+   "date": "2026-10-20",
+   "status": "CLOSE"
+  },
+  "6ad757ec1ad8c1067c294247": {
+   "agent": "Bot: RTO MKV",
+   "channel": "Rent to Own",
+   "contact": "6ad757ec1ad8c1067c29423e",
+   "date": "2026-10-20",
+   "status": "OPEN"
+  },
+  "6ad75f648299c027fae79cef": {
+   "agent": "Rafithath-MKV",
+   "channel": "Rent to Own",
+   "contact": "6a0eca308eaebdd41bb38f70",
+   "date": "2026-10-20",
+   "status": "OPEN"
+  },
+  "6ad763401d39dd07c1d31413": {
+   "agent": "Tapan-MKV",
+   "channel": "Car Rental",
+   "contact": "6ad754241ad8c1067c287a65",
+   "date": "2026-10-20",
+   "status": "CLOSE"
+  },
+  "6ad769361ad8c1067c2cc4ee": {
+   "agent": "Tapan-MKV",
+   "channel": "Main",
+   "contact": "6ad769361ad8c1067c2cc4e5",
+   "date": "2026-10-20",
+   "status": "CLOSE"
+  },
+  "6ad771e50168b2df9ca831f1": {
+   "agent": "Tapan-MKV",
+   "channel": "Car Rental",
+   "contact": "6ad771e50168b2df9ca831df",
+   "date": "2026-10-20",
+   "status": "OPEN"
+  },
+  "6ad7c9241ad8c1067c3b8efc": {
+   "agent": "Unassigned",
+   "channel": "Car Rental",
+   "contact": "6ad7c9241ad8c1067c3b8ef3",
+   "date": "2026-10-21",
+   "status": "OPEN"
+  },
+  "6ad7caa71ad8c1067c3baa64": {
+   "agent": "Tapan-MKV",
+   "channel": "Car Rental",
+   "contact": "6ad7caa71ad8c1067c3baa5b",
+   "date": "2026-10-21",
+   "status": "CLOSE"
+  },
+  "6ad835ddfe52587ecdf4d616": {
+   "agent": "MKV Luxury",
+   "channel": "Rent to Own",
+   "contact": "6ad835ddfe52587ecdf4d60d",
+   "date": "2026-10-21",
+   "status": "OPEN"
+  },
+  "6ad8478a5043e01b5978ed99": {
+   "agent": "Tapan-MKV",
+   "channel": "Car Rental",
+   "contact": "6ad8478a5043e01b5978ed8a",
+   "date": "2026-10-21",
+   "status": "CLOSE"
+  },
+  "6ad87815b4c07a97bb1fa2a5": {
+   "agent": "Unassigned",
+   "channel": "Rent to Own",
+   "contact": "6ad87815b4c07a97bb1fa29c",
+   "date": "2026-10-21",
+   "status": "OPEN"
+  },
+  "6ad887ce6a8ccb8013f97e00": {
+   "agent": "Tapan-MKV",
+   "channel": "Car Rental",
+   "contact": "67820167a078c7c0f5481007",
+   "date": "2026-10-21",
+   "status": "OPEN"
+  },
+  "6ad88c0c6a8ccb8013fa5ef2": {
+   "agent": "Tapan-MKV",
+   "channel": "Car Rental",
+   "contact": "6ad88c0b6a8ccb8013fa5eba",
+   "date": "2026-10-21",
+   "status": "CLOSE"
+  },
+  "6ad8a85c5043e01b5987b4e7": {
+   "agent": "Tapan-MKV",
+   "channel": "Main",
+   "contact": "6ad8a85c5043e01b5987b4de",
+   "date": "2026-10-21",
+   "status": "CLOSE"
+  },
+  "6ad8a8c6c69ebdafcd0814cf": {
+   "agent": "Tapan-MKV",
+   "channel": "Main",
+   "contact": "6ad8a85c5043e01b5987b4de",
+   "date": "2026-10-21",
+   "status": "CLOSE"
+  },
+  "6ad8accb6a8ccb801301b46d": {
+   "agent": "Reham-MKV",
+   "channel": "Car Rental",
+   "contact": "66ed8e61b0a59f5c4d329eed",
+   "date": "2026-10-21",
+   "status": "OPEN"
+  },
+  "6ad8ba376a8ccb801304a87e": {
+   "agent": "Rafithath-MKV",
+   "channel": "Main",
+   "contact": "6ad8ba376a8ccb801304a875",
+   "date": "2026-10-21",
+   "status": "OPEN"
+  },
+  "6ad8ca916a8ccb80130832bb": {
+   "agent": "Reham-MKV",
+   "channel": "Car Rental",
+   "contact": "6ad8478a5043e01b5978ed8a",
+   "date": "2026-10-21",
+   "status": "CLOSE"
+  },
+  "6ad8d09a6a8ccb8013097f77": {
+   "agent": "Tapan-MKV",
+   "channel": "Car Rental",
+   "contact": "6ad8478a5043e01b5978ed8a",
+   "date": "2026-10-21",
+   "status": "CLOSE"
+  },
+  "6ad8dab7c69ebdafcd0fe5e0": {
+   "agent": "Unassigned",
+   "channel": "Car Rental",
+   "contact": "6ad8dab6c69ebdafcd0fe5cd",
+   "date": "2026-10-21",
+   "status": "OPEN"
+  },
+  "6ad8dd8cfe52587ecd12a056": {
+   "agent": "Unassigned",
+   "channel": "Car Rental",
+   "contact": "6ad8dd8cfe52587ecd12a04d",
+   "date": "2026-10-21",
+   "status": "OPEN"
+  },
+  "6ad8e857c69ebdafcd1196a7": {
+   "agent": "Tapan-MKV",
+   "channel": "Car Rental",
+   "contact": "6ad8e857c69ebdafcd11969e",
+   "date": "2026-10-21",
+   "status": "CLOSE"
+  },
+  "6ad9be4d346695b1f5fcb6fb": {
+   "agent": "Unassigned",
+   "channel": "Car Rental",
+   "contact": "6ad9be4d346695b1f5fcb6f2",
+   "date": "2026-10-22",
+   "status": "OPEN"
+  },
+  "6ad9d6e6427eedc098b2ab4f": {
+   "agent": "Unassigned",
+   "channel": "Instagram",
+   "contact": "6ad9d6e6427eedc098b2ab2d",
+   "date": "2026-10-22",
+   "status": "OPEN"
+  },
+  "6ad9e238427eedc098b47c99": {
+   "agent": "Unassigned",
+   "channel": "Car Rental",
+   "contact": "692fc14005f2661bdfb1e46a",
+   "date": "2026-10-22",
+   "status": "OPEN"
+  },
+  "6ad9e6199d030012f50cf974": {
+   "agent": "Tapan-MKV",
+   "channel": "Main",
+   "contact": "6ad8a85c5043e01b5987b4de",
+   "date": "2026-10-22",
+   "status": "CLOSE"
+  },
+  "6ad9e84b427eedc098b57256": {
+   "agent": "Tapan-MKV",
+   "channel": "Main",
+   "contact": "6ad9e84b427eedc098b5724d",
+   "date": "2026-10-22",
+   "status": "CLOSE"
+  },
+  "6ad9f23a346695b1f5058c6c": {
+   "agent": "Rafithath-MKV",
+   "channel": "Main",
+   "contact": "6ad9f23a346695b1f5058c63",
+   "date": "2026-10-22",
+   "status": "OPEN"
+  },
+  "6ada08e5427eedc098bafaa3": {
+   "agent": "Reham-MKV",
+   "channel": "Car Rental",
+   "contact": "67f7683dc5fe9969d076f626",
+   "date": "2026-10-22",
+   "status": "OPEN"
+  },
+  "6ada3b590a49e7884f7c5902": {
+   "agent": "Rafithath-MKV",
+   "channel": "Main",
+   "contact": "6ada3b590a49e7884f7c58f9",
+   "date": "2026-10-22",
+   "status": "OPEN"
+  },
+  "6ada5f4a0a49e7884f803bcc": {
+   "agent": "Unassigned",
+   "channel": "Car Rental",
+   "contact": "6ada5f4a0a49e7884f803bc3",
+   "date": "2026-10-22",
+   "status": "OPEN"
+  },
+  "6adb03fd6fab570c62b80ae3": {
+   "agent": "Tapan-MKV",
+   "channel": "Main",
+   "contact": "6adb03fd6fab570c62b80ada",
+   "date": "2026-10-23",
+   "status": "CLOSE"
+  },
+  "6adb1c147ff3a8f5cb54ab32": {
+   "agent": "Unassigned",
+   "channel": "Main",
+   "contact": "6adb1c147ff3a8f5cb54ab29",
+   "date": "2026-10-23",
+   "status": "OPEN"
+  },
+  "6adb1c338c7fbacdff2acd46": {
+   "agent": "Tapan-MKV",
+   "channel": "Main",
+   "contact": "6adb1c338c7fbacdff2acd3d",
+   "date": "2026-10-23",
+   "status": "CLOSE"
+  },
+  "6adb8639c8a720aa9e9bc34a": {
+   "agent": "Unassigned",
+   "channel": "Car Rental",
+   "contact": "6ad5fb35e73fa3a6d9983d1b",
+   "date": "2026-10-23",
+   "status": "OPEN"
+  },
+  "6adb8ad277bf718ef6a37d39": {
+   "agent": "Unassigned",
+   "channel": "Car Rental",
+   "contact": "6adb8ad177bf718ef6a37d30",
+   "date": "2026-10-23",
+   "status": "OPEN"
+  },
+  "6adb928a77bf718ef6a49f4a": {
+   "agent": "Unassigned",
+   "channel": "Car Rental",
+   "contact": "6ad51f19dbe72b1228a60246",
+   "date": "2026-10-23",
+   "status": "OPEN"
+  },
+  "6adb98e52a7fa49d77085e18": {
+   "agent": "Unassigned",
+   "channel": "Car Rental",
+   "contact": "6adb98e42a7fa49d77085e0f",
+   "date": "2026-10-23",
+   "status": "OPEN"
+  },
+  "6adb9bff77bf718ef6a5d7c6": {
+   "agent": "MKV Luxury",
+   "channel": "Main",
+   "contact": "6adb9bff77bf718ef6a5d7bd",
+   "date": "2026-10-23",
+   "status": "CLOSE"
+  },
+  "6adbbf0f77bf718ef6a8f17a": {
+   "agent": "Unassigned",
+   "channel": "Main",
+   "contact": "6adbbf0f77bf718ef6a8f171",
+   "date": "2026-10-24",
+   "status": "OPEN"
+  },
+  "6adbc12477bf718ef6a91079": {
+   "agent": "Rafithath-MKV",
+   "channel": "Main",
+   "contact": "6adbc12477bf718ef6a91070",
+   "date": "2026-10-24",
+   "status": "OPEN"
+  },
+  "6adbc5eac8a720aa9ea08fee": {
+   "agent": "Tapan-MKV",
+   "channel": "Car Rental",
+   "contact": "69020f55926000047bca1a31",
+   "date": "2026-10-24",
+   "status": "OPEN"
+  },
+  "6adbe41cc8a720aa9ea153d0": {
+   "agent": "Reham-MKV",
+   "channel": "Main",
+   "contact": "6adbe41cc8a720aa9ea153c7",
+   "date": "2026-10-24",
+   "status": "OPEN"
+  },
+  "6adc3b3b47f75e667a469b34": {
+   "agent": "Tapan-MKV",
+   "channel": "Main",
+   "contact": "6adc3b3b47f75e667a469b2b",
+   "date": "2026-10-24",
+   "status": "OPEN"
+  },
+  "6adc55baf64687fd4d59132c": {
+   "agent": "Tapan-MKV",
+   "channel": "Main",
+   "contact": "6adc55baf64687fd4d591323",
+   "date": "2026-10-24",
+   "status": "CLOSE"
+  },
+  "6adc58d6c8a720aa9eab81a3": {
+   "agent": "Tapan-MKV",
+   "channel": "Instagram",
+   "contact": "6adc58d6c8a720aa9eab8199",
+   "date": "2026-10-24",
+   "status": "CLOSE"
+  },
+  "6adc593b77bf718ef6b6b884": {
+   "agent": "Tapan-MKV",
+   "channel": "Main",
+   "contact": "6adc593b77bf718ef6b6b87b",
+   "date": "2026-10-24",
+   "status": "CLOSE"
+  },
+  "6adc63022a7fa49d77153bac": {
+   "agent": "Tapan-MKV",
+   "channel": "Car Rental",
+   "contact": "672e105539b18bb592571b57",
+   "date": "2026-10-24",
+   "status": "OPEN"
+  },
+  "6adc63022a7fa49d77153bb1": {
+   "agent": "Unassigned",
+   "channel": "Car Rental",
+   "contact": "672e105539b18bb592571b57",
+   "date": "2026-10-24",
+   "status": "OPEN"
+  },
+  "6adc8ae877bf718ef6c051a1": {
+   "agent": "Unassigned",
+   "channel": "Car Rental",
+   "contact": "66ed8e693ee1a3a0e321896f",
+   "date": "2026-10-24",
+   "status": "OPEN"
+  },
+  "6adc909c47f75e667a556912": {
+   "agent": "Reham-MKV",
+   "channel": "Main",
+   "contact": "6adc909c47f75e667a556909",
+   "date": "2026-10-24",
+   "status": "OPEN"
+  },
+  "6adc91ecf547c14fcf60778d": {
+   "agent": "Unassigned",
+   "channel": "Main",
+   "contact": "6adc91ecf547c14fcf607784",
+   "date": "2026-10-24",
+   "status": "OPEN"
+  },
+  "6adc97ab4fd98531e2b335d8": {
+   "agent": "Unassigned",
+   "channel": "Rent to Own",
+   "contact": "6adc97ab4fd98531e2b335cf",
+   "date": "2026-10-24",
+   "status": "OPEN"
+  },
+  "6adc97bf4fd98531e2b339d9": {
+   "agent": "Reham-MKV",
+   "channel": "Main",
+   "contact": "6adc97bf4fd98531e2b339d0",
+   "date": "2026-10-24",
+   "status": "OPEN"
+  },
+  "6adc995fd953cb9722261ced": {
+   "agent": "Unassigned",
+   "channel": "Main",
+   "contact": "6adc995fd953cb9722261ce4",
+   "date": "2026-10-24",
+   "status": "OPEN"
+  },
+  "6adca0aa7c2bd58445c27a92": {
+   "agent": "Unassigned",
+   "channel": "Car Rental",
+   "contact": "6adca0aa7c2bd58445c27a89",
+   "date": "2026-10-24",
+   "status": "OPEN"
+  },
+  "6adcaa1a728bd06962a334a9": {
+   "agent": "Unassigned",
+   "channel": "Main",
+   "contact": "6adcaa1a728bd06962a334a0",
+   "date": "2026-10-24",
+   "status": "OPEN"
+  },
+  "6adcaa45728bd06962a33a3e": {
+   "agent": "Unassigned",
+   "channel": "Main",
+   "contact": "6adcaa45728bd06962a33a35",
+   "date": "2026-10-24",
+   "status": "OPEN"
+  },
+  "6adcac157c2bd58445c48f3e": {
+   "agent": "Unassigned",
+   "channel": "Rent to Own",
+   "contact": "6adcac157c2bd58445c48f35",
+   "date": "2026-10-24",
+   "status": "OPEN"
+  },
+  "6adcd84ed953cb97222f1e57": {
+   "agent": "Unassigned",
+   "channel": "Rent to Own",
+   "contact": "6adcd84ed953cb97222f1e4e",
+   "date": "2026-10-24",
+   "status": "OPEN"
+  },
+  "6adcf24dd953cb9722318e9d": {
+   "agent": "Rafithath-MKV",
+   "channel": "Main",
+   "contact": "6adcf24dd953cb9722318e94",
+   "date": "2026-10-24",
+   "status": "OPEN"
+  },
+  "6add0be67c2bd58445d08db2": {
+   "agent": "Tapan-MKV",
+   "channel": "Instagram",
+   "contact": "68f011197095dba9787aad34",
+   "date": "2026-10-24",
+   "status": "CLOSE"
+  },
+  "6add16d57c2bd58445d10b04": {
+   "agent": "Tapan-MKV",
+   "channel": "Instagram",
+   "contact": "6add16d57c2bd58445d10afa",
+   "date": "2026-10-25",
+   "status": "CLOSE"
+  },
+  "6add6bdeb71fdf15ec345ddb": {
+   "agent": "Unassigned",
+   "channel": "Car Rental",
+   "contact": "6add6bdeb71fdf15ec345dd2",
+   "date": "2026-10-25",
+   "status": "OPEN"
+  },
+  "6addaf2e7c2bd58445dc033b": {
+   "agent": "Tapan-MKV",
+   "channel": "Car Rental",
+   "contact": "6addaf2e7c2bd58445dc0332",
+   "date": "2026-10-25",
+   "status": "CLOSE"
+  },
+  "6addaff0a36e41b73f492a2e": {
+   "agent": "Tapan-MKV",
+   "channel": "Car Rental",
+   "contact": "6addaf2e7c2bd58445dc0332",
+   "date": "2026-10-25",
+   "status": "CLOSE"
+  },
+  "6addb03d7c2bd58445dc2abe": {
+   "agent": "Tapan-MKV",
+   "channel": "Car Rental",
+   "contact": "6addaf2e7c2bd58445dc0332",
+   "date": "2026-10-25",
+   "status": "OPEN"
+  },
+  "6addbbb6b71fdf15ec3cd13b": {
+   "agent": "Tapan-MKV",
+   "channel": "Car Rental",
+   "contact": "6addbbb6b71fdf15ec3cd132",
+   "date": "2026-10-25",
+   "status": "OPEN"
+  },
+  "6addca457c2bd58445e03277": {
+   "agent": "Tapan-MKV",
+   "channel": "Main",
+   "contact": "6addca457c2bd58445e0326e",
+   "date": "2026-10-25",
+   "status": "OPEN"
+  },
+  "6addf59f7c2bd58445e6be33": {
+   "agent": "Tapan-MKV",
+   "channel": "Main",
+   "contact": "6addf59f7c2bd58445e6be26",
+   "date": "2026-10-25",
+   "status": "OPEN"
+  },
+  "6addfe47adf11315c0404de4": {
+   "agent": "Unassigned",
+   "channel": "Car Rental",
+   "contact": "6addfe47adf11315c0404ddb",
+   "date": "2026-10-25",
+   "status": "OPEN"
+  },
+  "6addfe757c2bd58445e80b3d": {
+   "agent": "Unassigned",
+   "channel": "Rent to Own",
+   "contact": "6addfe757c2bd58445e80b34",
+   "date": "2026-10-25",
+   "status": "OPEN"
+  },
+  "6addff31adf11315c0406e9d": {
+   "agent": "Rafithath-MKV",
+   "channel": "Main",
+   "contact": "670b077403bb0a61a7f60160",
+   "date": "2026-10-25",
+   "status": "OPEN"
+  },
+  "6ade0ed17c2bd58445ea8c86": {
+   "agent": "Unassigned",
+   "channel": "Car Rental",
+   "contact": "6ade0ed17c2bd58445ea8c7d",
+   "date": "2026-10-25",
+   "status": "OPEN"
+  },
+  "6ade1a9dd953cb9722487c8b": {
+   "agent": "Tapan-MKV",
+   "channel": "Instagram",
+   "contact": "6add16d57c2bd58445d10afa",
+   "date": "2026-10-25",
+   "status": "CLOSE"
+  },
+  "6ade1b53728bd06962c0fc35": {
+   "agent": "MKV Luxury",
+   "channel": "Instagram",
+   "contact": "68f011197095dba9787aad34",
+   "date": "2026-10-25",
+   "status": "CLOSE"
+  },
+  "6ade217e983c2de2d02f48c6": {
+   "agent": "MKV Luxury",
+   "channel": "Car Rental",
+   "contact": "6ade217e983c2de2d02f48bd",
+   "date": "2026-10-25",
+   "status": "CLOSE"
+  },
+  "6ade2f09728bd06962c30d52": {
+   "agent": "Rafithath-MKV",
+   "channel": "Main",
+   "contact": "6ade2f09728bd06962c30d49",
+   "date": "2026-10-25",
+   "status": "OPEN"
+  },
+  "6ade3004983c2de2d0309c5d": {
+   "agent": "Unassigned",
+   "channel": "Car Rental",
+   "contact": "6ade3004983c2de2d0309c54",
+   "date": "2026-10-25",
+   "status": "OPEN"
+  },
+  "6ade6d13d953cb97224e4fe7": {
+   "agent": "Tapan-MKV",
+   "channel": "Car Rental",
+   "contact": "6ade6d13d953cb97224e4fde",
+   "date": "2026-10-26",
+   "status": "CLOSE"
+  },
+  "6ade9498728bd06962c60430": {
+   "agent": "Unassigned",
+   "channel": "Main",
+   "contact": "6ade9498728bd06962c60427",
+   "date": "2026-10-26",
+   "status": "OPEN"
+  },
+  "6adeb9f67c2bd58445f66f0e": {
+   "agent": "Reham-MKV",
+   "channel": "Main",
+   "contact": "6adeb9f67c2bd58445f66f05",
+   "date": "2026-10-26",
+   "status": "OPEN"
+  },
+  "6adee8d97c2bd58445fcd06f": {
+   "agent": "MKV Luxury",
+   "channel": "Main",
+   "contact": "6adee8d87c2bd58445fcd05d",
+   "date": "2026-10-26",
+   "status": "CLOSE"
+  },
+  "6adef94e728bd06962cdff75": {
+   "agent": "Reham-MKV",
+   "channel": "Main",
+   "contact": "6adef94e728bd06962cdff6c",
+   "date": "2026-10-26",
+   "status": "OPEN"
+  },
+  "6adf1323983c2de2d04118b5": {
+   "agent": "MKV Luxury",
+   "channel": "Main",
+   "contact": "6adf1323983c2de2d04118a3",
+   "date": "2026-10-26",
+   "status": "CLOSE"
+  },
+  "6adf139d7c2bd5844506f3dc": {
+   "agent": "Tapan-MKV",
+   "channel": "Car Rental",
+   "contact": "6adf139d7c2bd5844506f3d3",
+   "date": "2026-10-26",
+   "status": "CLOSE"
+  },
+  "6adf2159728bd06962d4ecfe": {
+   "agent": "Reham-MKV",
+   "channel": "Car Rental",
+   "contact": "6adf2159728bd06962d4ecf5",
+   "date": "2026-10-26",
+   "status": "OPEN"
+  },
+  "6adf3439adf11315c062900f": {
+   "agent": "Reham-MKV",
+   "channel": "Car Rental",
+   "contact": "6adf3439adf11315c0629006",
+   "date": "2026-10-26",
+   "status": "OPEN"
+  },
+  "6adf5909983c2de2d04c8ce1": {
+   "agent": "Rafithath-MKV",
+   "channel": "Main",
+   "contact": "6adf5909d953cb972269926e",
+   "date": "2026-10-26",
+   "status": "OPEN"
+  },
+  "6adf5909d953cb9722699277": {
+   "agent": "Rafithath-MKV",
+   "channel": "Main",
+   "contact": "6adf5909d953cb972269926e",
+   "date": "2026-10-26",
+   "status": "OPEN"
+  },
+  "6adfed82adf11315c077bcda": {
+   "agent": "Reham-MKV",
+   "channel": "Car Rental",
+   "contact": "6adfed81adf11315c077bcc7",
+   "date": "2026-10-27",
+   "status": "OPEN"
+  },
+  "6ae01c4b5c42c5c608870744": {
+   "agent": "Rafithath-MKV",
+   "channel": "Main",
+   "contact": "6ae01c4b5c42c5c60887073b",
+   "date": "2026-10-27",
+   "status": "OPEN"
+  },
+  "6ae02b9c5c42c5c60888733e": {
+   "agent": "MKV Luxury",
+   "channel": "Main",
+   "contact": "6ae02b9c5c42c5c608887332",
+   "date": "2026-10-27",
+   "status": "CLOSE"
+  },
+  "6ae04c1955382a887b624273": {
+   "agent": "Unassigned",
+   "channel": "Car Rental",
+   "contact": "6ae04c1855382a887b62423c",
+   "date": "2026-10-27",
+   "status": "OPEN"
+  },
+  "6ae0687755382a887b681c2a": {
+   "agent": "Unassigned",
+   "channel": "Instagram",
+   "contact": "6ad4539da1b3e856b64729ca",
+   "date": "2026-10-27",
+   "status": "OPEN"
+  },
+  "6ae069b9dc153ef0e362af9b": {
+   "agent": "Tapan-MKV",
+   "channel": "Car Rental",
+   "contact": "6ae069b9dc153ef0e362af92",
+   "date": "2026-10-27",
+   "status": "OPEN"
+  },
+  "6ae0702708d3bc62dcc1d005": {
+   "agent": "Reham-MKV",
+   "channel": "Car Rental",
+   "contact": "676ff02dd4ecc801a294dbf1",
+   "date": "2026-10-27",
+   "status": "OPEN"
+  },
+  "6ae0884a08d3bc62dcc77674": {
+   "agent": "Tapan-MKV",
+   "channel": "Main",
+   "contact": "6ae0884a08d3bc62dcc7766b",
+   "date": "2026-10-27",
+   "status": "OPEN"
+  },
+  "6ae08badafdcd0963fed131a": {
+   "agent": "Ali Azlan",
+   "channel": "Rent to Own",
+   "contact": "6ae08badafdcd0963fed1304",
+   "date": "2026-10-27",
+   "status": "OPEN"
+  },
+  "6ae0902122a8f19af4f7c6b2": {
+   "agent": "Reham-MKV",
+   "channel": "Main",
+   "contact": "6ae0902122a8f19af4f7c6a9",
+   "date": "2026-10-27",
+   "status": "OPEN"
+  },
+  "6ae0b54a6a9a9a20b8d575bd": {
+   "agent": "Unassigned",
+   "channel": "Car Rental",
+   "contact": "6ae0b54a6a9a9a20b8d575b4",
+   "date": "2026-10-27",
+   "status": "OPEN"
+  },
+  "6ae0f37108d3bc62dcdd5e41": {
+   "agent": "Rafithath-MKV",
+   "channel": "Main",
+   "contact": "6ae0f37008d3bc62dcdd5e38",
+   "date": "2026-10-27",
+   "status": "OPEN"
+  },
+  "6ae1192522a8f19af40666a6": {
+   "agent": "Rafithath-MKV",
+   "channel": "Main",
+   "contact": "6ae1192522a8f19af406669d",
+   "date": "2026-10-28",
+   "status": "OPEN"
+  },
+  "6ae11d61b5157bf378c2f1d7": {
+   "agent": "Rafithath-MKV",
+   "channel": "Car Rental",
+   "contact": "6ae11d61b5157bf378c2f1ce",
+   "date": "2026-10-28",
+   "status": "OPEN"
+  },
+  "6ae15a15afdcd0963fffee3e": {
+   "agent": "Rafithath-MKV",
+   "channel": "Main",
+   "contact": "6ae15a15afdcd0963fffee35",
+   "date": "2026-10-28",
+   "status": "OPEN"
+  },
+  "6ae199a222a8f19af40eedcb": {
+   "agent": "Tapan-MKV",
+   "channel": "Main",
+   "contact": "6ae199a222a8f19af40eedb8",
+   "date": "2026-10-28",
+   "status": "CLOSE"
+  },
+  "6ae19c45afdcd0963f082f28": {
+   "agent": "Tapan-MKV",
+   "channel": "Main",
+   "contact": "6ae19c45afdcd0963f082f1f",
+   "date": "2026-10-28",
+   "status": "CLOSE"
+  },
+  "6ae1c36985bb6d3a2622ce25": {
+   "agent": "Reham-MKV",
+   "channel": "Main",
+   "contact": "6ae1c36985bb6d3a2622ce1c",
+   "date": "2026-10-28",
+   "status": "OPEN"
+  },
+  "6ae1ca1a9583050e9f18cd80": {
+   "agent": "Tapan-MKV",
+   "channel": "Car Rental",
+   "contact": "6ae1ca1a9583050e9f18cd77",
+   "date": "2026-10-28",
+   "status": "CLOSE"
+  },
+  "6ae1ee4f148e158fd5b07a1b": {
+   "agent": "Reham-MKV",
+   "channel": "Main",
+   "contact": "6ae1ee4f148e158fd5b07a12",
+   "date": "2026-10-28",
+   "status": "OPEN"
+  },
+  "6ae22199e53d5424a8dd294b": {
+   "agent": "Reham-MKV",
+   "channel": "Main",
+   "contact": "6ae22199e53d5424a8dd2942",
+   "date": "2026-10-28",
+   "status": "OPEN"
+  },
+  "6ae230e585bb6d3a26385cc6": {
+   "agent": "Reham-MKV",
+   "channel": "Car Rental",
+   "contact": "6ae230e585bb6d3a26385cbd",
+   "date": "2026-10-28",
+   "status": "OPEN"
+  },
+  "6ae23db89583050e9f27c684": {
+   "agent": "Reham-MKV",
+   "channel": "Main",
+   "contact": "6ae23db89583050e9f27c67b",
+   "date": "2026-10-28",
+   "status": "OPEN"
+  },
+  "6ae24f87e53d5424a8e23005": {
+   "agent": "Unassigned",
+   "channel": "Main",
+   "contact": "6ae24f87e53d5424a8e22ffc",
+   "date": "2026-10-28",
+   "status": "OPEN"
+  },
+  "6ae265b28e5be5bc212e5766": {
+   "agent": "Unassigned",
+   "channel": "Main",
+   "contact": "6ae265b28e5be5bc212e575d",
+   "date": "2026-10-29",
+   "status": "OPEN"
+  },
+  "6ae26ec48e5be5bc212e95aa": {
+   "agent": "Tapan-MKV",
+   "channel": "Main",
+   "contact": "6ae26ec48e5be5bc212e95a1",
+   "date": "2026-10-29",
+   "status": "CLOSE"
+  },
+  "6ae26fea85bb6d3a263cf8c0": {
+   "agent": "Rafithath-MKV",
+   "channel": "Main",
+   "contact": "6ae26fea85bb6d3a263cf8b7",
+   "date": "2026-10-29",
+   "status": "OPEN"
+  },
+  "6ae3071a842c04486d605b10": {
+   "agent": "Unassigned",
+   "channel": "Main",
+   "contact": "6ae3071a842c04486d605afc",
+   "date": "2026-10-29",
+   "status": "OPEN"
+  },
+  "6ae30b3dd224980a1f6d62e6": {
+   "agent": "Unassigned",
+   "channel": "Main",
+   "contact": "6ae30b3dd224980a1f6d62d7",
+   "date": "2026-10-29",
+   "status": "OPEN"
+  },
+  "6ae30dde842c04486d61cbdc": {
+   "agent": "Unassigned",
+   "channel": "Main",
+   "contact": "6ae30dde842c04486d61cbd3",
+   "date": "2026-10-29",
+   "status": "OPEN"
+  },
+  "6ae31c41842c04486d6522b8": {
+   "agent": "Reham-MKV",
+   "channel": "Main",
+   "contact": "6ae31c41842c04486d6522ae",
+   "date": "2026-10-29",
+   "status": "OPEN"
+  },
+  "6ae31d1eccfcaef3beb8440d": {
+   "agent": "Tapan-MKV",
+   "channel": "Car Rental",
+   "contact": "66ed8e57b0a59f5c4d329486",
+   "date": "2026-10-29",
+   "status": "CLOSE"
+  },
+  "6ae322fa842c04486d66bcdc": {
+   "agent": "Reham-MKV",
+   "channel": "Main",
+   "contact": "6ae322fa842c04486d66bcd3",
+   "date": "2026-10-29",
+   "status": "OPEN"
+  },
+  "6ae32509897c8dcee2f5c1f7": {
+   "agent": "Unassigned",
+   "channel": "Rent to Own",
+   "contact": "6ae32509897c8dcee2f5c1ee",
+   "date": "2026-10-29",
+   "status": "OPEN"
+  },
+  "6ae3351dccfcaef3bebd23c9": {
+   "agent": "Reham-MKV",
+   "channel": "Main",
+   "contact": "6ae3351dccfcaef3bebd23b2",
+   "date": "2026-10-29",
+   "status": "OPEN"
+  },
+  "6ae362883c90776b75ee383f": {
+   "agent": "Reham-MKV",
+   "channel": "Main",
+   "contact": "6ae362873c90776b75ee3836",
+   "date": "2026-10-29",
+   "status": "OPEN"
+  },
+  "6ae37b2fb9b78507951b34b4": {
+   "agent": "Rafithath-MKV",
+   "channel": "Main",
+   "contact": "6ae37b2eb9b78507951b34ab",
+   "date": "2026-10-29",
+   "status": "OPEN"
+  },
+  "6ae37cd8b9b78507951b7397": {
+   "agent": "Tapan-MKV",
+   "channel": "Instagram",
+   "contact": "6ae37cd8b9b78507951b738b",
+   "date": "2026-10-29",
+   "status": "CLOSE"
+  },
+  "6ae38618df92b4573317c741": {
+   "agent": "Rafithath-MKV",
+   "channel": "Main",
+   "contact": "6ae38618df92b4573317c738",
+   "date": "2026-10-29",
+   "status": "OPEN"
+  },
+  "6ae38845b9b78507951d15d9": {
+   "agent": "Tapan-MKV",
+   "channel": "Car Rental",
+   "contact": "6ae38845b9b78507951d15d0",
+   "date": "2026-10-29",
+   "status": "CLOSE"
+  },
+  "6ae3b8adb9b7850795210e13": {
+   "agent": "Unassigned",
+   "channel": "Main",
+   "contact": "6ae3b8adb9b7850795210e0a",
+   "date": "2026-10-30",
+   "status": "OPEN"
+  },
+  "6ae3fca4d942e6c57e6b1426": {
+   "agent": "Tapan-MKV",
+   "channel": "Car Rental",
+   "contact": "6ae3fca4d942e6c57e6b141b",
+   "date": "2026-10-30",
+   "status": "CLOSE"
+  },
+  "6ae44a25cc8550f2cbb1635f": {
+   "agent": "Tapan-MKV",
+   "channel": "Main",
+   "contact": "6ae44a25cc8550f2cbb16356",
+   "date": "2026-10-30",
+   "status": "OPEN"
+  },
+  "6ae44bc7d942e6c57e75171c": {
+   "agent": "Unassigned",
+   "channel": "Rent to Own",
+   "contact": "6a0721000888fbd7ba9c04ed",
+   "date": "2026-10-30",
+   "status": "OPEN"
+  },
+  "6ae44ee1cc8550f2cbb25df1": {
+   "agent": "Tapan-MKV",
+   "channel": "Car Rental",
+   "contact": "6ae44ee1cc8550f2cbb25de8",
+   "date": "2026-10-30",
+   "status": "CLOSE"
+  },
+  "6ae459160eca19c580fd601b": {
+   "agent": "Tapan-MKV",
+   "channel": "Main",
+   "contact": "6ae459160eca19c580fd6012",
+   "date": "2026-10-30",
+   "status": "CLOSE"
+  },
+  "6ae459d50eca19c580fd828e": {
+   "agent": "Tapan-MKV",
+   "channel": "Instagram",
+   "contact": "6ae459d50eca19c580fd8282",
+   "date": "2026-10-30",
+   "status": "CLOSE"
+  },
+  "6ae465b5d942e6c57e796fa5": {
+   "agent": "Reham-MKV",
+   "channel": "Car Rental",
+   "contact": "6ae44ee1cc8550f2cbb25de8",
+   "date": "2026-10-30",
+   "status": "OPEN"
+  },
+  "6ae46c58d942e6c57e7a9e46": {
+   "agent": "Tapan-MKV",
+   "channel": "Instagram",
+   "contact": "6ae37cd8b9b78507951b738b",
+   "date": "2026-10-30",
+   "status": "CLOSE"
+  },
+  "6ae47f8a884dff7c5c9ed1a5": {
+   "agent": "Tapan-MKV",
+   "channel": "Main",
+   "contact": "6ae47f8a884dff7c5c9ed19c",
+   "date": "2026-10-30",
+   "status": "OPEN"
+  },
+  "6ae48a24526f83ff22e98d67": {
+   "agent": "Unassigned",
+   "channel": "Main",
+   "contact": "6ae48a23526f83ff22e98d51",
+   "date": "2026-10-30",
+   "status": "OPEN"
+  },
+  "6ae493d92d181b6776532f9e": {
+   "agent": "Reham-MKV",
+   "channel": "Main",
+   "contact": "6ae493d92d181b6776532f95",
+   "date": "2026-10-30",
+   "status": "OPEN"
+  },
+  "6ae4a14f0d6e6cf83b9f8941": {
+   "agent": "Reham-MKV",
+   "channel": "Main",
+   "contact": "6ae4a14f0d6e6cf83b9f8938",
+   "date": "2026-10-30",
+   "status": "OPEN"
+  },
+  "6ae4ae4a9e0719909aa3ba61": {
+   "agent": "Tapan-MKV",
+   "channel": "Instagram",
+   "contact": "6ae459d50eca19c580fd8282",
+   "date": "2026-10-30",
+   "status": "CLOSE"
+  },
+  "6ae4ebca0d6e6cf83ba91e8c": {
+   "agent": "Rafithath-MKV",
+   "channel": "Car Rental",
+   "contact": "67a655e4b36c1350cbc95029",
+   "date": "2026-10-30",
+   "status": "OPEN"
+  },
+  "6ae4f0e92d181b6776618724": {
+   "agent": "Unassigned",
+   "channel": "Main",
+   "contact": "6ae4f0e92d181b677661871b",
+   "date": "2026-10-30",
+   "status": "OPEN"
+  },
+  "6ae544412d181b6776647478": {
+   "agent": "Unassigned",
+   "channel": "Rent to Own",
+   "contact": "6ae544412d181b677664746f",
+   "date": "2026-10-31",
+   "status": "OPEN"
+  },
+  "6ae599f7884dff7c5cbfcb7b": {
+   "agent": "Unassigned",
+   "channel": "Main",
+   "contact": "6ae599f7884dff7c5cbfcb72",
+   "date": "2026-10-31",
+   "status": "OPEN"
+  },
+  "6ae5a5569e0719909abf9a29": {
+   "agent": "Tapan-MKV",
+   "channel": "Instagram",
+   "contact": "6ae5a5569e0719909abf9a19",
+   "date": "2026-10-31",
+   "status": "CLOSE"
+  },
+  "6ae5b7299e0719909ac2cbaf": {
+   "agent": "Tapan-MKV",
+   "channel": "Car Rental",
+   "contact": "6ae5b7299e0719909ac2cba6",
+   "date": "2026-10-31",
+   "status": "OPEN"
+  },
+  "6ae5c00d0d6e6cf83bb99f13": {
+   "agent": "Reham-MKV",
+   "channel": "Main",
+   "contact": "6ae5c00d0d6e6cf83bb99f06",
+   "date": "2026-10-31",
+   "status": "OPEN"
+  },
+  "6ae5d0fe884dff7c5cc905a6": {
+   "agent": "Bot: RTO MKV",
+   "channel": "Rent to Own",
+   "contact": "6ae5d0fe884dff7c5cc9059d",
+   "date": "2026-10-31",
+   "status": "OPEN"
+  },
+  "6ae5d2622d181b67767ac8ec": {
+   "agent": "Rafithath-MKV",
+   "channel": "Main",
+   "contact": "6ae5d10d4e2ce67dfd1f616d",
+   "date": "2026-10-31",
+   "status": "OPEN"
+  },
+  "6ae5e06c884dff7c5ccb8429": {
+   "agent": "Reham-MKV",
+   "channel": "Main",
+   "contact": "6ae5e06c884dff7c5ccb8420",
+   "date": "2026-10-31",
+   "status": "OPEN"
+  },
+  "6ae5fcfe884dff7c5cd08dc7": {
+   "agent": "Unassigned",
+   "channel": "Instagram",
+   "contact": "6ae5fcfe884dff7c5cd08db0",
+   "date": "2026-10-31",
+   "status": "OPEN"
+  },
+  "6ae631030d6e6cf83bc7318b": {
+   "agent": "Bot: RTO MKV",
+   "channel": "Rent to Own",
+   "contact": "6ae631030d6e6cf83bc73182",
+   "date": "2026-10-31",
+   "status": "OPEN"
+  },
+  "6ae64e5788c65ea443ad3146": {
+   "agent": "Unassigned",
+   "channel": "Main",
+   "contact": "6ae64e5688c65ea443ad313c",
+   "date": "2026-11-01",
+   "first_text": "UID:42qkEz Thank you for reaching MKV Luxury. Please enter your message below:",
+   "origin": "website",
+   "status": "OPEN"
+  },
+  "6ae66eb32d181b67768cc7c1": {
+   "agent": "Unassigned",
+   "channel": "Car Rental",
+   "contact": "6ae66eb32d181b67768cc7b8",
+   "date": "2026-11-01",
+   "first_text": "",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6ae6899b884dff7c5cd9db4f": {
+   "agent": "Tapan-MKV",
+   "channel": "Main",
+   "contact": "6ae6899b884dff7c5cd9db46",
+   "date": "2026-11-01",
+   "first_text": "Hi Tariq, this is Ismail Kazia from LeakGrader. I noticed MKV is running video a",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6ae6bc819e0719909add0dcc": {
+   "ad_id": "120239181295470594",
+   "ad_name": "Book Now",
+   "agent": "MKV Luxury",
+   "channel": "Car Rental",
+   "contact": "6ae6bc819e0719909add0db7",
+   "date": "2026-11-01",
+   "first_text": "Hi! I would like to book the car without deposit",
+   "origin": "meta_ad",
+   "placement": "Instagram",
+   "status": "CLOSE"
+  },
+  "6ae6e462884dff7c5ce17ee5": {
+   "ad_id": "120239181295470594",
+   "ad_name": "Book Now",
+   "agent": "Tapan-MKV",
+   "channel": "Car Rental",
+   "contact": "6ae6e462884dff7c5ce17ece",
+   "date": "2026-11-01",
+   "first_text": "Hi! I would like to book the car without deposit",
+   "origin": "meta_ad",
+   "placement": "Instagram",
+   "status": "OPEN"
+  },
+  "6ae6f10a9e0719909ae45f23": {
+   "agent": "Tapan-MKV",
+   "channel": "Main",
+   "contact": "6ae6f1099e0719909ae45ee2",
+   "date": "2026-11-01",
+   "first_text": "",
+   "origin": "direct",
+   "status": "CLOSE"
+  },
+  "6ae6f1460d6e6cf83bd0b885": {
+   "agent": "Tapan-MKV",
+   "channel": "Main",
+   "contact": "6ae6f1099e0719909ae45ee2",
+   "date": "2026-11-01",
+   "first_text": "Hello Sir, I'm Ayesha, an online reputation management expert. I noticed some ne",
+   "origin": "direct",
+   "status": "CLOSE"
+  },
+  "6ae708712d181b67769b149e": {
+   "ad_id": "120239181295470594",
+   "ad_name": "Book Now",
+   "agent": "Tapan-MKV",
+   "channel": "Car Rental",
+   "contact": "6ae708712d181b67769b1491",
+   "date": "2026-11-01",
+   "first_text": "Good afternoon",
+   "origin": "meta_ad",
+   "placement": "Facebook",
+   "status": "CLOSE"
+  },
+  "6ae70b9b526f83ff2213f8a8": {
+   "agent": "Tapan-MKV",
+   "channel": "Car Rental",
+   "contact": "672f14bcee10da72cd348186",
+   "date": "2026-11-01",
+   "first_text": "Hi",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6ae739de88c65ea443c0f675": {
+   "agent": "Rafithath-MKV",
+   "channel": "Main",
+   "contact": "6ae739dd88c65ea443c0f658",
+   "date": "2026-11-01",
+   "first_text": "Hello,\n\nI'd like a written quote for 2 consecutive rentals in Dubai. 1 driver on",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6ae7429a88c65ea443c22047": {
+   "agent": "Unassigned",
+   "channel": "Rent to Own",
+   "contact": "6ae7429a88c65ea443c2203e",
+   "date": "2026-11-01",
+   "first_text": "Hi, I want to know more about Rent-to-Own plan.",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6ae76f152d181b6776a9fb52": {
+   "agent": "Tapan-MKV",
+   "channel": "Instagram",
+   "contact": "6ae37cd8b9b78507951b738b",
+   "date": "2026-11-01",
+   "first_text": "",
+   "origin": "direct",
+   "status": "CLOSE"
+  },
+  "6ae7762b88c65ea443c845cd": {
+   "agent": "Rafithath-MKV",
+   "channel": "Main",
+   "contact": "6ae7762b88c65ea443c845c4",
+   "date": "2026-11-01",
+   "first_text": "Is this the exact coupe you have available? What year model is it? Terms and con",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6ae77b910d6e6cf83bdf34bb": {
+   "agent": "Rafithath-MKV",
+   "channel": "Main",
+   "contact": "69df4cd96c408ad30bc066a1",
+   "date": "2026-11-01",
+   "first_text": "",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6ae7ac6a2d181b6776ae34fc": {
+   "agent": "Rafithath-MKV",
+   "channel": "Main",
+   "contact": "6ae7ac6a2d181b6776ae34f3",
+   "date": "2026-11-02",
+   "first_text": "UID:n3HhJ8 Thank you for reaching MKV Luxury. Please enter your message below: h",
+   "origin": "website",
+   "status": "OPEN"
+  },
+  "6ae7c3e29e0719909afbb16f": {
+   "agent": "Rafithath-MKV",
+   "channel": "Main",
+   "contact": "6ae7c3e29e0719909afbb166",
+   "date": "2026-11-02",
+   "first_text": "Hi",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6ae7c6ff9e0719909afbc1a0": {
+   "ad_id": "120239181295470594",
+   "ad_name": "Book Now",
+   "agent": "Unassigned",
+   "channel": "Car Rental",
+   "contact": "6ae7c6ff9e0719909afbc197",
+   "date": "2026-11-02",
+   "first_text": "Can you share more details on this offer?",
+   "origin": "meta_ad",
+   "placement": "Instagram",
+   "status": "OPEN"
+  },
+  "6ae7c8489e0719909afbc866": {
+   "agent": "Reham-MKV",
+   "channel": "Main",
+   "contact": "6ae7c8489e0719909afbc85c",
+   "date": "2026-11-02",
+   "first_text": "UID:d86GnP Thank you for reaching MKV Luxury. Please enter your message below:",
+   "origin": "website",
+   "status": "OPEN"
+  },
+  "6ae82b610d6e6cf83beb2da1": {
+   "agent": "Reham-MKV",
+   "channel": "Main",
+   "contact": "6ae82b610d6e6cf83beb2d98",
+   "date": "2026-11-02",
+   "first_text": "Hello",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6ae8348f9e0719909a07c8ab": {
+   "agent": "Tapan-MKV",
+   "channel": "Main",
+   "contact": "6ae8348f9e0719909a07c8a2",
+   "date": "2026-11-02",
+   "first_text": "Hi MKV Luxury Car Rental team 👋\n\nThis is Last Stop Car Repairing Garage in Dubai",
+   "origin": "direct",
+   "status": "CLOSE"
+  },
+  "6ae839ba0d6e6cf83bee6318": {
+   "agent": "Unassigned",
+   "channel": "Main",
+   "contact": "69d9d198a176e37fc9e86b73",
+   "date": "2026-11-02",
+   "first_text": "",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6ae8670d9e0719909a129b54": {
+   "agent": "Tapan-MKV",
+   "channel": "Main",
+   "contact": "6ae8670d9e0719909a129b4b",
+   "date": "2026-11-02",
+   "first_text": "✨ Great News for You! ✨\nI can remove negative Google Map reviews quickly and saf",
+   "origin": "direct",
+   "status": "CLOSE"
+  },
+  "6ae89a219e0719909a1d50dc": {
+   "agent": "Rafithath-MKV",
+   "channel": "Main",
+   "contact": "6ae89a219e0719909a1d50ce",
+   "date": "2026-11-02",
+   "first_text": "Hello",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6ae89bb92d181b6776c6f9e5": {
+   "agent": "Rafithath-MKV",
+   "channel": "Main",
+   "contact": "6ae89bb92d181b6776c6f9dc",
+   "date": "2026-11-02",
+   "first_text": "Hi there, looking for a G waggon or Range Rover from the 6th of November a.m to ",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6ae8a6b5526f83ff2237e938": {
+   "agent": "Rafithath-MKV",
+   "channel": "Car Rental",
+   "contact": "66ed8e773ee1a3a0e3219b36",
+   "date": "2026-11-02",
+   "first_text": "Hi bro how are you",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6ae8bb399e0719909a23b8f0": {
+   "agent": "Rafithath-MKV",
+   "channel": "Main",
+   "contact": "6ae8bb399e0719909a23b8e7",
+   "date": "2026-11-02",
+   "first_text": "Range rover  Autobiography new \nRent  date from \n5th of November \nMy Location \nM",
+   "origin": "direct",
+   "status": "CLOSE"
+  },
+  "6ae8bc13437fa7f205c07688": {
+   "agent": "Rafithath-MKV",
+   "channel": "Main",
+   "contact": "6ae8bb399e0719909a23b8e7",
+   "date": "2026-11-02",
+   "first_text": "",
+   "origin": "outbound",
+   "status": "CLOSE"
+  },
+  "6ae8bc53884dff7c5c1edb97": {
+   "agent": "Unassigned",
+   "channel": "Main",
+   "contact": "6ae8bb399e0719909a23b8e7",
+   "date": "2026-11-02",
+   "first_text": "Everything i will share. \nNeed best price \nFirst send me pictures",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6ae8f6680d6e6cf83b0fbf82": {
+   "agent": "Rafithath-MKV",
+   "channel": "Car Rental",
+   "contact": "6ab635a4d7cf53d6f4a9dd7f",
+   "date": "2026-11-03",
+   "first_text": "Hi",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6ae8f87188c65ea443f2aa77": {
+   "agent": "Rafithath-MKV",
+   "channel": "Main",
+   "contact": "6ae8f87188c65ea443f2aa6e",
+   "date": "2026-11-03",
+   "first_text": "UID:6s7yKN Thank you for reaching MKV Luxury. Please enter your message below:",
+   "origin": "website",
+   "status": "OPEN"
+  },
+  "6ae9698fbb52f7d9f25e1ca3": {
+   "ad_id": "120239181295470594",
+   "ad_name": "Book Now",
+   "agent": "Unassigned",
+   "channel": "Car Rental",
+   "contact": "66ed8e7d3ee1a3a0e321a3aa",
+   "date": "2026-11-03",
+   "first_text": "Can you share more details on this offer?",
+   "origin": "meta_ad",
+   "placement": "Facebook",
+   "status": "OPEN"
+  },
+  "6ae97e83bb52f7d9f2615507": {
+   "agent": "Unassigned",
+   "channel": "Main",
+   "contact": "6ae97e83bb52f7d9f26154fa",
+   "date": "2026-11-03",
+   "first_text": "Good day!\n\nWe are ***One By Cafadaru Rent A Car****, and we would like to explor",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6ae98064bb52f7d9f261a615": {
+   "agent": "Tapan-MKV",
+   "channel": "Main",
+   "contact": "6ae98063bb52f7d9f261a60c",
+   "date": "2026-11-03",
+   "first_text": "Hi Team MKV Luxury! Althaf here (Senior Web Architect). Love your supercar fleet",
+   "origin": "direct",
+   "status": "CLOSE"
+  },
+  "6ae990a687cc5dc89f8b047b": {
+   "agent": "Tapan-MKV",
+   "channel": "Main",
+   "contact": "6ae990a687cc5dc89f8b0472",
+   "date": "2026-11-03",
+   "first_text": "UID:XK5JGE Thank you for reaching MKV Luxury. Please enter your message below:",
+   "origin": "website",
+   "status": "OPEN"
+  },
+  "6ae9b9237ca010d0aaad160e": {
+   "agent": "Unassigned",
+   "channel": "Main",
+   "contact": "69f04b8efa9512c03b8b98de",
+   "date": "2026-11-03",
+   "first_text": "UID:mZL5fs Thank you for reaching MKV Luxury. Please enter your message below:",
+   "origin": "website",
+   "status": "OPEN"
+  },
+  "6ae9c4576e67faafe6fbd759": {
+   "agent": "Tapan-MKV",
+   "channel": "Main",
+   "contact": "6ae9c4576e67faafe6fbd72f",
+   "date": "2026-11-03",
+   "first_text": "Hi, this is Antonio.\nWe spoke couple of hours ago in your shop.\nThis is my numbe",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6ae9c7c3fef729571aa4ea51": {
+   "agent": "Reham-MKV",
+   "channel": "Main",
+   "contact": "6ae9c7c3fef729571aa4ea46",
+   "date": "2026-11-03",
+   "first_text": "Hello",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6ae9db192f2e91727b8bdd45": {
+   "agent": "Rafithath-MKV",
+   "channel": "Car Rental",
+   "contact": "6ae7a2f24e2ce67dfd40829d",
+   "date": "2026-11-03",
+   "first_text": "Hello",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6ae9db2dfef729571aa85cc3": {
+   "agent": "MKV Luxury",
+   "channel": "Main",
+   "contact": "6ae7a2f24e2ce67dfd40829d",
+   "date": "2026-11-03",
+   "first_text": "UID:uG5eZ3 Thank you for reaching MKV Luxury. Please enter your message below:",
+   "origin": "website",
+   "status": "CLOSE"
+  },
+  "6ae9dfee2f2e91727b8cf0d9": {
+   "agent": "Unassigned",
+   "channel": "Main",
+   "contact": "6ae9dfee2f2e91727b8cf0d0",
+   "date": "2026-11-03",
+   "first_text": "Hi MKV Luxury team! Checked out your supercar collection on mkvluxury.com. Durin",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6ae9e25f9c63006e8512a1bc": {
+   "agent": "Unassigned",
+   "channel": "Instagram",
+   "contact": "6ae5a5569e0719909abf9a19",
+   "date": "2026-11-03",
+   "first_text": "",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6ae9e7650465aec8298a651a": {
+   "agent": "Reham-MKV",
+   "channel": "Main",
+   "contact": "6ae9e7650465aec8298a6511",
+   "date": "2026-11-03",
+   "first_text": "Can you send me photos of it please?",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6ae9e9e98141345529a3842b": {
+   "agent": "Tapan-MKV",
+   "channel": "Car Rental",
+   "contact": "6acb7c92a5f459156e1f92d4",
+   "date": "2026-11-03",
+   "first_text": "Hi,\n\nI’m Contacting  you Regarding My previous message About the premium Domain ",
+   "origin": "direct",
+   "status": "CLOSE"
+  },
+  "6aea069cfef729571aaf48c3": {
+   "agent": "Tapan-MKV",
+   "channel": "Main",
+   "contact": "6aea069cfef729571aaf48ba",
+   "date": "2026-11-03",
+   "first_text": "Hi! 👋 I’m a Freelance Professional Video Editor. I create engaging, high-quality",
+   "origin": "direct",
+   "status": "CLOSE"
+  },
+  "6aea28fe2f2e91727b99caa0": {
+   "agent": "MKV Luxury",
+   "channel": "Main",
+   "contact": "6aea28fe2f2e91727b99ca97",
+   "date": "2026-11-03",
+   "first_text": "Hello!\n\nMy name is Timur, and I represent Sapa Tourism, a tourism and luxury car",
+   "origin": "direct",
+   "status": "CLOSE"
+  },
+  "6aea30cb290e5c3684d8553c": {
+   "ad_id": "120239181295470594",
+   "ad_name": "Book Now",
+   "agent": "Unassigned",
+   "channel": "Car Rental",
+   "contact": "69e39c067c942da70d4b67e0",
+   "date": "2026-11-03",
+   "first_text": "Can you share more details on this offer?",
+   "origin": "meta_ad",
+   "placement": "Instagram",
+   "status": "OPEN"
+  },
+  "6aea3c400465aec82998733f": {
+   "agent": "Rafithath-MKV",
+   "channel": "Main",
+   "contact": "6aea3c400465aec829987336",
+   "date": "2026-11-03",
+   "first_text": "UID:D6r5To Thank you for reaching MKV Luxury. Please enter your message below:lo",
+   "origin": "website",
+   "status": "OPEN"
+  },
+  "6aea3e02fef729571ab44a2a": {
+   "ad_id": "120239181295470594",
+   "ad_name": "Book Now",
+   "agent": "Tapan-MKV",
+   "channel": "Car Rental",
+   "contact": "6aea3e02fef729571ab44a21",
+   "date": "2026-11-04",
+   "first_text": "Can you share more details on this offer?",
+   "origin": "meta_ad",
+   "placement": "Instagram",
+   "status": "OPEN"
+  },
+  "6aeaf975b712c48606866848": {
+   "agent": "Tapan-MKV",
+   "channel": "Car Rental",
+   "contact": "6aeaf975b712c4860686683b",
+   "date": "2026-11-04",
+   "first_text": "Hi",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6aeafbc1be21040226d2050e": {
+   "agent": "Tapan-MKV",
+   "channel": "Main",
+   "contact": "6aea069cfef729571aaf48ba",
+   "date": "2026-11-04",
+   "first_text": "Ram Ram",
+   "origin": "direct",
+   "status": "CLOSE"
+  },
+  "6aeafe21bec623b56f507d30": {
+   "agent": "Tapan-MKV",
+   "channel": "Main",
+   "contact": "6aea069cfef729571aaf48ba",
+   "date": "2026-11-04",
+   "first_text": "",
+   "origin": "outbound",
+   "status": "CLOSE"
+  },
+  "6aeafe90b712c48606875bc7": {
+   "agent": "Unassigned",
+   "channel": "Main",
+   "contact": "6aeafe90b712c48606875bbe",
+   "date": "2026-11-04",
+   "first_text": "Hi I’m Walid and I got your number from my friend Ali … if you need driver for c",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6aeb0ac1a6a75f2030c3e3d8": {
+   "agent": "MKV Luxury",
+   "channel": "Main",
+   "contact": "6aeb0ac1a6a75f2030c3e3cf",
+   "date": "2026-11-04",
+   "first_text": "Hello Sir, Irha here!\nExplore our exclusive du Business Offers:\n\n📱 Business SIM ",
+   "origin": "direct",
+   "status": "CLOSE"
+  },
+  "6aeb3b9531aa405b7c7eb552": {
+   "agent": "Tapan-MKV",
+   "channel": "Main",
+   "contact": "6aeb3b9431aa405b7c7eb549",
+   "date": "2026-11-04",
+   "first_text": "How are you",
+   "origin": "direct",
+   "status": "CLOSE"
+  },
+  "6aeb3b956407974853a333dc": {
+   "agent": "Tapan-MKV",
+   "channel": "Main",
+   "contact": "6aeb3b9431aa405b7c7eb549",
+   "date": "2026-11-04",
+   "first_text": "Hi",
+   "origin": "direct",
+   "status": "CLOSE"
+  },
+  "6aeb40ac57dba01a70f0fb1e": {
+   "agent": "Tapan-MKV",
+   "channel": "Main",
+   "contact": "6aeb40ac57dba01a70f0fb15",
+   "date": "2026-11-04",
+   "first_text": "How are you",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6aeb4f478f841179460d1c59": {
+   "agent": "Tapan-MKV",
+   "channel": "Instagram",
+   "contact": "6aeb4f478f841179460d1c4d",
+   "date": "2026-11-04",
+   "first_text": "Heeey! This is Rafael Werneck!\nI’m a professional football player and digital in",
+   "origin": "direct",
+   "status": "CLOSE"
+  },
+  "6aeb64c5edf2f33b74894ad9": {
+   "agent": "Tapan-MKV",
+   "channel": "Instagram",
+   "contact": "6ae37cd8b9b78507951b738b",
+   "date": "2026-11-04",
+   "first_text": "",
+   "origin": "direct",
+   "status": "CLOSE"
+  },
+  "6aeb7ae1edf2f33b748b6bbf": {
+   "agent": "Unassigned",
+   "channel": "Main",
+   "contact": "6aeb7ae1edf2f33b748b6bb6",
+   "date": "2026-11-04",
+   "first_text": "Hello there, I am interested in hiring a car from the 20-25th of November, what ",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6aebab340c23cccf5ffefcb1": {
+   "agent": "Rafithath-MKV",
+   "channel": "Main",
+   "contact": "6aebab340c23cccf5ffefca8",
+   "date": "2026-11-05",
+   "first_text": "UID:p36cgT Thank you for reaching MKV Luxury. Please enter your message below:",
+   "origin": "website",
+   "status": "OPEN"
+  },
+  "6aebc766ba25600aeba3314e": {
+   "agent": "Tapan-MKV",
+   "channel": "Main",
+   "contact": "6aebc766ba25600aeba33145",
+   "date": "2026-11-05",
+   "first_text": "Hi mkv  team! I came across your Instagram page and really liked your car select",
+   "origin": "direct",
+   "status": "CLOSE"
+  },
+  "6aec16bfd2f3398f3c3a7bde": {
+   "agent": "Unassigned",
+   "channel": "Instagram",
+   "contact": "6aec16bfd2f3398f3c3a7bd4",
+   "date": "2026-11-05",
+   "first_text": "Hey guys! 👋\n\nI’d love to offer you a barter collaboration!\n\nMy regular advertisi",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6aec1b33b4312272d2d678c5": {
+   "agent": "Tapan-MKV",
+   "channel": "Main",
+   "contact": "6aec1b33b4312272d2d678b7",
+   "date": "2026-11-05",
+   "first_text": "Do you do lease to buy",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6aec20fbff18d4d5b8fa842f": {
+   "agent": "Unassigned",
+   "channel": "Main",
+   "contact": "6aec20fbff18d4d5b8fa8426",
+   "date": "2026-11-05",
+   "first_text": "Hello, we have various models of Geely and BYD. Do you have any needs?",
+   "origin": "direct",
+   "status": "OPEN"
   }
+ },
+ "updated": "2026-11-05T13:06:46+04:00"
 }
