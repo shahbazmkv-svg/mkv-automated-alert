@@ -17369,6 +17369,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0011221-PRIM-Lamborghini": {
+      "thread_ts": "1793862923.259499",
+      "end_date": "2026-11-07",
+      "plate": "94545",
+      "customer": "Primus Car Rental Llc",
+      "vehicle": "Lamborghini Urus S",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-11-06"
     }
   }
 }
