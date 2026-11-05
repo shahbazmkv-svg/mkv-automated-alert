@@ -1,13 +1,31 @@
-import requests
+"""
+MKV Luxury — Daily Leads Report (Gallabox → Slack)
+
+Counts leads exactly as Gallabox's Analytics → Conversation Report does:
+one lead = one conversation, dated by its "Created At" in Dubai time,
+per channel (3 WhatsApp numbers + Instagram). Agent split = "Assigned To".
+Source = the WhatsApp number used (Main = Google Ads, Car Rental = Meta + others,
+Rent to Own, Instagram); on Car Rental, Meta is confirmed by the ad referral or welcome text.
+Any lead starting "UID:" (website chat) counts as Google.
+
+Gallabox's /conversations API only returns the latest 100 conversations per
+channel and status (no pagination), so every run saves the conversations it
+sees in mtd_store.json. MTD = all conversations created this month that any
+run has seen, so a missed run is filled in by the next one.
+"""
 import json
 import os
-from datetime import datetime, timezone, timedelta
-from concurrent.futures import ThreadPoolExecutor, as_completed
+from concurrent.futures import ThreadPoolExecutor
+from datetime import datetime, timedelta, timezone
 
-# ── CREDENTIALS ───────────────────────────────────────────────────────────────
-ACCOUNT_ID  = os.environ.get("GALLABOX_ACCOUNT_ID", "66e3f05033e71154d5fdd76c")
-API_KEY     = os.environ.get("GALLABOX_API_KEY",    "6a1064ed5a8546db4ab5870b")
-API_SECRET  = os.environ.get("GALLABOX_API_SECRET", "e9e9903954a645f3adf7be9a86d7a4d2")
+import requests
+
+# ── CREDENTIALS (GitHub Secrets) ──────────────────────────────────────────────
+ACCOUNT_ID = os.environ.get("GALLABOX_ACCOUNT_ID", "").strip()
+API_KEY    = os.environ.get("GALLABOX_API_KEY", "").strip()
+API_SECRET = os.environ.get("GALLABOX_API_SECRET", "").strip()
+if not (ACCOUNT_ID and API_KEY and API_SECRET):
+    raise SystemExit("[ERROR] Set GALLABOX_ACCOUNT_ID, GALLABOX_API_KEY and GALLABOX_API_SECRET in GitHub Secrets")
 
 # ── SLACK ─────────────────────────────────────────────────────────────────────
 SLACK_BOT_TOKEN = os.environ.get("SLACK_BOT_TOKEN", "")
@@ -16,258 +34,391 @@ CHANNEL_TEST    = "C0B0TGBDCDU"   # #mkv-test-automation
 TEST_MODE       = os.environ.get("TEST_MODE", "false").lower() == "true"
 
 MTD_STORE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "mtd_store.json")
+BASE_URL  = "https://server.gallabox.com/devapi/accounts/" + ACCOUNT_ID
+HEADERS   = {"apiKey": API_KEY, "apiSecret": API_SECRET, "Content-Type": "application/json"}
 
-GALLABOX_HEADERS = {"apiKey": API_KEY, "apiSecret": API_SECRET, "Content-Type": "application/json"}
-BASE_URL = "https://server.gallabox.com/devapi/accounts/" + ACCOUNT_ID
+# Same names and order as the channel picker in Gallabox
 GALLABOX_CHANNELS = [
-    {"name": "MKV Luxury Main",       "id": "675a90ddda3020e52915beff"},
-    {"name": "MKV Luxury Car Rental", "id": "66e930025e9ef7252ccc8a25"},
-    {"name": "Rent to Own",           "id": "699d8cca452cc56936e21e45"},
+    {"name": "Main",           "id": "675a90ddda3020e52915beff", "type": "whatsapp"},
+    {"name": "Car Rental",     "id": "66e930025e9ef7252ccc8a25", "type": "whatsapp"},
+    {"name": "Rent to Own",    "id": "699d8cca452cc56936e21e45", "type": "whatsapp"},
+    {"name": "Instagram",      "id": "68bece5baa64e82aba9cd45f", "type": "instagram"},
 ]
+CHANNEL_NAMES = [c["name"] for c in GALLABOX_CHANNELS]
+STATUSES      = ["OPEN", "CLOSE"]   # each status returns its own latest 100
+API_PAGE_CAP  = 100
+NOT_TAGGED    = "Not tagged"
 
-dubai_tz            = timezone(timedelta(hours=4))
-utc_tz              = timezone.utc
-now_dubai           = datetime.now(dubai_tz)
-yesterday_dubai     = now_dubai - timedelta(days=1)
-report_dt           = now_dubai.strftime("%d %b %Y | %I:%M %p Dubai Time")
-yesterday_str       = yesterday_dubai.strftime("%d %b %Y")
-yesterday_key       = yesterday_dubai.strftime("%Y-%m-%d")
-cur_month           = now_dubai.strftime("%Y-%m")
-yesterday_utc_start = yesterday_dubai.replace(hour=0,  minute=0,  second=0,  microsecond=0).astimezone(utc_tz)
-yesterday_utc_end   = yesterday_dubai.replace(hour=23, minute=59, second=59, microsecond=0).astimezone(utc_tz)
+DUBAI         = timezone(timedelta(hours=4))
+now_dubai     = datetime.now(DUBAI)
+report_day    = (now_dubai - timedelta(days=1)).date()        # "yesterday"
+report_key    = report_day.isoformat()                        # 2026-11-04
+report_month  = report_key[:7]                                # 2026-11
+report_dt     = now_dubai.strftime("%d %b %Y | %I:%M %p Dubai Time")
+report_str    = report_day.strftime("%d %b %Y")
+month_str     = report_day.strftime("%b %Y")
+month_start   = datetime(report_day.year, report_day.month, 1, tzinfo=DUBAI)
+KEEP_DAYS     = 45                                            # prune store after this
 
-def load_mtd_store():
+
+# ══════════════════════════════════════════════════════════════════════════════
+# STORE
+# ══════════════════════════════════════════════════════════════════════════════
+def load_store():
     try:
-        if os.path.exists(MTD_STORE):
-            with open(MTD_STORE, "r", encoding="utf-8") as f:
-                data = json.load(f)
-            if data.get("month") != cur_month:
-                print("  New month detected - resetting MTD store")
-                return {"month": cur_month, "days": {}}
+        with open(MTD_STORE, encoding="utf-8") as f:
+            data = json.load(f)
+        if isinstance(data.get("convs"), dict):
             return data
-    except:
+        print("  Old store format found - starting the new format (rebuilt from API)")
+    except FileNotFoundError:
         pass
-    return {"month": cur_month, "days": {}}
+    except Exception as e:
+        print("  [WARN] Could not read store: " + str(e))
+    return {"convs": {}}
 
-def save_mtd_store(store):
+
+def save_store(store):
+    cutoff = (now_dubai - timedelta(days=KEEP_DAYS)).date().isoformat()
+    store["convs"] = {k: v for k, v in store["convs"].items() if v["date"] >= cutoff}
+    store["updated"] = now_dubai.isoformat(timespec="seconds")
     with open(MTD_STORE, "w", encoding="utf-8") as f:
-        json.dump(store, f, indent=2, ensure_ascii=False)
+        json.dump(store, f, indent=1, ensure_ascii=False, sort_keys=True)
 
-def update_and_get_mtd(store, yesterday_snapshot):
-    store["days"][yesterday_key] = yesterday_snapshot
-    save_mtd_store(store)
-    mtd = {}
-    for day_data in store["days"].values():
-        for k, v in day_data.items():
-            mtd[k] = mtd.get(k, 0) + v
-    return mtd
 
+# ══════════════════════════════════════════════════════════════════════════════
+# GALLABOX
+# ══════════════════════════════════════════════════════════════════════════════
 def parse_utc(ts):
     try:
         return datetime.fromisoformat(ts.replace("Z", "+00:00"))
-    except:
+    except Exception:
         return None
 
-def fetch_contact_details(contact_id):
-    try:
-        r = requests.get(BASE_URL + "/contacts/" + contact_id, headers=GALLABOX_HEADERS, timeout=10)
+
+def agent_of(conv):
+    user = conv.get("user") or {}
+    if user.get("name"):
+        return user["name"].strip()
+    bot = conv.get("bot") or {}
+    if bot.get("name"):
+        return "Bot: " + bot["name"].strip()
+    return "Unassigned"
+
+
+def fetch_channel(ch):
+    """All conversations Gallabox will return for one channel (OPEN + CLOSE)."""
+    out, warnings = [], []
+    for status in STATUSES:
+        params = {"channelId": ch["id"], "channelType": ch["type"], "status": status, "limit": API_PAGE_CAP}
+        r = requests.get(BASE_URL + "/conversations", headers=HEADERS, params=params, timeout=30)
         r.raise_for_status()
-        d      = r.json()
-        tags   = [t.get("name", "").lower() for t in (d.get("tags") or [])]
-        kv     = d.get("fieldValuesKV", {}) or {}
-        source = (kv.get("lead_source", "") or "").strip()
-        stage  = (kv.get("lead_stage",  "") or "").strip()
-        if not source: source = "Instagram DMs"
-        if not stage:  stage  = "Unknown"
-        return {"triggered": "triggered" in tags, "source": source, "stage": stage}
-    except:
-        return {"triggered": False, "source": "Instagram DMs", "stage": "Unknown"}
+        convs = r.json()
+        if not isinstance(convs, list):
+            raise RuntimeError("Unexpected response for " + ch["name"] + ": " + str(convs)[:200])
+        out.extend(convs)
+        # If a full page reaches no further back than the month start, older
+        # conversations of this month may be cut off - the store covers them.
+        if len(convs) >= API_PAGE_CAP:
+            oldest = min(parse_utc(c.get("updatedAt", "")) or now_dubai for c in convs)
+            if oldest > month_start:
+                warnings.append(ch["name"] + "/" + status + " reaches back only to "
+                                + oldest.astimezone(DUBAI).strftime("%d %b"))
+    return out, warnings
 
-def fetch_all_conversations():
-    all_convs = []; seen_ids = set()
+
+def collect_conversations(store):
+    seen_now, warnings = 0, []
     for ch in GALLABOX_CHANNELS:
-        for page in range(1, 3):
-            params = {"limit": 100, "page": page, "channelId": ch["id"], "channelType": "whatsapp"}
-            try:
-                r     = requests.get(BASE_URL + "/conversations", headers=GALLABOX_HEADERS, params=params, timeout=15)
-                r.raise_for_status()
-                data  = r.json()
-                convs = data if isinstance(data, list) else data.get("data", [])
-                if not convs: break
-                new_found = False
-                for conv in convs:
-                    conv_id = conv.get("_id") or conv.get("id", "")
-                    if conv_id in seen_ids: continue
-                    seen_ids.add(conv_id); new_found = True
-                    ts = parse_utc(conv.get("createdAt", ""))
-                    if ts: all_convs.append({"conv": conv, "ts": ts})
-                if not new_found: break
-            except Exception as e:
-                print("  [ERROR] Gallabox: " + str(e)); break
-    return all_convs
+        convs, warn = fetch_channel(ch)
+        warnings += warn
+        for c in convs:
+            cid = c.get("id") or c.get("_id")
+            ts = parse_utc(c.get("createdAt", ""))
+            if not cid or not ts:
+                continue
+            seen_now += 1
+            entry = store["convs"].setdefault(cid, {})   # keeps "origin" found on earlier runs
+            entry.update({
+                "channel": ch["name"],
+                "date":    ts.astimezone(DUBAI).date().isoformat(),
+                "contact": c.get("contactId") or (c.get("contact") or {}).get("id", ""),
+                "agent":   agent_of(c),          # latest "Assigned To" - refreshed every run
+                "status":  c.get("status", ""),
+            })
+    print("  Conversations returned by API: " + str(seen_now))
+    return warnings
 
-def process_gallabox(store):
-    print("  Fetching conversations (for yesterday: " + yesterday_key + ")...")
-    all_convs = fetch_all_conversations()
-    ytd_convs = [c for c in all_convs if yesterday_utc_start <= c["ts"] <= yesterday_utc_end]
-    print("  Yesterday conversations found via API: " + str(len(ytd_convs)))
 
-    existing_ytd      = store.get("days", {}).get(yesterday_key, {})
-    use_store_for_ftd = bool(existing_ytd) and len(ytd_convs) == 0
-    if use_store_for_ftd:
-        print("  Using stored data for yesterday FTD")
+# ── Lead origin: read the lead's first message once and remember it ──────────
+# Number-to-source mapping (set by MKV):
+#   Main        +971 56 279 4545  -> Google Ads only
+#   Car Rental  +971 52 438 5627  -> Meta Ads + others
+#   Rent to Own +971 56 230 5052  -> Rent to Own only
+#   Instagram   own channel
+# On Car Rental, a Meta "Click to WhatsApp" ad attaches a referral
+# (source_type "ad") to the first message and pre-fills one of the welcome
+# texts below. Any lead whose first message starts "UID:" (website chat) is a
+# Google lead, whichever number it arrives on.
+CHANNEL_ID = {c["name"]: c["id"] for c in GALLABOX_CHANNELS}
 
-    contact_ids = list(set(
-        c["conv"].get("contactId") or c["conv"].get("contact", {}).get("id", "")
-        for c in ytd_convs
-        if c["conv"].get("contactId") or c["conv"].get("contact", {}).get("id", "")
-    ))
-    contact_cache = {}
-    if contact_ids:
-        with ThreadPoolExecutor(max_workers=10) as executor:
-            future_to_id = {executor.submit(fetch_contact_details, cid): cid for cid in contact_ids}
-            for future in as_completed(future_to_id):
-                cid = future_to_id[future]
-                try:    contact_cache[cid] = future.result()
-                except: contact_cache[cid] = {"triggered": False, "source": "Instagram DMs", "stage": "Unknown"}
+META_WELCOME_TEXTS = [            # pre-filled by MKV's Meta ads (lower-case, prefix match)
+    "can you share more details on this offer",
+    "hi! i would like to book the car without deposit",
+]
+OTHER_WELCOME_TEXTS = [           # (prefix or phrase, label) for non-Meta leads on Car Rental
+    ("oneclickdrive", "OneClickDrive"),
+]
 
-    def get_agent(conv):
-        name = (conv.get("user") or {}).get("name") or ""
-        return name.strip() or "Unassigned"
-    def get_cid(conv):
-        return conv.get("contactId") or conv.get("contact", {}).get("id", "")
 
-    ftd_agents = {}; ftd_sources = {}; ftd_stages = {}
-    ytd_snap   = {}
-
-    if use_store_for_ftd:
-        for k, v in existing_ytd.items():
-            if   k.startswith("a_r_"): name = k[4:]; ftd_agents.setdefault(name, {"recd":0,"trig":0}); ftd_agents[name]["recd"] += v
-            elif k.startswith("a_t_"): name = k[4:]; ftd_agents.setdefault(name, {"recd":0,"trig":0}); ftd_agents[name]["trig"] += v
-            elif k.startswith("s_"):   ftd_sources[k[2:]] = ftd_sources.get(k[2:], 0) + v
-            elif k.startswith("g_"):   ftd_stages[k[2:]]  = ftd_stages.get(k[2:],  0) + v
-        ytd_snap = existing_ytd
-    else:
-        for item in ytd_convs:
-            conv   = item["conv"]
-            agent  = get_agent(conv)
-            detail = contact_cache.get(get_cid(conv), {"triggered": False, "source": "Instagram DMs", "stage": "Unknown"})
-            src    = detail["source"]; stg = detail["stage"]; trig = 1 if detail["triggered"] else 0
-            ftd_agents.setdefault(agent, {"recd":0,"trig":0})
-            ftd_agents[agent]["recd"] += 1
-            ftd_agents[agent]["trig"] += trig
-            ftd_sources[src] = ftd_sources.get(src, 0) + 1
-            ftd_stages[stg]  = ftd_stages.get(stg,  0) + 1
-            ytd_snap["a_r_" + agent] = ytd_snap.get("a_r_" + agent, 0) + 1
-            ytd_snap["a_t_" + agent] = ytd_snap.get("a_t_" + agent, 0) + trig
-            ytd_snap["s_"   + src]   = ytd_snap.get("s_"   + src,   0) + 1
-            ytd_snap["g_"   + stg]   = ytd_snap.get("g_"   + stg,   0) + 1
-
-    mtd_flat   = update_and_get_mtd(store, ytd_snap)
-    mtd_agents = {}; mtd_sources = {}; mtd_stages = {}
-    for k, v in mtd_flat.items():
-        if   k.startswith("a_r_"): name = k[4:]; mtd_agents.setdefault(name, {"recd":0,"trig":0}); mtd_agents[name]["recd"] += v
-        elif k.startswith("a_t_"): name = k[4:]; mtd_agents.setdefault(name, {"recd":0,"trig":0}); mtd_agents[name]["trig"] += v
-        elif k.startswith("s_"):   mtd_sources[k[2:]] = mtd_sources.get(k[2:], 0) + v
-        elif k.startswith("g_"):   mtd_stages[k[2:]]  = mtd_stages.get(k[2:],  0) + v
-
-    return {
-        "ftd_agents": ftd_agents, "ftd_sources": ftd_sources, "ftd_stages": ftd_stages,
-        "mtd_agents": mtd_agents, "mtd_sources": mtd_sources, "mtd_stages": mtd_stages,
-    }
-
-def send_to_slack(message, webhooks=None):
-    """Post to Slack using bot token — no webhook needed."""
-    token   = SLACK_BOT_TOKEN
-    channel = CHANNEL_TEST if TEST_MODE else CHANNEL_LIVE
-    ch_name = "#mkv-test-automation" if TEST_MODE else "#mkv-daily-lead-report"
-    if not token:
-        print("  [ERROR] SLACK_BOT_TOKEN not set")
-        return
+def detect_origin(item):
+    cid, v = item
     try:
-        r = requests.post(
-            "https://slack.com/api/chat.postMessage",
-            headers={"Authorization": "Bearer " + token, "Content-Type": "application/json"},
-            json={"channel": channel, "text": message},
-            timeout=10,
-        )
-        result = r.json()
-        if result.get("ok"):
-            print("  Slack OK -> " + ch_name)
-        else:
-            print("  Slack error: " + str(result.get("error")))
+        r = requests.get(BASE_URL + "/messages", headers=HEADERS, timeout=20,
+                         params={"channelId": CHANNEL_ID[v["channel"]], "contactId": v["contact"], "limit": 100})
+        r.raise_for_status()
+        msgs = r.json()
+        if not isinstance(msgs, list):
+            return cid, None
     except Exception as e:
-        print("  Slack failed: " + str(e))
+        print("  [WARN] messages for " + cid + ": " + str(e))
+        return cid, None                                     # retried next run
 
-def build_msg_gallabox(g):
-    fa = g["ftd_agents"]; fs = g["ftd_sources"]; fg = g["ftd_stages"]
-    ma = g["mtd_agents"]; ms = g["mtd_sources"]; mg = g["mtd_stages"]
+    inbound = sorted((m for m in msgs if m.get("conversationId") == cid and m.get("sender") == v["contact"]),
+                     key=lambda m: m.get("createdAt", ""))
+    if not inbound:
+        return cid, {"origin": "outbound", "first_text": ""}
+    first = inbound[0]
+    body  = first.get(first.get("channelType")) or {}
+    body  = body if isinstance(body, dict) else {}
+    text  = body.get("text")
+    text  = ((text.get("body") if isinstance(text, dict) else text) or "").strip()
+    found = {"first_text": text[:80]}
+    ref   = body.get("referral") or {}
+    low   = text.lower()
+    if ref.get("source_type") == "ad":
+        url = (ref.get("source_url") or "").lower()
+        placement = "Instagram" if "instagram." in url else "Facebook" if ("fb.me" in url or "facebook." in url) else "Meta"
+        found.update({"origin": "meta_ad", "placement": placement,
+                      "ad_id": str(ref.get("source_id") or ""), "ad_name": (ref.get("headline") or "")[:40]})
+    elif any(low.startswith(t) for t in META_WELCOME_TEXTS):
+        found.update({"origin": "meta_ad", "placement": "Meta (welcome text)"})
+    elif low.startswith("uid:"):
+        found["origin"] = "website"
+    else:
+        found["origin"] = next((label for phrase, label in OTHER_WELCOME_TEXTS if phrase in low), "direct")
+    return cid, found
 
-    all_agents = sorted(set(list(fa.keys()) + list(ma.keys())))
-    ag  = "{:<20} {:>6} {:>6} {:>7} {:>7}\n".format("Agent","Y.Rec","Y.Trg","M.Rec","M.Trg")
-    ag += "-"*50 + "\n"
-    for name in all_agents:
-        f = fa.get(name, {"recd":0,"trig":0}); m = ma.get(name, {"recd":0,"trig":0})
-        ag += "{:<20} {:>6} {:>6} {:>7} {:>7}\n".format(name[:20], f["recd"], f["trig"], m["recd"], m["trig"])
-    ag += "-"*50 + "\n"
-    ag += "{:<20} {:>6} {:>6} {:>7} {:>7}".format(
-        "TOTAL",
-        sum(v["recd"] for v in fa.values()), sum(v["trig"] for v in fa.values()),
-        sum(v["recd"] for v in ma.values()), sum(v["trig"] for v in ma.values()))
 
-    SOURCE_ORDER = ["Google Ads","Facebook / Instagram","Instagram DMs","OneClickDrive","Website"]
-    all_srcs = SOURCE_ORDER + [s for s in sorted(set(list(fs.keys())+list(ms.keys()))) if s not in SOURCE_ORDER]
-    src  = "{:<24} {:>5}  {:>7}\n".format("Source","YTD","MTD") + "-"*38 + "\n"
-    for s in all_srcs:
-        if fs.get(s,0) > 0 or ms.get(s,0) > 0:
-            src += "{:<24} {:>5}  {:>7}\n".format(s[:24], fs.get(s,0), ms.get(s,0))
-    src += "-"*38 + "\n"
-    src += "{:<24} {:>5}  {:>7}".format("TOTAL", sum(fs.values()), sum(ms.values()))
+def detect_origins(store):
+    todo = [(k, v) for k, v in store["convs"].items()
+            if "first_text" not in v and v.get("contact") and v["date"] >= month_start.date().isoformat()]
+    if not todo:
+        return
+    with ThreadPoolExecutor(max_workers=6) as ex:
+        for cid, found in ex.map(detect_origin, todo):
+            if found:
+                store["convs"][cid].update(found)
+    print("  Ad origin checked for " + str(len(todo)) + " new conversation(s)")
 
-    STAGE_ORDER = ["Lead created","Qualified lead","Converted lead","Unknown"]
-    all_stgs = STAGE_ORDER + [s for s in sorted(set(list(fg.keys())+list(mg.keys()))) if s not in STAGE_ORDER]
-    stg  = "{:<24} {:>5}  {:>7}\n".format("Stage","YTD","MTD") + "-"*38 + "\n"
-    for s in all_stgs:
-        if fg.get(s,0) > 0 or mg.get(s,0) > 0:
-            stg += "{:<24} {:>5}  {:>7}\n".format(s[:24], fg.get(s,0), mg.get(s,0))
-    stg += "-"*38 + "\n"
-    stg += "{:<24} {:>5}  {:>7}".format("TOTAL", sum(fg.values()), sum(mg.values()))
 
-    return (
+def fetch_contact(contact_id):
+    try:
+        r = requests.get(BASE_URL + "/contacts/" + contact_id, headers=HEADERS, timeout=15)
+        r.raise_for_status()
+        d    = r.json()
+        tags = [(t.get("name") or "").lower() for t in (d.get("tags") or [])]
+        kv   = d.get("fieldValuesKV") or {}
+        return {
+            "triggered": "triggered" in tags,
+            "source":    (kv.get("lead_source") or "").strip() or NOT_TAGGED,
+            "stage":     (kv.get("lead_stage") or "").strip() or NOT_TAGGED,
+        }
+    except Exception as e:
+        print("  [WARN] contact " + contact_id + ": " + str(e))
+        return {"triggered": False, "source": NOT_TAGGED, "stage": NOT_TAGGED}
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# AGGREGATE
+# ══════════════════════════════════════════════════════════════════════════════
+MKT_ORDER = ["Google Ads", "Meta Ads", "Other (Car Rental no.)", "Rent to Own", "Instagram"]
+
+
+def marketing_source(v):
+    """(source, detail) from the WhatsApp number the lead used + its welcome text."""
+    ch, origin = v["channel"], v.get("origin", "")
+    if origin == "website":                                     # "UID:..." = Google lead, on any number
+        return "Google Ads", "Website chat (UID)"
+    if ch == "Main":
+        return "Google Ads", "Direct WhatsApp"
+    if ch == "Rent to Own":
+        return "Rent to Own", ""
+    if ch == "Instagram":
+        return "Instagram", ""
+    # Car Rental number: Meta ads + others
+    if origin == "meta_ad":
+        place = v.get("placement", "Meta")
+        return "Meta Ads", place if place.startswith("Meta") else place + " ad"
+    if origin == "outbound":
+        return "Other (Car Rental no.)", "Started by MKV"
+    if origin in ("", "direct", "website"):
+        return "Other (Car Rental no.)", "Direct"
+    return "Other (Car Rental no.)", origin                     # e.g. OneClickDrive
+
+
+def build_stats(store):
+    month = [v for v in store["convs"].values() if v["date"].startswith(report_month) and v["date"] <= report_key]
+    contact_ids = sorted({v["contact"] for v in month if v["contact"]})
+    with ThreadPoolExecutor(max_workers=8) as ex:
+        details = dict(zip(contact_ids, ex.map(fetch_contact, contact_ids)))
+
+    def blank():
+        return {"y": 0, "m": 0}
+    s = {"channel": {n: blank() for n in CHANNEL_NAMES}, "agent": {}, "agent_trig": {},
+         "agent_ch": {}, "agent_mkt": {}, "marketing": {k: blank() for k in MKT_ORDER}, "detail": {}, "meta_ad": {},
+         "source": {}, "stage": {}}
+
+    for v in month:
+        is_y = v["date"] == report_key
+        d    = details.get(v["contact"], {"triggered": False, "source": NOT_TAGGED, "stage": NOT_TAGGED})
+        mkt, detail = marketing_source(v)
+        if detail:
+            row = s["detail"].setdefault(mkt, {}).setdefault(detail, blank())
+            row["m"] += 1
+            row["y"] += is_y
+        if mkt == "Meta Ads" and v.get("ad_name"):
+            row = s["meta_ad"].setdefault(v["ad_name"], blank())
+            row["m"] += 1
+            row["y"] += is_y
+        amk = s["agent_mkt"].setdefault(v["agent"], {})
+        amk[mkt] = amk.get(mkt, 0) + 1
+        for bucket, key in (("channel", v["channel"]), ("agent", v["agent"]), ("marketing", mkt),
+                            ("source", d["source"]), ("stage", d["stage"])):
+            row = s[bucket].setdefault(key, blank())
+            row["m"] += 1
+            row["y"] += is_y
+        trig = s["agent_trig"].setdefault(v["agent"], blank())
+        trig["m"] += d["triggered"]
+        trig["y"] += d["triggered"] and is_y
+        ach = s["agent_ch"].setdefault(v["agent"], {})
+        ach[v["channel"]] = ach.get(v["channel"], 0) + 1
+    return s
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# SLACK MESSAGE
+# ══════════════════════════════════════════════════════════════════════════════
+def table(rows, first_col, order=(), width=22, show_zero=False):
+    keys = [k for k in order if k in rows] + sorted(k for k in rows if k not in order)
+    if not show_zero:
+        keys = [k for k in keys if rows[k]["y"] or rows[k]["m"]]
+    out  = "{:<{w}} {:>9} {:>7}\n".format(first_col, "Yesterday", "MTD", w=width) + "-" * (width + 18) + "\n"
+    for k in keys:
+        out += "{:<{w}} {:>9} {:>7}\n".format(k[:width], rows[k]["y"], rows[k]["m"], w=width)
+    out += "-" * (width + 18) + "\n"
+    out += "{:<{w}} {:>9} {:>7}".format("TOTAL", sum(r["y"] for r in rows.values()),
+                                        sum(r["m"] for r in rows.values()), w=width)
+    return "```" + out + "```"
+
+
+def agent_table(s):
+    w   = 20
+    out = "{:<{w}} {:>5} {:>5} {:>6} {:>6}\n".format("Agent", "Y.Rec", "Y.Trg", "M.Rec", "M.Trg", w=w)
+    out += "-" * (w + 26) + "\n"
+    agents = sorted(s["agent"], key=lambda a: (a == "Unassigned", a.startswith("Bot:"), -s["agent"][a]["m"], a))
+    for a in agents:
+        r, t = s["agent"][a], s["agent_trig"].get(a, {"y": 0, "m": 0})
+        out += "{:<{w}} {:>5} {:>5} {:>6} {:>6}\n".format(a[:w], r["y"], t["y"], r["m"], t["m"], w=w)
+    out += "-" * (w + 26) + "\n"
+    out += "{:<{w}} {:>5} {:>5} {:>6} {:>6}".format(
+        "TOTAL", sum(r["y"] for r in s["agent"].values()), sum(r["y"] for r in s["agent_trig"].values()),
+        sum(r["m"] for r in s["agent"].values()), sum(r["m"] for r in s["agent_trig"].values()), w=w)
+    return "```" + out + "```"
+
+
+def agent_marketing_table(s):
+    cols  = [("Google Ads", "Google"), ("Meta Ads", "Meta"), ("Other (Car Rental no.)", "Other"),
+             ("Rent to Own", "RTO"), ("Instagram", "Insta")]
+    w     = 18
+    out   = "{:<{w}}".format("Agent (MTD)", w=w) + "".join("{:>7}".format(c[1]) for c in cols) + "\n"
+    out  += "-" * (w + 7 * len(cols)) + "\n"
+    agents = sorted(s["agent_mkt"], key=lambda a: (a == "Unassigned", a.startswith("Bot:"), -s["agent"][a]["m"], a))
+    for a in agents:
+        row  = s["agent_mkt"][a]
+        out += "{:<{w}}".format(a[:w], w=w) + "".join("{:>7}".format(row.get(c[0], 0)) for c in cols) + "\n"
+    return "```" + out.rstrip() + "```"
+
+
+def detail_lines(s):
+    lines = []
+    for src in MKT_ORDER:
+        parts = sorted(s["detail"].get(src, {}).items(), key=lambda kv: -kv[1]["m"])
+        if parts:
+            lines.append("• " + src + ": " + " · ".join("{} {}/{}".format(k, v["y"], v["m"]) for k, v in parts))
+    ads = sorted(s["meta_ad"].items(), key=lambda kv: -kv[1]["m"])[:3]
+    if ads:
+        lines.append("• Top Meta ads: " + " · ".join("\"{}\" {}/{}".format(k, v["y"], v["m"]) for k, v in ads))
+    return ("_Breakdown (yesterday/MTD):_\n" + "\n".join(lines) + "\n") if lines else ""
+
+
+def build_message(s, warnings):
+    stg_order = ["Lead created", "Qualified lead", "Converted lead", NOT_TAGGED]
+    msg = (
         ":bar_chart: *MKV LUXURY — LEADS & AGENTS REPORT*\n"
         + ":calendar: " + report_dt + "\n"
-        + "_YTD = Yesterday (" + yesterday_str + ") | MTD = Month cumulative_\n\n"
-        + "*:dart: AGENT PERFORMANCE*\n" + "```" + ag + "```\n"
-        + "*:globe_with_meridians: LEAD SOURCE*\n" + "```" + src + "```\n"
-        + "*:chart_with_upwards_trend: LEAD STAGE*\n" + "```" + stg + "```"
+        + "_Yesterday = " + report_str + " | MTD = 1 " + month_str + " to " + report_str
+        + " | Lead = new conversation (Gallabox Conversation Report, Created At)_\n\n"
+        + "*:moneybag: LEADS BY SOURCE*\n" + table(s["marketing"], "Source", MKT_ORDER, show_zero=True) + "\n"
+        + detail_lines(s)
+        + "_Google = Main no. (+971 56 279 4545) + any UID website chat · Meta = Car Rental no. (+971 52 438 5627) ad clicks · "
+        + "Rent to Own = +971 56 230 5052 · Instagram = mkvluxurydubai_\n"
+        + "*:dart: AGENT PERFORMANCE* _(Assigned To)_\n" + agent_table(s) + "\n"
+        + "*:busts_in_silhouette: AGENT SPLIT BY SOURCE*\n" + agent_marketing_table(s) + "\n"
+        + "*:chart_with_upwards_trend: LEAD STAGE*\n" + table(s["stage"], "Stage", stg_order)
     )
+    if warnings:
+        msg += "\n:warning: _API window: " + "; ".join(warnings) + ". MTD relies on saved history for earlier days._"
+    return msg
 
+
+def send_to_slack(message):
+    channel = CHANNEL_TEST if TEST_MODE else CHANNEL_LIVE
+    if not SLACK_BOT_TOKEN:
+        print("  [ERROR] SLACK_BOT_TOKEN not set")
+        return False
+    r = requests.post("https://slack.com/api/chat.postMessage",
+                      headers={"Authorization": "Bearer " + SLACK_BOT_TOKEN, "Content-Type": "application/json"},
+                      json={"channel": channel, "text": message, "unfurl_links": False}, timeout=15)
+    ok = r.json().get("ok")
+    print("  Slack " + ("OK -> " + channel if ok else "error: " + str(r.json().get("error"))))
+    return ok
+
+
+# ══════════════════════════════════════════════════════════════════════════════
 def main():
-    print("="*56)
+    print("=" * 56)
     print("  MKV LUXURY - DAILY LEADS REPORT")
-    print("  " + report_dt)
-    print("  Reporting for : " + yesterday_str)
-    print("  TEST_MODE     : " + str(TEST_MODE))
-    print("  Channel       : " + ("#mkv-test-automation" if TEST_MODE else "#mkv-daily-lead-report"))
-    print("="*56)
+    print("  Reporting for: " + report_str + " | MTD month: " + report_month)
+    print("  TEST_MODE: " + str(TEST_MODE))
+    print("=" * 56)
 
-    print("\n  Loading MTD store...")
-    store = load_mtd_store()
-    print("  Month: " + store["month"] + " | Days recorded: " + str(len(store.get("days",{}))))
+    store    = load_store()
+    warnings = collect_conversations(store)
+    detect_origins(store)
+    save_store(store)                       # save before posting so a Slack failure loses nothing
+    stats    = build_stats(store)
 
-    print("\n  Processing Gallabox data (yesterday)...")
-    gallabox  = process_gallabox(store)
-    ytd_total = sum(v["recd"] for v in gallabox["ftd_agents"].values())
-    mtd_total = sum(v["recd"] for v in gallabox["mtd_agents"].values())
-    print("  Yesterday leads: " + str(ytd_total) + " | MTD leads: " + str(mtd_total))
+    for n in CHANNEL_NAMES:
+        print("  {:<12} yesterday {:>3} | MTD {:>4}".format(n, stats["channel"][n]["y"], stats["channel"][n]["m"]))
+    for w in warnings:
+        print("  [WARN] " + w)
 
-    print("\n  Sending to Slack...")
-    msg = build_msg_gallabox(gallabox)
-    send_to_slack(msg)
+    if os.environ.get("DRY_RUN", "").lower() == "true":
+        print(build_message(stats, warnings))
+        return
+    send_to_slack(build_message(stats, warnings))
 
-    print("="*56)
-    print("  End of dashboard")
-    print("="*56)
 
 if __name__ == "__main__":
     main()
