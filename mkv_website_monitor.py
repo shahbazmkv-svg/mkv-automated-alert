@@ -24,7 +24,7 @@ BROWSER_HEADERS = {
     "User-Agent":      "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36",
     "Accept":          "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
     "Accept-Language": "en-US,en;q=0.5",
-    "Accept-Encoding": "gzip, deflate, br",
+    "Accept-Encoding": "gzip, deflate",  # no "br": requests cannot decode Brotli without the brotli package
     "Connection":      "keep-alive",
 }
 
@@ -44,7 +44,7 @@ CAR_PAGES = [
     {"name": "Ferrari Purosangue 2025",  "url": f"{SITE_BASE}/car/ferrari-purosangue-2025"},
     {"name": "Lamborghini Urus S 2025",  "url": f"{SITE_BASE}/car/lamborghini-urus-s-2025"},
     {"name": "McLaren Artura Spider",    "url": f"{SITE_BASE}/car/mclaren-artura-spider-2025"},
-    {"name": "Mercedes AMG G63 Retro",   "url": f"{SITE_BASE}/car/mercedes-amg-g63-retro"},
+    {"name": "Mercedes AMG G63 2025",    "url": f"{SITE_BASE}/car/mercedes-amg-g63-2025"},
     {"name": "Bentley Bentayga Mansory", "url": f"{SITE_BASE}/car/bentley-bentayga-mansory"},
 ]
 
@@ -90,8 +90,8 @@ def code_emoji(code):
 
 def check_page(page):
     r    = fetch(page["url"])
-    code = r.status_code if r else None
-    ms   = int(r.elapsed.total_seconds() * 1000) if r else None
+    code = r.status_code if r is not None else None
+    ms   = int(r.elapsed.total_seconds() * 1000) if r is not None else None
     return {
         "name":  page["name"],
         "url":   page["url"],
@@ -127,7 +127,7 @@ def check_broken_links():
     # Try sitemap first (most reliable source of all URLs)
     for sitemap_url in [f"{SITE_BASE}/sitemap.xml", f"{SITE_BASE}/sitemap_index.xml"]:
         r = fetch(sitemap_url)
-        if r and r.status_code == 200:
+        if r is not None and r.status_code == 200:
             soup = BeautifulSoup(r.text, "xml")
             for loc in soup.find_all("loc"):
                 url = loc.text.strip()
@@ -141,7 +141,7 @@ def check_broken_links():
     if not to_check:
         for seed_url in [f"{SITE_BASE}/", f"{SITE_BASE}/cars"]:
             r = fetch(seed_url)
-            if not r or r.status_code != 200:
+            if r is None or r.status_code != 200:
                 continue
             soup = BeautifulSoup(r.text, "lxml")
             for a in soup.find_all("a", href=True):
@@ -165,7 +165,7 @@ def check_broken_links():
             return None
         checked.add(url)
         r = fetch(url, timeout=10)
-        if r and r.status_code >= 400:
+        if r is not None and r.status_code >= 400:
             return {"url": url, "code": r.status_code}
         return None
 
@@ -184,9 +184,9 @@ def check_broken_links():
 
 def check_car_page(page):
     r = fetch(page["url"])
-    if not r or r.status_code != 200:
+    if r is None or r.status_code != 200:
         return {"name": page["name"], "status": "🔴 Not loading",
-                "issues": ["Page returned " + str(r.status_code if r else "timeout")]}
+                "issues": ["Page returned " + str(r.status_code if r is not None else "timeout")]}
     soup  = BeautifulSoup(r.text, "lxml")
     text  = soup.get_text(" ", strip=True)
     raw   = r.text
@@ -217,7 +217,7 @@ def check_car_page(page):
 
 def check_seo(page):
     r = fetch(page["url"])
-    if not r or r.status_code != 200:
+    if r is None or r.status_code != 200:
         return {"name": page["name"], "url": page["url"], "missing_meta": False, "missing_title": False, "error": True}
     soup       = BeautifulSoup(r.text, "lxml")
     meta_desc  = soup.find("meta", {"name": "description"})
@@ -255,8 +255,8 @@ def run_seo_checks():
 def check_trustpilot():
     url = "https://www.trustpilot.com/review/mkvluxury.com"
     r   = fetch(url, extra_headers={"Accept": "text/html"})
-    if not r or r.status_code != 200:
-        return {"ok": False, "note": f"Blocked (HTTP {r.status_code if r else 'timeout'})"}
+    if r is None or r.status_code != 200:
+        return {"ok": False, "note": f"Blocked (HTTP {r.status_code if r is not None else 'timeout'})"}
 
     soup = BeautifulSoup(r.text, "lxml")
     text = soup.get_text(" ", strip=True)
@@ -298,8 +298,8 @@ def check_tiktok():
         "Accept":  "text/html,application/xhtml+xml",
         "Referer": "https://www.google.com/"
     })
-    if not r or r.status_code != 200:
-        return {"ok": False, "note": f"Blocked (HTTP {r.status_code if r else 'timeout'})"}
+    if r is None or r.status_code != 200:
+        return {"ok": False, "note": f"Blocked (HTTP {r.status_code if r is not None else 'timeout'})"}
 
     text = r.text
 
@@ -347,7 +347,7 @@ def check_social(profile):
     that metrics require Phase 2 API setup.
     """
     r = fetch(profile["url"], extra_headers={"Referer": "https://www.google.com/"})
-    code = r.status_code if r else None
+    code = r.status_code if r is not None else None
 
     # YouTube can sometimes return data — try to extract subs + last upload
     extra = ""
@@ -371,7 +371,7 @@ def check_social(profile):
 
 def check_faq_duplicates():
     r = fetch(f"{SITE_BASE}/faqs")
-    if not r or r.status_code != 200:
+    if r is None or r.status_code != 200:
         return []
     soup      = BeautifulSoup(r.text, "lxml")
     questions = [h.get_text(strip=True) for h in soup.find_all("h3") if len(h.get_text(strip=True)) > 10]
