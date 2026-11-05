@@ -17407,9 +17407,13 @@
       "customer": "Mohammed Rumel Ahmed Mohammed Siraj Uddin",
       "vehicle": "Bentley Bentayga",
       "delivery_alerted": false,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
-      "start_date": "2026-11-06"
+      "start_date": "2026-11-06",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     }
   }
 }
