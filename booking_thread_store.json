@@ -15007,7 +15007,7 @@
       "customer": "Carzou Ntumba",
       "vehicle": "Land Rover Sport",
       "delivery_alerted": false,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-10-08",
       "delivery_ts": null,
@@ -17227,7 +17227,7 @@
       "customer": "J J S Car Rental Llc",
       "vehicle": "Land Rover Range Rover Velar",
       "delivery_alerted": false,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-11-03",
       "delivery_ts": null,
@@ -17257,7 +17257,7 @@
       "customer": "Mohammed Rumel Ahmed Mohammed Siraj Uddin",
       "vehicle": "Mercedes-Benz Mercedes G3 (Brabus)",
       "delivery_alerted": false,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-11-06",
       "delivery_ts": null,
@@ -17302,7 +17302,7 @@
       "customer": "Cedric Xavier Louis - Jean",
       "vehicle": "Chevrolet Corvette",
       "delivery_alerted": false,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-11-05",
       "delivery_ts": null,
@@ -17377,7 +17377,7 @@
       "customer": "Primus Car Rental Llc",
       "vehicle": "Lamborghini Urus S",
       "delivery_alerted": false,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-11-06",
       "delivery_ts": null,
@@ -17399,6 +17399,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0011223-MOHA-Bentley": {
+      "thread_ts": "1793908834.315119",
+      "end_date": "2026-11-07",
+      "plate": "33789",
+      "customer": "Mohammed Rumel Ahmed Mohammed Siraj Uddin",
+      "vehicle": "Bentley Bentayga",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-11-06"
     }
   }
 }
