@@ -16832,7 +16832,7 @@
     },
     "0011180-BERK-MERCEDES": {
       "thread_ts": "1793365241.951829",
-      "end_date": "2026-11-05",
+      "end_date": "2026-11-06",
       "plate": "42546",
       "customer": "Berk Genc",
       "vehicle": "Mercedes 2023",
@@ -16892,7 +16892,7 @@
     },
     "0011184-EMMA-Land Rover": {
       "thread_ts": "1793377836.533509",
-      "end_date": "2026-11-05",
+      "end_date": "2026-11-06",
       "plate": "83762",
       "customer": "Emmanuel Wonder Oluwatosin Adewole",
       "vehicle": "Land Rover Defender",
@@ -17123,7 +17123,7 @@
       "vehicle": "Lamborghini Urus S",
       "delivery_alerted": false,
       "pickup_alerted": true,
-      "closed": false,
+      "closed": true,
       "start_date": "2026-11-02",
       "delivery_ts": null,
       "pickup_ts": null,
