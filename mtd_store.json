@@ -1,47 +1,5 @@
 {
  "convs": {
-  "6ab0588c3be9a1a8628addf2": {
-   "agent": "Unassigned",
-   "channel": "Instagram",
-   "contact": "6ab0588c3be9a1a8628adde6",
-   "date": "2026-09-21",
-   "status": "OPEN"
-  },
-  "6ab0a5b232fb11232eaaa8eb": {
-   "agent": "Ali Azlan",
-   "channel": "Rent to Own",
-   "contact": "6ab0a5b232fb11232eaaa8e2",
-   "date": "2026-09-21",
-   "status": "OPEN"
-  },
-  "6ab0f2b47cbeb5cead0a4a71": {
-   "agent": "Tapan-MKV",
-   "channel": "Main",
-   "contact": "6ab0f2b47cbeb5cead0a4a68",
-   "date": "2026-09-21",
-   "status": "CLOSE"
-  },
-  "6ab11013a0085d1c80fd67b8": {
-   "agent": "Tapan-MKV",
-   "channel": "Instagram",
-   "contact": "6ab11013a0085d1c80fd6797",
-   "date": "2026-09-21",
-   "status": "CLOSE"
-  },
-  "6ab129fb90ae56ebc4c3ff77": {
-   "agent": "Tapan-MKV",
-   "channel": "Instagram",
-   "contact": "6a6f0c18e2810d3f1d35211d",
-   "date": "2026-09-21",
-   "status": "CLOSE"
-  },
-  "6ab1851505e7290de0667018": {
-   "agent": "Tapan-MKV",
-   "channel": "Car Rental",
-   "contact": "67ebd0b58a5af74ffb2faa36",
-   "date": "2026-09-21",
-   "status": "OPEN"
-  },
   "6ab1930b7ebbb3a68a759a28": {
    "agent": "Bot: RTO MKV",
    "channel": "Rent to Own",
@@ -2920,7 +2878,148 @@
    "first_text": "Hello, we have various models of Geely and BYD. Do you have any needs?",
    "origin": "direct",
    "status": "OPEN"
+  },
+  "6aec488db4312272d2debda2": {
+   "ad_id": "120239181295470594",
+   "ad_name": "Book Now",
+   "agent": "Unassigned",
+   "channel": "Car Rental",
+   "contact": "6aec488db4312272d2debd99",
+   "date": "2026-11-05",
+   "first_text": "Can you share more details on this offer?",
+   "origin": "meta_ad",
+   "placement": "Instagram",
+   "status": "OPEN"
+  },
+  "6aec4c0cd16b25685f4cc594": {
+   "agent": "Tapan-MKV",
+   "channel": "Car Rental",
+   "contact": "69036fef724222af92688782",
+   "date": "2026-11-05",
+   "first_text": "olá quero alugar um carro",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6aec5e15d16b25685f4f8b69": {
+   "agent": "Reham-MKV",
+   "channel": "Main",
+   "contact": "6aec5e15d16b25685f4f8b5c",
+   "date": "2026-11-05",
+   "first_text": "Hi, we would like to rent a hives 15 seater",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6aec5ecbd16b25685f4fa3e8": {
+   "agent": "Reham-MKV",
+   "channel": "Main",
+   "contact": "6aec5ecad16b25685f4fa3df",
+   "date": "2026-11-05",
+   "first_text": "UID:2QZN6n Thank you for reaching MKV Luxury. Please enter your message below:",
+   "origin": "website",
+   "status": "OPEN"
+  },
+  "6aec806eb3d2b7374f25f39e": {
+   "agent": "Reham-MKV",
+   "channel": "Main",
+   "contact": "6771758c871917f09bae1e32",
+   "date": "2026-11-05",
+   "first_text": "Hi",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6aecd50286d8b4903be1f230": {
+   "ad_id": "120239181295470594",
+   "ad_name": "Book Now",
+   "agent": "Rafithath-MKV",
+   "channel": "Car Rental",
+   "contact": "6aecd50186d8b4903be1f225",
+   "date": "2026-11-05",
+   "first_text": "",
+   "origin": "meta_ad",
+   "placement": "Facebook",
+   "status": "CLOSE"
+  },
+  "6aecd8b1b4312272d2f428b6": {
+   "agent": "Rafithath-MKV",
+   "channel": "Main",
+   "contact": "6aecd8b1b4312272d2f428ad",
+   "date": "2026-11-05",
+   "first_text": "UID:rqxR3A Thank you for reaching MKV Luxury. Please enter your message below:He",
+   "origin": "website",
+   "status": "OPEN"
+  },
+  "6aece2a1b3d2b7374f32cf9c": {
+   "agent": "Rafithath-MKV",
+   "channel": "Main",
+   "contact": "672e46abb9fb9e35ac104ce2",
+   "date": "2026-11-06",
+   "first_text": "Hi, I would like to reserve a car.",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6aecf25686d8b4903be3237b": {
+   "agent": "Unassigned",
+   "channel": "Rent to Own",
+   "contact": "6aecf25686d8b4903be32372",
+   "date": "2026-11-06",
+   "first_text": "Hi, I want to know more about Rent-to-Own plan.",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6aed0152ff18d4d5b817f70f": {
+   "agent": "Rafithath-MKV",
+   "channel": "Main",
+   "contact": "6aed0152ff18d4d5b817f706",
+   "date": "2026-11-06",
+   "first_text": "UID:M6xFAb Thank you for reaching MKV Luxury. Please enter your message below: H",
+   "origin": "website",
+   "status": "OPEN"
+  },
+  "6aed0323d16b25685f62d103": {
+   "agent": "Unassigned",
+   "channel": "Main",
+   "contact": "6aed0323d16b25685f62d0fa",
+   "date": "2026-11-06",
+   "first_text": "UID:zX9yZ9 Thank you for reaching MKV Luxury. Please enter your message below:",
+   "origin": "website",
+   "status": "OPEN"
+  },
+  "6aed06d6b4312272d2f60fbf": {
+   "agent": "Rafithath-MKV",
+   "channel": "Main",
+   "contact": "6aed06d6b4312272d2f60fb6",
+   "date": "2026-11-06",
+   "first_text": "Hello bro",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6aed1590d16b25685f635d56": {
+   "agent": "Rafithath-MKV",
+   "channel": "Car Rental",
+   "contact": "68ffd6fb6f4c75e8bccd5e30",
+   "date": "2026-11-06",
+   "first_text": "Hello my friend",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6aed5204b4312272d2fa2a88": {
+   "agent": "Tapan-MKV",
+   "channel": "Main",
+   "contact": "6aed5204b4312272d2fa2a7f",
+   "date": "2026-11-06",
+   "first_text": "Hi, quick question: do you have a website where customers can book your rental c",
+   "origin": "direct",
+   "status": "CLOSE"
+  },
+  "6aed7355b3d2b7374f3e2f5d": {
+   "agent": "Unassigned",
+   "channel": "Main",
+   "contact": "6aed7355b3d2b7374f3e2f54",
+   "date": "2026-11-06",
+   "first_text": "Hi MKV Luxury team, I’m Marcos, director of AURUM Drive. We connect luxury car r",
+   "origin": "direct",
+   "status": "OPEN"
   }
  },
- "updated": "2026-11-05T13:06:46+04:00"
+ "updated": "2026-11-06T11:00:30+04:00"
 }
