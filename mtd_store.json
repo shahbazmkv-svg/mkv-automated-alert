@@ -1,54 +1,5 @@
 {
  "convs": {
-  "6ab1930b7ebbb3a68a759a28": {
-   "agent": "Bot: RTO MKV",
-   "channel": "Rent to Own",
-   "contact": "6ab1930a7ebbb3a68a759a1f",
-   "date": "2026-09-22",
-   "status": "OPEN"
-  },
-  "6ab237baee1c2a20afd9038c": {
-   "agent": "Tapan-MKV",
-   "channel": "Main",
-   "contact": "6ab237baee1c2a20afd90383",
-   "date": "2026-09-22",
-   "status": "CLOSE"
-  },
-  "6ab245b61cdc03df92359b6f": {
-   "agent": "Unassigned",
-   "channel": "Instagram",
-   "contact": "6ab245b61cdc03df92359b59",
-   "date": "2026-09-22",
-   "status": "OPEN"
-  },
-  "6ab26a53063b02dd663a5f22": {
-   "agent": "Tapan-MKV",
-   "channel": "Main",
-   "contact": "6ab26a53063b02dd663a5f19",
-   "date": "2026-09-22",
-   "status": "CLOSE"
-  },
-  "6ab273382177c2ace71da5ac": {
-   "agent": "MKV Luxury",
-   "channel": "Main",
-   "contact": "6ab237baee1c2a20afd90383",
-   "date": "2026-09-22",
-   "status": "CLOSE"
-  },
-  "6ab277b1063b02dd663d1154": {
-   "agent": "MKV Luxury",
-   "channel": "Main",
-   "contact": "6ab277b1063b02dd663d114b",
-   "date": "2026-09-22",
-   "status": "CLOSE"
-  },
-  "6ab2d36c061dd500b1c28b94": {
-   "agent": "Rafithath-MKV",
-   "channel": "Instagram",
-   "contact": "6ab2d36c061dd500b1c28b7e",
-   "date": "2026-09-22",
-   "status": "OPEN"
-  },
   "6ab35914804814ed3c225780": {
    "agent": "Tapan-MKV",
    "channel": "Main",
@@ -2799,7 +2750,7 @@
    "status": "CLOSE"
   },
   "6aeb40ac57dba01a70f0fb1e": {
-   "agent": "Tapan-MKV",
+   "agent": "Reham-MKV",
    "channel": "Main",
    "contact": "6aeb40ac57dba01a70f0fb15",
    "date": "2026-11-04",
@@ -2976,7 +2927,7 @@
    "status": "OPEN"
   },
   "6aed0323d16b25685f62d103": {
-   "agent": "Unassigned",
+   "agent": "Rafithath-MKV",
    "channel": "Main",
    "contact": "6aed0323d16b25685f62d0fa",
    "date": "2026-11-06",
@@ -2985,7 +2936,7 @@
    "status": "OPEN"
   },
   "6aed06d6b4312272d2f60fbf": {
-   "agent": "Rafithath-MKV",
+   "agent": "Tapan-MKV",
    "channel": "Main",
    "contact": "6aed06d6b4312272d2f60fb6",
    "date": "2026-11-06",
@@ -3012,14 +2963,113 @@
    "status": "CLOSE"
   },
   "6aed7355b3d2b7374f3e2f5d": {
-   "agent": "Unassigned",
+   "agent": "Tapan-MKV",
    "channel": "Main",
    "contact": "6aed7355b3d2b7374f3e2f54",
    "date": "2026-11-06",
    "first_text": "Hi MKV Luxury team, I’m Marcos, director of AURUM Drive. We connect luxury car r",
    "origin": "direct",
+   "status": "CLOSE"
+  },
+  "6aed85bbaedf5313946c3a91": {
+   "agent": "Unassigned",
+   "channel": "Rent to Own",
+   "contact": "6aed85bbaedf5313946c3a84",
+   "date": "2026-11-06",
+   "first_text": "Hi, I want to know more about Rent-to-Own plan.",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6aed8ba97ec4998f985941ce": {
+   "agent": "Tapan-MKV",
+   "channel": "Main",
+   "contact": "6aed8ba97ec4998f985941b6",
+   "date": "2026-11-06",
+   "first_text": "Hi, I would like to reserve a car.",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6aeda391159d5c98a54aa042": {
+   "agent": "Tapan-MKV",
+   "channel": "Main",
+   "contact": "6aeda390159d5c98a54a9ff8",
+   "date": "2026-11-06",
+   "first_text": "",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6aedab67159d5c98a54bbaea": {
+   "agent": "Tapan-MKV",
+   "channel": "Main",
+   "contact": "66ed8e43117232b7ca155a81",
+   "date": "2026-11-06",
+   "first_text": "Hi, I want to talk to an agent about Ford Mustang GT V8 Convertible 2024",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6aedc2d0fe4e5e707e7ed5f6": {
+   "agent": "Reham-MKV",
+   "channel": "Main",
+   "contact": "6aedc2d0fe4e5e707e7ed5ed",
+   "date": "2026-11-06",
+   "first_text": "Huracan I want hello",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6aedca48904e4f3e5b64ab73": {
+   "agent": "Tapan-MKV",
+   "channel": "Main",
+   "contact": "6aedca48904e4f3e5b64ab6a",
+   "date": "2026-11-06",
+   "first_text": "Hi, this is Anil from ATOA Technologies. On mkvluxury.com, each car has Reserve ",
+   "origin": "direct",
+   "status": "CLOSE"
+  },
+  "6aedf09f2ef6d509e4bbbb96": {
+   "agent": "Reham-MKV",
+   "channel": "Main",
+   "contact": "6aedf09f2ef6d509e4bbbb8d",
+   "date": "2026-11-06",
+   "first_text": "Hi! I’d like to rent a Lamborghini or Ferrari for one or two days. We’ll be two ",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6aee0847904e4f3e5b6d9459": {
+   "agent": "Tapan-MKV",
+   "channel": "Main",
+   "contact": "6aee0847904e4f3e5b6d9450",
+   "date": "2026-11-06",
+   "first_text": "Good morning !",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6aee313c42710b7651643b84": {
+   "agent": "Rafithath-MKV",
+   "channel": "Main",
+   "contact": "6aee313c42710b7651643b7b",
+   "date": "2026-11-06",
+   "first_text": "What supercars do you have available for tomorrow?",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6aee540a75a358089dd0392a": {
+   "agent": "Rafithath-MKV",
+   "channel": "Car Rental",
+   "contact": "66ed8e55b0a59f5c4d32923a",
+   "date": "2026-11-07",
+   "first_text": "Hiii",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6aeeae36fe4e5e707e935aab": {
+   "agent": "Unassigned",
+   "channel": "Rent to Own",
+   "contact": "6aeeae36fe4e5e707e935aa2",
+   "date": "2026-11-07",
+   "first_text": "Hi, I want to know more about Rent-to-Own plan.",
+   "origin": "direct",
    "status": "OPEN"
   }
  },
- "updated": "2026-11-06T11:00:30+04:00"
+ "updated": "2026-11-07T11:00:32+04:00"
 }
