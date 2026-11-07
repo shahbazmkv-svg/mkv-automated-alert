@@ -17519,6 +17519,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0011231-PARA-Porsche": {
+      "thread_ts": "1794045635.872129",
+      "end_date": "2026-11-09",
+      "plate": "64545",
+      "customer": "Paradise Vip Car Rental  L.L.C",
+      "vehicle": "Porsche Cayman Gt4 Rs",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-11-07"
     }
   }
 }
