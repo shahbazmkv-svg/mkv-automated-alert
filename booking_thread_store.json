@@ -17467,7 +17467,7 @@
       "customer": "Happy Drive Car Rental L.L.C Co Llc",
       "vehicle": "Porsche 911 Turbo",
       "delivery_alerted": false,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-11-07",
       "delivery_ts": null,
