@@ -17489,6 +17489,28 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0011230-MOHA-Land Rover": {
+      "thread_ts": "1794025834.683539",
+      "end_date": "2026-11-10",
+      "plate": "83762",
+      "customer": "Mohammed Yousaf Majid",
+      "vehicle": "Land Rover Defender",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-11-09"
+    },
+    "0011229-MOHA-Mercedes-Benz": {
+      "thread_ts": "1794025840.308569",
+      "end_date": "2026-11-09",
+      "plate": "66789",
+      "customer": "Mohammed Yousaf Majid",
+      "vehicle": "Mercedes-Benz Mercedes G3 (Brabus)",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-11-08"
     }
   }
 }
