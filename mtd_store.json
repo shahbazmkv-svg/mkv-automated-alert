@@ -1,68 +1,5 @@
 {
  "convs": {
-  "6ab35914804814ed3c225780": {
-   "agent": "Tapan-MKV",
-   "channel": "Main",
-   "contact": "6ab35914804814ed3c225777",
-   "date": "2026-09-23",
-   "status": "CLOSE"
-  },
-  "6ab36b72ae5628880ca9a462": {
-   "agent": "Tapan-MKV",
-   "channel": "Main",
-   "contact": "6ab36b72ae5628880ca9a455",
-   "date": "2026-09-23",
-   "status": "CLOSE"
-  },
-  "6ab3786f2aebe86c49eaa1ef": {
-   "agent": "Tapan-MKV",
-   "channel": "Main",
-   "contact": "6ab0f2b47cbeb5cead0a4a68",
-   "date": "2026-09-23",
-   "status": "CLOSE"
-  },
-  "6ab3934dae5628880cb0f254": {
-   "agent": "Reham-MKV",
-   "channel": "Instagram",
-   "contact": "6ab3934dae5628880cb0f248",
-   "date": "2026-09-23",
-   "status": "OPEN"
-  },
-  "6ab3a4f5804814ed3c2fd33a": {
-   "agent": "Unassigned",
-   "channel": "Instagram",
-   "contact": "6ab3a4f5804814ed3c2fd31a",
-   "date": "2026-09-23",
-   "status": "OPEN"
-  },
-  "6ab3a7ac813327db090a6e40": {
-   "agent": "Ali Azlan",
-   "channel": "Rent to Own",
-   "contact": "6ab3a7ac813327db090a6e37",
-   "date": "2026-09-23",
-   "status": "OPEN"
-  },
-  "6ab3ed9d31d6e9bf54287e44": {
-   "agent": "Unassigned",
-   "channel": "Instagram",
-   "contact": "6ab3ed9d31d6e9bf54287e36",
-   "date": "2026-09-23",
-   "status": "OPEN"
-  },
-  "6ab3fce9ae5628880cc4b401": {
-   "agent": "Tapan-MKV",
-   "channel": "Car Rental",
-   "contact": "6ab3fce9ae5628880cc4b3f8",
-   "date": "2026-09-23",
-   "status": "CLOSE"
-  },
-  "6ab403d05f33acb6d9f25522": {
-   "agent": "Unassigned",
-   "channel": "Rent to Own",
-   "contact": "6ab403d05f33acb6d9f25519",
-   "date": "2026-09-23",
-   "status": "OPEN"
-  },
   "6ab4410aae5628880ccb99ed": {
    "agent": "Tapan-MKV",
    "channel": "Main",
@@ -3069,7 +3006,73 @@
    "first_text": "Hi, I want to know more about Rent-to-Own plan.",
    "origin": "direct",
    "status": "OPEN"
+  },
+  "6aeef9355c4526411cbb6d24": {
+   "agent": "Tapan-MKV",
+   "channel": "Main",
+   "contact": "6aeef9345c4526411cbb6d1b",
+   "date": "2026-11-07",
+   "first_text": "Do you want to rank your website on Google's first page and generate more leads ",
+   "origin": "direct",
+   "status": "CLOSE"
+  },
+  "6aef118475a358089de389dd": {
+   "ad_id": "120239181295470594",
+   "ad_name": "Book Now",
+   "agent": "Unassigned",
+   "channel": "Car Rental",
+   "contact": "6aef118475a358089de389d4",
+   "date": "2026-11-07",
+   "first_text": "हम",
+   "origin": "meta_ad",
+   "placement": "Facebook",
+   "status": "OPEN"
+  },
+  "6aef2335fe4e5e707ea32ae4": {
+   "agent": "Tapan-MKV",
+   "channel": "Car Rental",
+   "contact": "6ad4f2b1f7c7282c23eb3733",
+   "date": "2026-11-07",
+   "first_text": "Hello! Hope you’re doing well.\n\nJust checking in to see how things are going wit",
+   "origin": "direct",
+   "status": "CLOSE"
+  },
+  "6aef4ae0fe4e5e707ea9152c": {
+   "agent": "Rafithath-MKV",
+   "channel": "Main",
+   "contact": "6aef4ac840c52b7e0cb0f3e1",
+   "date": "2026-11-07",
+   "first_text": "Gwagon",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6aef820efe4e5e707ead1438": {
+   "agent": "Unassigned",
+   "channel": "Instagram",
+   "contact": "69259b2bbbb37e0f13b002d6",
+   "date": "2026-11-07",
+   "first_text": "Hi mkvluxurydubai \nGreetings From MKV Luxury\nPlease share your WhatsApp number, ",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6aef861e42710b76517ee018": {
+   "agent": "Rafithath-MKV",
+   "channel": "Main",
+   "contact": "6aef861e42710b76517ee00f",
+   "date": "2026-11-08",
+   "first_text": "Hi, I’m looking to rent a Mercedes-AMG G63, model year 2024 or newer, preferably",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6aefa71e904e4f3e5b92cd5d": {
+   "agent": "Unassigned",
+   "channel": "Main",
+   "contact": "6aefa71e904e4f3e5b92cd54",
+   "date": "2026-11-08",
+   "first_text": "Hi",
+   "origin": "direct",
+   "status": "OPEN"
   }
  },
- "updated": "2026-11-07T11:00:32+04:00"
+ "updated": "2026-11-08T11:00:34+04:00"
 }
