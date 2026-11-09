@@ -1,26 +1,5 @@
 {
  "convs": {
-  "6ab4410aae5628880ccb99ed": {
-   "agent": "Tapan-MKV",
-   "channel": "Main",
-   "contact": "6ab4410aae5628880ccb99e4",
-   "date": "2026-09-24",
-   "status": "CLOSE"
-  },
-  "6ab524508bb9b1f51aa270c3": {
-   "agent": "Tapan-MKV",
-   "channel": "Main",
-   "contact": "6ab524508bb9b1f51aa270ba",
-   "date": "2026-09-24",
-   "status": "CLOSE"
-  },
-  "6ab55902c7d92993cf3c94f4": {
-   "agent": "Tapan-MKV",
-   "channel": "Instagram",
-   "contact": "6ab55901c7d92993cf3c94e8",
-   "date": "2026-09-24",
-   "status": "CLOSE"
-  },
   "6ab60fc4506bc20943570a47": {
    "agent": "Tapan-MKV",
    "channel": "Main",
@@ -3047,13 +3026,13 @@
    "status": "OPEN"
   },
   "6aef820efe4e5e707ead1438": {
-   "agent": "Unassigned",
+   "agent": "Tapan-MKV",
    "channel": "Instagram",
    "contact": "69259b2bbbb37e0f13b002d6",
    "date": "2026-11-07",
    "first_text": "Hi mkvluxurydubai \nGreetings From MKV Luxury\nPlease share your WhatsApp number, ",
    "origin": "direct",
-   "status": "OPEN"
+   "status": "CLOSE"
   },
   "6aef861e42710b76517ee018": {
    "agent": "Rafithath-MKV",
@@ -3072,7 +3051,161 @@
    "first_text": "Hi",
    "origin": "direct",
    "status": "OPEN"
+  },
+  "6af01e7275a358089df8855d": {
+   "agent": "Tapan-MKV",
+   "channel": "Main",
+   "contact": "6af01e7275a358089df88554",
+   "date": "2026-11-08",
+   "first_text": "Hi MKV Luxury Car Rental team,\n\nThis is Irfan from **Detail Shield**, Dubai. We ",
+   "origin": "direct",
+   "status": "CLOSE"
+  },
+  "6af022ad904e4f3e5b9af58d": {
+   "agent": "Rafithath-MKV",
+   "channel": "Main",
+   "contact": "689e3448e900cbc38719a14b",
+   "date": "2026-11-08",
+   "first_text": "What car have you got available",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6af028c8fe4e5e707eb652ff": {
+   "agent": "Tapan-MKV",
+   "channel": "Instagram",
+   "contact": "6af028c8fe4e5e707eb652f3",
+   "date": "2026-11-08",
+   "first_text": "Hello,\n\nWe came across your impressive car collection and would love to explore ",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6af02b46fe4e5e707eb694e1": {
+   "agent": "Tapan-MKV",
+   "channel": "Main",
+   "contact": "6af02b46fe4e5e707eb694d8",
+   "date": "2026-11-08",
+   "first_text": "UID:zg8PdS Thank you for reaching MKV Luxury. Please enter your message below:i ",
+   "origin": "website",
+   "status": "OPEN"
+  },
+  "6af05c815c4526411cd6a14d": {
+   "agent": "Rafithath-MKV",
+   "channel": "Main",
+   "contact": "6af05c815c4526411cd6a144",
+   "date": "2026-11-08",
+   "first_text": "Hi, I would like to reserve a car.",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6af061542ef6d509e4ecf03d": {
+   "agent": "Tapan-MKV",
+   "channel": "Main",
+   "contact": "6af061542ef6d509e4ecf034",
+   "date": "2026-11-08",
+   "first_text": "Hello",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6af065be5c4526411cd7798b": {
+   "agent": "Tapan-MKV",
+   "channel": "Main",
+   "contact": "6af065be5c4526411cd77982",
+   "date": "2026-11-08",
+   "first_text": "Hi, I would like to reserve a car.",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6af0692c2ef6d509e4eda28d": {
+   "agent": "Tapan-MKV",
+   "channel": "Main",
+   "contact": "6af0692c2ef6d509e4eda284",
+   "date": "2026-11-08",
+   "first_text": "Hi, I'm staying at Atlantis The Royal with my 15-year-old son. I'm looking for a",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6af0824642710b76518de7a6": {
+   "agent": "Rafithath-MKV",
+   "channel": "Main",
+   "contact": "6af0824642710b76518de78d",
+   "date": "2026-11-08",
+   "first_text": "Hey",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6af09c3cfe4e5e707ec21c27": {
+   "agent": "Rafithath-MKV",
+   "channel": "Instagram",
+   "contact": "6af09c3cfe4e5e707ec21c1b",
+   "date": "2026-11-08",
+   "first_text": "Can you share more details on this offer?",
+   "origin": "meta_ad",
+   "placement": "Meta (welcome text)",
+   "status": "OPEN"
+  },
+  "6af09e3742710b76519006b3": {
+   "agent": "Rafithath-MKV",
+   "channel": "Car Rental",
+   "contact": "6ae739dd88c65ea443c0f658",
+   "date": "2026-11-08",
+   "first_text": "Hi, I just made 2 online bookings (Reserve free), payable at pickup:\nAudi RS Q3:",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6af0a3cd5c4526411cdce3f3": {
+   "ad_id": "120239181295470594",
+   "ad_name": "Book Now",
+   "agent": "Unassigned",
+   "channel": "Car Rental",
+   "contact": "6af0a3cc5c4526411cdce3e8",
+   "date": "2026-11-08",
+   "first_text": "",
+   "origin": "meta_ad",
+   "placement": "Facebook",
+   "status": "OPEN"
+  },
+  "6af0beb3904e4f3e5bab50dc": {
+   "ad_id": "120239181295470594",
+   "ad_name": "Book Now",
+   "agent": "Unassigned",
+   "channel": "Car Rental",
+   "contact": "6af0beb3904e4f3e5bab50d3",
+   "date": "2026-11-08",
+   "first_text": "Hello?",
+   "origin": "meta_ad",
+   "placement": "Facebook",
+   "status": "OPEN"
+  },
+  "6af0becb42710b765191ff46": {
+   "agent": "Rafithath-MKV",
+   "channel": "Instagram",
+   "contact": "6af0beca42710b765191ff2d",
+   "date": "2026-11-08",
+   "first_text": "Hi. Please let us know how we can help you.",
+   "origin": "direct",
+   "status": "CLOSE"
+  },
+  "6af1132242710b7651938bea": {
+   "ad_id": "120239181295470594",
+   "ad_name": "Book Now",
+   "agent": "Unassigned",
+   "channel": "Car Rental",
+   "contact": "6af1132242710b7651938be1",
+   "date": "2026-11-09",
+   "first_text": "Hi! I would like to book the car without deposit",
+   "origin": "meta_ad",
+   "placement": "Instagram",
+   "status": "OPEN"
+  },
+  "6af1538075a358089d0e2bd5": {
+   "agent": "Reham-MKV",
+   "channel": "Main",
+   "contact": "6af1538075a358089d0e2bcc",
+   "date": "2026-11-09",
+   "first_text": "Hi, i would like to book a Ride",
+   "origin": "direct",
+   "status": "OPEN"
   }
  },
- "updated": "2026-11-08T11:00:34+04:00"
+ "updated": "2026-11-09T11:00:33+04:00"
 }
