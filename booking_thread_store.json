@@ -17717,7 +17717,7 @@
     },
     "0011247-MEHD-Bentley": {
       "thread_ts": "1794237329.659369",
-      "end_date": "2026-11-16",
+      "end_date": "2026-11-17",
       "plate": "33789",
       "customer": "Mehdi Shams",
       "vehicle": "Bentley Bentayga",
@@ -17737,9 +17737,13 @@
       "customer": "Pedro Alison Da Silva Bezerra",
       "vehicle": "Mercedes 2023",
       "delivery_alerted": false,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
-      "start_date": "2026-11-09"
+      "start_date": "2026-11-09",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0011248-PEDR-Mercedes-Benz": {
       "thread_ts": "1794238242.542739",
@@ -17748,9 +17752,13 @@
       "customer": "Pedro Alison Da Silva Bezerra",
       "vehicle": "Mercedes-Benz Mercedes G3 (Brabus)",
       "delivery_alerted": false,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
-      "start_date": "2026-11-09"
+      "start_date": "2026-11-09",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     }
   }
 }
