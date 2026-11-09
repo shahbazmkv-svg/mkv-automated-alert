@@ -17699,6 +17699,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0011246-ALEK-Morgan": {
+      "thread_ts": "1794233729.014339",
+      "end_date": "2026-11-10",
+      "plate": "47203",
+      "customer": "Aleksander Sztremer",
+      "vehicle": "Morgan Morgan Supersport",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-11-09"
     }
   }
 }
