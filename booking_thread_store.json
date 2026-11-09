@@ -17654,6 +17654,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0011243-ISAB-Lamborghini": {
+      "thread_ts": "1794222038.674299",
+      "end_date": "2026-11-11",
+      "plate": "94545",
+      "customer": "Isabella Ivanova Parikateva",
+      "vehicle": "Lamborghini Urus S",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-11-10"
     }
   }
 }
