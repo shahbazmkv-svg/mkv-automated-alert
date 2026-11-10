@@ -1,47 +1,5 @@
 {
  "convs": {
-  "6ab60fc4506bc20943570a47": {
-   "agent": "Tapan-MKV",
-   "channel": "Main",
-   "contact": "6ab60fc4506bc20943570a3e",
-   "date": "2026-09-25",
-   "status": "CLOSE"
-  },
-  "6ab61089ec489970835723f9": {
-   "agent": "Tapan-MKV",
-   "channel": "Instagram",
-   "contact": "6ab61089ec489970835723ed",
-   "date": "2026-09-25",
-   "status": "CLOSE"
-  },
-  "6ab622ae506bc209435a4453": {
-   "agent": "Tapan-MKV",
-   "channel": "Main",
-   "contact": "6ab622ae506bc209435a444a",
-   "date": "2026-09-25",
-   "status": "CLOSE"
-  },
-  "6ab62319be5b770debbba26b": {
-   "agent": "Tapan-MKV",
-   "channel": "Main",
-   "contact": "6ab622ae506bc209435a444a",
-   "date": "2026-09-25",
-   "status": "CLOSE"
-  },
-  "6ab63b81be5b770debbfce39": {
-   "agent": "Ali Azlan",
-   "channel": "Rent to Own",
-   "contact": "66ed8e5db0a59f5c4d329a8b",
-   "date": "2026-09-25",
-   "status": "OPEN"
-  },
-  "6ab68f66fbcf94c7ecfa3a67": {
-   "agent": "Tapan-MKV",
-   "channel": "Car Rental",
-   "contact": "6ab3fce9ae5628880cc4b3f8",
-   "date": "2026-09-25",
-   "status": "CLOSE"
-  },
   "6ab750e94cf6f59c15e27292": {
    "agent": "Tapan-MKV",
    "channel": "Main",
@@ -2630,13 +2588,13 @@
    "status": "CLOSE"
   },
   "6aeafe90b712c48606875bc7": {
-   "agent": "Unassigned",
+   "agent": "MKV Luxury",
    "channel": "Main",
    "contact": "6aeafe90b712c48606875bbe",
    "date": "2026-11-04",
    "first_text": "Hi I’m Walid and I got your number from my friend Ali … if you need driver for c",
    "origin": "direct",
-   "status": "OPEN"
+   "status": "CLOSE"
   },
   "6aeb0ac1a6a75f2030c3e3d8": {
    "agent": "MKV Luxury",
@@ -2720,13 +2678,13 @@
    "status": "CLOSE"
   },
   "6aec16bfd2f3398f3c3a7bde": {
-   "agent": "Unassigned",
+   "agent": "MKV Luxury",
    "channel": "Instagram",
    "contact": "6aec16bfd2f3398f3c3a7bd4",
    "date": "2026-11-05",
    "first_text": "Hey guys! 👋\n\nI’d love to offer you a barter collaboration!\n\nMy regular advertisi",
    "origin": "direct",
-   "status": "OPEN"
+   "status": "CLOSE"
   },
   "6aec1b33b4312272d2d678c5": {
    "agent": "Tapan-MKV",
@@ -2738,13 +2696,13 @@
    "status": "OPEN"
   },
   "6aec20fbff18d4d5b8fa842f": {
-   "agent": "Unassigned",
+   "agent": "MKV Luxury",
    "channel": "Main",
    "contact": "6aec20fbff18d4d5b8fa8426",
    "date": "2026-11-05",
    "first_text": "Hello, we have various models of Geely and BYD. Do you have any needs?",
    "origin": "direct",
-   "status": "OPEN"
+   "status": "CLOSE"
   },
   "6aec488db4312272d2debda2": {
    "ad_id": "120239181295470594",
@@ -2759,7 +2717,7 @@
    "status": "OPEN"
   },
   "6aec4c0cd16b25685f4cc594": {
-   "agent": "Tapan-MKV",
+   "agent": "Rafithath-MKV",
    "channel": "Car Rental",
    "contact": "69036fef724222af92688782",
    "date": "2026-11-05",
@@ -3155,14 +3113,14 @@
   "6af0a3cd5c4526411cdce3f3": {
    "ad_id": "120239181295470594",
    "ad_name": "Book Now",
-   "agent": "Unassigned",
+   "agent": "MKV Luxury",
    "channel": "Car Rental",
    "contact": "6af0a3cc5c4526411cdce3e8",
    "date": "2026-11-08",
    "first_text": "",
    "origin": "meta_ad",
    "placement": "Facebook",
-   "status": "OPEN"
+   "status": "CLOSE"
   },
   "6af0beb3904e4f3e5bab50dc": {
    "ad_id": "120239181295470594",
@@ -3205,7 +3163,148 @@
    "first_text": "Hi, i would like to book a Ride",
    "origin": "direct",
    "status": "OPEN"
+  },
+  "6af184785c4526411cea8788": {
+   "agent": "MKV Luxury",
+   "channel": "Instagram",
+   "contact": "69259b2bbbb37e0f13b002d6",
+   "date": "2026-11-09",
+   "first_text": "Hi mkvluxurydubai \nGreetings From MKV Luxury\nPlease share your WhatsApp number, ",
+   "origin": "direct",
+   "status": "CLOSE"
+  },
+  "6af18eab75a358089d173942": {
+   "ad_id": "120239181295470594",
+   "ad_name": "Book Now",
+   "agent": "Reham-MKV",
+   "channel": "Car Rental",
+   "contact": "6af18eab75a358089d17392e",
+   "date": "2026-11-09",
+   "first_text": "how are u \n\ni have company desert safari and buggy rental \nIf u have any inquiri",
+   "origin": "meta_ad",
+   "placement": "Instagram",
+   "status": "OPEN"
+  },
+  "6af196e22ef6d509e4057c92": {
+   "agent": "Reham-MKV",
+   "channel": "Main",
+   "contact": "6af196e22ef6d509e4057c89",
+   "date": "2026-11-09",
+   "first_text": "hello",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6af1b0672ef6d509e409605b": {
+   "agent": "Unassigned",
+   "channel": "Main",
+   "contact": "6af1b0672ef6d509e409602e",
+   "date": "2026-11-09",
+   "first_text": "",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6af1be445c4526411cf290d2": {
+   "ad_id": "120239181295470594",
+   "ad_name": "Book Now",
+   "agent": "Unassigned",
+   "channel": "Car Rental",
+   "contact": "6af1be445c4526411cf290c9",
+   "date": "2026-11-09",
+   "first_text": "Hi! I would like to book the car without deposit",
+   "origin": "meta_ad",
+   "placement": "Facebook",
+   "status": "OPEN"
+  },
+  "6af1ce9c2ef6d509e40df3a7": {
+   "ad_id": "120239181295470594",
+   "ad_name": "Book Now",
+   "agent": "Unassigned",
+   "channel": "Car Rental",
+   "contact": "6af1ce9c2ef6d509e40df39e",
+   "date": "2026-11-09",
+   "first_text": "Can you share more details on this offer?",
+   "origin": "meta_ad",
+   "placement": "Facebook",
+   "status": "OPEN"
+  },
+  "6af1d97375a358089d231613": {
+   "agent": "Rafithath-MKV",
+   "channel": "Car Rental",
+   "contact": "6af1d97375a358089d23160a",
+   "date": "2026-11-09",
+   "first_text": "السلام عليكم ورحمة الله وبركاته",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6af1db315c4526411cf69fa4": {
+   "agent": "Rafithath-MKV",
+   "channel": "Main",
+   "contact": "6af1db315c4526411cf69f9b",
+   "date": "2026-11-09",
+   "first_text": "Hloo",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6af1de7242710b7651a7db6d": {
+   "ad_id": "120239181295470594",
+   "ad_name": "Book Now",
+   "agent": "Unassigned",
+   "channel": "Car Rental",
+   "contact": "6af1de7242710b7651a7db64",
+   "date": "2026-11-09",
+   "first_text": "Hi! I would like to book the car without deposit",
+   "origin": "meta_ad",
+   "placement": "Facebook",
+   "status": "OPEN"
+  },
+  "6af1de9375a358089d23d1be": {
+   "agent": "Rafithath-MKV",
+   "channel": "Main",
+   "contact": "6af1de9375a358089d23d1b5",
+   "date": "2026-11-09",
+   "first_text": "Hi MKV Luxury team, I'm Sheik. I'm looking for a Ferrari Purosangue in Dubai ove",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6af1e8ef2ef6d509e411d94e": {
+   "agent": "Unassigned",
+   "channel": "Main",
+   "contact": "6aed7355b3d2b7374f3e2f54",
+   "date": "2026-11-09",
+   "first_text": "Hi MKV team, Marcos from AURUM Drive again. I’m sharing our short partner presen",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6af1ff55fe4e5e707ee40193": {
+   "ad_id": "120239181295470594",
+   "ad_name": "Book Now",
+   "agent": "Tapan-MKV",
+   "channel": "Car Rental",
+   "contact": "6af1ff55fe4e5e707ee4018a",
+   "date": "2026-11-09",
+   "first_text": "Can you share more details on this offer?",
+   "origin": "meta_ad",
+   "placement": "Facebook",
+   "status": "CLOSE"
+  },
+  "6af201cb75a358089d280ce2": {
+   "agent": "Rafithath-MKV",
+   "channel": "Main",
+   "contact": "6af201cb75a358089d280cd9",
+   "date": "2026-11-09",
+   "first_text": "UID:cqB6Yd Thank you for reaching MKV Luxury. Please enter your message below: H",
+   "origin": "website",
+   "status": "OPEN"
+  },
+  "6af2a9e1904e4f3e5bd48794": {
+   "agent": "Unassigned",
+   "channel": "Main",
+   "contact": "6af2a9e1904e4f3e5bd4878b",
+   "date": "2026-11-10",
+   "first_text": "Hi, i would like to book a Ride",
+   "origin": "direct",
+   "status": "OPEN"
   }
  },
- "updated": "2026-11-09T11:00:33+04:00"
+ "updated": "2026-11-10T11:00:33+04:00"
 }
