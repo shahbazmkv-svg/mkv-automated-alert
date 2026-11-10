@@ -17759,6 +17759,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0011250-SAYE-Land Rover": {
+      "thread_ts": "1794295833.238749",
+      "end_date": "2026-11-12",
+      "plate": "83209",
+      "customer": "Sayed Faiz Ul Hasan",
+      "vehicle": "Land Rover Range Rover Sport",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-11-10"
     }
   }
 }
