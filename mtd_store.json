@@ -1,33 +1,5 @@
 {
  "convs": {
-  "6ab750e94cf6f59c15e27292": {
-   "agent": "Tapan-MKV",
-   "channel": "Main",
-   "contact": "6ab750e94cf6f59c15e27289",
-   "date": "2026-09-26",
-   "status": "CLOSE"
-  },
-  "6ab7ce3efbcf94c7ec1ea1be": {
-   "agent": "Tapan-MKV",
-   "channel": "Instagram",
-   "contact": "6ab7ce3efbcf94c7ec1ea1a4",
-   "date": "2026-09-26",
-   "status": "CLOSE"
-  },
-  "6ab7fec4fc0ba5880fa22301": {
-   "agent": "MKV Luxury",
-   "channel": "Rent to Own",
-   "contact": "6ab7fec4fc0ba5880fa222f3",
-   "date": "2026-09-26",
-   "status": "OPEN"
-  },
-  "6ab8bd11c9d9a658f4a997ce": {
-   "agent": "Tapan-MKV",
-   "channel": "Instagram",
-   "contact": "6ab7ce3efbcf94c7ec1ea1a4",
-   "date": "2026-09-26",
-   "status": "CLOSE"
-  },
   "6ab8bd3a5def46eb704a835d": {
    "agent": "Tapan-MKV",
    "channel": "Main",
@@ -2234,7 +2206,7 @@
    "status": "OPEN"
   },
   "6ae77b910d6e6cf83bdf34bb": {
-   "agent": "Rafithath-MKV",
+   "agent": "Tapan-MKV",
    "channel": "Main",
    "contact": "69df4cd96c408ad30bc066a1",
    "date": "2026-11-01",
@@ -3304,7 +3276,103 @@
    "first_text": "Hi, i would like to book a Ride",
    "origin": "direct",
    "status": "OPEN"
+  },
+  "6af2c441fe4e5e707ef36d0c": {
+   "ad_id": "120239181295470594",
+   "ad_name": "Book Now",
+   "agent": "Tapan-MKV",
+   "channel": "Car Rental",
+   "contact": "6af1ff55fe4e5e707ee4018a",
+   "date": "2026-11-10",
+   "first_text": "Hi",
+   "origin": "meta_ad",
+   "placement": "Facebook",
+   "status": "CLOSE"
+  },
+  "6af2c9f9904e4f3e5bd9c807": {
+   "agent": "Unassigned",
+   "channel": "Instagram",
+   "contact": "6af2c9f9904e4f3e5bd9c7f5",
+   "date": "2026-11-10",
+   "first_text": "Hi, please let us know how we can help you.",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6af2d11442710b7651b8792f": {
+   "agent": "Tapan-MKV",
+   "channel": "Main",
+   "contact": "6ae8348f9e0719909a07c8a2",
+   "date": "2026-11-10",
+   "first_text": "",
+   "origin": "direct",
+   "status": "CLOSE"
+  },
+  "6af2ddaf42710b7651ba2efc": {
+   "agent": "Tapan-MKV",
+   "channel": "Main",
+   "contact": "66ed8dfc3ee1a3a0e3213ad0",
+   "date": "2026-11-10",
+   "first_text": "17th Day - Car Rental \n2:00 to 8:00 \nMcLaren / Lambo \n\n18th Day - Yatch \n3:30 - ",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6af2e4e542710b7651bb3118": {
+   "agent": "Unassigned",
+   "channel": "Rent to Own",
+   "contact": "6af2e4e442710b7651bb310f",
+   "date": "2026-11-10",
+   "first_text": "Hi, I want to know more about Rent-to-Own plan.",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6af2e81042710b7651bba0d0": {
+   "agent": "Tapan-MKV",
+   "channel": "Rent to Own",
+   "contact": "6af2e81042710b7651bba0c7",
+   "date": "2026-11-10",
+   "first_text": "Good afternoon sir how are you",
+   "origin": "direct",
+   "status": "CLOSE"
+  },
+  "6af342c2904e4f3e5bee23fa": {
+   "agent": "Unassigned",
+   "channel": "Main",
+   "contact": "6af342c2904e4f3e5bee23f1",
+   "date": "2026-11-10",
+   "first_text": "Hi! Hope you're doing well.\n\nI'm reaching out to introduce Carvanta, a business ",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6af34a00fe4e5e707e0b1611": {
+   "agent": "Rafithath-MKV",
+   "channel": "Main",
+   "contact": "6af34a00fe4e5e707e0b1608",
+   "date": "2026-11-10",
+   "first_text": "Hi, I am 21, can I rent Porsche gt3 ?",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6af360ca2ef6d509e43a420e": {
+   "agent": "Unassigned",
+   "channel": "Main",
+   "contact": "6af360ca2ef6d509e43a4205",
+   "date": "2026-11-10",
+   "first_text": "Hi! We offer to place your advertisement in our groups. Which option will be rel",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6af40b7c5c4526411c2dcb3b": {
+   "ad_id": "120239181295470594",
+   "ad_name": "Book Now",
+   "agent": "Reham-MKV",
+   "channel": "Car Rental",
+   "contact": "6af40b7b5c4526411c2dcb2b",
+   "date": "2026-11-11",
+   "first_text": "Hi! I would like to book the car without deposit",
+   "origin": "meta_ad",
+   "placement": "Instagram",
+   "status": "OPEN"
   }
  },
- "updated": "2026-11-10T11:00:33+04:00"
+ "updated": "2026-11-11T11:00:33+04:00"
 }
