@@ -17864,6 +17864,28 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0011257-SAMI-Ferrari": {
+      "thread_ts": "1794571239.281339",
+      "end_date": "2026-11-14",
+      "plate": "65387",
+      "customer": "Sami Chebbab",
+      "vehicle": "Ferrari  Purosangue",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-11-13"
+    },
+    "0011258-VICT-Land Rover": {
+      "thread_ts": "1794571248.860339",
+      "end_date": "2026-11-15",
+      "plate": "68620",
+      "customer": "Victor Rallon",
+      "vehicle": "Land Rover Range Rover Velar",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-11-13"
     }
   }
 }
