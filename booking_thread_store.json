@@ -17909,6 +17909,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0011260-MOHA-Lamborghini": {
+      "thread_ts": "1794574841.211989",
+      "end_date": "2026-11-14",
+      "plate": "94545",
+      "customer": "Mohammed Rumel Ahmed Mohammed Siraj Uddin",
+      "vehicle": "Lamborghini Urus S",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-11-13"
     }
   }
 }
