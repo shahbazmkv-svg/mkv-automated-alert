@@ -17872,9 +17872,13 @@
       "customer": "Sami Chebbab",
       "vehicle": "Ferrari  Purosangue",
       "delivery_alerted": false,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
-      "start_date": "2026-11-13"
+      "start_date": "2026-11-13",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0011258-VICT-Land Rover": {
       "thread_ts": "1794571248.860339",
@@ -17882,6 +17886,21 @@
       "plate": "68620",
       "customer": "Victor Rallon",
       "vehicle": "Land Rover Range Rover Velar",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-11-13",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
+    },
+    "0011259-SAHI-Lamborghini": {
+      "thread_ts": "1794572127.638769",
+      "end_date": "2026-11-14",
+      "plate": "44769",
+      "customer": "Sahil Narang Triloki Nath Narang",
+      "vehicle": "Lamborghini 2023",
       "delivery_alerted": false,
       "pickup_alerted": false,
       "closed": false,
