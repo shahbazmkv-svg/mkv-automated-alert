@@ -17954,6 +17954,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0011263-AMAA-Ford": {
+      "thread_ts": "1794655832.868099",
+      "end_date": "2026-11-15",
+      "plate": "15789",
+      "customer": "Amaan Muhammed Sarfaraz Hussain",
+      "vehicle": "Ford Mustang Coupe",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-11-14"
     }
   }
 }
