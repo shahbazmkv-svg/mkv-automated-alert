@@ -1,40 +1,5 @@
 {
  "convs": {
-  "6abb612e8507ca711b1bb115": {
-   "agent": "MKV Luxury",
-   "channel": "Main",
-   "contact": "6abb612e8507ca711b1bb10c",
-   "date": "2026-09-29",
-   "status": "CLOSE"
-  },
-  "6abb84bcf0ac9a3565032c88": {
-   "agent": "Tapan-MKV",
-   "channel": "Instagram",
-   "contact": "6978cbc30a2183ba33a5c80a",
-   "date": "2026-09-29",
-   "status": "OPEN"
-  },
-  "6abba033f0ac9a3565085fc7": {
-   "agent": "Reham-MKV",
-   "channel": "Car Rental",
-   "contact": "6abba033f0ac9a3565085fbe",
-   "date": "2026-09-29",
-   "status": "CLOSE"
-  },
-  "6abbf6eef0ac9a356518ffac": {
-   "agent": "MKV Luxury",
-   "channel": "Main",
-   "contact": "6abbf6eef0ac9a356518ffa3",
-   "date": "2026-09-29",
-   "status": "CLOSE"
-  },
-  "6abc104427359e4ba5cbc1bd": {
-   "agent": "Unassigned",
-   "channel": "Instagram",
-   "contact": "68ccd6dd56cfc96911dfd095",
-   "date": "2026-09-29",
-   "status": "OPEN"
-  },
   "6abc4c6793c1c81fb9abf543": {
    "agent": "Unassigned",
    "channel": "Instagram",
@@ -246,7 +211,7 @@
    "status": "CLOSE"
   },
   "6ac3d5f60f722435f8e3451b": {
-   "agent": "Rafithath-MKV",
+   "agent": "Tapan-MKV",
    "channel": "Car Rental",
    "contact": "6731c809836eedbf2e157741",
    "date": "2026-10-05",
@@ -2721,7 +2686,7 @@
    "status": "OPEN"
   },
   "6aed1590d16b25685f635d56": {
-   "agent": "Tapan-MKV",
+   "agent": "Rafithath-MKV",
    "channel": "Car Rental",
    "contact": "68ffd6fb6f4c75e8bccd5e30",
    "date": "2026-11-06",
@@ -3661,7 +3626,7 @@
   "6af67f324a28e29e54632e52": {
    "ad_id": "120239181295470594",
    "ad_name": "Book Now",
-   "agent": "Unassigned",
+   "agent": "Reham-MKV",
    "channel": "Car Rental",
    "contact": "6af67f324a28e29e54632e49",
    "date": "2026-11-13",
@@ -3678,7 +3643,130 @@
    "first_text": "Hello",
    "origin": "direct",
    "status": "OPEN"
+  },
+  "6af6e73f9cd7c2e337b5f61c": {
+   "ad_id": "120239181295470594",
+   "ad_name": "Book Now",
+   "agent": "Tapan-MKV",
+   "channel": "Car Rental",
+   "contact": "6af6e73f9cd7c2e337b5f613",
+   "date": "2026-11-13",
+   "first_text": "Can I get hr email or any contact details please",
+   "origin": "meta_ad",
+   "placement": "Instagram",
+   "status": "CLOSE"
+  },
+  "6af6e7b69cd7c2e337b60b67": {
+   "agent": "Unassigned",
+   "channel": "Car Rental",
+   "contact": "6af6e73f9cd7c2e337b5f613",
+   "date": "2026-11-13",
+   "first_text": "Ok sir thanks",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6af6ea16fb23a7bcf550e71b": {
+   "ad_id": "120239181295470594",
+   "ad_name": "Book Now",
+   "agent": "Reham-MKV",
+   "channel": "Car Rental",
+   "contact": "6af6ea16fb23a7bcf550e711",
+   "date": "2026-11-13",
+   "first_text": "Hello",
+   "origin": "meta_ad",
+   "placement": "Instagram",
+   "status": "OPEN"
+  },
+  "6af6edcffb23a7bcf551818b": {
+   "agent": "MKV Luxury",
+   "channel": "Rent to Own",
+   "contact": "6af6edcffb23a7bcf5518182",
+   "date": "2026-11-13",
+   "first_text": "Hi, I want to know more about Rent-to-Own plan.",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6af6f0a775fd1feacb6b1eed": {
+   "agent": "Unassigned",
+   "channel": "Rent to Own",
+   "contact": "6af6f0a775fd1feacb6b1ee4",
+   "date": "2026-11-13",
+   "first_text": "Hi, I want to know more about Rent-to-Own plan.",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6af72a2e0896d821051ac8ce": {
+   "agent": "Reham-MKV",
+   "channel": "Main",
+   "contact": "6af72a2e0896d821051ac8c5",
+   "date": "2026-11-13",
+   "first_text": "UID:DCG7sR Thank you for reaching MKV Luxury. Please enter your message below: H",
+   "origin": "website",
+   "status": "OPEN"
+  },
+  "6af75a209cd7c2e337c79b34": {
+   "agent": "Unassigned",
+   "channel": "Main",
+   "contact": "6af75a209cd7c2e337c79b2b",
+   "date": "2026-11-13",
+   "first_text": "Hi, i would like to book a Ride",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6af778acfa07725ca9d18161": {
+   "agent": "Rafithath-MKV",
+   "channel": "Rent to Own",
+   "contact": "6af778acfa07725ca9d18158",
+   "date": "2026-11-14",
+   "first_text": "Hi, I want to know more about Rent-to-Own plan.",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6af7ed7ffa07725ca9d69151": {
+   "agent": "Tapan-MKV",
+   "channel": "Car Rental",
+   "contact": "6af7ed7ffa07725ca9d69148",
+   "date": "2026-11-14",
+   "first_text": "Link:\n\n\nHello! Can I get more info on this?",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6af7f994fb23a7bcf5699f2b": {
+   "agent": "Tapan-MKV",
+   "channel": "Main",
+   "contact": "6af7f994fb23a7bcf5699f22",
+   "date": "2026-11-14",
+   "first_text": "Hi",
+   "origin": "direct",
+   "status": "CLOSE"
+  },
+  "6af7fa132e76389b7f40c012": {
+   "agent": "Tapan-MKV",
+   "channel": "Main",
+   "contact": "6af7f994fb23a7bcf5699f22",
+   "date": "2026-11-14",
+   "first_text": "can u share the details of right person",
+   "origin": "direct",
+   "status": "CLOSE"
+  },
+  "6af7fa56fa07725ca9d83fc4": {
+   "agent": "Tapan-MKV",
+   "channel": "Main",
+   "contact": "6af7f994fb23a7bcf5699f22",
+   "date": "2026-11-14",
+   "first_text": "Sure I have already share the details",
+   "origin": "direct",
+   "status": "CLOSE"
+  },
+  "6af7ff3ffb23a7bcf56a7c1f": {
+   "agent": "Unassigned",
+   "channel": "Main",
+   "contact": "6af7ff3ffb23a7bcf56a7c16",
+   "date": "2026-11-14",
+   "first_text": "Hi",
+   "origin": "direct",
+   "status": "OPEN"
   }
  },
- "updated": "2026-11-13T11:00:33+04:00"
+ "updated": "2026-11-14T11:00:32+04:00"
 }
