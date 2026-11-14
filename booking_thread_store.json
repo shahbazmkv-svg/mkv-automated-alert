@@ -17984,6 +17984,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0011265-SHAY-Porsche": {
+      "thread_ts": "1794664836.391539",
+      "end_date": "2026-11-15",
+      "plate": "J 59910",
+      "customer": "Shayan Hassanali Sheedmand",
+      "vehicle": "Porsche 2025",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-11-14"
     }
   }
 }
