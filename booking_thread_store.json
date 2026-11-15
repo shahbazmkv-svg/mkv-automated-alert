@@ -18029,6 +18029,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0011270-ALIS-Lamborghini": {
+      "thread_ts": "1794747638.657679",
+      "end_date": "2026-11-16",
+      "plate": "44769",
+      "customer": "Alison Da Silva Bezerra Pedro",
+      "vehicle": "Lamborghini 2023",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-11-15"
     }
   }
 }
