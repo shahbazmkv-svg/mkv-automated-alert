@@ -1,68 +1,5 @@
 {
  "convs": {
-  "6abc4c6793c1c81fb9abf543": {
-   "agent": "Unassigned",
-   "channel": "Instagram",
-   "contact": "6abc4c6793c1c81fb9abf537",
-   "date": "2026-09-30",
-   "status": "OPEN"
-  },
-  "6abc9c2022eef372a5449894": {
-   "agent": "Tapan-MKV",
-   "channel": "Main",
-   "contact": "69c3ec7d46d0746af3270864",
-   "date": "2026-09-30",
-   "status": "CLOSE"
-  },
-  "6abca20c26c404122dc50509": {
-   "agent": "Tapan-MKV",
-   "channel": "Main",
-   "contact": "69c3ec7d46d0746af3270864",
-   "date": "2026-09-30",
-   "status": "CLOSE"
-  },
-  "6abca6e33e5ee5f6f31cacb3": {
-   "agent": "Tapan-MKV",
-   "channel": "Main",
-   "contact": "6abca6e33e5ee5f6f31cacaa",
-   "date": "2026-09-30",
-   "status": "CLOSE"
-  },
-  "6abcc06629b2904d616fadc4": {
-   "agent": "Tapan-MKV",
-   "channel": "Main",
-   "contact": "6abcc06629b2904d616fadb5",
-   "date": "2026-09-30",
-   "status": "CLOSE"
-  },
-  "6abcdd3213da65350702bd3e": {
-   "agent": "Tapan-MKV",
-   "channel": "Main",
-   "contact": "6abcc06629b2904d616fadb5",
-   "date": "2026-09-30",
-   "status": "CLOSE"
-  },
-  "6abd12d0ce71f13ae0e9db76": {
-   "agent": "Tapan-MKV",
-   "channel": "Main",
-   "contact": "6abd12d0ce71f13ae0e9db68",
-   "date": "2026-09-30",
-   "status": "CLOSE"
-  },
-  "6abd248630593479ec6d95ed": {
-   "agent": "Unassigned",
-   "channel": "Main",
-   "contact": "6abd248530593479ec6d95e4",
-   "date": "2026-09-30",
-   "status": "OPEN"
-  },
-  "6abd293230593479ec6e6352": {
-   "agent": "Bot: RTO MKV",
-   "channel": "Rent to Own",
-   "contact": "6abd293230593479ec6e6349",
-   "date": "2026-09-30",
-   "status": "OPEN"
-  },
   "6abd6d8e214ebd6094f906cd": {
    "agent": "Tapan-MKV",
    "channel": "Main",
@@ -3311,7 +3248,7 @@
    "status": "CLOSE"
   },
   "6af424322ef6d509e44b38bf": {
-   "agent": "Reham-MKV",
+   "agent": "Tapan-MKV",
    "channel": "Car Rental",
    "contact": "6af424322ef6d509e44b38b6",
    "date": "2026-11-11",
@@ -3705,7 +3642,7 @@
    "status": "OPEN"
   },
   "6af75a209cd7c2e337c79b34": {
-   "agent": "Unassigned",
+   "agent": "Reham-MKV",
    "channel": "Main",
    "contact": "6af75a209cd7c2e337c79b2b",
    "date": "2026-11-13",
@@ -3766,7 +3703,106 @@
    "first_text": "Hi",
    "origin": "direct",
    "status": "OPEN"
+  },
+  "6af807a12e76389b7f42ad0b": {
+   "agent": "Tapan-MKV",
+   "channel": "Main",
+   "contact": "6af807a12e76389b7f42ad02",
+   "date": "2026-11-14",
+   "first_text": "UID:2mHEYw Thank you for reaching MKV Luxury. Please enter your message below:",
+   "origin": "website",
+   "status": "OPEN"
+  },
+  "6af80b34fb23a7bcf56c72ca": {
+   "agent": "Tapan-MKV",
+   "channel": "Car Rental",
+   "contact": "6801138d893a54a7a062fb2c",
+   "date": "2026-11-14",
+   "first_text": "Hi",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6af844cefa07725ca9e1a92d": {
+   "agent": "Reham-MKV",
+   "channel": "Main",
+   "contact": "6af844cefa07725ca9e1a91e",
+   "date": "2026-11-14",
+   "first_text": "Bom dia",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6af84c3975fd1feacb903005": {
+   "agent": "Reham-MKV",
+   "channel": "Main",
+   "contact": "6af84c3975fd1feacb902ffc",
+   "date": "2026-11-14",
+   "first_text": "UID:kZcwYH Thank you for reaching MKV Luxury. Please enter your message below: \n",
+   "origin": "website",
+   "status": "OPEN"
+  },
+  "6af84eae0896d82105368fe2": {
+   "agent": "Unassigned",
+   "channel": "Main",
+   "contact": "6af84ead0896d82105368fd1",
+   "date": "2026-11-14",
+   "first_text": "Hello",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6af858ae75fd1feacb921c41": {
+   "agent": "Bot: Rent To Own Welcome Bot",
+   "channel": "Rent to Own",
+   "contact": "6af858ae75fd1feacb921c38",
+   "date": "2026-11-14",
+   "first_text": "Hi, I want to know more about Rent-to-Own plan.",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6af85a669cd7c2e337e3dbe3": {
+   "agent": "Reham-MKV",
+   "channel": "Main",
+   "contact": "6af85a669cd7c2e337e3dbda",
+   "date": "2026-11-14",
+   "first_text": "UID:PEY9SC Thank you for reaching MKV Luxury. Please enter your message below:\nH",
+   "origin": "website",
+   "status": "OPEN"
+  },
+  "6af8692a0896d821053aac9a": {
+   "agent": "Unassigned",
+   "channel": "Main",
+   "contact": "6af8692a0896d821053aac91",
+   "date": "2026-11-14",
+   "first_text": "السلام عليكم ورحمة الله، حياكم الله الإخوة في MKV Luxury Car Rental.\n\nأنا محمد، ",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6af86a932e76389b7f4fa7ca": {
+   "agent": "Unassigned",
+   "channel": "Car Rental",
+   "contact": "6ade217e983c2de2d02f48bd",
+   "date": "2026-11-14",
+   "first_text": "Hello",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6af888669cd7c2e337eb50ce": {
+   "agent": "Reham-MKV",
+   "channel": "Main",
+   "contact": "6af888669cd7c2e337eb50c5",
+   "date": "2026-11-14",
+   "first_text": "Hi, I want to talk to an agent about Ford Mustang GT Premium V8 2024",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6af8f26a9cd7c2e337f1ab2c": {
+   "agent": "Rafithath-MKV",
+   "channel": "Main",
+   "contact": "6af8f26a9cd7c2e337f1ab23",
+   "date": "2026-11-15",
+   "first_text": "Hello, I’m looking for a Mercedes G63 AMG, E53 AMG, E63 AMG or AMG GT 53.\n\nPicku",
+   "origin": "direct",
+   "status": "OPEN"
   }
  },
- "updated": "2026-11-14T11:00:32+04:00"
+ "updated": "2026-11-15T11:00:36+04:00"
 }
