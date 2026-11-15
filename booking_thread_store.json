@@ -18037,6 +18037,21 @@
       "customer": "Alison Da Silva Bezerra Pedro",
       "vehicle": "Lamborghini 2023",
       "delivery_alerted": false,
+      "pickup_alerted": true,
+      "closed": false,
+      "start_date": "2026-11-15",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
+    },
+    "0011271-ALIS-Lamborghini": {
+      "thread_ts": "1794748525.882029",
+      "end_date": "2026-11-16",
+      "plate": "P/2196",
+      "customer": "Alison Da Silva Bezerra Pedro",
+      "vehicle": "Lamborghini Sto",
+      "delivery_alerted": false,
       "pickup_alerted": false,
       "closed": false,
       "start_date": "2026-11-15"
