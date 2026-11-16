@@ -1,47 +1,5 @@
 {
  "convs": {
-  "6abd6d8e214ebd6094f906cd": {
-   "agent": "Tapan-MKV",
-   "channel": "Main",
-   "contact": "6abd6d8e214ebd6094f906c4",
-   "date": "2026-10-01",
-   "status": "OPEN"
-  },
-  "6abdb591214ebd6094fcb2c1": {
-   "agent": "Unassigned",
-   "channel": "Instagram",
-   "contact": "6abdb591214ebd6094fcb2af",
-   "date": "2026-10-01",
-   "status": "OPEN"
-  },
-  "6abddb7aa0cfd9e7351ecb10": {
-   "agent": "Unassigned",
-   "channel": "Instagram",
-   "contact": "6abddb7aa0cfd9e7351ecb04",
-   "date": "2026-10-01",
-   "status": "OPEN"
-  },
-  "6abe1887214ebd609408efec": {
-   "agent": "Tapan-MKV",
-   "channel": "Instagram",
-   "contact": "6aac9d0b1ba546e60cd7edab",
-   "date": "2026-10-01",
-   "status": "CLOSE"
-  },
-  "6abe189b49eeed84eaaed8c5": {
-   "agent": "Unassigned",
-   "channel": "Instagram",
-   "contact": "6aac9d0b1ba546e60cd7edab",
-   "date": "2026-10-01",
-   "status": "OPEN"
-  },
-  "6abe1d4d214ebd609409d164": {
-   "agent": "Tapan-MKV",
-   "channel": "Main",
-   "contact": "6abe1d4d214ebd609409d15b",
-   "date": "2026-10-01",
-   "status": "CLOSE"
-  },
   "6abecece222666122681408e": {
    "agent": "Unassigned",
    "channel": "Instagram",
@@ -2428,7 +2386,7 @@
    "status": "CLOSE"
   },
   "6aeb40ac57dba01a70f0fb1e": {
-   "agent": "Reham-MKV",
+   "agent": "Rafithath-MKV",
    "channel": "Main",
    "contact": "6aeb40ac57dba01a70f0fb15",
    "date": "2026-11-04",
@@ -3732,7 +3690,7 @@
    "status": "OPEN"
   },
   "6af84c3975fd1feacb903005": {
-   "agent": "Reham-MKV",
+   "agent": "Rafithath-MKV",
    "channel": "Main",
    "contact": "6af84c3975fd1feacb902ffc",
    "date": "2026-11-14",
@@ -3802,7 +3760,133 @@
    "first_text": "Hello, I’m looking for a Mercedes G63 AMG, E53 AMG, E63 AMG or AMG GT 53.\n\nPicku",
    "origin": "direct",
    "status": "OPEN"
+  },
+  "6af96af92e76389b7f5ce9f4": {
+   "ad_id": "120239181295470594",
+   "ad_name": "Book Now",
+   "agent": "Unassigned",
+   "channel": "Car Rental",
+   "contact": "6af96af92e76389b7f5ce9eb",
+   "date": "2026-11-15",
+   "first_text": "السلام عليكم",
+   "origin": "meta_ad",
+   "placement": "Instagram",
+   "status": "OPEN"
+  },
+  "6af9be239cd7c2e33707a565": {
+   "agent": "Unassigned",
+   "channel": "Car Rental",
+   "contact": "6af9be239cd7c2e33707a55c",
+   "date": "2026-11-15",
+   "first_text": "Hi",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6af9bf7a9cd7c2e33707d67a": {
+   "ad_id": "120239181295470594",
+   "ad_name": "Book Now",
+   "agent": "Unassigned",
+   "channel": "Car Rental",
+   "contact": "6af9bf7a9cd7c2e33707d671",
+   "date": "2026-11-15",
+   "first_text": "Can you share more details on this offer?",
+   "origin": "meta_ad",
+   "placement": "Facebook",
+   "status": "OPEN"
+  },
+  "6af9ca31fb23a7bcf5979f98": {
+   "agent": "Unassigned",
+   "channel": "Instagram",
+   "contact": "6af9ca31fb23a7bcf5979f8c",
+   "date": "2026-11-15",
+   "first_text": "",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6af9e804fa07725ca9019449": {
+   "ad_id": "120239181295470594",
+   "ad_name": "Book Now",
+   "agent": "Unassigned",
+   "channel": "Car Rental",
+   "contact": "6af9e804fa07725ca9019440",
+   "date": "2026-11-15",
+   "first_text": "🫲🫱",
+   "origin": "meta_ad",
+   "placement": "Facebook",
+   "status": "OPEN"
+  },
+  "6af9ed3cfa07725ca901ebb4": {
+   "agent": "Rafithath-MKV",
+   "channel": "Main",
+   "contact": "6af9ed3cfa07725ca901ebab",
+   "date": "2026-11-15",
+   "first_text": "Hi, I would like to inquire about monthly rental availability for a Mercedes-Ben",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6afa0544fb23a7bcf59cd4e5": {
+   "agent": "Rafithath-MKV",
+   "channel": "Main",
+   "contact": "6afa0544fb23a7bcf59cd4dc",
+   "date": "2026-11-15",
+   "first_text": "Hey, I’m interested in a G63 for 5 days. I’d pay in cash and wouldn’t require a ",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6afa10330896d821055cf952": {
+   "ad_id": "120239181295470594",
+   "ad_name": "Book Now",
+   "agent": "Unassigned",
+   "channel": "Car Rental",
+   "contact": "6afa10330896d821055cf949",
+   "date": "2026-11-16",
+   "first_text": "Can you share more details on this offer?",
+   "origin": "meta_ad",
+   "placement": "Instagram",
+   "status": "OPEN"
+  },
+  "6afa2398fa07725ca903f8a6": {
+   "agent": "Rafithath-MKV",
+   "channel": "Car Rental",
+   "contact": "6995abb9d5a02b41d7586497",
+   "date": "2026-11-16",
+   "first_text": "Hello i want to make reservation for Lamborghini Huracan Spider online but i can",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6afa63ab75fd1feacbbc8aeb": {
+   "agent": "Rafithath-MKV",
+   "channel": "Main",
+   "contact": "6afa63ab75fd1feacbbc8ae2",
+   "date": "2026-11-16",
+   "first_text": "UID:FGhQ4F Thank you for reaching MKV Luxury. Please enter your message below:",
+   "origin": "website",
+   "status": "OPEN"
+  },
+  "6afa7a769cd7c2e337152a71": {
+   "ad_id": "120239181295470594",
+   "ad_name": "Book Now",
+   "agent": "Rafithath-MKV",
+   "channel": "Car Rental",
+   "contact": "6afa7a769cd7c2e337152a63",
+   "date": "2026-11-16",
+   "first_text": "Hi! I would like to book the car without deposit",
+   "origin": "meta_ad",
+   "placement": "Instagram",
+   "status": "OPEN"
+  },
+  "6afa91ed9cd7c2e337187139": {
+   "ad_id": "120239181295470594",
+   "ad_name": "Book Now",
+   "agent": "Unassigned",
+   "channel": "Car Rental",
+   "contact": "6afa91ed9cd7c2e33718712d",
+   "date": "2026-11-16",
+   "first_text": "",
+   "origin": "meta_ad",
+   "placement": "Facebook",
+   "status": "OPEN"
   }
  },
- "updated": "2026-11-15T11:00:36+04:00"
+ "updated": "2026-11-16T11:00:38+04:00"
 }
