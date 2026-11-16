@@ -18059,6 +18059,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0011273-KAYA-Audi": {
+      "thread_ts": "1794810632.480349",
+      "end_date": "2026-12-07",
+      "plate": "92156",
+      "customer": "Kayan Safa",
+      "vehicle": "Audi A6",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-12-04"
     }
   }
 }
