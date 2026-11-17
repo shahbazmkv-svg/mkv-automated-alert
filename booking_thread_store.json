@@ -18179,6 +18179,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0011295-AHME-Land Rover": {
+      "thread_ts": "1794916841.566469",
+      "end_date": "2026-11-27",
+      "plate": "77540",
+      "customer": "Ahmed Mostafa Elsayed Ahmed Eldmnhoury",
+      "vehicle": "Land Rover Svr",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-11-17"
     }
   }
 }
