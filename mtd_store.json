@@ -1,47 +1,5 @@
 {
  "convs": {
-  "6abecece222666122681408e": {
-   "agent": "Unassigned",
-   "channel": "Instagram",
-   "contact": "6abecece2226661226814082",
-   "date": "2026-10-02",
-   "status": "OPEN"
-  },
-  "6abf19a90f722435f85f8122": {
-   "agent": "Unassigned",
-   "channel": "Instagram",
-   "contact": "6abf19a90f722435f85f8106",
-   "date": "2026-10-02",
-   "status": "OPEN"
-  },
-  "6abf1f4c0f722435f85fecb4": {
-   "agent": "Unassigned",
-   "channel": "Car Rental",
-   "contact": "6abf1f4c0f722435f85fecab",
-   "date": "2026-10-02",
-   "status": "OPEN"
-  },
-  "6abf9afb623a27d84574e633": {
-   "agent": "MKV Luxury",
-   "channel": "Main",
-   "contact": "6abf9afb623a27d84574e62a",
-   "date": "2026-10-02",
-   "status": "CLOSE"
-  },
-  "6abfc93a22266612269d51f5": {
-   "agent": "Unassigned",
-   "channel": "Instagram",
-   "contact": "6abfc93922266612269d51dd",
-   "date": "2026-10-02",
-   "status": "OPEN"
-  },
-  "6abfe4012226661226a0fcaf": {
-   "agent": "Tapan-MKV",
-   "channel": "Instagram",
-   "contact": "6abfe4012226661226a0fca5",
-   "date": "2026-10-02",
-   "status": "CLOSE"
-  },
   "6ac0971d623a27d8458acb33": {
    "agent": "Tapan-MKV",
    "channel": "Main",
@@ -187,6 +145,13 @@
    "channel": "Instagram",
    "contact": "6ac54d5ff975d5b1d1a90f15",
    "date": "2026-10-06",
+   "status": "OPEN"
+  },
+  "6ac5d99e0b175686f9d31b36": {
+   "agent": "Tapan-MKV",
+   "channel": "Main",
+   "contact": "690ae1ee0fc64b3bc93d46d6",
+   "date": "2026-10-07",
    "status": "OPEN"
   },
   "6ac5e2ed5cd8abfd918a9827": {
@@ -3690,7 +3655,7 @@
    "status": "OPEN"
   },
   "6af84c3975fd1feacb903005": {
-   "agent": "Rafithath-MKV",
+   "agent": "Reham-MKV",
    "channel": "Main",
    "contact": "6af84c3975fd1feacb902ffc",
    "date": "2026-11-14",
@@ -3886,7 +3851,151 @@
    "origin": "meta_ad",
    "placement": "Facebook",
    "status": "OPEN"
+  },
+  "6afabdfc0896d821056b245c": {
+   "agent": "Reham-MKV",
+   "channel": "Main",
+   "contact": "6afabdfc0896d821056b2453",
+   "date": "2026-11-16",
+   "first_text": "Hey I’m looking for a black Porsche Cabrio to rent this Friday, do you have any ",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6afaec7efb23a7bcf5b2dd2a": {
+   "agent": "Reham-MKV",
+   "channel": "Main",
+   "contact": "6afaec7efb23a7bcf5b2dd21",
+   "date": "2026-11-16",
+   "first_text": "Hi",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6afafd5c0896d8210577097a": {
+   "agent": "Unassigned",
+   "channel": "Main",
+   "contact": "67a625491ed0004831ee35d8",
+   "date": "2026-11-16",
+   "first_text": "Hi, I hope you’re well! 👋\n\nMy name is Theo, I’m the talent manager of AzerX (@az",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6afb02000896d8210577f222": {
+   "ad_id": "120239181295470594",
+   "ad_name": "Book Now",
+   "agent": "Reham-MKV",
+   "channel": "Car Rental",
+   "contact": "6afb02000896d8210577f219",
+   "date": "2026-11-16",
+   "first_text": "Hello",
+   "origin": "meta_ad",
+   "placement": "Instagram",
+   "status": "CLOSE"
+  },
+  "6afb03620896d82105783947": {
+   "agent": "Tapan-MKV",
+   "channel": "Car Rental",
+   "contact": "6afb02000896d8210577f219",
+   "date": "2026-11-16",
+   "first_text": "Done",
+   "origin": "direct",
+   "status": "CLOSE"
+  },
+  "6afb0b3c75fd1feacbd864f6": {
+   "ad_id": "120239181295470594",
+   "ad_name": "Book Now",
+   "agent": "Reham-MKV",
+   "channel": "Car Rental",
+   "contact": "6afb0b3c75fd1feacbd864ed",
+   "date": "2026-11-16",
+   "first_text": "Hi",
+   "origin": "meta_ad",
+   "placement": "Instagram",
+   "status": "OPEN"
+  },
+  "6afb246bfa07725ca923310b": {
+   "ad_id": "120239181295470594",
+   "ad_name": "Book Now",
+   "agent": "Rafithath-MKV",
+   "channel": "Car Rental",
+   "contact": "6afb246bfa07725ca92330e3",
+   "date": "2026-11-16",
+   "first_text": "Can you share more details on this offer?",
+   "origin": "meta_ad",
+   "placement": "Instagram",
+   "status": "OPEN"
+  },
+  "6afb64df9cd7c2e3373de20c": {
+   "agent": "Tapan-MKV",
+   "channel": "Main",
+   "contact": "6afb64df9cd7c2e3373de203",
+   "date": "2026-11-17",
+   "first_text": "Hi, i would like to book a Ride",
+   "origin": "direct",
+   "status": "CLOSE"
+  },
+  "6afbdfd2b3094982b715d7cb": {
+   "agent": "Tapan-MKV",
+   "channel": "Main",
+   "contact": "6afbdfd2b3094982b715d7c2",
+   "date": "2026-11-17",
+   "first_text": "Hello,\n\nI'm launching a luxury car rental brokerage business in Dubai.\n\nI'm look",
+   "origin": "direct",
+   "status": "CLOSE"
+  },
+  "6afbe2b85b9dbc09add18ba7": {
+   "agent": "Tapan-MKV",
+   "channel": "Main",
+   "contact": "687e7c73eaa6e197bdb36031",
+   "date": "2026-11-17",
+   "first_text": "Ok thanks",
+   "origin": "direct",
+   "status": "CLOSE"
+  },
+  "6afbef005b9dbc09add392df": {
+   "agent": "Unassigned",
+   "channel": "Main",
+   "contact": "6afbef005b9dbc09add392d6",
+   "date": "2026-11-17",
+   "first_text": "Hi",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6afbf2210a6bf2f5724135de": {
+   "agent": "Tapan-MKV",
+   "channel": "Instagram",
+   "contact": "6922410e7540588c94dd0fc9",
+   "date": "2026-11-17",
+   "first_text": "?",
+   "origin": "direct",
+   "status": "CLOSE"
+  },
+  "6afbf2e95b9dbc09add4456c": {
+   "agent": "Tapan-MKV",
+   "channel": "Instagram",
+   "contact": "6922410e7540588c94dd0fc9",
+   "date": "2026-11-17",
+   "first_text": "Hi\nThanks for the offer",
+   "origin": "direct",
+   "status": "CLOSE"
+  },
+  "6afbf2f6b1b6889bc925f7d4": {
+   "agent": "Tapan-MKV",
+   "channel": "Main",
+   "contact": "6afbf2f6b1b6889bc925f7bf",
+   "date": "2026-11-17",
+   "first_text": "Hi",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6afbf9ab5b9dbc09add5804e": {
+   "agent": "Unassigned",
+   "channel": "Instagram",
+   "contact": "6922410e7540588c94dd0fc9",
+   "date": "2026-11-17",
+   "first_text": "",
+   "origin": "outbound",
+   "status": "OPEN"
   }
  },
- "updated": "2026-11-16T11:00:38+04:00"
+ "updated": "2026-11-17T11:00:37+04:00"
 }
