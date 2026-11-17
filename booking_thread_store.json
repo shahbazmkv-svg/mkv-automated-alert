@@ -18194,6 +18194,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0011296-DANI-Cadillac": {
+      "thread_ts": "1794940240.393529",
+      "end_date": "2026-11-19",
+      "plate": "76235",
+      "customer": "Danish Malik Malik Zafar Mehmood",
+      "vehicle": "Cadillac 2022",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-11-18"
     }
   }
 }
