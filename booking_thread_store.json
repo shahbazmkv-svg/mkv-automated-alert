@@ -18239,6 +18239,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0011299-FAST-Porsche": {
+      "thread_ts": "1795006840.941369",
+      "end_date": "2026-11-22",
+      "plate": "42165",
+      "customer": "Faster Rent A Car",
+      "vehicle": "Porsche 911 Turbo",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-11-19"
     }
   }
 }
