@@ -16207,7 +16207,7 @@
       "customer": "Matias Cardozo",
       "vehicle": "Mclaren Spider Artura",
       "delivery_alerted": false,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
       "start_date": "2026-10-22",
       "delivery_ts": null,
