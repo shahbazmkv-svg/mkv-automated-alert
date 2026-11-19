@@ -18339,7 +18339,22 @@
       "delivery_alerted": false,
       "pickup_alerted": false,
       "closed": false,
-      "start_date": "2026-12-19"
+      "start_date": "2026-12-19",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
+    },
+    "0011306-MUST-Chevrolet": {
+      "thread_ts": "1795092331.135689",
+      "end_date": "2026-11-20",
+      "plate": "72712",
+      "customer": "Mustapha Yahiaoui",
+      "vehicle": "Chevrolet Corvette",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-11-19"
     }
   }
 }
