@@ -18262,9 +18262,13 @@
       "customer": "Uptown Rent A Car",
       "vehicle": "Mercedes-Benz Mercedes  G63",
       "delivery_alerted": false,
-      "pickup_alerted": false,
+      "pickup_alerted": true,
       "closed": false,
-      "start_date": "2026-11-19"
+      "start_date": "2026-11-19",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     }
   }
 }
