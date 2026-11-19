@@ -1,61 +1,5 @@
 {
  "convs": {
-  "6ac0971d623a27d8458acb33": {
-   "agent": "Tapan-MKV",
-   "channel": "Main",
-   "contact": "699cb66be693ae3be7b8947c",
-   "date": "2026-10-03",
-   "status": "CLOSE"
-  },
-  "6ac0a004623a27d8458c40b5": {
-   "agent": "Tapan-MKV",
-   "channel": "Main",
-   "contact": "6ac0a004623a27d8458c40aa",
-   "date": "2026-10-03",
-   "status": "CLOSE"
-  },
-  "6ac0c8beca2ce61de0e9b1be": {
-   "agent": "Tapan-MKV",
-   "channel": "Instagram",
-   "contact": "6abfe4012226661226a0fca5",
-   "date": "2026-10-03",
-   "status": "CLOSE"
-  },
-  "6ac0cbd40f722435f89018a3": {
-   "agent": "Tapan-MKV",
-   "channel": "Main",
-   "contact": "6ac0cbd40f722435f8901895",
-   "date": "2026-10-03",
-   "status": "CLOSE"
-  },
-  "6ac0f5ec0f722435f896cde8": {
-   "agent": "Unassigned",
-   "channel": "Rent to Own",
-   "contact": "6ac0f5ec0f722435f896cddf",
-   "date": "2026-10-03",
-   "status": "OPEN"
-  },
-  "6ac12db50f722435f89e6576": {
-   "agent": "Tapan-MKV",
-   "channel": "Main",
-   "contact": "6ac12db50f722435f89e6569",
-   "date": "2026-10-03",
-   "status": "CLOSE"
-  },
-  "6ac1c6c70f722435f8a51f63": {
-   "agent": "Bot: RTO MKV",
-   "channel": "Rent to Own",
-   "contact": "6ac1c6c70f722435f8a51f5a",
-   "date": "2026-10-04",
-   "status": "OPEN"
-  },
-  "6ac22c16a7171a7fdf6c94f6": {
-   "agent": "Unassigned",
-   "channel": "Rent to Own",
-   "contact": "6ac22c16a7171a7fdf6c94ed",
-   "date": "2026-10-04",
-   "status": "OPEN"
-  },
   "6ac352c70f722435f8cb7545": {
    "agent": "Tapan-MKV",
    "channel": "Main",
@@ -3995,7 +3939,220 @@
    "first_text": "",
    "origin": "outbound",
    "status": "OPEN"
+  },
+  "6afc0f270a6bf2f572463d71": {
+   "agent": "Unassigned",
+   "channel": "Main",
+   "contact": "6afc0f270a6bf2f572463d63",
+   "date": "2026-11-17",
+   "first_text": "Hi, \nI am Hamzeh from Tamara, the leading Pay Later company in the region. We ar",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6afc3a4bb1b6889bc9338c6d": {
+   "agent": "Unassigned",
+   "channel": "Main",
+   "contact": "6afc3a4bb1b6889bc9338c64",
+   "date": "2026-11-17",
+   "first_text": "Hallo sir",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6afc3af4b3094982b72694e6": {
+   "agent": "Unassigned",
+   "channel": "Main",
+   "contact": "6afc3af4b3094982b72694d9",
+   "date": "2026-11-17",
+   "first_text": "**HI**\n\n**‍DU BUS⁠INESS 5G INTERNET + LANDLINE**\n\n**‌50% OFF fo‌r 6⁠‌ Months!**\n",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6afc76c7e1bb4e4a1010b938": {
+   "agent": "Unassigned",
+   "channel": "Main",
+   "contact": "6826ea40ab46dc6ca1c129c4",
+   "date": "2026-11-17",
+   "first_text": "Hello MKV Luxury Car Rental, hope you’re doing well.\n\nThis is Mustafa from Elva ",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6afc82e2e1bb4e4a1012b2c0": {
+   "agent": "Rafithath-MKV",
+   "channel": "Main",
+   "contact": "6afc82e1e1bb4e4a1012b2b7",
+   "date": "2026-11-17",
+   "first_text": "Hello",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6afc89b3be3da08f2bc3afef": {
+   "ad_id": "120239181295470594",
+   "ad_name": "Book Now",
+   "agent": "Unassigned",
+   "channel": "Car Rental",
+   "contact": "6afc89b3be3da08f2bc3afe6",
+   "date": "2026-11-17",
+   "first_text": "Can you share more details on this offer?",
+   "origin": "meta_ad",
+   "placement": "Instagram",
+   "status": "OPEN"
+  },
+  "6afca382abe5b2fcd06a3b8a": {
+   "agent": "Unassigned",
+   "channel": "Main",
+   "contact": "6afca382abe5b2fcd06a3b81",
+   "date": "2026-11-17",
+   "first_text": "Hello I would like to contact you because I am launching a concierge agency in D",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6afcd156be3da08f2bc78e5e": {
+   "ad_id": "120239181295470594",
+   "ad_name": "Book Now",
+   "agent": "Tapan-MKV",
+   "channel": "Car Rental",
+   "contact": "6afcd156be3da08f2bc78e55",
+   "date": "2026-11-18",
+   "first_text": "Can you share more details on this offer?",
+   "origin": "meta_ad",
+   "placement": "Instagram",
+   "status": "OPEN"
+  },
+  "6afcfce62b19adf280a44459": {
+   "agent": "Rafithath-MKV",
+   "channel": "Main",
+   "contact": "6afcfce62b19adf280a44438",
+   "date": "2026-11-18",
+   "first_text": "UID:9TedrC Thank you for reaching MKV Luxury. Please enter your message below:",
+   "origin": "website",
+   "status": "OPEN"
+  },
+  "6afd496ee1bb4e4a1026d47c": {
+   "agent": "Tapan-MKV",
+   "channel": "Main",
+   "contact": "6afd496ee1bb4e4a1026d468",
+   "date": "2026-11-18",
+   "first_text": "Hi MKV Luxury Car Rental team, \n\nI noticed you have an amazing 4.8 rating with 5",
+   "origin": "direct",
+   "status": "CLOSE"
+  },
+  "6afd6cf02b19adf280b4a3b5": {
+   "agent": "Tapan-MKV",
+   "channel": "Main",
+   "contact": "6afd6cf02b19adf280b4a3ac",
+   "date": "2026-11-18",
+   "first_text": "Hi \nWould getting more car rental inquiries and qualified leads this month be va",
+   "origin": "direct",
+   "status": "CLOSE"
+  },
+  "6afd7508abe5b2fcd07d9e47": {
+   "agent": "Tapan-MKV",
+   "channel": "Main",
+   "contact": "6afd7508abe5b2fcd07d9e3e",
+   "date": "2026-11-18",
+   "first_text": "Hi",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6afd7c81b20586779f79340e": {
+   "ad_id": "120239181295470594",
+   "ad_name": "Book Now",
+   "agent": "Unassigned",
+   "channel": "Car Rental",
+   "contact": "6afd7c81b20586779f793405",
+   "date": "2026-11-18",
+   "first_text": "Hi, hope you’re doing well.\n\nMy name is Abdulla. I’m looking to partner with a D",
+   "origin": "meta_ad",
+   "placement": "Instagram",
+   "status": "OPEN"
+  },
+  "6afd83e5be3da08f2bdd0cee": {
+   "agent": "Unassigned",
+   "channel": "Main",
+   "contact": "6afd83e5be3da08f2bdd0ce5",
+   "date": "2026-11-18",
+   "first_text": "Hello,\nI own Hirecarsdubai.com.\nIt's the exact keyword people search on Google w",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6afd8c02e1bb4e4a10346a38": {
+   "agent": "Reham-MKV",
+   "channel": "Main",
+   "contact": "6afd8c02e1bb4e4a10346a2f",
+   "date": "2026-11-18",
+   "first_text": "Hello! Do you have a Ferrari Roma available for 1 day: delivery at Atlantis The ",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6afdbc91508648f682bce9f3": {
+   "agent": "Reham-MKV",
+   "channel": "Car Rental",
+   "contact": "68c570121f96f6923174c2cd",
+   "date": "2026-11-18",
+   "first_text": "Hello",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6afdd9bde1bb4e4a104265d7": {
+   "agent": "Unassigned",
+   "channel": "Main",
+   "contact": "6afdd9bde1bb4e4a104265ce",
+   "date": "2026-11-18",
+   "first_text": "سلام عليكم",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6afdef3ce1bb4e4a1044df95": {
+   "agent": "Unassigned",
+   "channel": "Instagram",
+   "contact": "6afdef3be1bb4e4a1044df8a",
+   "date": "2026-11-18",
+   "first_text": "Hi",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6afe20f7e1bb4e4a10480504": {
+   "ad_id": "120239181295470594",
+   "ad_name": "Book Now",
+   "agent": "Unassigned",
+   "channel": "Car Rental",
+   "contact": "6afe20f7e1bb4e4a104804fb",
+   "date": "2026-11-19",
+   "first_text": "Hii",
+   "origin": "meta_ad",
+   "placement": "Facebook",
+   "status": "OPEN"
+  },
+  "6afe90d52b19adf280d148af": {
+   "agent": "Tapan-MKV",
+   "channel": "Main",
+   "contact": "6afe90d52b19adf280d148a6",
+   "date": "2026-11-19",
+   "first_text": "UID:cBadeE Thank you for reaching MKV Luxury. Please enter your message below:",
+   "origin": "website",
+   "status": "OPEN"
+  },
+  "6afe9970abe5b2fcd09a3066": {
+   "ad_id": "120239181295470594",
+   "ad_name": "Book Now",
+   "agent": "Tapan-MKV",
+   "channel": "Car Rental",
+   "contact": "6afe9970abe5b2fcd09a305d",
+   "date": "2026-11-19",
+   "first_text": "Hi Team! 👋\n\nI’m an automotive videographer based in Dubai \n\nI’d love to collabor",
+   "origin": "meta_ad",
+   "placement": "Instagram",
+   "status": "CLOSE"
+  },
+  "6afe9c3eb20586779f98e395": {
+   "agent": "Bot: Rent To Own Welcome Bot",
+   "channel": "Rent to Own",
+   "contact": "6afe9c3eb20586779f98e386",
+   "date": "2026-11-19",
+   "first_text": "Hi, I want to know more about Rent-to-Own plan.",
+   "origin": "direct",
+   "status": "OPEN"
   }
  },
- "updated": "2026-11-17T11:00:37+04:00"
+ "updated": "2026-11-19T11:00:37+04:00"
 }
