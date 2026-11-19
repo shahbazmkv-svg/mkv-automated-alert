@@ -18284,6 +18284,28 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0011303-ALEK-Lamborghini": {
+      "thread_ts": "1795085130.999279",
+      "end_date": "2026-11-22",
+      "plate": "94545",
+      "customer": "Aleksandr Ageev",
+      "vehicle": "Lamborghini Urus S",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-11-20"
+    },
+    "0011302-MUST-Mercedes-Benz": {
+      "thread_ts": "1795085138.925219",
+      "end_date": "2026-11-20",
+      "plate": "19503",
+      "customer": "Mustapha Yahiaoui",
+      "vehicle": "Mercedes-Benz Glb 250",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-11-19"
     }
   }
 }
