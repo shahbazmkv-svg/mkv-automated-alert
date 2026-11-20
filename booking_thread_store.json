@@ -18419,6 +18419,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0011312-TAME-Mercedes-Benz": {
+      "thread_ts": "1795166138.655559",
+      "end_date": "2026-11-22",
+      "plate": "19503",
+      "customer": "Tamer Mohamed Hesham  Ahmed Abdelhamid Agha",
+      "vehicle": "Mercedes-Benz Glb 250",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-11-20"
     }
   }
 }
