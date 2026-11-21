@@ -18494,6 +18494,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0011318-DABE-Mercedes-Benz": {
+      "thread_ts": "1795258838.390019",
+      "end_date": "2026-11-22",
+      "plate": "66789",
+      "customer": "Dabeer Hussain Baloch Deedar Hussain",
+      "vehicle": "Mercedes-Benz Mercedes G3 (Brabus)",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-11-21"
     }
   }
 }
