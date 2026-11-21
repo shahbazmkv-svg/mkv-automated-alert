@@ -18594,7 +18594,11 @@
       "delivery_alerted": false,
       "pickup_alerted": false,
       "closed": false,
-      "start_date": "2026-12-11"
+      "start_date": "2026-12-11",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     },
     "0011325-NICO-Audi": {
       "thread_ts": "1795286733.703629",
@@ -18603,9 +18607,13 @@
       "customer": "Nicolas Laurent Merle",
       "vehicle": "Audi Rsq3",
       "delivery_alerted": false,
-      "pickup_alerted": false,
-      "closed": false,
-      "start_date": "2026-11-04"
+      "pickup_alerted": true,
+      "closed": true,
+      "start_date": "2026-11-04",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     }
   }
 }
