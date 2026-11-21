@@ -18584,6 +18584,28 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0011326-NICO-Lamborghini": {
+      "thread_ts": "1795286726.856269",
+      "end_date": "2026-12-12",
+      "plate": "CC/44769",
+      "customer": "Nicolas Laurent Merle",
+      "vehicle": "Lamborghini Spider",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-12-11"
+    },
+    "0011325-NICO-Audi": {
+      "thread_ts": "1795286733.703629",
+      "end_date": "2026-11-11",
+      "plate": "FF/46498",
+      "customer": "Nicolas Laurent Merle",
+      "vehicle": "Audi Rsq3",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-11-04"
     }
   }
 }
