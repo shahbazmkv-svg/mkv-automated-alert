@@ -18554,6 +18554,28 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0011324-AMAN-Ford": {
+      "thread_ts": "1795274128.911639",
+      "end_date": "2026-11-22",
+      "plate": "15789",
+      "customer": "Amangeldi Nurlybekov",
+      "vehicle": "Ford Mustang Coupe",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-11-21"
+    },
+    "0011323-MOHA-BMW": {
+      "thread_ts": "1795274133.434949",
+      "end_date": "2026-11-24",
+      "plate": "70691",
+      "customer": "Mohamed El Madkouk",
+      "vehicle": "Bmw 520I",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-11-21"
     }
   }
 }
