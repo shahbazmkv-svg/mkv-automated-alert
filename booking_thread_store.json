@@ -18539,6 +18539,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0011322-FAYA-Audi": {
+      "thread_ts": "1795272328.507299",
+      "end_date": "2026-12-21",
+      "plate": "90158",
+      "customer": "Fayaz Salih Malmikakkada Mohammed Saleem",
+      "vehicle": "Audi A3",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-11-21"
     }
   }
 }
