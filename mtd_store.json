@@ -1,26 +1,5 @@
 {
  "convs": {
-  "6ac5d99e0b175686f9d31b36": {
-   "agent": "Tapan-MKV",
-   "channel": "Main",
-   "contact": "690ae1ee0fc64b3bc93d46d6",
-   "date": "2026-10-07",
-   "status": "OPEN"
-  },
-  "6ac5e2ed5cd8abfd918a9827": {
-   "agent": "Tapan-MKV",
-   "channel": "Main",
-   "contact": "6ac0a004623a27d8458c40aa",
-   "date": "2026-10-07",
-   "status": "CLOSE"
-  },
-  "6ac64dcbe2a2d655929db45a": {
-   "agent": "Unassigned",
-   "channel": "Instagram",
-   "contact": "6ac64dcbe2a2d655929db44e",
-   "date": "2026-10-07",
-   "status": "OPEN"
-  },
   "6ac6b20633974eada0b49618": {
    "agent": "MKV Luxury",
    "channel": "Main",
@@ -571,6 +550,13 @@
    "agent": "Unassigned",
    "channel": "Instagram",
    "contact": "6ad64e15dbe72b1228d1d6d5",
+   "date": "2026-10-19",
+   "status": "OPEN"
+  },
+  "6ad66e816de89489ac99cac5": {
+   "agent": "Rafithath-MKV",
+   "channel": "Main",
+   "contact": "6ad66e816de89489ac99cabc",
    "date": "2026-10-19",
    "status": "OPEN"
   },
@@ -3985,7 +3971,7 @@
    "status": "CLOSE"
   },
   "6afd8c02e1bb4e4a10346a38": {
-   "agent": "Tapan-MKV",
+   "agent": "Reham-MKV",
    "channel": "Main",
    "contact": "6afd8c02e1bb4e4a10346a2f",
    "date": "2026-11-18",
@@ -4259,7 +4245,157 @@
    "first_text": "Hi! Please let us know how we can help you.",
    "origin": "direct",
    "status": "CLOSE"
+  },
+  "6b014b1f1bc607ee19b97b2c": {
+   "agent": "Ali Azlan",
+   "channel": "Rent to Own",
+   "contact": "6b014b1f1bc607ee19b97b23",
+   "date": "2026-11-21",
+   "first_text": "Hi, I want to know more about Rent-to-Own plan.",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6b01615df4196801917d4c95": {
+   "agent": "Unassigned",
+   "channel": "Instagram",
+   "contact": "6b00afc3f4196801916e295e",
+   "date": "2026-11-21",
+   "first_text": "",
+   "origin": "outbound",
+   "status": "OPEN"
+  },
+  "6b0161bc3469e95467cf6b94": {
+   "agent": "Unassigned",
+   "channel": "Main",
+   "contact": "6b0161bc3469e95467cf6b8b",
+   "date": "2026-11-21",
+   "first_text": "I am looking to rent a luxury car as soon as possible, I am 20 years old visitin",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6b016ef7529222887ec80826": {
+   "agent": "Tapan-MKV",
+   "channel": "Instagram",
+   "contact": "6b004d93fd9ebd185ecccc91",
+   "date": "2026-11-21",
+   "first_text": "",
+   "origin": "outbound",
+   "status": "CLOSE"
+  },
+  "6b0174e83469e95467d1d8cb": {
+   "agent": "Reham-MKV",
+   "channel": "Main",
+   "contact": "6b0174e83469e95467d1d8c2",
+   "date": "2026-11-21",
+   "first_text": "Hello i wanted to rent a g63. Do you guys have any ?",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6b0175051bc607ee19c07797": {
+   "agent": "Reham-MKV",
+   "channel": "Main",
+   "contact": "6b0175051bc607ee19c0778e",
+   "date": "2026-11-21",
+   "first_text": "UID:9JVtkD Thank you for reaching MKV Luxury. Please enter your message below:",
+   "origin": "website",
+   "status": "OPEN"
+  },
+  "6b0175e0b4572107d02fdc10": {
+   "agent": "Rafithath-MKV",
+   "channel": "Car Rental",
+   "contact": "6b0175dfb4572107d02fdc05",
+   "date": "2026-11-21",
+   "first_text": "",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6b017d7b529222887ec9bc38": {
+   "agent": "Unassigned",
+   "channel": "Main",
+   "contact": "6b017d7b529222887ec9bc2d",
+   "date": "2026-11-21",
+   "first_text": "مرحباً، كيف حالكم؟\n\nرأيت شركتكم على الإنترنت. هل تقدمون خدمات تأجير السيارات الف",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6b019a75fd9ebd185eeeab0a": {
+   "agent": "Reham-MKV",
+   "channel": "Main",
+   "contact": "6b019a75fd9ebd185eeeab01",
+   "date": "2026-11-21",
+   "first_text": "UID:2ydrvD Thank you for reaching MKV Luxury. Please enter your message below:",
+   "origin": "website",
+   "status": "OPEN"
+  },
+  "6b01a118fd9ebd185eefb245": {
+   "agent": "Tapan-MKV",
+   "channel": "Main",
+   "contact": "6b01a118fd9ebd185eefb23c",
+   "date": "2026-11-21",
+   "first_text": "Hello!\n\nI’m currently preparing a Dubai photo dump for my Instagram (@wautrs) an",
+   "origin": "direct",
+   "status": "CLOSE"
+  },
+  "6b01be7c1bc607ee19cb62cf": {
+   "ad_id": "120239181295470594",
+   "ad_name": "Book Now",
+   "agent": "Tapan-MKV",
+   "channel": "Car Rental",
+   "contact": "6b01be7c1bc607ee19cb62c6",
+   "date": "2026-11-21",
+   "first_text": "Hii",
+   "origin": "meta_ad",
+   "placement": "Instagram",
+   "status": "CLOSE"
+  },
+  "6b01ca91b6c820129557c814": {
+   "agent": "Tapan-MKV",
+   "channel": "Main",
+   "contact": "6b01ca91b6c820129557c809",
+   "date": "2026-11-21",
+   "first_text": "",
+   "origin": "direct",
+   "status": "CLOSE"
+  },
+  "6b01d5fc34415526b58ecd78": {
+   "agent": "Rafithath-MKV",
+   "channel": "Main",
+   "contact": "6b01d56e102a0f28e05d375c",
+   "date": "2026-11-21",
+   "first_text": "Hi team, \nI am after a urus or a g63, subject to price please \nFor 1 or 2 days",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6b025c92f41968019191441d": {
+   "agent": "Tapan-MKV",
+   "channel": "Main",
+   "contact": "6b025c92f419680191914414",
+   "date": "2026-11-22",
+   "first_text": "",
+   "origin": "direct",
+   "status": "CLOSE"
+  },
+  "6b025db734415526b5925fec": {
+   "agent": "Tapan-MKV",
+   "channel": "Main",
+   "contact": "6b025db734415526b5925fe3",
+   "date": "2026-11-22",
+   "first_text": "سلام وعليكم",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6b0279dc529222887ed6dcd2": {
+   "ad_id": "120239181295470594",
+   "ad_name": "Book Now",
+   "agent": "Unassigned",
+   "channel": "Car Rental",
+   "contact": "6b0279dc529222887ed6dcc9",
+   "date": "2026-11-22",
+   "first_text": "Can you share more details on this offer?",
+   "origin": "meta_ad",
+   "placement": "Facebook",
+   "status": "OPEN"
   }
  },
- "updated": "2026-11-21T11:00:33+04:00"
+ "updated": "2026-11-22T11:00:36+04:00"
 }
