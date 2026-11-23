@@ -1,54 +1,5 @@
 {
  "convs": {
-  "6ac6b20633974eada0b49618": {
-   "agent": "MKV Luxury",
-   "channel": "Main",
-   "contact": "6ac6b20633974eada0b4960d",
-   "date": "2026-10-08",
-   "status": "CLOSE"
-  },
-  "6ac7249e9c9a1d4594d629d3": {
-   "agent": "Unassigned",
-   "channel": "Instagram",
-   "contact": "693050c90dc1a835c2f5a2da",
-   "date": "2026-10-08",
-   "status": "OPEN"
-  },
-  "6ac764ce656da268c6f99cf0": {
-   "agent": "MKV Luxury",
-   "channel": "Main",
-   "contact": "6ac0a004623a27d8458c40aa",
-   "date": "2026-10-08",
-   "status": "CLOSE"
-  },
-  "6ac77c1e656da268c6fdf3d0": {
-   "agent": "Unassigned",
-   "channel": "Instagram",
-   "contact": "6ac77c1e656da268c6fdf3bf",
-   "date": "2026-10-08",
-   "status": "OPEN"
-  },
-  "6ac78e57a5f459156eb3ddcc": {
-   "agent": "Reham-MKV",
-   "channel": "Car Rental",
-   "contact": "6ac78e57a5f459156eb3dda0",
-   "date": "2026-10-08",
-   "status": "CLOSE"
-  },
-  "6ac7a207cbe1d1205d82261d": {
-   "agent": "Reham-MKV",
-   "channel": "Main",
-   "contact": "6ac7a207cbe1d1205d822614",
-   "date": "2026-10-08",
-   "status": "OPEN"
-  },
-  "6ac7dac4055cb5717fb235ea": {
-   "agent": "Rafithath-MKV",
-   "channel": "Car Rental",
-   "contact": "6ac7dac4055cb5717fb235e1",
-   "date": "2026-10-08",
-   "status": "OPEN"
-  },
   "6ac84faab83576689046f883": {
    "agent": "Bot: RTO MKV",
    "channel": "Rent to Own",
@@ -554,7 +505,7 @@
    "status": "OPEN"
   },
   "6ad66e816de89489ac99cac5": {
-   "agent": "Rafithath-MKV",
+   "agent": "Tapan-MKV",
    "channel": "Main",
    "contact": "6ad66e816de89489ac99cabc",
    "date": "2026-10-19",
@@ -2259,7 +2210,7 @@
    "date": "2026-11-05",
    "first_text": "Do you do lease to buy",
    "origin": "direct",
-   "status": "OPEN"
+   "status": "CLOSE"
   },
   "6aec20fbff18d4d5b8fa842f": {
    "agent": "MKV Luxury",
@@ -4319,13 +4270,13 @@
    "status": "OPEN"
   },
   "6b019a75fd9ebd185eeeab0a": {
-   "agent": "Reham-MKV",
+   "agent": "Tapan-MKV",
    "channel": "Main",
    "contact": "6b019a75fd9ebd185eeeab01",
    "date": "2026-11-21",
    "first_text": "UID:2ydrvD Thank you for reaching MKV Luxury. Please enter your message below:",
    "origin": "website",
-   "status": "OPEN"
+   "status": "CLOSE"
   },
   "6b01a118fd9ebd185eefb245": {
    "agent": "Tapan-MKV",
@@ -4395,7 +4346,73 @@
    "origin": "meta_ad",
    "placement": "Facebook",
    "status": "OPEN"
+  },
+  "6b029884f419680191974c9d": {
+   "agent": "Tapan-MKV",
+   "channel": "Main",
+   "contact": "6b029884f419680191974c94",
+   "date": "2026-11-22",
+   "first_text": "UID:bNkDpA Thank you for reaching MKV Luxury. Please enter your message below:",
+   "origin": "website",
+   "status": "OPEN"
+  },
+  "6b02b4d0f4196801919ad217": {
+   "agent": "Tapan-MKV",
+   "channel": "Main",
+   "contact": "6b02b4d0f4196801919ad20d",
+   "date": "2026-11-22",
+   "first_text": "Hi MKV Luxury team, quick question: do you currently take supercar rental bookin",
+   "origin": "direct",
+   "status": "CLOSE"
+  },
+  "6b02b73248cc837f132a75b4": {
+   "agent": "Tapan-MKV",
+   "channel": "Main",
+   "contact": "6b02b4d0f4196801919ad20d",
+   "date": "2026-11-22",
+   "first_text": "",
+   "origin": "outbound",
+   "status": "CLOSE"
+  },
+  "6b02bac1fd9ebd185e044b78": {
+   "ad_id": "120239181295470594",
+   "ad_name": "Book Now",
+   "agent": "Tapan-MKV",
+   "channel": "Car Rental",
+   "contact": "6b02bac1fd9ebd185e044b6f",
+   "date": "2026-11-22",
+   "first_text": "Hi! I would like to book the car without deposit",
+   "origin": "meta_ad",
+   "placement": "Facebook",
+   "status": "CLOSE"
+  },
+  "6b030f0f3469e95467f61e32": {
+   "agent": "Rafithath-MKV",
+   "channel": "Main",
+   "contact": "6b030f0f3469e95467f61e29",
+   "date": "2026-11-22",
+   "first_text": "Hello",
+   "origin": "direct",
+   "status": "CLOSE"
+  },
+  "6b03565a1bc607ee19ecf2c5": {
+   "agent": "Rafithath-MKV",
+   "channel": "Main",
+   "contact": "6b03565a1bc607ee19ecf2bc",
+   "date": "2026-11-23",
+   "first_text": "Hi, I would like to reserve a car",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6b03dd19529222887eef72d5": {
+   "agent": "Tapan-MKV",
+   "channel": "Main",
+   "contact": "6b03dd19529222887eef72cc",
+   "date": "2026-11-23",
+   "first_text": "Hello! Is this the right WhatsApp number for client inquiries at MKV Luxury ?",
+   "origin": "direct",
+   "status": "CLOSE"
   }
  },
- "updated": "2026-11-22T11:00:36+04:00"
+ "updated": "2026-11-23T11:00:41+04:00"
 }
