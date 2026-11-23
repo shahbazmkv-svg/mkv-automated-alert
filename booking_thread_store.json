@@ -18659,6 +18659,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0011331-STEV-Ferrari": {
+      "thread_ts": "1795429841.894009",
+      "end_date": "2026-11-27",
+      "plate": "97019",
+      "customer": "Steven James Parkin",
+      "vehicle": "Ferrari Purosangue",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-11-25"
     }
   }
 }
