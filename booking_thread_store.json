@@ -18188,7 +18188,7 @@
       "vehicle": "Land Rover Svr",
       "delivery_alerted": false,
       "pickup_alerted": false,
-      "closed": false,
+      "closed": true,
       "start_date": "2026-11-17",
       "delivery_ts": null,
       "pickup_ts": null,
@@ -18804,7 +18804,11 @@
       "delivery_alerted": false,
       "pickup_alerted": false,
       "closed": false,
-      "start_date": "2026-11-30"
+      "start_date": "2026-11-30",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
     }
   }
 }
