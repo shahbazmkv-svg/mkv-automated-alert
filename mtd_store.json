@@ -1,33 +1,5 @@
 {
  "convs": {
-  "6ac84faab83576689046f883": {
-   "agent": "Bot: RTO MKV",
-   "channel": "Rent to Own",
-   "contact": "6ac84faab83576689046f87a",
-   "date": "2026-10-09",
-   "status": "OPEN"
-  },
-  "6ac8ff75656da268c62f7844": {
-   "agent": "Reham-MKV",
-   "channel": "Rent to Own",
-   "contact": "6745b10bdd627a550a1d2656",
-   "date": "2026-10-09",
-   "status": "OPEN"
-  },
-  "6ac92b2aa5f459156ee7029a": {
-   "agent": "Unassigned",
-   "channel": "Car Rental",
-   "contact": "6ac92b2aa5f459156ee70291",
-   "date": "2026-10-09",
-   "status": "OPEN"
-  },
-  "6ac93abba5f459156ee85d94": {
-   "agent": "Unassigned",
-   "channel": "Car Rental",
-   "contact": "6ac93abba5f459156ee85d8b",
-   "date": "2026-10-09",
-   "status": "OPEN"
-  },
   "6aca38f0055cb5717ff45c0f": {
    "agent": "Tapan-MKV",
    "channel": "Main",
@@ -1946,13 +1918,13 @@
    "status": "OPEN"
   },
   "6ae9b9237ca010d0aaad160e": {
-   "agent": "Unassigned",
+   "agent": "Reham-MKV",
    "channel": "Main",
    "contact": "69f04b8efa9512c03b8b98de",
    "date": "2026-11-03",
    "first_text": "UID:mZL5fs Thank you for reaching MKV Luxury. Please enter your message below:",
    "origin": "website",
-   "status": "OPEN"
+   "status": "CLOSE"
   },
   "6ae9c4576e67faafe6fbd759": {
    "agent": "Tapan-MKV",
@@ -4240,7 +4212,7 @@
    "date": "2026-11-21",
    "first_text": "Hello i wanted to rent a g63. Do you guys have any ?",
    "origin": "direct",
-   "status": "OPEN"
+   "status": "CLOSE"
   },
   "6b0175051bc607ee19c07797": {
    "agent": "Reham-MKV",
@@ -4412,7 +4384,116 @@
    "first_text": "Hello! Is this the right WhatsApp number for client inquiries at MKV Luxury ?",
    "origin": "direct",
    "status": "CLOSE"
+  },
+  "6b03f8df3469e95467098294": {
+   "agent": "Tapan-MKV",
+   "channel": "Main",
+   "contact": "6af5b5b8c4a6c090b791d562",
+   "date": "2026-11-23",
+   "first_text": "Hello :)\n\nWe did send an email but no reply. \n\nRegardless, we're starting our sh",
+   "origin": "direct",
+   "status": "CLOSE"
+  },
+  "6b0401bcfd9ebd185e22f3a4": {
+   "agent": "Reham-MKV",
+   "channel": "Main",
+   "contact": "6b0401bcfd9ebd185e22f39b",
+   "date": "2026-11-23",
+   "first_text": "Hi, i would like to book a Ride",
+   "origin": "direct",
+   "status": "CLOSE"
+  },
+  "6b04052fb4572107d03316fe": {
+   "agent": "Tapan-MKV",
+   "channel": "Main",
+   "contact": "6b04052fb4572107d03316f3",
+   "date": "2026-11-23",
+   "first_text": "",
+   "origin": "direct",
+   "status": "CLOSE"
+  },
+  "6b040bcb34415526b5b075e2": {
+   "agent": "Unassigned",
+   "channel": "Main",
+   "contact": "6af5b5b8c4a6c090b791d562",
+   "date": "2026-11-23",
+   "first_text": "Is this an AI",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6b0423541bc607ee19038160": {
+   "agent": "Unassigned",
+   "channel": "Main",
+   "contact": "6b0423541bc607ee19038157",
+   "date": "2026-11-23",
+   "first_text": "Hi MKV Luxury Car Rental team, I was reviewing luxury car rental listings in Al ",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6b044e4bb84698f52b0220b0": {
+   "agent": "Unassigned",
+   "channel": "Main",
+   "contact": "6b03dd19529222887eef72cc",
+   "date": "2026-11-23",
+   "first_text": "Done! I have just sent our company profile and the 45-second demo over to contac",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6b045e7eb84698f52b04c1b1": {
+   "agent": "Unassigned",
+   "channel": "Instagram",
+   "contact": "6b015ea0ffa0a4868ea3a877",
+   "date": "2026-11-23",
+   "first_text": "\"Your profile looks incredible today! It’s a shame that Google’s local algorithm",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6b0465ebb84698f52b05d86f": {
+   "agent": "Reham-MKV",
+   "channel": "Main",
+   "contact": "6b0465ebb84698f52b05d866",
+   "date": "2026-11-23",
+   "first_text": "hello",
+   "origin": "direct",
+   "status": "CLOSE"
+  },
+  "6b04a4c5d43f4360fb2a8c6c": {
+   "agent": "Unassigned",
+   "channel": "Main",
+   "contact": "6b04a4c5d43f4360fb2a8c63",
+   "date": "2026-11-24",
+   "first_text": "Hi, i would like to book a Ride",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6b04a8845568d629be3fa60f": {
+   "agent": "Unassigned",
+   "channel": "Main",
+   "contact": "6b04a8845568d629be3fa606",
+   "date": "2026-11-24",
+   "first_text": "Hi",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6b04b110c1bdccf100b15e0d": {
+   "agent": "Unassigned",
+   "channel": "Instagram",
+   "contact": "6b04b110c1bdccf100b15e02",
+   "date": "2026-11-24",
+   "first_text": "Hi! I would like to book the car without deposit",
+   "origin": "meta_ad",
+   "placement": "Meta (welcome text)",
+   "status": "OPEN"
+  },
+  "6b05318fb8821c35c8b261bf": {
+   "agent": "Unassigned",
+   "channel": "Main",
+   "contact": "6b05318fb8821c35c8b261b6",
+   "date": "2026-11-24",
+   "first_text": "Hey! I’m YUNZ (@yunz939), a Greek rapper currently visiting Dubai until November",
+   "origin": "direct",
+   "status": "OPEN"
   }
  },
- "updated": "2026-11-23T11:00:41+04:00"
+ "updated": "2026-11-24T11:00:34+04:00"
 }
