@@ -18704,6 +18704,28 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0011335-VITA-Porsche": {
+      "thread_ts": "1795509926.181839",
+      "end_date": "2026-11-25",
+      "plate": "64545",
+      "customer": "Vitalii Rubin",
+      "vehicle": "Porsche Cayman Gt4 Rs",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-11-24"
+    },
+    "0011334-EIDA-Chevrolet": {
+      "thread_ts": "1795509932.307329",
+      "end_date": "2026-11-25",
+      "plate": "72712",
+      "customer": "Eidan Sanker",
+      "vehicle": "Chevrolet Corvette",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-11-24"
     }
   }
 }
