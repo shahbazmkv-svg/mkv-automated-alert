@@ -18749,6 +18749,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0011337-VITA-Chevrolet": {
+      "thread_ts": "1795513530.029289",
+      "end_date": "2026-11-25",
+      "plate": "72712",
+      "customer": "Vitalii Rubin",
+      "vehicle": "Chevrolet Corvette",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-11-24"
     }
   }
 }
