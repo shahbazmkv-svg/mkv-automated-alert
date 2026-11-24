@@ -18834,6 +18834,21 @@
       "delivery_alerted": false,
       "pickup_alerted": false,
       "closed": false,
+      "start_date": "2026-11-24",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
+    },
+    "0011343-SAUR-Ford": {
+      "thread_ts": "1795536039.843399",
+      "end_date": "2026-12-09",
+      "plate": "33567",
+      "customer": "Saurabh Yadav",
+      "vehicle": "Ford Bronco",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
       "start_date": "2026-11-24"
     }
   }
