@@ -18734,6 +18734,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0011336-ADHY-Ford": {
+      "thread_ts": "1795511725.972839",
+      "end_date": "2026-11-25",
+      "plate": "77490",
+      "customer": "Adhyan Yadav",
+      "vehicle": "Ford Mustang Coupe",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-11-24"
     }
   }
 }
