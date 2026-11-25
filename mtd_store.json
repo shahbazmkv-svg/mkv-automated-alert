@@ -1,12 +1,5 @@
 {
  "convs": {
-  "6aca38f0055cb5717ff45c0f": {
-   "agent": "Tapan-MKV",
-   "channel": "Main",
-   "contact": "6aca38f0055cb5717ff45c06",
-   "date": "2026-10-10",
-   "status": "CLOSE"
-  },
   "6acb2885b8357668909697da": {
    "agent": "Ali Azlan",
    "channel": "Rent to Own",
@@ -1678,13 +1671,13 @@
    "status": "CLOSE"
   },
   "6ae70b9b526f83ff2213f8a8": {
-   "agent": "Tapan-MKV",
+   "agent": "Reham-MKV",
    "channel": "Car Rental",
    "contact": "672f14bcee10da72cd348186",
    "date": "2026-11-01",
    "first_text": "Hi",
    "origin": "direct",
-   "status": "OPEN"
+   "status": "CLOSE"
   },
   "6ae739de88c65ea443c0f675": {
    "agent": "Rafithath-MKV",
@@ -4374,7 +4367,7 @@
    "date": "2026-11-23",
    "first_text": "Hi, I would like to reserve a car",
    "origin": "direct",
-   "status": "OPEN"
+   "status": "CLOSE"
   },
   "6b03dd19529222887eef72d5": {
    "agent": "Tapan-MKV",
@@ -4476,7 +4469,7 @@
    "status": "OPEN"
   },
   "6b04b110c1bdccf100b15e0d": {
-   "agent": "Unassigned",
+   "agent": "Reham-MKV",
    "channel": "Instagram",
    "contact": "6b04b110c1bdccf100b15e02",
    "date": "2026-11-24",
@@ -4493,7 +4486,118 @@
    "first_text": "Hey! I’m YUNZ (@yunz939), a Greek rapper currently visiting Dubai until November",
    "origin": "direct",
    "status": "OPEN"
+  },
+  "6b053d4fc1bdccf100bec67b": {
+   "agent": "Unassigned",
+   "channel": "Main",
+   "contact": "6b053d4fc1bdccf100bec66e",
+   "date": "2026-11-24",
+   "first_text": "Hello dear",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6b0549f6b8821c35c8b65340": {
+   "agent": "Reham-MKV",
+   "channel": "Main",
+   "contact": "6b0174e83469e95467d1d8c2",
+   "date": "2026-11-24",
+   "first_text": "No extra Vat charge ?",
+   "origin": "direct",
+   "status": "CLOSE"
+  },
+  "6b05746c5568d629be52f129": {
+   "agent": "Reham-MKV",
+   "channel": "Main",
+   "contact": "6b05746c5568d629be52f120",
+   "date": "2026-11-24",
+   "first_text": "Hello\nI want yo rent form Mustang from tommorow for 2 days\ndelivery to dubai Mar",
+   "origin": "direct",
+   "status": "CLOSE"
+  },
+  "6b0574eac1bdccf100c9a364": {
+   "agent": "Unassigned",
+   "channel": "Main",
+   "contact": "6b05746c5568d629be52f120",
+   "date": "2026-11-24",
+   "first_text": "Hello\nI want yo rent form Mustang from tommorow for 2 days\ndelivery to dubai Mar",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6b057a40c1bdccf100cabdd0": {
+   "agent": "Reham-MKV",
+   "channel": "Main",
+   "contact": "6b057a3fc1bdccf100cabdc7",
+   "date": "2026-11-24",
+   "first_text": "Hello",
+   "origin": "direct",
+   "status": "CLOSE"
+  },
+  "6b057f57c1bdccf100cbb7aa": {
+   "agent": "Unassigned",
+   "channel": "Main",
+   "contact": "67727d8c8d8a4cf9387f9b53",
+   "date": "2026-11-24",
+   "first_text": "🙋🏻‍♂️ Hi.\n**Dear sir, Do you want uniforms for workers** 👕🧢👖👔🥼",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6b0589b54d6b228c19161db8": {
+   "agent": "Unassigned",
+   "channel": "Car Rental",
+   "contact": "6b0589b54d6b228c19161daf",
+   "date": "2026-11-24",
+   "first_text": "Have you ever seen a car like this on the internet? Hello, I’m Charlie Ming.",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6b059443ce265d23588fe9c7": {
+   "agent": "Unassigned",
+   "channel": "Main",
+   "contact": "6b059443ce265d23588fe9be",
+   "date": "2026-11-24",
+   "first_text": "Hi, i would like to book a Ride",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6b059f16b153ca7b73d33e25": {
+   "agent": "Reham-MKV",
+   "channel": "Main",
+   "contact": "6b059f15b153ca7b73d33e1c",
+   "date": "2026-11-24",
+   "first_text": "Hello",
+   "origin": "direct",
+   "status": "CLOSE"
+  },
+  "6b05d363b153ca7b73da9020": {
+   "agent": "Unassigned",
+   "channel": "Rent to Own",
+   "contact": "6b05d363b153ca7b73da9017",
+   "date": "2026-11-24",
+   "first_text": "Hi,\nGreetings!\n\nWe empower UAE car rental companies with an integrated ERP/CRM, ",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6b05dc3deeaca7cd94f6b218": {
+   "ad_id": "120239181295470594",
+   "ad_name": "Book Now",
+   "agent": "Rafithath-MKV",
+   "channel": "Car Rental",
+   "contact": "6b05dc3deeaca7cd94f6b20f",
+   "date": "2026-11-24",
+   "first_text": "Can you share more details on this offer?",
+   "origin": "meta_ad",
+   "placement": "Instagram",
+   "status": "CLOSE"
+  },
+  "6b0678961e5647baa8240f6a": {
+   "agent": "Rafithath-MKV",
+   "channel": "Main",
+   "contact": "6b0678951e5647baa8240f61",
+   "date": "2026-11-25",
+   "first_text": "Good morning,\nI’d like to hire a G63 for tomorrow, 26 November. Could you let me",
+   "origin": "direct",
+   "status": "OPEN"
   }
  },
- "updated": "2026-11-24T11:00:34+04:00"
+ "updated": "2026-11-25T11:00:34+04:00"
 }
