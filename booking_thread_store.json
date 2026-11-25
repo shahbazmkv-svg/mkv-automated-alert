@@ -18914,6 +18914,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0011348-VIP -Audi": {
+      "thread_ts": "1795629638.342169",
+      "end_date": "2026-11-30",
+      "plate": "92156",
+      "customer": "Vip Rent  A Car L.L.C",
+      "vehicle": "Audi A6",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-11-26"
     }
   }
 }
