@@ -1,40 +1,5 @@
 {
  "convs": {
-  "6acb2885b8357668909697da": {
-   "agent": "Ali Azlan",
-   "channel": "Rent to Own",
-   "contact": "69353adf4f94e48b1a407aa4",
-   "date": "2026-10-11",
-   "status": "OPEN"
-  },
-  "6acb3679055cb5717f08d5f6": {
-   "agent": "MKV Luxury",
-   "channel": "Main",
-   "contact": "6acb3679055cb5717f08d5ed",
-   "date": "2026-10-11",
-   "status": "CLOSE"
-  },
-  "6acb4fce055cb5717f0c377d": {
-   "agent": "Unassigned",
-   "channel": "Rent to Own",
-   "contact": "6acb4fce055cb5717f0c3774",
-   "date": "2026-10-11",
-   "status": "OPEN"
-  },
-  "6acb7c93a5f459156e1f92e2": {
-   "agent": "Tapan-MKV",
-   "channel": "Car Rental",
-   "contact": "6acb7c92a5f459156e1f92d4",
-   "date": "2026-10-11",
-   "status": "CLOSE"
-  },
-  "6acb985e656da268c672f4eb": {
-   "agent": "Unassigned",
-   "channel": "Car Rental",
-   "contact": "6acb985e656da268c672f4e1",
-   "date": "2026-10-11",
-   "status": "OPEN"
-  },
   "6acc8f247d87ffeabf316c6a": {
    "agent": "Reham-MKV",
    "channel": "Car Rental",
@@ -4031,13 +3996,13 @@
    "status": "OPEN"
   },
   "6aff1683e1bb4e4a106a3a81": {
-   "agent": "Rafithath-MKV",
+   "agent": "Reham-MKV",
    "channel": "Main",
    "contact": "6aff1682e1bb4e4a106a3a78",
    "date": "2026-11-19",
    "first_text": "Hello! We are looking to rent a 2026 BMW 7 Series. Do you have one available?\n\nW",
    "origin": "direct",
-   "status": "OPEN"
+   "status": "CLOSE"
   },
   "6aff5841e1bb4e4a1072a814": {
    "ad_id": "120239181295470594",
@@ -4515,7 +4480,7 @@
    "status": "CLOSE"
   },
   "6b0574eac1bdccf100c9a364": {
-   "agent": "Unassigned",
+   "agent": "Rafithath-MKV",
    "channel": "Main",
    "contact": "6b05746c5568d629be52f120",
    "date": "2026-11-24",
@@ -4596,8 +4561,164 @@
    "date": "2026-11-25",
    "first_text": "Good morning,\nI’d like to hire a G63 for tomorrow, 26 November. Could you let me",
    "origin": "direct",
+   "status": "CLOSE"
+  },
+  "6b069b222d23faf8c43eafbe": {
+   "agent": "Unassigned",
+   "channel": "Rent to Own",
+   "contact": "6b069b222d23faf8c43eafb5",
+   "date": "2026-11-25",
+   "first_text": "؟",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6b069b3acf8bad9d8c121422": {
+   "agent": "Unassigned",
+   "channel": "Car Rental",
+   "contact": "671e18c011008251c8b0dfe8",
+   "date": "2026-11-25",
+   "first_text": "",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6b06ad00d5b3eacea1dd24ee": {
+   "agent": "Unassigned",
+   "channel": "Main",
+   "contact": "6b06ad00d5b3eacea1dd24e0",
+   "date": "2026-11-25",
+   "first_text": "Hello! Do you have a Russian-speaking manager?\n\nWe work as car rental brokers in",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6b06bb412cc5b00260c98465": {
+   "agent": "Unassigned",
+   "channel": "Main",
+   "contact": "6b06bb412cc5b00260c98458",
+   "date": "2026-11-25",
+   "first_text": "hi",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6b06bdbc2cc5b00260c9e546": {
+   "agent": "Unassigned",
+   "channel": "Rent to Own",
+   "contact": "6b06bdbc2cc5b00260c9e53b",
+   "date": "2026-11-25",
+   "first_text": "Hi, I want to know more about Rent-to-Own plan.",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6b06cd41741686502566d0d2": {
+   "agent": "Reham-MKV",
+   "channel": "Main",
+   "contact": "6b06cd41741686502566d0c9",
+   "date": "2026-11-25",
+   "first_text": "Hello",
+   "origin": "direct",
+   "status": "CLOSE"
+  },
+  "6b06dbec1067c0ba153bb9fb": {
+   "agent": "Unassigned",
+   "channel": "Main",
+   "contact": "6b06dbec1067c0ba153bb9f2",
+   "date": "2026-11-25",
+   "first_text": "Marhaba MKV Luxury team, stellar 4.9★ track record across 500+ reviews in Dubai.",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6b06e199741686502569b6e2": {
+   "agent": "Unassigned",
+   "channel": "Main",
+   "contact": "6b06e199741686502569b6d9",
+   "date": "2026-11-25",
+   "first_text": "Hi, i would like to book a Ride",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6b06ebbc97ed6ac3f23a76d1": {
+   "agent": "Unassigned",
+   "channel": "Main",
+   "contact": "6b06ebbc97ed6ac3f23a76c8",
+   "date": "2026-11-25",
+   "first_text": "Hello MKV Luxury Car Rental Team,\n\nSupercar rental customers often compare avail",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6b070cda58071e36c247a479": {
+   "agent": "Rafithath-MKV",
+   "channel": "Car Rental",
+   "contact": "693e62019ac9e0064c30551c",
+   "date": "2026-11-25",
+   "first_text": "Hii",
+   "origin": "direct",
+   "status": "CLOSE"
+  },
+  "6b071cf921ef0636446c375d": {
+   "agent": "Unassigned",
+   "channel": "Instagram",
+   "contact": "6b071cf921ef0636446c3752",
+   "date": "2026-11-25",
+   "first_text": "Hi MKV Luxury team, I’m Matt from Inspire UAE Marketing in Dubai.\n\nI saw your Fe",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6b07252721ef0636446d3b05": {
+   "agent": "Unassigned",
+   "channel": "Main",
+   "contact": "6b07252721ef0636446d3af9",
+   "date": "2026-11-25",
+   "first_text": "Hi, i would like to book a Ride",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6b07a87f21ef0636447433ae": {
+   "agent": "Rafithath-MKV",
+   "channel": "Car Rental",
+   "contact": "69666e5fad084e45f6e9ed27",
+   "date": "2026-11-26",
+   "first_text": "Connect me to human being please",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6b07c625592d857e7b61b967": {
+   "agent": "Unassigned",
+   "channel": "Rent to Own",
+   "contact": "6b07c625592d857e7b61b95e",
+   "date": "2026-11-26",
+   "first_text": "Hi, I want to know more about Rent-to-Own plan.",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6b07ce4158071e36c2533241": {
+   "ad_id": "120239181295470594",
+   "ad_name": "Book Now",
+   "agent": "Unassigned",
+   "channel": "Car Rental",
+   "contact": "6b07ce4058071e36c2533238",
+   "date": "2026-11-26",
+   "first_text": "Hi",
+   "origin": "meta_ad",
+   "placement": "Instagram",
+   "status": "OPEN"
+  },
+  "6b07d06d58071e36c25383ff": {
+   "agent": "Rafithath-MKV",
+   "channel": "Main",
+   "contact": "694cddbfb2478cae399e76b3",
+   "date": "2026-11-26",
+   "first_text": "Hi, i would like to book a Ride",
+   "origin": "direct",
+   "status": "CLOSE"
+  },
+  "6b07d4a697ed6ac3f251886e": {
+   "agent": "Unassigned",
+   "channel": "Main",
+   "contact": "6b07d4a697ed6ac3f2518865",
+   "date": "2026-11-26",
+   "first_text": "",
+   "origin": "direct",
    "status": "OPEN"
   }
  },
- "updated": "2026-11-25T11:00:34+04:00"
+ "updated": "2026-11-26T11:00:43+04:00"
 }
