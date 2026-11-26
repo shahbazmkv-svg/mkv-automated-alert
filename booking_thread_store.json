@@ -18944,6 +18944,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0011350-DOMI-Lamborghini": {
+      "thread_ts": "1795684526.998119",
+      "end_date": "2026-11-27",
+      "plate": "V 8797",
+      "customer": "Dominik Radocz",
+      "vehicle": "Lamborghini Evo Spider",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-11-26"
     }
   }
 }
