@@ -18984,7 +18984,22 @@
       "delivery_alerted": false,
       "pickup_alerted": false,
       "closed": false,
-      "start_date": "2026-11-27"
+      "start_date": "2026-11-27",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
+    },
+    "0011353-SERG-Audi": {
+      "thread_ts": "1795689930.888439",
+      "end_date": "2026-11-27",
+      "plate": "89438",
+      "customer": "Sergei Senin",
+      "vehicle": "Audi A6",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-11-26"
     }
   }
 }
