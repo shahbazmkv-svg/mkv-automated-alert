@@ -1,7 +1,8 @@
 """
 MKV Daily Ads Snapshot — Google Ads API + Meta Ads API → Slack
 =============================================================
-Version : 6.0  (26 Nov 2026)
+Version : 6.1  (26 Nov 2026)
+v6.1: plain status per campaign and overall — ✅ Performing / 🟡 Average / 🔴 Needs attention
 v6.0:
   - Google report rewritten in plain English: one-line summary with real Gallabox
     WhatsApp chats and cost per real chat, per-campaign CPC alerts (Rental > AED 45,
@@ -996,7 +997,7 @@ JUNK_CATEGORIES = {
                    "avis", "dollar rent", "ekar", "uber", "careem"],
     "bank / loan": ["loan", "bank", "mashreq", "emirates nbd", "enbd", "adcb", "fab ", "dib ", "rakbank",
                     "finance company", "credit card", "installment calculator", "emi"],
-    "chauffeur / limo": ["chauffeur", "limo", "driver service", "with driver", "airport transfer", "taxi"],
+    "chauffeur / limo": ["chauffeur", "limo", "driver service", "with driver", "airport transfer", "taxi", "zofeur"],
     "jobs": ["job", "vacancy", "vacancies", "career", "hiring", "salary", "driver job"],
     "buying a car": ["for sale", "used car", "second hand", "buy car", "price in uae", "showroom", "auction"],
     "contact / customer care": ["contact number", "phone number", "customer care", "customer service",
@@ -1224,6 +1225,36 @@ def health_v6(camps, gb, mtd_cost, mtd_conv, terms_cls, pace_gap, learning):
     return score, dot, detail, capture
 
 
+
+# ── Plain status: ✅ PERFORMING / 🟡 AVERAGE / 🔴 NEEDS ATTENTION ──────────────
+# Judged on cost per REAL WhatsApp chat (Gallabox) — the business target — plus click cost.
+#   (good up to, average up to) — above the second number = needs attention
+COST_PER_CHAT = {"rental": (40.0, 70.0), "rto": (150.0, 250.0)}
+META_COST_PER_CHAT = {"mkv": (30.0, 50.0), "rto": (60.0, 100.0)}
+STATUS = {0: "✅ PERFORMING", 1: "🟡 AVERAGE", 2: "🔴 NEEDS ATTENTION"}
+
+
+def judge(kind, cost, chats, cpc=0.0, clicks=0, bands=None):
+    """→ (level 0/1/2 or None if not running, short reason)."""
+    if cost <= 0:
+        return None, "not running"
+    good, ok = (bands or COST_PER_CHAT)[kind]
+    reasons, level = [], 0
+    if chats == 0:
+        if cost >= good:
+            return 2, f"AED {cost:,.0f} spent, 0 chats"
+        return 1, f"AED {cost:,.0f} spent, no chat yet"
+    per = cost / chats
+    if per > ok:
+        level = 2; reasons.append(f"AED {per:,.0f}/chat (target ≤ {good:,.0f})")
+    elif per > good:
+        level = 1; reasons.append(f"AED {per:,.0f}/chat (target ≤ {good:,.0f})")
+    else:
+        reasons.append(f"AED {per:,.0f}/chat")
+    if clicks and kind in CPC_WATCH and cpc > CPC_WATCH[kind]:
+        level = max(level, 1); reasons.append(f"clicks expensive AED {cpc:,.0f} (watch {CPC_WATCH[kind]:,.0f})")
+    return level, " · ".join(reasons)
+
 def build_google_report_v6(camps, budgets, mtd, mtd_split, terms, negs, gb):
     mode_tag = "🧪 TEST" if TEST_MODE else "🚀 LIVE"
     day_label = datetime.strptime(DATE_RANGE, "%Y-%m-%d").strftime("%a %d %b %Y")
@@ -1248,14 +1279,20 @@ def build_google_report_v6(camps, budgets, mtd, mtd_split, terms, negs, gb):
         line += " " + " ".join(alerts)
 
     # ── 2. Yesterday by campaign
-    rows = []
+    rows, levels, why = [], [], []
     for c in sorted(camps, key=lambda x: x["kind"]):
         icon, label = ("🚗", "Rental") if c["kind"] == "rental" else ("🔑", "Rent to Own")
         watch = CPC_WATCH[c["kind"]]
         flag = (f"⚠️ (watch level AED {watch:,.0f})" if c["cpc"] > watch else "✅") if c["clicks"] else ""
         gal = gb["y_google"] if c["kind"] == "rental" else gb["y_rto"]
-        rows.append(f"{icon} *{label}*  AED {c['cost']:,.0f} | {c['clicks']} clicks | "
-                    f"AED {c['cpc']:,.1f}/click {flag} | Google leads {c['conv']:g} | Gallabox {gal if gb['ok'] else '–'}")
+        lvl, reason = judge(c["kind"], c["cost"], gal, c["cpc"], c["clicks"]) if gb["ok"] else (None, "")
+        status = f"  →  *{STATUS[lvl]}*" if lvl is not None else ""
+        if lvl is not None:
+            levels.append(lvl)
+            if lvl > 0:
+                why.append(f"{label}: {reason}")
+        rows.append(f"{icon} *{label}*{status}\n      AED {c['cost']:,.0f} | {c['clicks']} clicks | "
+                    f"AED {c['cpc']:,.1f}/click {flag} | Google leads {c['conv']:g} | Gallabox chats {gal if gb['ok'] else '–'}")
     if not rto:
         rows.append("🔑 *Rent to Own*  no spend yesterday" + (" (runs Mon–Thu)" if datetime.strptime(DATE_RANGE, "%Y-%m-%d").weekday() >= 4 else ""))
     camp_text = "\n".join(rows) or "_No campaign data_"
@@ -1281,10 +1318,16 @@ def build_google_report_v6(camps, budgets, mtd, mtd_split, terms, negs, gb):
         pace_gap = spent_pct - month_gone
         p_icon = "✅" if abs(pace_gap) <= 15 else ("⚠️ overspending" if pace_gap > 0 else "⚠️ underspending")
         mtd_lines.append(f"Budget pace: {spent_pct:.0f}% of month budget spent with {month_gone:.0f}% of month gone {p_icon}")
+    mtd_levels = []
     if mtd_split:
         r, t = mtd_split.get("rental", {}), mtd_split.get("rto", {})
-        mtd_lines.append(f"🚗 Rental AED {r.get('cost',0):,.0f} / {r.get('conversions',0):g} Google leads · "
-                         f"🔑 RTO AED {t.get('cost',0):,.0f} / {t.get('conversions',0):g} Google leads")
+        for icon, label, kind, d, chats in (("🚗", "Rental", "rental", r, gb["m_google"]),
+                                            ("🔑", "Rent to Own", "rto", t, gb["m_rto"])):
+            lvl, reason = judge(kind, d.get("cost", 0), chats) if gb["ok"] else (None, "")
+            if lvl is not None:
+                mtd_levels.append(lvl)
+            st = f" → *{STATUS[lvl]}* — {reason}" if lvl is not None else ""
+            mtd_lines.append(f"{icon} {label}: AED {d.get('cost',0):,.0f} · {chats if gb['ok'] else '–'} chats{st}")
     score, dot, detail, capture = health_v6(camps, gb, mtd_cost, mtd_conv, cls, pace_gap, learning)
     mtd_text = "\n".join(mtd_lines)
 
@@ -1323,8 +1366,19 @@ def build_google_report_v6(camps, budgets, mtd, mtd_split, terms, negs, gb):
         todo.append("Nothing — all on track ✅")
     todo_text = "\n".join(f"{i}. {t}" for i, t in enumerate(todo, 1))
 
+    if levels:
+        overall = max(levels)
+        verdict = f"*How ads did yesterday: {STATUS[overall]}*"
+        verdict += ("\n" + "\n".join(f"• {w}" for w in why)) if why else "\n• All running campaigns within target"
+    else:
+        verdict = "*How ads did yesterday: ⚪ NO DATA* — no spend or Gallabox data unavailable"
+    if mtd_levels:
+        verdict += f"\n_Month so far: {STATUS[max(mtd_levels)]}_"
+    verdict += ("\n_Scale: ✅ Performing = at/below target cost per real chat · 🟡 Average = slightly above target "
+                "or clicks expensive · 🔴 Needs attention = far above target or spend with 0 chats_")
     blocks = [
         {"type": "header", "text": {"type": "plain_text", "text": f"🔵 Google Ads — {day_label}", "emoji": True}},
+        {"type": "section", "text": {"type": "mrkdwn", "text": verdict}},
         {"type": "section", "text": {"type": "mrkdwn", "text": line}},
         {"type": "section", "text": {"type": "mrkdwn", "text": f"*━━ Yesterday by campaign ━━*\n{camp_text}"}},
         {"type": "section", "text": {"type": "mrkdwn", "text": f"*━━ Month to date (1–{rep.day} {rep.strftime('%b')}) ━━*\n{mtd_text}"}},
@@ -1334,7 +1388,7 @@ def build_google_report_v6(camps, budgets, mtd, mtd_split, terms, negs, gb):
     if banner:
         blocks.append({"type": "context", "elements": [{"type": "mrkdwn", "text": banner}]})
     blocks.append({"type": "context", "elements": [{"type": "mrkdwn",
-                   "text": f"🏁 *Health {score}/100* {dot} — {detail}   |   v6.0 • {mode_tag}"}]})
+                   "text": f"🏁 *Health {score}/100* {dot} — {detail}   |   v6.1 • {mode_tag}"}]})
     return blocks
 
 
@@ -1376,7 +1430,10 @@ def meta_summary_v6(label, acc, ads, cpr_watch):
     """One line + the ads behind each warning."""
     if not acc or acc.get("spent", 0) <= 0:
         return f"*{label}:* no spend yesterday"
-    s = (f"*{label}:* AED {acc['spent']:,.0f} → *{acc['results']} chats*"
+    kind = "rto" if "own" in label.lower() else "mkv"
+    lvl, _ = judge(kind, acc["spent"], acc.get("results", 0), bands=META_COST_PER_CHAT)
+    status = f" → {STATUS[lvl]}" if lvl is not None else ""
+    s = (f"*{label}{status}*\n  AED {acc['spent']:,.0f} → *{acc['results']} chats*"
          + (f" → AED {acc['cost_per_result']:,.0f} per chat" if acc["results"] else " → no chats ⚠️")
          + f" · CTR {acc['ctr']}%")
     warn = []
@@ -1616,7 +1673,7 @@ def build_meta_report(meta, meta_mtd, meta_rto, meta_rto_mtd, meta_placement, me
         {"type": "section", "text": {"type": "mrkdwn", "text": f"*📺 Placement Breakdown*\n{placement_text}"}},
         {"type": "divider"},
         {"type": "section", "text": {"type": "mrkdwn", "text": f"*📅 MTD Summary*\n{mtd_text}"}},
-        {"type": "context", "elements": [{"type": "mrkdwn", "text": f"_MKV Meta Ads • v6.0 • {mode_tag}_"}]},
+        {"type": "context", "elements": [{"type": "mrkdwn", "text": f"_MKV Meta Ads • v6.1 • {mode_tag}_"}]},
     ]
 
 
@@ -1631,7 +1688,7 @@ def post_slack(blocks, fallback="MKV Ads Report"):
 
 def main():
     print("=" * 60)
-    print("  MKV Daily Ads Snapshot v6.0")
+    print("  MKV Daily Ads Snapshot v6.1")
     print(f"  {datetime.now().strftime('%Y-%m-%d %H:%M:%S')} | Report date: {REPORT_DATE}")
     print(f"  Mode: {'🧪 TEST' if TEST_MODE else '🚀 LIVE'}  |  Channel: {SLACK_CHANNEL}")
     print("=" * 60)
