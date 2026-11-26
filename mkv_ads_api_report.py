@@ -1001,12 +1001,18 @@ JUNK_CATEGORIES = {
     "buying a car": ["for sale", "used car", "second hand", "buy car", "price in uae", "showroom", "auction"],
     "contact / customer care": ["contact number", "phone number", "customer care", "customer service",
                                 "helpline", "toll free", "complaint", "whatsapp number", "login", "app download"],
+    "outside Dubai": ["sharjah", "ajman", "ras al khaimah", "ras alkhaimah", "rasalkhaimah", " rak ",
+                      "fujairah", "al ain", "umm al quwain", "khor fakkan", "oman", "muscat", "saudi",
+                      "riyadh", "jeddah", "doha", "qatar"],
     "budget models": ["yaris", "corolla", "sunny", "attrage", "picanto", "kia soul", "hyundai staria",
                       "cheap", "economy", "monthly 1000", "aed 99"],
 }
 # Places MKV may or may not serve → ask instead of blocking
-DECIDE_PLACES = ["ras al khaimah", "rak ", " rak", "fujairah", "al ain", "umm al quwain", "khor fakkan",
-                 "oman", "muscat", "saudi", "riyadh", "jeddah"]
+# Ads target Dubai only (Shahbaz 26 Nov 2026) → other emirates are junk for ads (block).
+# Exception: Abu Dhabi stays targeted on Rent to Own (best cost per lead) but is
+# excluded on Rental → Abu Dhabi searches are junk on Rental, relevant on Rent to Own.
+DECIDE_PLACES = []
+RENTAL_ONLY_JUNK_PLACES = ["abu dhabi", "abudhabi"]
 JUNK_SPEND_14D = 50.0   # a non-category term is suggested only at ≥ AED 50 / 14 days with 0 conversions
 
 
@@ -1125,6 +1131,8 @@ def classify_terms(terms, negs):
         cat = next((c for c, words in JUNK_CATEGORIES.items() if any(w in f" {t} " for w in words)), None)
         if cat:
             r["why"] = cat; out["junk"].append(r); continue
+        if _camp_kind(r["campaign"]) == "rental" and any(p in t for p in RENTAL_ONLY_JUNK_PLACES):
+            r["why"] = "Abu Dhabi — excluded on Rental"; out["junk"].append(r); continue
         place = next((p.strip() for p in DECIDE_PLACES if p in f" {t} "), None)
         if place:
             r["why"] = f"do we deliver to {place.upper() if len(place) <= 3 else place.title()}?"
