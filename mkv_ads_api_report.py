@@ -1,7 +1,16 @@
 """
 MKV Daily Ads Snapshot — Google Ads API + Meta Ads API → Slack
 =============================================================
-Version : 5.7  (25 Jun 2026)
+Version : 6.0  (26 Nov 2026)
+v6.0:
+  - Google report rewritten in plain English: one-line summary with real Gallabox
+    WhatsApp chats and cost per real chat, per-campaign CPC alerts (Rental > AED 45,
+    RTO > AED 15), MTD tracking capture rate and budget pace, search terms classified
+    (relevant / already blocked / decide / new junk — core terms never suggested as
+    negatives), "what to do today", learning-period banner, explained health score
+  - Meta: one-line summary per account + which ad caused each warning
+  - TEST_MODE read from env (TEST_MODE=true → #mkvtest-new)
+v5.7  (25 Jun 2026)
 Fixes:
   - URL previews suppressed in Slack (unfurl disabled)
   - Conversions query fixed (use campaign resource)
@@ -37,7 +46,7 @@ LOGIN_CUSTOMER_ID   = os.environ.get("GOOGLE_ADS_LOGIN_CUSTOMER_ID", "")
 GMAIL_ADDRESS       = os.environ.get("GMAIL_ADDRESS", "")
 GMAIL_APP_PASSWORD  = os.environ.get("GMAIL_APP_PASSWORD", "")
 
-TEST_MODE           = False
+TEST_MODE           = os.environ.get("TEST_MODE", "false").lower() == "true"
 SLACK_CHANNEL       = "C0B0TGBDCDU" if TEST_MODE else "C0AASQKLY59"
 
 DELTA_FILE          = "mkv_yesterday_metrics.json"
@@ -953,6 +962,438 @@ def score_report(g_camp, meta):
     )
     return min(score, 100), grade, notes
 
+# ══════════════════════════════════════════════════════════════════════════════
+# v6.0 — PLAIN-ENGLISH GOOGLE REPORT (Gallabox real chats, CPC alerts,
+#        classified search terms, "what to do today", explained health score)
+# ══════════════════════════════════════════════════════════════════════════════
+
+# Watch levels — avg cost per click above these is flagged ⚠️
+CPC_WATCH = {"rental": 45.0, "rto": 15.0}
+
+# Account changes that put Smart Bidding into a learning period.
+# Add a line here whenever changes are made in Google Ads (date, short label).
+RECENT_CHANGES = [
+    ("2026-11-26", "bidding, WhatsApp tracking, schedules, ad assets"),
+]
+LEARNING_DAYS = 7
+
+GALLABOX_STORE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "mtd_store.json")
+
+# Searches that must NEVER be suggested as negatives (core business terms)
+CORE_TERMS = ["rent", "rental", "hire", "lease", "subscription", "rent to own", "lease to own",
+              "luxury car", "supercar", "sports car", "exotic car"]
+OUR_BRANDS = ["mkv", "rent to own cars", "renttoowncars"]
+# Fleet brands/models — never auto-suggested as junk; sent to "Decide" instead
+FLEET_BRANDS = ["lamborghini", "urus", "huracan", "ferrari", "rolls", "cullinan", "ghost", "mercedes", "g63",
+                "g class", "g-class", "brabus", "maybach", "porsche", "range rover", "bentley", "mclaren",
+                "bmw", "audi", "cadillac", "escalade", "nissan patrol", "patrol", "lexus", "corvette", "mustang"]
+
+# Junk categories → suggest blocking (only if not already blocked)
+JUNK_CATEGORIES = {
+    "competitor": ["ezhire", "maraya", "shift leasing", "u drive", "udrive", "selfdrive", "cars24", "dubizzle",
+                   "invygo", "yalla ride", "one click drive", "oneclickdrive", "quick lease", "autostrad",
+                   "speedy drive", "drive rent", "hertz", "budget rent", "thrifty", "europcar", "sixt",
+                   "avis", "dollar rent", "ekar", "uber", "careem"],
+    "bank / loan": ["loan", "bank", "mashreq", "emirates nbd", "enbd", "adcb", "fab ", "dib ", "rakbank",
+                    "finance company", "credit card", "installment calculator", "emi"],
+    "chauffeur / limo": ["chauffeur", "limo", "driver service", "with driver", "airport transfer", "taxi"],
+    "jobs": ["job", "vacancy", "vacancies", "career", "hiring", "salary", "driver job"],
+    "buying a car": ["for sale", "used car", "second hand", "buy car", "price in uae", "showroom", "auction"],
+    "contact / customer care": ["contact number", "phone number", "customer care", "customer service",
+                                "helpline", "toll free", "complaint", "whatsapp number", "login", "app download"],
+    "budget models": ["yaris", "corolla", "sunny", "attrage", "picanto", "kia soul", "hyundai staria",
+                      "cheap", "economy", "monthly 1000", "aed 99"],
+}
+# Places MKV may or may not serve → ask instead of blocking
+DECIDE_PLACES = ["ras al khaimah", "rak ", " rak", "fujairah", "al ain", "umm al quwain", "khor fakkan",
+                 "oman", "muscat", "saudi", "riyadh", "jeddah"]
+JUNK_SPEND_14D = 50.0   # a non-category term is suggested only at ≥ AED 50 / 14 days with 0 conversions
+
+
+def _camp_kind(name):
+    n = name.lower()
+    return "rto" if ("rent to own" in n or "lease" in n or " rto" in n) else "rental"
+
+
+def fetch_campaigns_v6(client):
+    """Yesterday per campaign (all enabled campaigns) + daily budgets."""
+    ga = client.get_service("GoogleAdsService")
+    q = f"""
+        SELECT campaign.name, campaign_budget.amount_micros,
+               metrics.impressions, metrics.clicks, metrics.cost_micros, metrics.conversions
+        FROM campaign
+        WHERE segments.date = '{DATE_RANGE}' AND campaign.status = 'ENABLED'
+    """
+    out = []
+    try:
+        for r in ga.search(customer_id=CUSTOMER_ID, query=q):
+            cost = r.metrics.cost_micros / 1_000_000
+            clicks = int(r.metrics.clicks)
+            out.append({
+                "name": r.campaign.name, "kind": _camp_kind(r.campaign.name),
+                "cost": round(cost, 2), "clicks": clicks, "impr": int(r.metrics.impressions),
+                "conv": round(r.metrics.conversions, 1),
+                "cpc": round(cost / clicks, 2) if clicks else 0,
+                "budget": round(r.campaign_budget.amount_micros / 1_000_000, 2),
+            })
+    except GoogleAdsException as ex:
+        print(f"    ❌ v6 campaigns failed: {ex.error.code().name}")
+    return out
+
+
+def fetch_budgets_v6(client):
+    """Daily budgets of all enabled campaigns (also those with no spend yesterday)."""
+    ga = client.get_service("GoogleAdsService")
+    q = "SELECT campaign.name, campaign_budget.amount_micros FROM campaign WHERE campaign.status = 'ENABLED'"
+    try:
+        return {r.campaign.name: r.campaign_budget.amount_micros / 1_000_000 for r in ga.search(customer_id=CUSTOMER_ID, query=q)}
+    except GoogleAdsException as ex:
+        print(f"    ❌ v6 budgets failed: {ex.error.code().name}")
+        return {}
+
+
+def fetch_negatives_v6(client):
+    """All active negative keywords: shared lists + campaign-level negatives."""
+    ga = client.get_service("GoogleAdsService")
+    negs = set()
+    queries = [
+        """SELECT shared_criterion.keyword.text FROM shared_criterion
+           WHERE shared_set.type = 'NEGATIVE_KEYWORDS' AND shared_set.status = 'ENABLED'""",
+        """SELECT campaign_criterion.keyword.text FROM campaign_criterion
+           WHERE campaign_criterion.negative = TRUE AND campaign_criterion.type = 'KEYWORD'
+             AND campaign.status = 'ENABLED'""",
+    ]
+    for q in queries:
+        try:
+            for r in ga.search(customer_id=CUSTOMER_ID, query=q):
+                kw = r.shared_criterion.keyword.text if "shared_criterion" in q else r.campaign_criterion.keyword.text
+                if kw:
+                    negs.add(kw.lower().strip())
+        except GoogleAdsException as ex:
+            print(f"    ⚠️  negatives query failed: {ex.error.code().name}")
+    print(f"    ✅ Negative keywords loaded: {len(negs)}")
+    return negs
+
+
+def fetch_search_terms_v6(client):
+    """Yesterday's paid search terms + 14-day cost/conversions per term."""
+    ga = client.get_service("GoogleAdsService")
+    start14 = (datetime.now() - timedelta(days=14)).strftime("%Y-%m-%d")
+    def run(where):
+        q = f"""
+            SELECT search_term_view.search_term, campaign.name,
+                   metrics.clicks, metrics.cost_micros, metrics.conversions
+            FROM search_term_view WHERE {where} AND metrics.cost_micros > 0
+        """
+        agg = {}
+        try:
+            for r in ga.search(customer_id=CUSTOMER_ID, query=q):
+                t = r.search_term_view.search_term.lower().strip()
+                a = agg.setdefault(t, {"term": t, "campaign": r.campaign.name, "clicks": 0, "cost": 0.0, "conv": 0.0})
+                a["clicks"] += int(r.metrics.clicks)
+                a["cost"] += r.metrics.cost_micros / 1_000_000
+                a["conv"] += r.metrics.conversions
+        except GoogleAdsException as ex:
+            print(f"    ⚠️  search terms query failed: {ex.error.code().name}")
+        return agg
+    y = run(f"segments.date = '{DATE_RANGE}'")
+    d14 = run(f"segments.date BETWEEN '{start14}' AND '{DATE_RANGE}'")
+    for t, v in y.items():
+        v["cost14"] = round(d14.get(t, {}).get("cost", v["cost"]), 2)
+        v["conv14"] = round(d14.get(t, {}).get("conv", v["conv"]), 1)
+        v["cost"] = round(v["cost"], 2)
+    print(f"    ✅ Search terms yesterday: {len(y)}")
+    return sorted(y.values(), key=lambda x: x["cost"], reverse=True)
+
+
+def _is_blocked(term, negs):
+    t = f" {term} "
+    for n in negs:
+        n2 = n.strip("[]\"+ ").lower()
+        if n2 and (term == n2 or f" {n2} " in t):
+            return True
+    return False
+
+
+def classify_terms(terms, negs):
+    """→ dict(relevant, blocked, decide, junk) of term rows (with 'why')."""
+    out = {"relevant": [], "blocked": [], "decide": [], "junk": []}
+    for r in terms:
+        t = r["term"]
+        if _is_blocked(t, negs):
+            out["blocked"].append(r); continue
+        cat = next((c for c, words in JUNK_CATEGORIES.items() if any(w in f" {t} " for w in words)), None)
+        if cat:
+            r["why"] = cat; out["junk"].append(r); continue
+        place = next((p.strip() for p in DECIDE_PLACES if p in f" {t} "), None)
+        if place:
+            r["why"] = f"do we deliver to {place.upper() if len(place) <= 3 else place.title()}?"
+            out["decide"].append(r); continue
+        core = any(w in t for w in CORE_TERMS + OUR_BRANDS)
+        if core:
+            out["relevant"].append(r); continue                       # core terms are never suggested as negatives
+        if r["cost14"] >= JUNK_SPEND_14D and r["conv14"] == 0:
+            if any(b in t for b in FLEET_BRANDS):
+                r["why"] = f"fleet model but AED {r['cost14']:,.0f} in 14 days with 0 leads — keep or block?"
+                out["decide"].append(r)
+            else:
+                r["why"] = f"AED {r['cost14']:,.0f} in 14 days, 0 leads"; out["junk"].append(r)
+        elif r["conv"] > 0 or r["conv14"] > 0:
+            out["relevant"].append(r)
+        else:
+            r["why"] = "unclear intent — keep or block?"; out["decide"].append(r)
+    return out
+
+
+def load_gallabox_counts():
+    """Real WhatsApp chats from the Gallabox store (written daily by mkv_gallabox_snapshot.py).
+    Google = Main no. (+971 56 279 4545) + any 'UID' website chat; RTO = Rent to Own no."""
+    res = {"y_google": 0, "y_rto": 0, "m_google": 0, "m_rto": 0, "ok": False, "updated": ""}
+    try:
+        with open(GALLABOX_STORE, encoding="utf-8") as f:
+            store = json.load(f)
+    except Exception as e:
+        print(f"  ⚠️  Gallabox store not readable: {e}")
+        return res
+    month = DATE_RANGE[:7]
+    for v in store.get("convs", {}).values():
+        d = v.get("date", "")
+        if not d.startswith(month) or d > DATE_RANGE:
+            continue
+        if v.get("origin") == "website" or v.get("channel") == "Main":
+            k = "google"
+        elif v.get("channel") == "Rent to Own":
+            k = "rto"
+        else:
+            continue
+        res["m_" + k] += 1
+        if d == DATE_RANGE:
+            res["y_" + k] += 1
+    res["ok"] = True
+    res["updated"] = store.get("updated", "")
+    print(f"    ✅ Gallabox: yesterday Google {res['y_google']} / RTO {res['y_rto']} | MTD {res['m_google']} / {res['m_rto']}")
+    return res
+
+
+def learning_banner():
+    """(active, text) — active for LEARNING_DAYS after the latest logged change."""
+    if not RECENT_CHANGES:
+        return False, ""
+    last_date, label = max(RECENT_CHANGES)
+    d0 = datetime.strptime(last_date, "%Y-%m-%d")
+    rep = datetime.strptime(DATE_RANGE, "%Y-%m-%d")
+    judge = d0 + timedelta(days=LEARNING_DAYS)
+    if d0 <= rep < judge:
+        return True, (f"ℹ️ Changes in effect: {label} ({d0.strftime('%d %b')}). "
+                      f"Numbers will swing until ~{judge.strftime('%d %b')} — don't react to one day.")
+    return False, ""
+
+
+def health_v6(camps, gb, mtd_cost, mtd_conv, terms_cls, pace_gap, learning):
+    """Start at 100 and subtract explained penalties."""
+    pen = []
+    g_chats = gb["m_google"] + gb["m_rto"]
+    capture = (mtd_conv / g_chats * 100) if (gb["ok"] and g_chats) else None
+    if capture is not None:
+        if capture < 40:   pen.append(("🔴", "tracking", 30))
+        elif capture < 60: pen.append(("🟠", "tracking", 15))
+    for c in camps:
+        if c["clicks"] and c["cpc"] > CPC_WATCH[c["kind"]]:
+            pen.append(("🟠", f"{'Rental' if c['kind']=='rental' else 'RTO'} click cost", 20 if c["kind"] == "rental" else 10))
+    y_cost = sum(c["cost"] for c in camps) or 0
+    junk_cost = sum(r["cost"] for r in terms_cls["junk"])
+    if y_cost and junk_cost / y_cost > 0.10:
+        pen.append(("🟠", "junk searches", 15))
+    if gb["ok"] and g_chats:
+        cpl = mtd_cost / g_chats
+        if cpl > 120:  pen.append(("🔴", "cost per real chat", 20))
+        elif cpl > 80: pen.append(("🟠", "cost per real chat", 10))
+    if pace_gap is not None and abs(pace_gap) > 15:
+        pen.append(("🟠", "budget pace", 10))
+    score = max(0, 100 - sum(p[2] for p in pen))
+    dot = "🟢" if score >= 75 else "🟡" if score >= 55 else "🔴"
+    detail = " · ".join(f"{e} {n} (−{p})" for e, n, p in pen) or "no penalties"
+    return score, dot, detail, capture
+
+
+def build_google_report_v6(camps, budgets, mtd, mtd_split, terms, negs, gb):
+    mode_tag = "🧪 TEST" if TEST_MODE else "🚀 LIVE"
+    day_label = datetime.strptime(DATE_RANGE, "%Y-%m-%d").strftime("%a %d %b %Y")
+    learning, banner = learning_banner()
+    cls = classify_terms(terms, negs)
+
+    y_cost = sum(c["cost"] for c in camps)
+    y_g_chats = gb["y_google"] + gb["y_rto"]
+    rental = [c for c in camps if c["kind"] == "rental"]
+    rto = [c for c in camps if c["kind"] == "rto"]
+
+    # ── 1. One line
+    if gb["ok"]:
+        per = f"~AED {y_cost / y_g_chats:,.0f} per real chat" if y_g_chats else "no real chats yet"
+        line = (f"📌 *In one line:* AED {y_cost:,.0f} spent → *{y_g_chats} WhatsApp chats* in Gallabox "
+                f"({gb['y_google']} Rental no. · {gb['y_rto']} RTO no.) → {per}.")
+    else:
+        line = f"📌 *In one line:* AED {y_cost:,.0f} spent · Gallabox data unavailable today."
+    alerts = [f"{'Rental' if c['kind']=='rental' else 'Rent to Own'} clicks were expensive (AED {c['cpc']:,.0f} each) ⚠️"
+              for c in camps if c["clicks"] and c["cpc"] > CPC_WATCH[c["kind"]]]
+    if alerts:
+        line += " " + " ".join(alerts)
+
+    # ── 2. Yesterday by campaign
+    rows = []
+    for c in sorted(camps, key=lambda x: x["kind"]):
+        icon, label = ("🚗", "Rental") if c["kind"] == "rental" else ("🔑", "Rent to Own")
+        watch = CPC_WATCH[c["kind"]]
+        flag = (f"⚠️ (watch level AED {watch:,.0f})" if c["cpc"] > watch else "✅") if c["clicks"] else ""
+        gal = gb["y_google"] if c["kind"] == "rental" else gb["y_rto"]
+        rows.append(f"{icon} *{label}*  AED {c['cost']:,.0f} | {c['clicks']} clicks | "
+                    f"AED {c['cpc']:,.1f}/click {flag} | Google leads {c['conv']:g} | Gallabox {gal if gb['ok'] else '–'}")
+    if not rto:
+        rows.append("🔑 *Rent to Own*  no spend yesterday" + (" (runs Mon–Thu)" if datetime.strptime(DATE_RANGE, "%Y-%m-%d").weekday() >= 4 else ""))
+    camp_text = "\n".join(rows) or "_No campaign data_"
+
+    # ── 3. Month to date
+    mtd_cost = mtd.get("cost", 0); mtd_conv = mtd.get("conversions", 0)
+    rep = datetime.strptime(DATE_RANGE, "%Y-%m-%d")
+    import calendar
+    days_in_month = calendar.monthrange(rep.year, rep.month)[1]
+    month_gone = rep.day / days_in_month * 100
+    monthly_budget = sum(budgets.values()) * 30.4 if budgets else 0
+    pace_gap = None
+    m_chats = gb["m_google"] + gb["m_rto"]
+    mtd_lines = [f"Spend AED {mtd_cost:,.0f} · Google-tracked leads {mtd_conv:g}"
+                 + (f" · Gallabox chats {m_chats} (Google no. {gb['m_google']} + RTO {gb['m_rto']})" if gb["ok"] else "")]
+    score, dot, detail, capture = health_v6(camps, gb, mtd_cost, mtd_conv, cls, None, learning)
+    if gb["ok"] and m_chats:
+        cap_icon = "✅" if capture >= 60 else ("⚠️" if capture >= 40 else "❌")
+        cap_note = " (tracking fix 26 Nov — expect 60%+)" if capture < 60 and learning else ""
+        mtd_lines.append(f"Real cost per chat ≈ AED {mtd_cost / m_chats:,.0f} · Tracking capture {capture:.0f}% {cap_icon}{cap_note}")
+    if monthly_budget:
+        spent_pct = mtd_cost / monthly_budget * 100
+        pace_gap = spent_pct - month_gone
+        p_icon = "✅" if abs(pace_gap) <= 15 else ("⚠️ overspending" if pace_gap > 0 else "⚠️ underspending")
+        mtd_lines.append(f"Budget pace: {spent_pct:.0f}% of month budget spent with {month_gone:.0f}% of month gone {p_icon}")
+    if mtd_split:
+        r, t = mtd_split.get("rental", {}), mtd_split.get("rto", {})
+        mtd_lines.append(f"🚗 Rental AED {r.get('cost',0):,.0f} / {r.get('conversions',0):g} Google leads · "
+                         f"🔑 RTO AED {t.get('cost',0):,.0f} / {t.get('conversions',0):g} Google leads")
+    score, dot, detail, capture = health_v6(camps, gb, mtd_cost, mtd_conv, cls, pace_gap, learning)
+    mtd_text = "\n".join(mtd_lines)
+
+    # ── 4. Searches that cost money
+    def names(lst, n=6, extra=False):
+        out = []
+        for r in lst[:n]:
+            s = r["term"][:40]
+            if extra:
+                s += f" ({'Rental' if _camp_kind(r['campaign'])=='rental' else 'RTO'}, AED {r['cost']:,.0f})"
+            out.append(s)
+        more = f" +{len(lst)-n} more" if len(lst) > n else ""
+        return " · ".join(out) + more
+    st = []
+    st.append("✅ *Relevant:* " + (names(cls["relevant"], extra=True) + " — keep" if cls["relevant"] else "none"))
+    st.append("⛔ *Already blocked:* " + (names(cls["blocked"]) + " — no action needed" if cls["blocked"] else "none"))
+    st.append("❓ *Decide:* " + ("; ".join(f"{r['term'][:40]} — {r['why']}" for r in cls["decide"][:4]) if cls["decide"] else "none"))
+    st.append("➕ *New junk to block:* " + ("; ".join(f"{r['term'][:40]} (AED {r['cost']:,.0f} yesterday · {r['why']})" for r in cls["junk"][:5]) if cls["junk"] else "none"))
+    terms_text = "\n".join(st)
+
+    # ── 5. What to do today
+    todo = []
+    if learning:
+        todo.append("Nothing on bids/budgets — learning period (judge from "
+                    + (datetime.strptime(max(RECENT_CHANGES)[0], "%Y-%m-%d") + timedelta(days=LEARNING_DAYS)).strftime("%d %b") + ")")
+    for c in camps:
+        if c["clicks"] and c["cpc"] > CPC_WATCH[c["kind"]] and not learning:
+            todo.append(f"{'Rental' if c['kind']=='rental' else 'RTO'} CPC AED {c['cpc']:,.0f} > AED {CPC_WATCH[c['kind']]:,.0f} — if 3 days running, add a max-CPC cap")
+    if cls["junk"]:
+        todo.append("Block: " + ", ".join(r["term"][:30] for r in cls["junk"][:5]) + " (add to MKV - Account negatives)")
+    for r in cls["decide"][:3]:
+        todo.append(f"Answer: {r['term'][:35]} — {r['why']}")
+    if gb["ok"] and y_cost > 100 and y_g_chats == 0:
+        todo.append("0 Gallabox chats on AED %d spend — check ads are serving and WhatsApp links work" % y_cost)
+    if not todo:
+        todo.append("Nothing — all on track ✅")
+    todo_text = "\n".join(f"{i}. {t}" for i, t in enumerate(todo, 1))
+
+    blocks = [
+        {"type": "header", "text": {"type": "plain_text", "text": f"🔵 Google Ads — {day_label}", "emoji": True}},
+        {"type": "section", "text": {"type": "mrkdwn", "text": line}},
+        {"type": "section", "text": {"type": "mrkdwn", "text": f"*━━ Yesterday by campaign ━━*\n{camp_text}"}},
+        {"type": "section", "text": {"type": "mrkdwn", "text": f"*━━ Month to date (1–{rep.day} {rep.strftime('%b')}) ━━*\n{mtd_text}"}},
+        {"type": "section", "text": {"type": "mrkdwn", "text": f"*━━ Searches that cost money yesterday ━━*\n{terms_text}"}},
+        {"type": "section", "text": {"type": "mrkdwn", "text": f"*━━ What to do today ━━*\n{todo_text}"}},
+    ]
+    if banner:
+        blocks.append({"type": "context", "elements": [{"type": "mrkdwn", "text": banner}]})
+    blocks.append({"type": "context", "elements": [{"type": "mrkdwn",
+                   "text": f"🏁 *Health {score}/100* {dot} — {detail}   |   v6.0 • {mode_tag}"}]})
+    return blocks
+
+
+# ── META: one-line summary + which ad caused the warnings ─────────────────────
+
+def fetch_meta_ads_v6(account_id):
+    """Yesterday at ad level: name, spend, CTR, messaging results."""
+    token = META_ACCESS_TOKEN
+    if not token or not account_id:
+        return []
+    try:
+        url = (f"https://graph.facebook.com/v20.0/act_{account_id}/insights"
+               f"?fields=ad_name,campaign_name,spend,impressions,clicks,actions"
+               f"&date_preset=yesterday&level=ad&limit=100&access_token={token}")
+        req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+        with urllib.request.urlopen(req, timeout=30) as resp:
+            data = json.loads(resp.read().decode())
+        ads = []
+        for r in data.get("data", []):
+            spend = float(r.get("spend", 0))
+            if spend <= 0:
+                continue
+            impr, clks = int(r.get("impressions", 0)), int(r.get("clicks", 0))
+            res = 0
+            for a in r.get("actions", []) or []:
+                if a["action_type"] in ("onsite_conversion.total_messaging_connection",
+                                        "onsite_conversion.messaging_first_reply"):
+                    res = max(res, int(a.get("value", 0)))
+            ads.append({"name": r.get("ad_name", "")[:45], "spend": round(spend, 2), "res": res,
+                        "ctr": round(clks / impr * 100, 2) if impr else 0,
+                        "cpr": round(spend / res, 2) if res else 0})
+        return sorted(ads, key=lambda x: x["spend"], reverse=True)
+    except Exception as e:
+        print(f"  ⚠️  Meta ad-level error: {e}")
+        return []
+
+
+def meta_summary_v6(label, acc, ads, cpr_watch):
+    """One line + the ads behind each warning."""
+    if not acc or acc.get("spent", 0) <= 0:
+        return f"*{label}:* no spend yesterday"
+    s = (f"*{label}:* AED {acc['spent']:,.0f} → *{acc['results']} chats*"
+         + (f" → AED {acc['cost_per_result']:,.0f} per chat" if acc["results"] else " → no chats ⚠️")
+         + f" · CTR {acc['ctr']}%")
+    warn = []
+    for a in ads:
+        if a["spend"] >= 30 and a["res"] == 0:
+            warn.append(f"• `{a['name']}` — AED {a['spend']:,.0f}, 0 chats ❌ pause or refresh")
+        elif a["res"] and a["cpr"] > cpr_watch:
+            warn.append(f"• `{a['name']}` — AED {a['cpr']:,.0f}/chat (watch AED {cpr_watch:,.0f}) ⚠️")
+        elif a["spend"] >= 30 and a["ctr"] < 1:
+            warn.append(f"• `{a['name']}` — CTR {a['ctr']}% ⚠️ creative tired")
+    best = max((a for a in ads if a["res"]), key=lambda a: (a["res"], -a["cpr"]), default=None)
+    if best:
+        s += f"\n  🏆 Best ad: `{best['name']}` — {best['res']} chats at AED {best['cpr']:,.0f}"
+    if warn:
+        s += "\n  Warnings come from:\n" + "\n".join(warn[:4])
+    return s
+
+
+def build_meta_summary_block(meta, meta_rto, ads_mkv, ads_rto):
+    text = (meta_summary_v6("MKV Luxury", meta, ads_mkv, 50) + "\n\n"
+            + meta_summary_v6("Lease to Own", meta_rto, ads_rto, 100))
+    return [{"type": "section", "text": {"type": "mrkdwn", "text": f"*📌 Meta in one look*\n{text}"}},
+            {"type": "divider"}]
+
+
 # ── SLACK BLOCK KIT ───────────────────────────────────────────────────────────
 
 def build_google_report(g_camp, g_mtd, g_mtd_split, g_conv, g_search, g_auction, g_landing, g_geo, g_device, yesterday, kw_recs, comp_kw):
@@ -1167,7 +1608,7 @@ def build_meta_report(meta, meta_mtd, meta_rto, meta_rto_mtd, meta_placement, me
         {"type": "section", "text": {"type": "mrkdwn", "text": f"*📺 Placement Breakdown*\n{placement_text}"}},
         {"type": "divider"},
         {"type": "section", "text": {"type": "mrkdwn", "text": f"*📅 MTD Summary*\n{mtd_text}"}},
-        {"type": "context", "elements": [{"type": "mrkdwn", "text": f"_MKV Meta Ads • v5.7 • {mode_tag}_"}]},
+        {"type": "context", "elements": [{"type": "mrkdwn", "text": f"_MKV Meta Ads • v6.0 • {mode_tag}_"}]},
     ]
 
 
@@ -1182,7 +1623,7 @@ def post_slack(blocks, fallback="MKV Ads Report"):
 
 def main():
     print("=" * 60)
-    print("  MKV Daily Ads Snapshot v5.7")
+    print("  MKV Daily Ads Snapshot v6.0")
     print(f"  {datetime.now().strftime('%Y-%m-%d %H:%M:%S')} | Report date: {REPORT_DATE}")
     print(f"  Mode: {'🧪 TEST' if TEST_MODE else '🚀 LIVE'}  |  Channel: {SLACK_CHANNEL}")
     print("=" * 60)
@@ -1224,13 +1665,28 @@ def main():
     comp_kw  = fetch_competitor_keywords(client) if client and g_search else {"competitor_terms": [], "opportunity_terms": []}
 
     print("\n📤 Posting Google Ads report to Slack...")
-    google_blocks = build_google_report(g_camp, g_mtd, g_mtd_split, g_conv, g_search, g_auction, g_landing, g_geo, g_device, yesterday, kw_recs, comp_kw)
+    try:
+        camps_v6   = fetch_campaigns_v6(client) if client else []
+        budgets_v6 = fetch_budgets_v6(client) if client else {}
+        terms_v6   = fetch_search_terms_v6(client) if client else []
+        negs_v6    = fetch_negatives_v6(client) if client else set()
+        gb_v6      = load_gallabox_counts()
+        google_blocks = build_google_report_v6(camps_v6, budgets_v6, g_mtd, g_mtd_split, terms_v6, negs_v6, gb_v6)
+    except Exception as e:
+        print(f"  ⚠️  v6 report failed ({e}) — falling back to v5.7 layout")
+        google_blocks = build_google_report(g_camp, g_mtd, g_mtd_split, g_conv, g_search, g_auction, g_landing, g_geo, g_device, yesterday, kw_recs, comp_kw)
     post_slack(google_blocks, "MKV Google Ads Report")
     print(f"\n  Google -> AED {g_camp.get('cost',0):.2f} | {g_camp.get('clicks',0)} clicks | {g_camp.get('conversions',0)} conv")
 
     if meta.get("spent", 0) > 0 or (meta_rto and meta_rto.get("spent", 0) > 0):
         print("\n📤 Posting Meta Ads report to Slack...")
         meta_blocks = build_meta_report(meta, meta_mtd, meta_rto, meta_rto_mtd, meta_placement, meta_age_gender, yesterday)
+        try:
+            summary = build_meta_summary_block(meta, meta_rto, fetch_meta_ads_v6(META_AD_ACCOUNT_ID),
+                                               fetch_meta_ads_v6(META_RTO_ACCOUNT_ID))
+            meta_blocks = meta_blocks[:1] + summary + meta_blocks[1:]
+        except Exception as e:
+            print(f"  ⚠️  Meta summary failed: {e}")
         post_slack(meta_blocks, "MKV Meta Ads Report")
         print(f"  Meta   -> AED {meta.get('spent',0):.2f} | {meta.get('results',0)} results")
     else:
