@@ -18969,6 +18969,21 @@
       "delivery_alerted": false,
       "pickup_alerted": false,
       "closed": false,
+      "start_date": "2026-11-27",
+      "delivery_ts": null,
+      "pickup_ts": null,
+      "closed_ts": null,
+      "extension_ts_list": []
+    },
+    "0011352-MOHA-Porsche": {
+      "thread_ts": "1795689034.272209",
+      "end_date": "2026-11-28",
+      "plate": "64545",
+      "customer": "Mohammed Rumel Ahmed Mohammed Siraj Uddin",
+      "vehicle": "Porsche Cayman Gt4 Rs",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
       "start_date": "2026-11-27"
     }
   }
