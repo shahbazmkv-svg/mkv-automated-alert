@@ -19079,6 +19079,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0011359-LUJO-Bentley": {
+      "thread_ts": "1795786235.680709",
+      "end_date": "2026-11-28",
+      "plate": "33789",
+      "customer": "Lujo Car Rental Llc",
+      "vehicle": "Bentley Bentayga",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-11-27"
     }
   }
 }
