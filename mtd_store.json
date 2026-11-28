@@ -1,54 +1,5 @@
 {
  "convs": {
-  "6acd5a7fbeb19481facae851": {
-   "agent": "Tapan-MKV",
-   "channel": "Instagram",
-   "contact": "6acd5a7fbeb19481facae845",
-   "date": "2026-10-13",
-   "status": "CLOSE"
-  },
-  "6acdac20daee0fdd2a05e490": {
-   "agent": "MKV Luxury",
-   "channel": "Rent to Own",
-   "contact": "6acdac20daee0fdd2a05e487",
-   "date": "2026-10-13",
-   "status": "OPEN"
-  },
-  "6acdc0486bac40debf736c34": {
-   "agent": "Ali Azlan",
-   "channel": "Rent to Own",
-   "contact": "6acdc0486bac40debf736c2b",
-   "date": "2026-10-13",
-   "status": "OPEN"
-  },
-  "6acdca0d78cc0ee7e752f171": {
-   "agent": "Tapan-MKV",
-   "channel": "Main",
-   "contact": "6acdca0c78cc0ee7e752f168",
-   "date": "2026-10-13",
-   "status": "CLOSE"
-  },
-  "6acdd276beb19481fad464f5": {
-   "agent": "Tapan-MKV",
-   "channel": "Main",
-   "contact": "6acdd276beb19481fad464ec",
-   "date": "2026-10-13",
-   "status": "CLOSE"
-  },
-  "6ace371b6bac40debf88bcbe": {
-   "agent": "Tapan-MKV",
-   "channel": "Car Rental",
-   "contact": "6ace371b6bac40debf88bcaa",
-   "date": "2026-10-13",
-   "status": "CLOSE"
-  },
-  "6ace7ec778cc0ee7e7702e17": {
-   "agent": "Tapan-MKV",
-   "channel": "Car Rental",
-   "contact": "6ace7ec778cc0ee7e7702e0d",
-   "date": "2026-10-13",
-   "status": "CLOSE"
-  },
   "6acf1521d253bf08e36a113a": {
    "agent": "Tapan-MKV",
    "channel": "Car Rental",
@@ -76,13 +27,6 @@
    "contact": "6acf4c944ca3c483b9041a1f",
    "date": "2026-10-14",
    "status": "OPEN"
-  },
-  "6acf53ab23cc9dd5dae42d00": {
-   "agent": "Tapan-MKV",
-   "channel": "Car Rental",
-   "contact": "6ace7ec778cc0ee7e7702e0d",
-   "date": "2026-10-13",
-   "status": "CLOSE"
   },
   "6acf8d8f14af3cce879c3d32": {
    "agent": "Unassigned",
@@ -4772,13 +4716,13 @@
    "status": "CLOSE"
   },
   "6b08578d58071e36c267264b": {
-   "agent": "Unassigned",
+   "agent": "Rafithath-MKV",
    "channel": "Main",
    "contact": "6b08578d58071e36c2672642",
    "date": "2026-11-26",
    "first_text": "hey team at MKV Luxury Car Rental , Best Supercar Rental with Zero Deposit, saw ",
    "origin": "direct",
-   "status": "OPEN"
+   "status": "CLOSE"
   },
   "6b085b611067c0ba156fcef7": {
    "agent": "Unassigned",
@@ -4805,7 +4749,7 @@
    "date": "2026-11-26",
    "first_text": "Hi, I want to know more about Rent-to-Own plan.",
    "origin": "direct",
-   "status": "OPEN"
+   "status": "CLOSE"
   },
   "6b08604797ed6ac3f269b2b1": {
    "agent": "Unassigned",
@@ -4871,7 +4815,7 @@
    "date": "2026-11-27",
    "first_text": "UID:6BCrNr Thank you for reaching MKV Luxury. Please enter your message below:",
    "origin": "website",
-   "status": "OPEN"
+   "status": "CLOSE"
   },
   "6b08ac0e21ef0636449a3a78": {
    "agent": "Rafithath-MKV",
@@ -4880,7 +4824,7 @@
    "date": "2026-11-27",
    "first_text": "Hello",
    "origin": "direct",
-   "status": "OPEN"
+   "status": "CLOSE"
   },
   "6b08b1b621ef0636449a9e85": {
    "agent": "Rafithath-MKV",
@@ -4889,7 +4833,7 @@
    "date": "2026-11-27",
    "first_text": "UID:ScuweU Thank you for reaching MKV Luxury. Please enter your message below:",
    "origin": "website",
-   "status": "OPEN"
+   "status": "CLOSE"
   },
   "6b08bff421ef0636449bc501": {
    "ad_id": "120254660625420572",
@@ -4916,7 +4860,7 @@
    "status": "OPEN"
   },
   "6b08c79358071e36c26d50d4": {
-   "agent": "Unassigned",
+   "agent": "Rafithath-MKV",
    "channel": "Main",
    "contact": "6b08c79358071e36c26d50cb",
    "date": "2026-11-27",
@@ -4953,7 +4897,292 @@
    "first_text": "Assalam-o-Alaikum, do you want to buy an insurance policy?",
    "origin": "direct",
    "status": "OPEN"
+  },
+  "6b0943f87e208303f4e7fed5": {
+   "agent": "Reham-MKV",
+   "channel": "Car Rental",
+   "contact": "66ed8e8a3ee1a3a0e321b60f",
+   "date": "2026-11-27",
+   "first_text": "Hi do you have any 7 seater available today for hire? Need around 3pm.",
+   "origin": "direct",
+   "status": "CLOSE"
+  },
+  "6b094f2e05751f31177fcfe6": {
+   "ad_id": "120254660625400572",
+   "ad_name": "Chat with us",
+   "agent": "Reham-MKV",
+   "channel": "Rent to Own",
+   "contact": "6b094f2e05751f31177fcfdd",
+   "date": "2026-11-27",
+   "first_text": "Hello I wanted to know what are your procedures",
+   "origin": "meta_ad",
+   "placement": "Instagram",
+   "status": "CLOSE"
+  },
+  "6b09602e6c6725957ea3d551": {
+   "agent": "Unassigned",
+   "channel": "Main",
+   "contact": "6b09602e6c6725957ea3d548",
+   "date": "2026-11-27",
+   "first_text": "https://www.mkvluxury.com/",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6b09629605751f311782a253": {
+   "agent": "Reham-MKV",
+   "channel": "Main",
+   "contact": "6b09629605751f311782a24a",
+   "date": "2026-11-27",
+   "first_text": "Hi",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6b09631f9e2c97fb0751cb39": {
+   "agent": "Unassigned",
+   "channel": "Main",
+   "contact": "6b09631e9e2c97fb0751cb30",
+   "date": "2026-11-27",
+   "first_text": "Hi! \nI'm Viktoriia, Partnership Manager at Renty.ae.\n\nRenty has been in the UAE ",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6b097a50e097afc72bf380fd": {
+   "ad_id": "120239181295470594",
+   "ad_name": "Book Now",
+   "agent": "Reham-MKV",
+   "channel": "Car Rental",
+   "contact": "6b097a4fe097afc72bf380f2",
+   "date": "2026-11-27",
+   "first_text": "Hello",
+   "origin": "meta_ad",
+   "placement": "Instagram",
+   "status": "OPEN"
+  },
+  "6b097e9e1039a21c093d3044": {
+   "agent": "Unassigned",
+   "channel": "Main",
+   "contact": "6b097e9e1039a21c093d303b",
+   "date": "2026-11-27",
+   "first_text": "Dear Hiring / Marketing Team,\n\nMy name is Shakeb Shaikh, and I am currently base",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6b098221e097afc72bf4c56f": {
+   "agent": "Unassigned",
+   "channel": "Main",
+   "contact": "6b098221e097afc72bf4c566",
+   "date": "2026-11-27",
+   "first_text": "Hi, I'd like to rent a luxury car",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6b0986b81039a21c093f0ac8": {
+   "ad_id": "120254660625400572",
+   "ad_name": "Chat with us",
+   "agent": "Reham-MKV",
+   "channel": "Rent to Own",
+   "contact": "6b0986b81039a21c093f0aa9",
+   "date": "2026-11-27",
+   "first_text": "Hello! Can I get more info on this?",
+   "origin": "meta_ad",
+   "placement": "Facebook",
+   "status": "CLOSE"
+  },
+  "6b098c0ae097afc72bf63c34": {
+   "agent": "Reham-MKV",
+   "channel": "Main",
+   "contact": "6b098c0ae097afc72bf63c2b",
+   "date": "2026-11-27",
+   "first_text": "السلام عليكم",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6b0997aa7e208303f4f9cae3": {
+   "agent": "Rafithath-MKV",
+   "channel": "Main",
+   "contact": "6b0997aa7e208303f4f9cada",
+   "date": "2026-11-27",
+   "first_text": "look if u want i will come now  to ur location n oay u amount",
+   "origin": "direct",
+   "status": "CLOSE"
+  },
+  "6b09a347e097afc72bf9373f": {
+   "agent": "Reham-MKV",
+   "channel": "Main",
+   "contact": "6b09a347e097afc72bf93731",
+   "date": "2026-11-27",
+   "first_text": "Hi, I'd like to rent a luxury car",
+   "origin": "direct",
+   "status": "CLOSE"
+  },
+  "6b09ad041039a21c09461e0e": {
+   "agent": "Unassigned",
+   "channel": "Main",
+   "contact": "6b01a118fd9ebd185eefb23c",
+   "date": "2026-11-27",
+   "first_text": "Hello just for follow up :)",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6b09ad8705751f31178e169d": {
+   "agent": "Unassigned",
+   "channel": "Instagram",
+   "contact": "6b09ad8705751f31178e1692",
+   "date": "2026-11-27",
+   "first_text": "Hi MKV Luxury team! 👋 I'm Ella, a Finnish model in Dubai. Your supercar fleet an",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6b09b3006c6725957eb11d8c": {
+   "agent": "Rafithath-MKV",
+   "channel": "Main",
+   "contact": "6b09b3006c6725957eb11d83",
+   "date": "2026-11-27",
+   "first_text": "Hi MKV luxury car rental, I'm Ziad. I'd like to book a quick call with the owner",
+   "origin": "direct",
+   "status": "CLOSE"
+  },
+  "6b09c6329e2c97fb0760c3cc": {
+   "agent": "Rafithath-MKV",
+   "channel": "Main",
+   "contact": "6b09c6329e2c97fb0760c3c3",
+   "date": "2026-11-27",
+   "first_text": "Hi, I'd like to rent a luxury car",
+   "origin": "direct",
+   "status": "CLOSE"
+  },
+  "6b09ced5e097afc72bfcd5b2": {
+   "ad_id": "120254660625400572",
+   "ad_name": "Chat with us",
+   "agent": "Unassigned",
+   "channel": "Rent to Own",
+   "contact": "6b09ced5e097afc72bfcd5a9",
+   "date": "2026-11-27",
+   "first_text": "No down payment lease to own SUV \nNo bank involvement?",
+   "origin": "meta_ad",
+   "placement": "Instagram",
+   "status": "OPEN"
+  },
+  "6b09d1e27e208303f402a026": {
+   "agent": "Rafithath-MKV",
+   "channel": "Main",
+   "contact": "6b09d1e27e208303f402a01d",
+   "date": "2026-11-27",
+   "first_text": ".",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6b09d4c81039a21c094b0fb5": {
+   "ad_id": "120254660625400572",
+   "ad_name": "Chat with us",
+   "agent": "Unassigned",
+   "channel": "Rent to Own",
+   "contact": "6b09d4c81039a21c094b0fac",
+   "date": "2026-11-27",
+   "first_text": "Hello! Can I get more info on this?",
+   "origin": "meta_ad",
+   "placement": "Instagram",
+   "status": "OPEN"
+  },
+  "6b09d7a505751f3117917eaa": {
+   "agent": "Rafithath-MKV",
+   "channel": "Main",
+   "contact": "6b09d7a505751f3117917ea1",
+   "date": "2026-11-27",
+   "first_text": "Hi, I'd like to rent a luxury car",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6b09f7ea1039a21c094d3047": {
+   "agent": "Rafithath-MKV",
+   "channel": "Main",
+   "contact": "6b09f7ea1039a21c094d303e",
+   "date": "2026-11-28",
+   "first_text": "UID:2c3kmw Thank you for reaching MKV Luxury. Please enter your message below: h",
+   "origin": "website",
+   "status": "OPEN"
+  },
+  "6b0a01391039a21c094d82b5": {
+   "agent": "Rafithath-MKV",
+   "channel": "Main",
+   "contact": "6b0a01391039a21c094d82ac",
+   "date": "2026-11-28",
+   "first_text": "UID:yFgMV4 Thank you for reaching MKV Luxury. Please enter your message below: H",
+   "origin": "website",
+   "status": "OPEN"
+  },
+  "6b0a1b3b6c6725957eb582c4": {
+   "ad_id": "120254660625420572",
+   "ad_name": "Chat with us",
+   "agent": "Bot: RTO MKV",
+   "channel": "Rent to Own",
+   "contact": "6b0a1b3b6c6725957eb582bb",
+   "date": "2026-11-28",
+   "first_text": "Hello! Can I get more info on this?",
+   "origin": "meta_ad",
+   "placement": "Instagram",
+   "status": "OPEN"
+  },
+  "6b0a26cee097afc72bfef121": {
+   "ad_id": "120254660625420572",
+   "ad_name": "Chat with us",
+   "agent": "Rafithath-MKV",
+   "channel": "Rent to Own",
+   "contact": "6b0a26cee097afc72bfef118",
+   "date": "2026-11-28",
+   "first_text": "Hello! Can I get more info on this?",
+   "origin": "meta_ad",
+   "placement": "Facebook",
+   "status": "OPEN"
+  },
+  "6b0a3b2e1039a21c094fba4b": {
+   "ad_id": "120254660625400572",
+   "ad_name": "Chat with us",
+   "agent": "Unassigned",
+   "channel": "Rent to Own",
+   "contact": "6b0a3b2e1039a21c094fba3d",
+   "date": "2026-11-28",
+   "first_text": "Hello! Can I get more info on this?",
+   "origin": "meta_ad",
+   "placement": "Instagram",
+   "status": "OPEN"
+  },
+  "6b0a5fb29e2c97fb07688e14": {
+   "agent": "Rafithath-MKV",
+   "channel": "Main",
+   "contact": "6b0a5fb19e2c97fb07688e0b",
+   "date": "2026-11-28",
+   "first_text": "Hello,\nHow much is the monthly rent for the range rover velar? \nI need the price",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6b0a6ce105751f3117995b32": {
+   "agent": "Mifzal-MKV",
+   "channel": "Main",
+   "contact": "674a98b7283fb1c268843c0f",
+   "date": "2026-11-28",
+   "first_text": "Available or no?",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6b0a72191039a21c09569dda": {
+   "agent": "Unassigned",
+   "channel": "Instagram",
+   "contact": "6b0a72191039a21c09569dcf",
+   "date": "2026-11-28",
+   "first_text": "Hi, please let us know how we can help you.",
+   "origin": "direct",
+   "status": "OPEN"
+  },
+  "6b0a7ac31039a21c095838bf": {
+   "agent": "Rafithath-MKV",
+   "channel": "Main",
+   "contact": "6b0a7ac31039a21c095838b6",
+   "date": "2026-11-28",
+   "first_text": "Hi, I'd like to rent a luxury car",
+   "origin": "direct",
+   "status": "OPEN"
   }
  },
- "updated": "2026-11-27T11:00:40+04:00"
+ "updated": "2026-11-28T11:00:46+04:00"
 }
