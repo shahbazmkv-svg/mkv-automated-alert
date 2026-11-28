@@ -19139,6 +19139,17 @@
       "pickup_ts": null,
       "closed_ts": null,
       "extension_ts_list": []
+    },
+    "0011363-SOFI-Porsche": {
+      "thread_ts": "1795859127.993569",
+      "end_date": "2026-11-29",
+      "plate": "42165",
+      "customer": "Sofia Kosovetskaia",
+      "vehicle": "Porsche 911 Turbo",
+      "delivery_alerted": false,
+      "pickup_alerted": false,
+      "closed": false,
+      "start_date": "2026-11-28"
     }
   }
 }
